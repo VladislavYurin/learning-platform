@@ -1,17 +1,17 @@
 package ru.mentor.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -44,7 +44,7 @@ public class UserEntity implements UserDetails {
      * генерируется с помощью SEQUENCE
      */
     @Id
-    @Column(name = "id_users")
+    @Column(name = "id_user")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
     @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
     private Long id;
@@ -59,15 +59,17 @@ public class UserEntity implements UserDetails {
     @Column(name = "user_role", nullable = false)
     private Role role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "access_id_module", referencedColumnName = "id_module")
-    private ModuleEntity currentModule;
-
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "tg_nickname", nullable = false)
     private String tgNickname;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserCourseAccessEntity> courseAccesses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserModuleAccessEntity> moduleAccesses = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

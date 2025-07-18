@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,22 +25,20 @@ import org.hibernate.annotations.CreationTimestamp;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "modules")
-public class ModuleEntity {
+@Table(name = "courses")
+public class CourseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "module_id_seq")
-    @SequenceGenerator(name = "module_id_seq", sequenceName = "module_id_seq", allocationSize = 1)
-    @Column(name = "id_module")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_id_seq")
+    @SequenceGenerator(name = "course_id_seq", sequenceName = "course_id_seq", allocationSize = 1)
+    @Column(name = "id_course")
     private Long id;
 
-    @Column(name = "module_name", nullable = false)
+    @Column(name = "course_name", nullable = false)
     private String name;
-
-    @Column(name = "module_number", nullable = false, unique = true)
-    private Integer number;
 
     @Column(name = "description")
     private String description;
@@ -52,10 +51,10 @@ public class ModuleEntity {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_course", nullable = false)
-    private CourseEntity course;
+    @JoinColumn(name = "course_author_id", referencedColumnName = "id_user")
+    private UserEntity author;
 
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<QuestionEntity> questions = new ArrayList<>();
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ModuleEntity> modules = new ArrayList<>();
 
 }
