@@ -66,7 +66,7 @@ public class AccessServiceImpl implements AccessService {
         ModuleEntity module = moduleRepository.findByIdOrThrow(request.getModuleId());
         checkUserIsAuthorOrAdmin(mentor, course);
         checkModuleIsInCourse(course, module);
-        if (!accessChecker.hasAccessToModule(user.getId(), course.getId())) {
+        if (accessChecker.hasAccessToModule(user.getId(), course.getId())) {
             UserModuleAccessEntity access = UserModuleAccessEntity.builder()
                                                                   .user(user)
                                                                   .course(course)
