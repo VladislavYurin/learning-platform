@@ -38,7 +38,7 @@ public class ModuleController {
     }
 
     @GetMapping("/{userId}/{courseId}/{moduleId}")
-    public ResponseEntity<ModuleDto> getCourseById(@PathVariable Long userId, @PathVariable Long courseId, @PathVariable Long moduleId) {
+    public ResponseEntity<ModuleDto> getModuleById(@PathVariable Long userId, @PathVariable Long courseId, @PathVariable Long moduleId) {
         return ResponseEntity.ok().body(moduleService.getModuleById(userId, courseId, moduleId));
     }
 
