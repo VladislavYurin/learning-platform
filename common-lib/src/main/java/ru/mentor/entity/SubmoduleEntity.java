@@ -22,24 +22,27 @@ import org.hibernate.annotations.CreationTimestamp;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "questions")
-public class QuestionEntity {
+@Table(name = "submodules")
+public class SubmoduleEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "question_id_seq")
-    @SequenceGenerator(name = "question_id_seq", sequenceName = "question_id_seq", allocationSize = 1)
-    @Column(name = "id_question")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "submodule_id_seq")
+    @SequenceGenerator(name = "submodule_id_seq", sequenceName = "submodule_id_seq", allocationSize = 1)
+    @Column(name = "id_submodule")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_module", nullable = false)
     private ModuleEntity module;
 
-    @Column(name = "question_text", nullable = false, columnDefinition = "TEXT")
-    private String questionText;
+    @Column(name = "submodule_title", nullable = false, columnDefinition = "TEXT")
+    private String submoduleTitle;
 
-    @Column(name = "answer_text", nullable = false, columnDefinition = "TEXT")
-    private String answerText;
+    @Column(name = "submodule_content", nullable = false, columnDefinition = "TEXT")
+    private String submoduleContent;
+
+    @Column(name = "submodule_number", nullable = false)
+    private Integer submoduleOrderNumber;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.mentor.dto.Course;
+import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.InnerCreateCourseRequest;
 import ru.mentor.service.CourseService;
 
@@ -28,29 +28,29 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping("/create")
-    public ResponseEntity<Course> createCourse(@RequestBody @Valid InnerCreateCourseRequest request) {
+    public ResponseEntity<CourseDto> createCourse(@RequestBody @Valid InnerCreateCourseRequest request) {
         return ResponseEntity.ok().body(courseService.createCourse(request));
     }
 
-    @DeleteMapping("/delete/{userId}/{courseId}}")
-    public ResponseEntity<?> delete(@PathVariable Long userId, @PathVariable Long courseId) {
+    @DeleteMapping("/{userId}/{courseId}}")
+    public ResponseEntity<?> deleteCourse(@PathVariable Long userId, @PathVariable Long courseId) {
         courseService.deleteCourse(userId, courseId);
         return ResponseEntity.ok().body(null);
     }
 
-    @GetMapping("/{courseId}")
-    public ResponseEntity<Course> getCourseById(@PathVariable Long courseId) {
-        return ResponseEntity.ok().body(courseService.getCourseById(courseId));
+    @GetMapping("/{userId}/{courseId}")
+    public ResponseEntity<CourseDto> getCourseById(@PathVariable Long userId, @PathVariable Long courseId) {
+        return ResponseEntity.ok().body(courseService.getCourseById(userId, courseId));
     }
 
-    @GetMapping("/all/active")
-    public ResponseEntity<List<Course>> getAllActiveCourses() {
-        return ResponseEntity.ok().body(courseService.getAllActiveCourses());
+    @GetMapping("/{userId}/all/active")
+    public ResponseEntity<List<CourseDto>> getAllActiveCourses(@PathVariable Long userId) {
+        return ResponseEntity.ok().body(courseService.getAllActiveCourses(userId));
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Course>> getAllCourses() {
-        return ResponseEntity.ok().body(courseService.getAllCourses());
+    @GetMapping("/{userId}/all")
+    public ResponseEntity<List<CourseDto>> getAllCourses(@PathVariable Long userId) {
+        return ResponseEntity.ok().body(courseService.getAllCourses(userId));
     }
 
 }

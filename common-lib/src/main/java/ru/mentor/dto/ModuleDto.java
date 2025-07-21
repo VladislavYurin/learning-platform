@@ -7,20 +7,20 @@ import lombok.Data;
 
 @Data
 @Builder
-public class Course {
+public class ModuleDto {
 
     private Long id;
 
-    private String courseName;
+    private String moduleTitle;
 
-    private String courseDescription;
+    private Integer moduleOrderNumber;
+
+    private String moduleDescription;
 
     private Boolean isActive;
 
     private LocalDateTime createdAt;
 
-    private Long authorId;
-
-    private List<Module> modules;
+    private List<SubmoduleDto> submodules;
 
 }

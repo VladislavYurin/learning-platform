@@ -4,16 +4,18 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.mentor.constant.Role;
-import ru.mentor.dto.Course;
+import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.InnerCreateCourseRequest;
 import ru.mentor.entity.CourseEntity;
+import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.AccessDeniedException;
-import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.CourseRepository;
+import ru.mentor.repository.UserCourseAccessRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.service.CourseService;
+import ru.mentor.util.AccessChecker;
 
 @Service
 @RequiredArgsConstructor
@@ -25,24 +27,22 @@ public class CourseServiceImpl implements CourseService {
 
     private final BaseMapper baseMapper;
 
+    private final AccessChecker accessChecker;
+
+    private final UserCourseAccessRepository userCourseAccessRepository;
+
     @Override
-    public Course createCourse(InnerCreateCourseRequest request) {
-        UserEntity user = userRepository.findById(request.getUserId())
-                                        .orElseThrow(() -> new EntityNotFoundException(
-                                                String.format(
-                                                        "Юзер с ID = %d не найден",
-                                                        request.getUserId()
-                                                )
-                                        ));
+    public CourseDto createCourse(InnerCreateCourseRequest request) {
+        UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         if (Role.checkIsMentor(user) || Role.checkIsAdmin(user)) {
             CourseEntity course = CourseEntity.builder()
                                               .author(user)
-                                              .name(request.getCourseName())
+                                              .courseTitle(request.getCourseName())
                                               .description(request.getCourseDescription())
                                               .build();
 
             CourseEntity courseEntity = courseRepository.save(course);
-            return baseMapper.mapCourse(courseEntity, false);
+            return baseMapper.mapCourse(courseEntity, false, false);
         } else {
             throw new AccessDeniedException(
                     String.format(
@@ -55,21 +55,8 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void deleteCourse(Long userId, Long courseId) {
-        UserEntity deletedByUser = userRepository.findById(userId)
-                                                 .orElseThrow(() -> new EntityNotFoundException(
-                                                         String.format(
-                                                                 "Юзер с ID = %d не найден",
-                                                                 userId
-                                                         )
-                                                 ));
-
-        CourseEntity course = courseRepository.findById(courseId)
-                                              .orElseThrow(() -> new EntityNotFoundException(
-                                                      String.format(
-                                                              "Курс с ID = %d не найден",
-                                                              courseId
-                                                      )
-                                              ));
+        UserEntity deletedByUser = userRepository.findByIdOrThrow(userId);
+        CourseEntity course = courseRepository.findByIdOrThrow(courseId);
 
         // Админ может удалять любой курс
         if (Role.checkIsAdmin(deletedByUser)) {
@@ -77,16 +64,16 @@ public class CourseServiceImpl implements CourseService {
             return;
         }
 
-        // Ментор или автор курса может удалять только свои курсы
-        if (Role.checkIsMentor(deletedByUser) || course.getAuthor().equals(deletedByUser)) {
-            courseRepository.deleteById(courseId);
+        // Ментор может удалять только свои курсы
+        if (Role.checkIsMentor(deletedByUser) && course.getAuthor().equals(deletedByUser)) {
+            courseRepository.delete(course);
             return;
         }
 
         // Если дошли сюда — доступ запрещён
         throw new AccessDeniedException(
                 String.format(
-                        "Юзер с ID = %d не имеет доступа к удалению курса %d",
+                        "Юзер с ID = %d не имеет доступа к удалению курса с ID = %d",
                         userId,
                         courseId
                 )
@@ -94,27 +81,67 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> getAllActiveCourses() {
-        List<CourseEntity> courses = courseRepository.findAllByIsActiveTrue();
-        return baseMapper.mapCourses(courses, false);
+    public List<CourseDto> getAllActiveCourses(Long userId) {
+        UserEntity user = userRepository.findByIdOrThrow(userId);
+        if (Role.checkIsAdmin(user)) {
+            List<CourseEntity> courseEntities = courseRepository.findAllByIsActiveTrue();
+            return baseMapper.mapCourses(courseEntities, false, false);
+        }
+        if (Role.checkIsMentor(user)) {
+            List<CourseEntity> courseEntities = courseRepository.findAllByIsActiveTrueAndAuthorId(
+                    userId);
+            return baseMapper.mapCourses(courseEntities, false, false);
+        }
+        List<UserCourseAccessEntity> userCourseAccessEntities = user.getCourseAccesses();
+        if (userCourseAccessEntities.isEmpty()) {
+            return null;
+        }
+        List<CourseEntity> courses = userCourseAccessEntities.stream()
+                                                             .map(UserCourseAccessEntity::getCourse)
+                                                             .filter(CourseEntity::getIsActive)
+                                                             .toList();
+        return baseMapper.mapCourses(courses, false, false);
     }
 
     @Override
-    public List<Course> getAllCourses() {
-        List<CourseEntity> courses = courseRepository.findAll();
-        return baseMapper.mapCourses(courses, false);
+    public List<CourseDto> getAllCourses(Long userId) {
+        UserEntity user = userRepository.findByIdOrThrow(userId);
+        if (Role.checkIsAdmin(user)) {
+            List<CourseEntity> courseEntities = courseRepository.findAll();
+            return baseMapper.mapCourses(courseEntities, false, false);
+        }
+        if (Role.checkIsMentor(user)) {
+            List<CourseEntity> courseEntities = courseRepository.findAllByAuthorId(userId);
+            return baseMapper.mapCourses(courseEntities, false, false);
+        }
+        List<UserCourseAccessEntity> userCourseAccessEntities = user.getCourseAccesses();
+        if (userCourseAccessEntities.isEmpty()) {
+            return null;
+        }
+        List<CourseEntity> courses = userCourseAccessEntities.stream()
+                                                             .map(UserCourseAccessEntity::getCourse)
+                                                             .toList();
+        return baseMapper.mapCourses(courses, false, false);
     }
 
     @Override
-    public Course getCourseById(Long courseId) {
-        CourseEntity course = courseRepository.findById(courseId)
-                                              .orElseThrow(() -> new EntityNotFoundException(
-                                                      String.format(
-                                                              "Курс с ID = %d не найден",
-                                                              courseId
-                                                      )
-                                              ));
-        return baseMapper.mapCourse(course, true);
+    public CourseDto getCourseById(Long userId, Long courseId) {
+        UserEntity user = userRepository.findByIdOrThrow(userId);
+        CourseEntity course = courseRepository.findByIdOrThrow(courseId);
+        if (Role.checkIsAdmin(user) ||
+                Role.checkIsMentor(user) && Role.checkMentorIsAuthorOfCourse(user, course) ||
+                accessChecker.hasAccessToCourse(userId, courseId)) {
+            return baseMapper.mapCourse(course, true, false);
+        }
+
+        throw new AccessDeniedException(
+                String.format(
+                        "Юзер с ID = %d не имеет доступа к курсу с ID = %d",
+                        userId,
+                        courseId
+                )
+        );
+
     }
 
 }

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "modules")
 public class ModuleEntity {
 
@@ -35,11 +37,11 @@ public class ModuleEntity {
     @Column(name = "id_module")
     private Long id;
 
-    @Column(name = "module_name", nullable = false)
-    private String name;
+    @Column(name = "module_title", nullable = false)
+    private String moduleTitle;
 
-    @Column(name = "module_number", nullable = false, unique = true)
-    private Integer number;
+    @Column(name = "module_number", nullable = false)
+    private Integer moduleOrderNumber;
 
     @Column(name = "description")
     private String description;
@@ -56,6 +58,6 @@ public class ModuleEntity {
     private CourseEntity course;
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<QuestionEntity> questions = new ArrayList<>();
+    private List<SubmoduleEntity> submodules = new ArrayList<>();
 
 }

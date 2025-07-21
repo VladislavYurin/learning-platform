@@ -6,13 +6,15 @@ import lombok.Data;
 
 @Data
 @Builder
-public class Question {
+public class SubmoduleDto {
 
     private Long id;
 
-    private String questionText;
+    private String submoduleTitle;
 
-    private String answerText;
+    private String submoduleContent;
+
+    private Integer submoduleOrderNumber;
 
     private LocalDateTime createdAt;
 

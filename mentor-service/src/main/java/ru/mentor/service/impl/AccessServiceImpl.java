@@ -1,5 +1,6 @@
 package ru.mentor.service.impl;
 
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.mentor.constant.Role;
@@ -38,28 +39,9 @@ public class AccessServiceImpl implements AccessService {
 
     @Override
     public void getCourseAccessToUser(GetAccessRequest request) {
-        UserEntity mentor = userRepository.findById(request.getMentorId())
-                                          .orElseThrow(() -> new EntityNotFoundException(
-                                                  String.format(
-                                                          "Ментор с ID = %d не найден",
-                                                          request.getMentorId()
-                                                  )
-                                          ));
-        UserEntity user = userRepository.findById(request.getUserId())
-                                        .orElseThrow(() -> new EntityNotFoundException(
-                                                String.format(
-                                                        "Юзер с ID = %d не найден",
-                                                        request.getUserId()
-                                                )
-                                        ));
-
-        CourseEntity course = courseRepository.findById(request.getCourseId())
-                                              .orElseThrow(() -> new EntityNotFoundException(
-                                                      String.format(
-                                                              "Курс с ID = %d не найден",
-                                                              request.getCourseId()
-                                                      )
-                                              ));
+        UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
+        UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
+        CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
         checkUserIsAuthorOrAdmin(mentor, course);
         if (!accessChecker.hasAccessToCourse(user.getId(), course.getId())) {
             UserCourseAccessEntity access = UserCourseAccessEntity.builder()
@@ -78,35 +60,10 @@ public class AccessServiceImpl implements AccessService {
 
     @Override
     public void getModuleAccessToUser(GetAccessRequest request) {
-        UserEntity mentor = userRepository.findById(request.getMentorId())
-                                          .orElseThrow(() -> new EntityNotFoundException(
-                                                  String.format(
-                                                          "Ментор с ID = %d не найден",
-                                                          request.getMentorId()
-                                                  )
-                                          ));
-        UserEntity user = userRepository.findById(request.getUserId())
-                                        .orElseThrow(() -> new EntityNotFoundException(
-                                                String.format(
-                                                        "Юзер с ID = %d не найден",
-                                                        request.getUserId()
-                                                )
-                                        ));
-
-        CourseEntity course = courseRepository.findById(request.getCourseId())
-                                              .orElseThrow(() -> new EntityNotFoundException(
-                                                      String.format(
-                                                              "Курс с ID = %d не найден",
-                                                              request.getCourseId()
-                                                      )
-                                              ));
-        ModuleEntity module = moduleRepository.findById(request.getModuleId())
-                                              .orElseThrow(() -> new EntityNotFoundException(
-                                                      String.format(
-                                                              "Модуль с ID = %d не найден",
-                                                              request.getCourseId()
-                                                      )
-                                              ));
+        UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
+        UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
+        CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
+        ModuleEntity module = moduleRepository.findByIdOrThrow(request.getModuleId());
         checkUserIsAuthorOrAdmin(mentor, course);
         checkModuleIsInCourse(course, module);
         if (!accessChecker.hasAccessToModule(user.getId(), course.getId())) {
@@ -143,7 +100,7 @@ public class AccessServiceImpl implements AccessService {
     }
 
     private void checkModuleIsInCourse(CourseEntity course, ModuleEntity moduleEntity) {
-        if (moduleEntity.getCourse().equals(course)) {
+        if (Objects.equals(moduleEntity.getCourse().getId(), course.getId())) {
             return;
         }
         throw new EntityNotFoundException(
@@ -154,7 +111,5 @@ public class AccessServiceImpl implements AccessService {
                 )
         );
     }
-
-
 
 }

@@ -37,8 +37,8 @@ public class CourseEntity {
     @Column(name = "id_course")
     private Long id;
 
-    @Column(name = "course_name", nullable = false)
-    private String name;
+    @Column(name = "course_title", nullable = false)
+    private String courseTitle;
 
     @Column(name = "description")
     private String description;

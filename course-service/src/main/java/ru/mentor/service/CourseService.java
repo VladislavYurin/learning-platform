@@ -1,19 +1,19 @@
 package ru.mentor.service;
 
 import java.util.List;
-import ru.mentor.dto.Course;
+import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.InnerCreateCourseRequest;
 
 public interface CourseService {
 
-    Course createCourse(InnerCreateCourseRequest request);
+    CourseDto createCourse(InnerCreateCourseRequest request);
 
     void deleteCourse(Long userId, Long courseId);
 
-    List<Course> getAllActiveCourses();
+    List<CourseDto> getAllActiveCourses(Long userId);
 
-    List<Course> getAllCourses();
+    List<CourseDto> getAllCourses(Long userId);
 
-    Course getCourseById(Long courseId);
+    CourseDto getCourseById(Long userId, Long courseId);
 
 }

@@ -11,7 +11,7 @@ create table if not exists users
 CREATE TABLE IF NOT EXISTS courses
 (
     id_course        bigint primary key,
-    course_name      varchar(255) not null,
+    course_title     varchar(255) not null,
     description      text,
     is_active        boolean      not null default true,
     course_author_id bigint       not null,
@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS courses
 CREATE TABLE IF NOT EXISTS modules
 (
     id_module     bigint primary key,
-    module_name   varchar(255) not null,
-    module_number int          not null unique,
+    module_title  varchar(255) not null,
+    module_number int          not null,
     description   text,
     id_course     bigint       not null,
     is_active     boolean      not null default true,
@@ -31,13 +31,14 @@ CREATE TABLE IF NOT EXISTS modules
     foreign key (id_course) references courses (id_course) on delete cascade
 );
 
-CREATE TABLE IF NOT EXISTS questions
+CREATE TABLE IF NOT EXISTS submodules
 (
-    id_question   bigint primary key,
-    id_module     bigint    not null,
-    question_text text      not null,
-    answer_text   text      not null,
-    created_at    timestamp not null default current_timestamp,
+    id_submodule      bigint primary key,
+    id_module         bigint    not null,
+    submodule_number     int       not null,
+    submodule_title   text      not null,
+    submodule_content text      not null,
+    created_at        timestamp not null default current_timestamp,
     foreign key (id_module) references modules (id_module) on delete cascade
 );
 
