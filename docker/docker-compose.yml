@@ -1,0 +1,20 @@
+version: "3.8"
+
+networks:
+  backend:
+
+services:
+  database:
+    container_name: mentor-database
+    image: postgres:15.3-alpine
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: psw
+      POSTGRES_DB: mentor
+    volumes:
+      - ./.docker/postgres/data:/var/lib/postgresql/data
+    networks:
+      - backend

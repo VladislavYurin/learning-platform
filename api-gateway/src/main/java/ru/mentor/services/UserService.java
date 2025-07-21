@@ -17,6 +17,8 @@ public interface UserService {
      */
     UserEntity create(UserEntity userEntity);
 
+    boolean existsByUserName(String username);
+
     /**
      * Получение пользователя по его имени.
      *
