@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,8 +44,7 @@ public class UserEntity implements UserDetails {
      */
     @Id
     @Column(name = "id_user")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
-    @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "username", unique = true, nullable = false)

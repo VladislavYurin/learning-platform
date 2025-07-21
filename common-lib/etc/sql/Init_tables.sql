@@ -1,6 +1,6 @@
 create table if not exists users
 (
-    id_user     bigint primary key,
+    id_user     BIGSERIAL primary key,
     username    varchar(255) not null,
     email       varchar(255) not null,
     tg_nickname varchar(255) not null,
@@ -10,7 +10,7 @@ create table if not exists users
 
 CREATE TABLE IF NOT EXISTS courses
 (
-    id_course        bigint primary key,
+    id_course        BIGSERIAL primary key,
     course_title     varchar(255) not null,
     description      text,
     is_active        boolean      not null default true,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS courses
 
 CREATE TABLE IF NOT EXISTS modules
 (
-    id_module     bigint primary key,
+    id_module     BIGSERIAL primary key,
     module_title  varchar(255) not null,
     module_number int          not null,
     description   text,
@@ -33,9 +33,9 @@ CREATE TABLE IF NOT EXISTS modules
 
 CREATE TABLE IF NOT EXISTS submodules
 (
-    id_submodule      bigint primary key,
+    id_submodule      BIGSERIAL primary key,
     id_module         bigint    not null,
-    submodule_number     int       not null,
+    submodule_number  int       not null,
     submodule_title   text      not null,
     submodule_content text      not null,
     created_at        timestamp not null default current_timestamp,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS submodules
 
 CREATE TABLE IF NOT EXISTS user_course_access
 (
-    id_access         bigserial primary key,
+    id_access         BIGSERIAL primary key,
     user_id           bigint    not null,
     course_id         bigint    not null,
     access_granted_at timestamp not null default current_timestamp,
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS user_course_access
 
 CREATE TABLE IF NOT EXISTS user_module_access
 (
-    id_access         bigserial primary key,
+    id_access         BIGSERIAL primary key,
     user_id           bigint    not null,
     course_id         bigint    not null,
     module_id         bigint    not null,
