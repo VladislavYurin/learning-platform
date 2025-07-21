@@ -8,4 +8,8 @@ public interface AccessService {
 
     void getModuleAccessToUser(GetAccessRequest request);
 
+    void deleteCourseAccessToUser(GetAccessRequest request);
+
+    void deleteModuleAccessToUser(GetAccessRequest request);
+
 }

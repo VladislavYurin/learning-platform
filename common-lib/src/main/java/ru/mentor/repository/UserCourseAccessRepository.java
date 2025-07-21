@@ -12,4 +12,8 @@ public interface UserCourseAccessRepository extends JpaRepository<UserCourseAcce
 
     List<UserCourseAccessEntity> findAllByUserId(Long userId);
 
+    UserCourseAccessEntity findByUserIdAndCourseId(Long userId, Long courseId);
+
+    void deleteByUserIdAndCourseId(Long userId, Long courseId);
+
 }

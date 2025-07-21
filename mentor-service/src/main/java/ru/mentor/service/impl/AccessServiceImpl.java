@@ -83,6 +83,39 @@ public class AccessServiceImpl implements AccessService {
 
     }
 
+    @Override
+    public void deleteCourseAccessToUser(GetAccessRequest request) {
+        UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
+        userRepository.findByIdOrThrow(request.getUserId());
+        CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
+        checkUserIsAuthorOrAdmin(mentor, course);
+        accessChecker.hasAccessToCourse(request.getUserId(), request.getCourseId());
+        userCourseAccessRepository.deleteByUserIdAndCourseId(
+                request.getUserId(),
+                request.getCourseId()
+        );
+        userModuleAccessRepository.deleteAllByUserIdAndCourseId(
+                request.getUserId(),
+                request.getCourseId()
+        );
+    }
+
+    @Override
+    public void deleteModuleAccessToUser(GetAccessRequest request) {
+        UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
+        userRepository.findByIdOrThrow(request.getUserId());
+        CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
+        ModuleEntity module = moduleRepository.findByIdOrThrow(request.getModuleId());
+        checkUserIsAuthorOrAdmin(mentor, course);
+        checkModuleIsInCourse(course, module);
+        accessChecker.hasAccessToCourse(request.getUserId(), request.getCourseId());
+        accessChecker.hasAccessToModule(request.getUserId(), request.getModuleId());
+        userModuleAccessRepository.deleteByUserIdAndModuleId(
+                request.getUserId(),
+                request.getModuleId()
+        );
+    }
+
     private void checkUserIsAuthorOrAdmin(UserEntity mentor, CourseEntity course) {
         if (Role.checkIsAdmin(mentor)) {
             return;

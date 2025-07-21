@@ -9,4 +9,8 @@ public interface UserModuleAccessRepository extends JpaRepository<UserModuleAcce
 
     boolean existsByUserIdAndModuleId(Long userId, Long moduleId);
 
+    void deleteAllByUserIdAndCourseId(Long userId, Long courseId);
+
+    void deleteByUserIdAndModuleId(Long userId, Long moduleId);
+
 }

@@ -28,9 +28,21 @@ public class AccessController {
         return ResponseEntity.ok().body(null);
     }
 
+    @PostMapping("/course/delete-access")
+    public ResponseEntity<?> deleteCourseAccessToUser(@RequestBody @Valid GetAccessRequest request) {
+        accessService.deleteCourseAccessToUser(request);
+        return ResponseEntity.ok().body(null);
+    }
+
     @PostMapping("/module/get-access")
     public ResponseEntity<?> getModuleAccessToUser(@RequestBody @Valid GetAccessRequest request) {
         accessService.getModuleAccessToUser(request);
+        return ResponseEntity.ok().body(null);
+    }
+
+    @PostMapping("/module/delete-access")
+    public ResponseEntity<?> deleteModuleAccessToUser(@RequestBody @Valid GetAccessRequest request) {
+        accessService.deleteModuleAccessToUser(request);
         return ResponseEntity.ok().body(null);
     }
 
