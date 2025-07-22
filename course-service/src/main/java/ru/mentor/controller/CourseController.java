@@ -29,17 +29,20 @@ public class CourseController {
 
     @PostMapping("/create")
     public ResponseEntity<CourseDto> createCourse(@RequestBody @Valid InnerCreateCourseRequest request) {
+        System.out.println(request);
         return ResponseEntity.ok().body(courseService.createCourse(request));
     }
 
-    @DeleteMapping("/{userId}/{courseId}}")
+    @DeleteMapping("/{userId}/{courseId}")
     public ResponseEntity<?> deleteCourse(@PathVariable Long userId, @PathVariable Long courseId) {
         courseService.deleteCourse(userId, courseId);
         return ResponseEntity.ok().body(null);
     }
 
     @GetMapping("/{userId}/{courseId}")
-    public ResponseEntity<CourseDto> getCourseById(@PathVariable Long userId, @PathVariable Long courseId) {
+    public ResponseEntity<CourseDto> getCourseById(
+            @PathVariable Long userId,
+            @PathVariable Long courseId) {
         return ResponseEntity.ok().body(courseService.getCourseById(userId, courseId));
     }
 

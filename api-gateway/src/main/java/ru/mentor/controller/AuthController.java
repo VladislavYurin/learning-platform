@@ -2,6 +2,7 @@ package ru.mentor.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +25,7 @@ import ru.mentor.services.AuthenticationService;
 @RequiredArgsConstructor
 @Tag(name = "Аутентификация")
 public class AuthController {
+
     private final AuthenticationService authenticationService;
 
     /**
@@ -33,6 +35,7 @@ public class AuthController {
      */
     @Operation(summary = "Регистрация пользователя")
     @PostMapping("/reg")
+    @PermitAll
     public JwtAuthResponse registration(@RequestBody @Valid RegRequest request) {
         return authenticationService.registration(request);
     }
@@ -44,6 +47,7 @@ public class AuthController {
      */
     @Operation(summary = "Авторизация пользователя")
     @PostMapping("/login")
+    @PermitAll
     public JwtAuthResponse login(@RequestBody @Valid AuthRequest request) {
         return authenticationService.authentication(request);
     }

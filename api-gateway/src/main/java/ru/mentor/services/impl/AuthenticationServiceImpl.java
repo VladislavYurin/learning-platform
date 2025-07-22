@@ -23,6 +23,7 @@ import ru.mentor.services.UserService;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
+
     private final UserService userService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
@@ -31,7 +32,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     /**
      * Регистрация пользователя
      *
-     * @param request данные пользователя
+     * @param request
+     *         данные пользователя
+     *
      * @return токен
      */
     @Override
@@ -40,6 +43,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = UserEntity.builder()
                              .username(request.getUsername())
                              .password(passwordEncoder.encode(request.getPassword()))
+                             .tgNickname(request.getTgName())
+                             .email(request.getEmail())
                              .role(Role.USER)
                              .build();
 
@@ -52,7 +57,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     /**
      * Аутентификация пользователя
      *
-     * @param request данные пользователя
+     * @param request
+     *         данные пользователя
+     *
      * @return токен
      */
     @Override
@@ -74,9 +81,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * Обновление JWT-токена.
      * Проверяет действительность текущего токена и выдает новый.
      *
-     * @param token текущий токен
+     * @param token
+     *         текущий токен
+     *
      * @return объект с новым JWT-токеном
-     * @throws RuntimeException если токен недействителен
+     *
+     * @throws RuntimeException
+     *         если токен недействителен
      */
     @Override
     public JwtAuthResponse refreshToken(String token) {
@@ -93,4 +104,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         throw new RuntimeException("Недопустимый токен");
     }
+
 }

@@ -35,12 +35,10 @@ public class CourseServiceImpl implements CourseService {
     public CourseDto createCourse(InnerCreateCourseRequest request) {
         UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         if (Role.checkIsMentor(user) || Role.checkIsAdmin(user)) {
-            CourseEntity course = CourseEntity.builder()
-                                              .author(user)
-                                              .courseTitle(request.getCourseName())
-                                              .description(request.getCourseDescription())
-                                              .build();
-
+            CourseEntity course = new CourseEntity();
+            course.setAuthor(user);
+            course.setCourseTitle(request.getCourseName());
+            course.setDescription(request.getCourseDescription());
             CourseEntity courseEntity = courseRepository.save(course);
             return baseMapper.mapCourse(courseEntity, false, false);
         } else {

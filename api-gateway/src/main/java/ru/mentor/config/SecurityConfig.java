@@ -26,7 +26,7 @@ import ru.mentor.services.UserService;
  */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(jsr250Enabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -48,13 +48,11 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(request -> request
                     .requestMatchers(
-                            "/auth/**",
-                            "/swagger-ui/**",
-                            "/swagger-resources/*",
-                            "/v3/api-docs/**"
+                            "/auth/reg",
+                            "/auth/login"
                     ).permitAll()
-                    .requestMatchers("/api/order").hasAnyRole("ADMIN", "USER")
-                    .requestMatchers("/endpoint", "/admin/**", "/user/**").hasRole("ADMIN")
+                    .requestMatchers("/access/**").hasAnyRole("ADMIN", "USER", "MENTOR")
+                    .requestMatchers("/course/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .anyRequest().authenticated()
             )
             .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

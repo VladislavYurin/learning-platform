@@ -1,7 +1,6 @@
 package ru.mentor.config;
 
 import feign.Client;
-import feign.Logger;
 import feign.Response;
 import feign.RetryableException;
 import feign.Retryer;
@@ -151,17 +150,6 @@ public class CommonFeignConfig {
         }
 
         return "No response body";
-    }
-
-    /**
-     * Логирование запроса и ответа для всех клиентов. Необходимо перевести выбранный класс / пакет
-     * с клиентом в режим DEBUG.
-     *
-     * @return конфигурация уровня логирования запросов
-     */
-    @Bean
-    Logger.Level feignLoggerLevel() {
-        return Logger.Level.valueOf("DEBUG");
     }
 
 }
