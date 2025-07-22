@@ -10,11 +10,11 @@ import ru.mentor.config.CommonFeignConfig;
 import ru.mentor.dto.GetAccessRequest;
 
 @FeignClient(
-        name = "mentorClient",
-        url = "${integration.mentor-service.url}",
+        name = "accessClient",
+        url = "${integration.access-service.url}",
         configuration = {CommonFeignConfig.class}
 )
-public interface MentorClient {
+public interface AccessClient {
 
     @RequestMapping(
             method = RequestMethod.POST,

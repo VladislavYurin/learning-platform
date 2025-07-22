@@ -7,7 +7,7 @@ import ru.mentor.constant.Role;
 import ru.mentor.dto.GetAccessRequest;
 import ru.mentor.dto.front.AccessRequest;
 import ru.mentor.entity.UserEntity;
-import ru.mentor.feign.MentorClient;
+import ru.mentor.feign.AccessClient;
 import ru.mentor.mapper.AccessMapper;
 import ru.mentor.services.RedirectAccessService;
 import ru.mentor.services.UserService;
@@ -21,14 +21,14 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
 
     private final AccessMapper accessMapper;
 
-    private final MentorClient mentorClient;
+    private final AccessClient accessClient;
 
     @Override
     public void getCourseAccessToUser(AccessRequest request) {
         UserEntity user = userService.getCurrentUser();
         Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        mentorClient.getCourseAccessToUser(innerRequest);
+        accessClient.getCourseAccessToUser(innerRequest);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
         UserEntity user = userService.getCurrentUser();
         Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        mentorClient.deleteCourseAccessToUser(innerRequest);
+        accessClient.deleteCourseAccessToUser(innerRequest);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
         UserEntity user = userService.getCurrentUser();
         Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        mentorClient.getModuleAccessToUser(innerRequest);
+        accessClient.getModuleAccessToUser(innerRequest);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
         UserEntity user = userService.getCurrentUser();
         Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        mentorClient.deleteModuleAccessToUser(innerRequest);
+        accessClient.deleteModuleAccessToUser(innerRequest);
     }
 
 }
