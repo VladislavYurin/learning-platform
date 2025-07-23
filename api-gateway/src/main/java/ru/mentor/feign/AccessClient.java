@@ -3,10 +3,12 @@ package ru.mentor.feign;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.mentor.config.CommonFeignConfig;
+import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.GetAccessRequest;
 
 @FeignClient(
@@ -47,5 +49,15 @@ public interface AccessClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<?> deleteModuleAccessToUser(@RequestBody GetAccessRequest dto);
+
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = "/progress/course/{mentorId}/{courseId}",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    ResponseEntity<CourseProgressResponse> getCourseProgressByMentor(
+            @PathVariable Long mentorId,
+            @PathVariable Long courseId);
 
 }

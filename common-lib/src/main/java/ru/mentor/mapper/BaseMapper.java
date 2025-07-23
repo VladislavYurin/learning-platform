@@ -43,6 +43,7 @@ public class BaseMapper {
                                         entity.getModules(),
                                         isNeedToFetchSubmodules
                                 ) : null)
+                        .createdAt(entity.getCreatedAt())
                         .build();
     }
 
@@ -65,6 +66,7 @@ public class BaseMapper {
                         .createdAt(entity.getCreatedAt())
                         .submodules(isNeedToFetchSubmodules ? mapSubmodules(entity.getSubmodules())
                                             : null)
+                        .createdAt(entity.getCreatedAt())
                         .build();
     }
 

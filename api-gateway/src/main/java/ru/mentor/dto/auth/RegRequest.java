@@ -20,7 +20,10 @@ public class RegRequest extends AuthRequest {
     @NotBlank(message = "Никнейм в телеграмме не может быть пустым")
     private String tgName;
 
-    @NotBlank(message = "email не может быть пустым")
-    private String email;
+    @NotBlank(message = "Имя не может быть пустым")
+    private String firstName;
+
+    @NotBlank(message = "Фамилия не может быть пустой")
+    private String lastName;
 
 }

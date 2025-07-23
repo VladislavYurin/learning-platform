@@ -57,8 +57,11 @@ public class UserEntity implements UserDetails {
     @Column(name = "user_role", nullable = false)
     private Role role;
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+    @Column(name = "firstName", nullable = false)
+    private String firstName;
+
+    @Column(name = "lastName", nullable = false)
+    private String lastName;
 
     @Column(name = "tg_nickname", nullable = false)
     private String tgNickname;

@@ -26,7 +26,8 @@ public class AdminUserInitializer implements ApplicationRunner {
             UserEntity request = UserEntity.builder()
                                            .username(adminUsername)
                                            .password(passwordEncoder.encode("testtesttest"))
-                                           .email("@mail")
+                                           .lastName("Юрин")
+                                           .firstName("Владислав")
                                            .tgNickname("@tg")
                                            .role(Role.ADMIN)
                                            .build();

@@ -20,6 +20,7 @@
     <module>api-gateway</module>
     <module>course-service</module>
     <module>mentor-service</module>
+    <module>notification-service</module>
   </modules>
 
   <properties>

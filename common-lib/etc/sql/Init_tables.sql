@@ -2,7 +2,8 @@ create table if not exists users
 (
     id_user     BIGSERIAL primary key,
     username    varchar(255) not null,
-    email       varchar(255) not null,
+    firstName   varchar(255) not null,
+    lastName    varchar(255) not null,
     tg_nickname varchar(255) not null,
     password    varchar(255) not null,
     user_role   varchar(255) not null default 'USER'
