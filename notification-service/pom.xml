@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>ru.mentor</groupId>
-    <artifactId>mentor-parent</artifactId>
+    <artifactId>learning-platform-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
 
