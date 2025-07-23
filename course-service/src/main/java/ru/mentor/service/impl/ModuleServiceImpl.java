@@ -12,6 +12,7 @@ import ru.mentor.exception.AccessDeniedException;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.ModuleRepository;
+import ru.mentor.repository.UserModuleAccessRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.service.ModuleService;
 import ru.mentor.util.AccessChecker;
@@ -29,6 +30,8 @@ public class ModuleServiceImpl implements ModuleService {
     private final BaseMapper baseMapper;
 
     private final AccessChecker accessChecker;
+
+    private final UserModuleAccessRepository userModuleAccessRepository;
 
     @Override
     public ModuleDto createModule(InnerCreateModuleRequest request) {

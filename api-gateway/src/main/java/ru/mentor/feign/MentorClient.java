@@ -12,11 +12,11 @@ import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.GetAccessRequest;
 
 @FeignClient(
-        name = "accessClient",
+        name = "mentorClient",
         url = "${integration.access-service.url}",
         configuration = {CommonFeignConfig.class}
 )
-public interface AccessClient {
+public interface MentorClient {
 
     @RequestMapping(
             method = RequestMethod.POST,

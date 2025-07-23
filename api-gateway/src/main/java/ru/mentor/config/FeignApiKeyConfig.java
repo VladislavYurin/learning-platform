@@ -26,7 +26,7 @@ public class FeignApiKeyConfig {
     @Bean
     public RequestInterceptor accessServiceApiKeyInterceptor() {
         return template -> {
-            if (template.feignTarget().name().equals("accessClient")) {
+            if (template.feignTarget().name().equals("mentorClient")) {
                 template.header("X-Service-Auth", accessServiceApiKey);
             }
         };

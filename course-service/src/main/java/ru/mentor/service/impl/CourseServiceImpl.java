@@ -1,18 +1,23 @@
 package ru.mentor.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.InnerCreateCourseRequest;
+import ru.mentor.dto.ModuleDto;
 import ru.mentor.entity.CourseEntity;
+import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.entity.UserModuleAccessEntity;
 import ru.mentor.exception.AccessDeniedException;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.UserCourseAccessRepository;
+import ru.mentor.repository.UserModuleAccessRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.service.CourseService;
 import ru.mentor.util.AccessChecker;
@@ -30,6 +35,8 @@ public class CourseServiceImpl implements CourseService {
     private final AccessChecker accessChecker;
 
     private final UserCourseAccessRepository userCourseAccessRepository;
+
+    private final UserModuleAccessRepository userModuleAccessRepository;
 
     @Override
     public CourseDto createCourse(InnerCreateCourseRequest request) {
@@ -114,7 +121,7 @@ public class CourseServiceImpl implements CourseService {
         }
         List<UserCourseAccessEntity> userCourseAccessEntities = user.getCourseAccesses();
         if (userCourseAccessEntities.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         List<CourseEntity> courses = userCourseAccessEntities.stream()
                                                              .map(UserCourseAccessEntity::getCourse)
@@ -127,11 +134,20 @@ public class CourseServiceImpl implements CourseService {
         UserEntity user = userRepository.findByIdOrThrow(userId);
         CourseEntity course = courseRepository.findByIdOrThrow(courseId);
         if (Role.checkIsAdmin(user) ||
-                Role.checkIsMentor(user) && Role.checkMentorIsAuthorOfCourse(user, course) ||
-                accessChecker.hasAccessToCourse(userId, courseId)) {
+                Role.checkIsMentor(user) && Role.checkMentorIsAuthorOfCourse(user, course)) {
             return baseMapper.mapCourse(course, true, false);
+        } else if (accessChecker.hasAccessToCourse(userId, courseId)) {
+            List<UserModuleAccessEntity> userModuleAccessEntities = userModuleAccessRepository.findAllByUserIdAndCourseId(
+                    userId,
+                    courseId
+            );
+            List<ModuleEntity> moduleEntities = userModuleAccessEntities.stream().map(
+                    UserModuleAccessEntity::getModule).toList();
+            CourseDto courseDto = baseMapper.mapCourse(course, false, false);
+            List<ModuleDto> modules = baseMapper.mapModules(moduleEntities, false);
+            courseDto.setModules(modules);
+            return courseDto;
         }
-
         throw new AccessDeniedException(
                 String.format(
                         "Юзер с ID = %d не имеет доступа к курсу с ID = %d",
