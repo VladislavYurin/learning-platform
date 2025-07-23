@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.ModuleDto;
-import ru.mentor.dto.SubmoduleDto;
+import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.ModuleEntity;
-import ru.mentor.entity.SubmoduleEntity;
+import ru.mentor.entity.UserEntity;
 
 @Component
 @RequiredArgsConstructor
@@ -30,8 +30,8 @@ public class BaseMapper {
 
     public CourseDto mapCourse(
             CourseEntity entity,
-            Boolean isNeedToFetchInnerEntities,
-            Boolean isNeedToFetchSubmodules) {
+            Boolean isNeedToFetchModules,
+            Boolean isNeedToFetchModuleContent) {
         return CourseDto.builder()
                         .id(entity.getId())
                         .courseTitle(entity.getCourseTitle())
@@ -39,9 +39,9 @@ public class BaseMapper {
                         .isActive(entity.getIsActive())
                         .authorId(entity.getAuthor().getId())
                         .modules(
-                                isNeedToFetchInnerEntities ? mapModules(
+                                isNeedToFetchModules ? mapModules(
                                         entity.getModules(),
-                                        isNeedToFetchSubmodules
+                                        isNeedToFetchModuleContent
                                 ) : null)
                         .createdAt(entity.getCreatedAt())
                         .build();
@@ -49,42 +49,35 @@ public class BaseMapper {
 
     public List<ModuleDto> mapModules(
             List<ModuleEntity> entities,
-            Boolean isNeedToFetchSubmodules) {
+            Boolean isNeedToFetchModuleContent) {
         return entities.stream()
-                       .map(module -> mapModule(module, isNeedToFetchSubmodules))
+                       .map(module -> mapModule(module, isNeedToFetchModuleContent))
                        .sorted(Comparator.comparingInt(ModuleDto::getModuleOrderNumber))
                        .toList();
     }
 
-    public ModuleDto mapModule(ModuleEntity entity, Boolean isNeedToFetchSubmodules) {
+    public ModuleDto mapModule(ModuleEntity entity, Boolean isNeedToFetchModuleContent) {
         return ModuleDto.builder()
                         .id(entity.getId())
                         .moduleTitle(entity.getModuleTitle())
                         .moduleOrderNumber(entity.getModuleOrderNumber())
-                        .moduleDescription(entity.getDescription())
+                        .moduleContent(
+                                isNeedToFetchModuleContent ? entity.getModuleContent() : null)
                         .isActive(entity.getIsActive())
                         .createdAt(entity.getCreatedAt())
-                        .submodules(isNeedToFetchSubmodules ? mapSubmodules(entity.getSubmodules())
-                                            : null)
                         .createdAt(entity.getCreatedAt())
                         .build();
     }
 
-    public List<SubmoduleDto> mapSubmodules(List<SubmoduleEntity> entities) {
-        return entities.stream()
-                       .map(this::mapSubmoduleDto)
-                       .sorted(Comparator.comparingInt(SubmoduleDto::getSubmoduleOrderNumber))
-                       .toList();
-    }
+    public UserInfoDto mapUserDto(UserEntity entity) {
+        return UserInfoDto.builder()
+                          .id(entity.getId())
+                          .username(entity.getUsername())
+                          .role(entity.getRole())
+                          .firstName(entity.getFirstName())
+                          .lastName(entity.getLastName())
+                          .build();
 
-    public SubmoduleDto mapSubmoduleDto(SubmoduleEntity entity) {
-        return SubmoduleDto.builder()
-                           .id(entity.getId())
-                           .submoduleTitle(entity.getSubmoduleTitle())
-                           .submoduleContent(entity.getSubmoduleContent())
-                           .submoduleOrderNumber(entity.getSubmoduleOrderNumber())
-                           .createdAt(entity.getCreatedAt())
-                           .build();
     }
 
 }

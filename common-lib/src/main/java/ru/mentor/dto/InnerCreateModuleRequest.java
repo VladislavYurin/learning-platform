@@ -15,6 +15,6 @@ public class InnerCreateModuleRequest {
 
     private Integer moduleOrderNumber;
 
-    private String moduleDescription;
+    private String moduleContent;
 
 }

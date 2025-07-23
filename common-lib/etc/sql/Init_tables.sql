@@ -22,25 +22,14 @@ CREATE TABLE IF NOT EXISTS courses
 
 CREATE TABLE IF NOT EXISTS modules
 (
-    id_module     BIGSERIAL primary key,
-    module_title  varchar(255) not null,
-    module_number int          not null,
-    description   text,
-    id_course     bigint       not null,
-    is_active     boolean      not null default true,
-    created_at    timestamp    not null default current_timestamp,
+    id_module      BIGSERIAL primary key,
+    module_title   varchar(255) not null,
+    module_number  int          not null,
+    module_content text,
+    id_course      bigint       not null,
+    is_active      boolean      not null default true,
+    created_at     timestamp    not null default current_timestamp,
     foreign key (id_course) references courses (id_course) on delete cascade
-);
-
-CREATE TABLE IF NOT EXISTS submodules
-(
-    id_submodule      BIGSERIAL primary key,
-    id_module         bigint    not null,
-    submodule_number  int       not null,
-    submodule_title   text      not null,
-    submodule_content text      not null,
-    created_at        timestamp not null default current_timestamp,
-    foreign key (id_module) references modules (id_module) on delete cascade
 );
 
 CREATE TABLE IF NOT EXISTS user_course_access

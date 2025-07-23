@@ -44,7 +44,7 @@ public class ModuleServiceImpl implements ModuleService {
             ModuleEntity module = ModuleEntity.builder()
                                               .moduleTitle(request.getModuleTitle())
                                               .moduleOrderNumber(request.getModuleOrderNumber())
-                                              .description(request.getModuleDescription())
+                                              .moduleContent(request.getModuleContent())
                                               .course(course)
                                               .build();
 

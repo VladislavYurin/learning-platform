@@ -1,23 +1,18 @@
-package ru.mentor.dto;
+package ru.mentor.dto.front;
 
-import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class ModuleDto {
+public class CreateModuleRequest {
 
-    private Long id;
+    private Long courseId;
 
     private String moduleTitle;
 
     private Integer moduleOrderNumber;
 
     private String moduleContent;
-
-    private Boolean isActive;
-
-    private LocalDateTime createdAt;
 
 }
