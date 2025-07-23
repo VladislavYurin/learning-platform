@@ -2,6 +2,7 @@ package ru.mentor.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.InnerCreateModuleRequest;
 import ru.mentor.dto.ModuleDto;
@@ -37,6 +38,17 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
     public ModuleDto getModuleById(Long courseId, Long moduleId) {
         UserEntity user = userService.getCurrentUser();
         return courseClient.getModuleById(user.getId(), courseId, moduleId);
+    }
+
+    @Override
+    public ModuleDto importModuleFromFile(CreateModuleRequest request, MultipartFile file) {
+        UserEntity user = userService.getCurrentUser();
+        Role.checkUserIsAdminOrMentor(user);
+        InnerCreateModuleRequest innerCreateModuleRequest = courseMapper.mapToInnerCreateModuleRequest(
+                user.getId(),
+                request
+        );
+        return courseClient.importModuleFromMarkdown(file, innerCreateModuleRequest);
     }
 
 }

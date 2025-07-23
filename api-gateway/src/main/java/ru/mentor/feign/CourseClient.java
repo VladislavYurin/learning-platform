@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.config.CommonFeignConfig;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.InnerCreateCourseRequest;
@@ -68,6 +70,16 @@ public interface CourseClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ModuleDto createModule(@RequestBody InnerCreateModuleRequest request);
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/module/import",
+            produces = MediaType.MULTIPART_FORM_DATA_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    ModuleDto importModuleFromMarkdown(
+            @RequestPart("file") MultipartFile file,
+            @RequestBody InnerCreateModuleRequest request);
 
     @RequestMapping(
             method = RequestMethod.DELETE,
