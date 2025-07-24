@@ -1,6 +1,7 @@
 package ru.mentor.services;
 
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.front.CreateCourseRequest;
 
@@ -8,7 +9,7 @@ public interface RedirectCourseService {
 
     CourseDto createCourse(CreateCourseRequest request);
 
-    void deleteCourse(Long courseId);
+    ResponseEntity<?> deleteCourse(Long courseId);
 
     CourseDto getCourseById(Long courseId);
 

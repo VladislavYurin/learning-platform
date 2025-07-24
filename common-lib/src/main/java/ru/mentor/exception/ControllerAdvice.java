@@ -35,6 +35,11 @@ public class ControllerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<String> handleUserException(UserException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<String> handleConstraintViolation(ConstraintViolationException ex) {
         List<String> errors = ex.getConstraintViolations()

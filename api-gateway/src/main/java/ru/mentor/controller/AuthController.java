@@ -1,6 +1,7 @@
 package ru.mentor.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
@@ -23,17 +24,27 @@ import ru.mentor.services.AuthenticationService;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Аутентификация")
+@Tag(name = "Auth Management", description = "Регистрация и авторизация")
 public class AuthController {
 
     private final AuthenticationService authenticationService;
 
     /**
      * Регистрация нового пользователя
-     * @param request содержит нужные данные для регистрации
+     *
+     * @param request
+     *         содержит нужные данные для регистрации
+     *
      * @return JwtAuthenticationResponse, хранящий токен в виде строки
      */
-    @Operation(summary = "Регистрация пользователя")
+    @Operation(
+            summary = "Регистрация пользователя",
+            description = "Позволяет зарегистрировать пользователя с ролью USER",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Регистрация успешна"),
+                    @ApiResponse(responseCode = "400", description = "Пользователь уже существует"),
+            }
+    )
     @PostMapping("/reg")
     @PermitAll
     public JwtAuthResponse registration(@RequestBody @Valid RegRequest request) {
@@ -42,7 +53,10 @@ public class AuthController {
 
     /**
      * Авторизация пользователя
-     * @param request вмещает необходимые данные для авторизации
+     *
+     * @param request
+     *         вмещает необходимые данные для авторизации
+     *
      * @return JwtAuthenticationResponse, хранящий токен в виде строки
      */
     @Operation(summary = "Авторизация пользователя")
@@ -54,7 +68,10 @@ public class AuthController {
 
     /**
      * Обновление токена
-     * @param authHeader хранить данные из перехваченного заголовка Authorization
+     *
+     * @param authHeader
+     *         хранить данные из перехваченного заголовка Authorization
+     *
      * @return JwtAuthenticationResponse, хранящий токен в виде строки
      */
     @Operation(summary = "Обновление токена")
@@ -67,4 +84,5 @@ public class AuthController {
         String token = authHeader.substring(7);
         return authenticationService.refreshToken(token);
     }
+
 }

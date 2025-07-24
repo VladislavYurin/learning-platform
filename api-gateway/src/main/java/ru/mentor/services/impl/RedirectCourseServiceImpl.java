@@ -3,6 +3,7 @@ package ru.mentor.services.impl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
@@ -35,10 +36,10 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
     }
 
     @Override
-    public void deleteCourse(Long courseId) {
+    public ResponseEntity<?> deleteCourse(Long courseId) {
         UserEntity user = userService.getCurrentUser();
         Role.checkUserIsAdminOrMentor(user);
-        courseClient.deleteCourse(user.getId(), courseId);
+        return courseClient.deleteCourse(user.getId(), courseId);
     }
 
     @Override

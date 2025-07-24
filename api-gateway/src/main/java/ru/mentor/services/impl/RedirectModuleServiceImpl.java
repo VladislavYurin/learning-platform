@@ -48,7 +48,7 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 user.getId(),
                 request
         );
-        return courseClient.importModuleFromMarkdown(file, innerCreateModuleRequest);
+        return courseClient.importModuleFromMarkdown(innerCreateModuleRequest, file);
     }
 
 }

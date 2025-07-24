@@ -1,15 +1,16 @@
 package ru.mentor.services;
 
+import org.springframework.http.ResponseEntity;
 import ru.mentor.dto.front.AccessRequest;
 
 public interface RedirectAccessService {
 
-    void getCourseAccessToUser(AccessRequest request);
+    ResponseEntity<?> getCourseAccessToUser(AccessRequest request);
 
-    void deleteCourseAccessToUser(AccessRequest request);
+    ResponseEntity<?> deleteCourseAccessToUser(AccessRequest request);
 
-    void getModuleAccessToUser(AccessRequest request);
+    ResponseEntity<?> getModuleAccessToUser(AccessRequest request);
 
-    void deleteModuleAccessToUser(AccessRequest request);
+    ResponseEntity<?> deleteModuleAccessToUser(AccessRequest request);
 
 }

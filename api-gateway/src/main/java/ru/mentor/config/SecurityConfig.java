@@ -49,7 +49,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(request -> request
                     .requestMatchers(
                             "/auth/reg",
-                            "/auth/login"
+                            "/auth/login",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/swagger-resources/**",
+                            "/webjars/**"
                     ).permitAll()
                     .requestMatchers("/access/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .requestMatchers("/course/**").hasAnyRole("ADMIN", "USER", "MENTOR")

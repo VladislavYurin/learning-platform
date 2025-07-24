@@ -78,8 +78,8 @@ public interface CourseClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ModuleDto importModuleFromMarkdown(
-            @RequestPart("file") MultipartFile file,
-            @RequestBody InnerCreateModuleRequest request);
+            @RequestBody InnerCreateModuleRequest request,
+            @RequestPart("file") MultipartFile file);
 
     @RequestMapping(
             method = RequestMethod.DELETE,
