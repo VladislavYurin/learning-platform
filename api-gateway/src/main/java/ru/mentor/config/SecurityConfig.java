@@ -55,8 +55,9 @@ public class SecurityConfig {
                             "/swagger-resources/**",
                             "/webjars/**"
                     ).permitAll()
-                    .requestMatchers("/access/**").hasAnyRole("ADMIN", "USER", "MENTOR")
+                    .requestMatchers("/access/**").hasAnyRole("ADMIN", "MENTOR")
                     .requestMatchers("/course/**").hasAnyRole("ADMIN", "USER", "MENTOR")
+                    .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .anyRequest().authenticated()
             )
             .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

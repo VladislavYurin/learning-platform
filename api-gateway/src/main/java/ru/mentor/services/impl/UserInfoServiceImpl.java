@@ -2,6 +2,7 @@ package ru.mentor.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.mentor.constant.Role;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.mapper.BaseMapper;
@@ -29,6 +30,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     public UserInfoDto getOtherUserInfo(Long userId) {
         UserEntity user = userRepository.findByIdOrThrow(userId);
         return baseMapper.mapUserDto(user);
+    }
+
+    @Override
+    public UserInfoDto assignMentorRole() {
+        UserEntity user = userService.getCurrentUser();
+        user.setRole(Role.MENTOR);
+        UserEntity savedUser = userRepository.save(user);
+        return baseMapper.mapUserDto(savedUser);
     }
 
 }

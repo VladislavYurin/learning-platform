@@ -8,4 +8,6 @@ public interface UserInfoService {
 
     UserInfoDto getOtherUserInfo(Long userId);
 
+    UserInfoDto assignMentorRole();
+
 }
