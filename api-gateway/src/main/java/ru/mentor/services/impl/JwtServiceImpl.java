@@ -25,6 +25,12 @@ public class JwtServiceImpl implements JwtService {
     @Value("${token.signing.key}")
     private String jwtSigningKey;
 
+    @Value("${token.access.expiration.minutes}")
+    private long accessExpirationMinutes;
+
+    @Value("${token.refresh.expiration.day}")
+    private long refreshExpirationDays;
+
     /**
      * Извлечение имени пользователя из токена
      *
@@ -34,22 +40,6 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
-    }
-
-    /**
-     * Генерация токена
-     *
-     * @param userDetails данные пользователя
-     * @return токен
-     */
-    @Override
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        if (userDetails instanceof UserEntity customUserEntityDetails) {
-            claims.put("id", customUserEntityDetails.getId());
-            claims.put("role", customUserEntityDetails.getRole().name());
-        }
-        return generateToken(claims, userDetails);
     }
 
     /**
@@ -65,6 +55,16 @@ public class JwtServiceImpl implements JwtService {
         return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
+    @Override
+    public String generateToken(UserDetails userDetails) {
+        return buildToken(userDetails, 1000 * 60 * accessExpirationMinutes);
+    }
+
+    @Override
+    public String generateRefreshToken(UserDetails userDetails) {
+        return buildToken(userDetails, refreshExpirationDays * 24 * 60 * 60 * 1000);
+    }
+
     /**
      * Извлечение данных из токена
      *
@@ -78,19 +78,22 @@ public class JwtServiceImpl implements JwtService {
         return claimsResolvers.apply(claims);
     }
 
-    /**
-     * Генерация токена
-     *
-     * @param extraClaims дополнительные данные
-     * @param userDetails данные пользователя
-     * @return токен
-     */
-    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
-                   .setIssuedAt(new Date(System.currentTimeMillis()))
-                   .setExpiration(new Date(System.currentTimeMillis() + 100000 * 60 * 24))
-                   .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+    private String buildToken(UserDetails userDetails, long expirationMs) {
+        Map<String, Object> claims = new HashMap<>();
+        if (userDetails instanceof UserEntity user) {
+            claims.put("id", user.getId());
+            claims.put("role", user.getRole().name());
+        }
+        return Jwts.builder()
+                   .setClaims(claims)
+                   .setSubject(userDetails.getUsername())
+                   .setIssuedAt(new Date())
+                   .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                   .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                   .compact();
     }
+
+
 
     /**
      * Проверка токена на просроченность

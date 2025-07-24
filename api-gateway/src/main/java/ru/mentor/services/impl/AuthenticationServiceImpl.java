@@ -50,9 +50,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                              .build();
 
         userService.create(user);
+        return generateTokens(user);
 
-        var jwt = jwtService.generateToken(user);
-        return new JwtAuthResponse(jwt);
     }
 
     /**
@@ -70,19 +69,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 request.getPassword()
         ));
 
-        var user = userService
-                .userDetailsService()
-                .loadUserByUsername(request.getUsername());
+        UserEntity user = userService.getByUsername(request.getUsername());
+        return generateTokens(user);
 
-        var jwt = jwtService.generateToken(user);
-        return new JwtAuthResponse(jwt);
     }
 
     /**
      * Обновление JWT-токена.
      * Проверяет действительность текущего токена и выдает новый.
      *
-     * @param token
+     * @param refreshToken
      *         текущий токен
      *
      * @return объект с новым JWT-токеном
@@ -91,19 +87,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      *         если токен недействителен
      */
     @Override
-    public JwtAuthResponse refreshToken(String token) {
-        String username = jwtService.extractUserName(token);
+    public JwtAuthResponse refreshToken(String refreshToken) {
+        String username = jwtService.extractUserName(refreshToken);
+        UserDetails user = userService.userDetailsService().loadUserByUsername(username);
 
-        UserDetails userDetails = userService
-                .userDetailsService()
-                .loadUserByUsername(username);
-
-        if (jwtService.isTokenValid(token, userDetails)) {
-            String newToken = jwtService.generateToken(userDetails);
-            return new JwtAuthResponse(newToken);
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new RuntimeException("Невалидный refresh-токен");
         }
 
-        throw new RuntimeException("Недопустимый токен");
+        return JwtAuthResponse.builder()
+                              .accessToken(jwtService.generateToken(user))
+                              .refreshToken(jwtService.generateRefreshToken(user))
+                              .build();
+
+    }
+
+    private JwtAuthResponse generateTokens(UserEntity user) {
+        return JwtAuthResponse.builder()
+                              .accessToken(jwtService.generateToken(user))
+                              .refreshToken(jwtService.generateRefreshToken(user))
+                              .build();
     }
 
 }

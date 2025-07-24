@@ -7,7 +7,6 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -69,20 +68,18 @@ public class AuthController {
     /**
      * Обновление токена
      *
-     * @param authHeader
+     * @param refreshToken
      *         хранить данные из перехваченного заголовка Authorization
      *
      * @return JwtAuthenticationResponse, хранящий токен в виде строки
      */
     @Operation(summary = "Обновление токена")
-    @GetMapping("/token/refresh")
-    public JwtAuthResponse refreshToken(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    @PostMapping("/token/refresh")
+    public JwtAuthResponse refreshToken(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String refreshToken) {
+        if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
             throw new RuntimeException("Отсутствует токен");
         }
-
-        String token = authHeader.substring(7);
-        return authenticationService.refreshToken(token);
+        return authenticationService.refreshToken(refreshToken.substring(7));
     }
 
 }
