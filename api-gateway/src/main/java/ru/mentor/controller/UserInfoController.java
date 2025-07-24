@@ -30,7 +30,7 @@ public class UserInfoController {
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<UserInfoDto> getMyUserInfo() {
+    public ResponseEntity<?> getMyUserInfo() {
         UserInfoDto response = userInfoService.getMyUserInfo();
         return ResponseEntity.ok().body(response);
     }
@@ -44,7 +44,7 @@ public class UserInfoController {
             }
     )
     @GetMapping("/{userId}")
-    public ResponseEntity<UserInfoDto> getOtherUserInfo(@PathVariable Long userId) {
+    public ResponseEntity<?> getOtherUserInfo(@PathVariable Long userId) {
         UserInfoDto response = userInfoService.getOtherUserInfo(userId);
         return ResponseEntity.ok().body(response);
     }
@@ -58,7 +58,7 @@ public class UserInfoController {
             }
     )
     @PostMapping("/mentor/register")
-    public ResponseEntity<UserInfoDto> assignMentorRole() {
+    public ResponseEntity<?> assignMentorRole() {
         UserInfoDto response = userInfoService.assignMentorRole();
         return ResponseEntity.ok().body(response);
     }

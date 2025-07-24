@@ -26,10 +26,38 @@ public class AdminUserInitializer implements ApplicationRunner {
             UserEntity request = UserEntity.builder()
                                            .username(adminUsername)
                                            .password(passwordEncoder.encode("testtesttest"))
-                                           .lastName("Юрин")
-                                           .firstName("Владислав")
+                                           .lastName("Админ")
+                                           .firstName("Админов")
                                            .tgNickname("@tg")
                                            .role(Role.ADMIN)
+                                           .build();
+
+            userRepository.save(request);
+        }
+
+        String defaultMentor = "vlad.yurin98@gmail.com";
+        if (!userRepository.existsByUsername(defaultMentor)) {
+            UserEntity request = UserEntity.builder()
+                                           .username(defaultMentor)
+                                           .password(passwordEncoder.encode("140698"))
+                                           .lastName("Юрин")
+                                           .firstName("Владислав")
+                                           .tgNickname("@vladislavyurin")
+                                           .role(Role.MENTOR)
+                                           .build();
+
+            userRepository.save(request);
+        }
+
+        String defaultUser = "pipa@popa.ru";
+        if (!userRepository.existsByUsername(defaultUser)) {
+            UserEntity request = UserEntity.builder()
+                                           .username(defaultUser)
+                                           .password(passwordEncoder.encode("140698"))
+                                           .lastName("Пипа")
+                                           .firstName("Попов")
+                                           .tgNickname("@vladislavyurin")
+                                           .role(Role.USER)
                                            .build();
 
             userRepository.save(request);

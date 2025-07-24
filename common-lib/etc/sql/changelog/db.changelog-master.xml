@@ -6,8 +6,8 @@
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd">
 
-  <changeSet id="" author="" runOnChange="false">
-    <sqlFile path="../.sql" relativeToChangelogFile="true"/>
+  <changeSet id="1" author="vladislav yurin" runOnChange="false">
+    <sqlFile path="init_tables.sql" relativeToChangelogFile="true"/>
   </changeSet>
 
 </databaseChangeLog>

@@ -28,20 +28,22 @@ public class ModuleController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
-    public ResponseEntity<ModuleDto> createModule(@RequestBody CreateModuleRequest request) {
+    public ResponseEntity<?> createModule(@RequestBody CreateModuleRequest request) {
         return ResponseEntity.ok().body(redirectModuleService.createModule(request));
     }
 
     @GetMapping("/{courseId}/{moduleId}")
-    public ResponseEntity<ModuleDto> getModuleById(
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR') or hasRole('USER')")
+    public ModuleDto getModuleById(
             @PathVariable Long courseId,
             @PathVariable Long moduleId) {
-        return ResponseEntity.ok().body(redirectModuleService.getModuleById(courseId, moduleId));
+        return redirectModuleService.getModuleById(courseId, moduleId);
     }
 
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Импорт модуля из Markdown файла")
-    public ResponseEntity<ModuleDto> importModuleFromMarkdown(
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
+    public ResponseEntity<?> importModuleFromMarkdown(
             @RequestPart("file") @Valid @ValidMarkdownFile MultipartFile file,
             @RequestBody CreateModuleRequest request) {
         return ResponseEntity.ok(redirectModuleService.importModuleFromFile(request, file));

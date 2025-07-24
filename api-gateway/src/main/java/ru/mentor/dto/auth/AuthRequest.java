@@ -17,7 +17,7 @@ public class AuthRequest {
     private final String username;
 
     @Schema(description = "Пароль", example = "my_1secret1_password")
-    @Size(min = 8, max = 255, message = "Длина пароля должна быть от 8 до 255 символов")
+    @Size(min = 6, max = 255, message = "Длина пароля должна быть от 6 до 255 символов")
     @NotBlank(message = "Пароль не может быть пустым")
     private final String password;
 
