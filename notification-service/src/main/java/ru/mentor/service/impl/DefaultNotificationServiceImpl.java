@@ -18,6 +18,11 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
 
     @Override
     public void notifyUser(KafkaNotificationDto notificationDto) {
+        notifyByEmail(notificationDto);
+        notifyByTelegram(notificationDto);
+    }
+
+    private void notifyByEmail(KafkaNotificationDto notificationDto) {
         try {
             String emailContent = notificationTemplateService.generateEmailContent(notificationDto);
             String subject = notificationTemplateService.getEmailSubject(notificationDto.getNotificationType());
@@ -29,6 +34,10 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
             );
         } catch (Exception ignored) {
         }
+    }
+
+    private void notifyByTelegram(KafkaNotificationDto notificationDto) {
+
     }
 
 }
