@@ -13,6 +13,7 @@ import ru.mentor.entity.UserModuleAccessEntity;
 import ru.mentor.exception.AccessDeniedException;
 import ru.mentor.exception.EntityAlreadyExistsException;
 import ru.mentor.exception.EntityNotFoundException;
+import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.ModuleRepository;
 import ru.mentor.repository.UserCourseAccessRepository;
@@ -37,6 +38,8 @@ public class AccessServiceImpl implements AccessService {
 
     private final UserModuleAccessRepository userModuleAccessRepository;
 
+    private final KafkaFacade kafkaFacade;
+
     @Override
     public void getCourseAccessToUser(GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
@@ -47,8 +50,10 @@ public class AccessServiceImpl implements AccessService {
             UserCourseAccessEntity access = UserCourseAccessEntity.builder()
                                                                   .user(user)
                                                                   .course(course)
+                                                                  .accessGrantedBy(mentor)
                                                                   .build();
-            userCourseAccessRepository.save(access);
+            UserCourseAccessEntity savedAccess = userCourseAccessRepository.save(access);
+            kafkaFacade.sendCourseAccessGrantedMessage(user, mentor, course, savedAccess);
         } else {
             throw new EntityAlreadyExistsException(String.format(
                     "Юзер с ID = %d уже имеет доступ к курсу %d",
@@ -72,7 +77,8 @@ public class AccessServiceImpl implements AccessService {
                                                                   .course(course)
                                                                   .module(module)
                                                                   .build();
-            userModuleAccessRepository.save(access);
+            UserModuleAccessEntity savedAccess = userModuleAccessRepository.save(access);
+            kafkaFacade.sendModuleAccessGrantedMessage(user, mentor, course, module, savedAccess);
         } else {
             throw new EntityAlreadyExistsException(String.format(
                     "Юзер с ID = %d уже имеет доступ к модулю %d",
