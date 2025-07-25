@@ -14,19 +14,16 @@ public class ControllerAdvice {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
-        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException e) {
-        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<String> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
-        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 

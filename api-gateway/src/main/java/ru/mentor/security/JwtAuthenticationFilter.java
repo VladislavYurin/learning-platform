@@ -1,5 +1,7 @@
 package ru.mentor.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +10,8 @@ import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,39 +51,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // Получаем токен из заголовка
-        var authHeader = request.getHeader(HEADER_NAME);
-        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        try {
 
-        // Обрезаем префикс и получаем имя пользователя из токена
-        var jwt = authHeader.substring(BEARER_PREFIX.length());
-        var username = jwtService.extractUserName(jwt);
-
-        if (StringUtils.isNotEmpty(username)
-                && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService
-                    .userDetailsService()
-                    .loadUserByUsername(username);
-
-            // Если токен валиден, то аутентифицируем пользователя
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                SecurityContext context = SecurityContextHolder.createEmptyContext();
-
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                context.setAuthentication(authToken);
-                SecurityContextHolder.setContext(context);
+            // Получаем токен из заголовка
+            var authHeader = request.getHeader(HEADER_NAME);
+            if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(
+                    authHeader,
+                    BEARER_PREFIX
+            )) {
+                filterChain.doFilter(request, response);
+                return;
             }
+
+            // Обрезаем префикс и получаем имя пользователя из токена
+            var jwt = authHeader.substring(BEARER_PREFIX.length());
+            var username = jwtService.extractUserName(jwt);
+
+            if (StringUtils.isNotEmpty(username)
+                    && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userService
+                        .userDetailsService()
+                        .loadUserByUsername(username);
+
+                // Если токен валиден, то аутентифицируем пользователя
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    context.setAuthentication(authToken);
+                    SecurityContextHolder.setContext(context);
+                }
+            }
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException ex) {
+            handleJwtException(response, "JWT token expired");
+        } catch (JwtException | IllegalArgumentException ex) {
+            handleJwtException(response, "Invalid JWT token");
         }
-        filterChain.doFilter(request, response);
     }
 
     @Override
@@ -91,6 +105,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/swagger-resources") ||
                 path.startsWith("/webjars");
+    }
+
+    private void handleJwtException(HttpServletResponse response, String message)
+            throws IOException {
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.getWriter().write(
+                String.format("{\"error\": \"%s\"}", message)
+        );
     }
 
 }
