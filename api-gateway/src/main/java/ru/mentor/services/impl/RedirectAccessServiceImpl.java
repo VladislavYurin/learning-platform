@@ -12,6 +12,7 @@ import ru.mentor.feign.MentorClient;
 import ru.mentor.mapper.AccessMapper;
 import ru.mentor.services.RedirectAccessService;
 import ru.mentor.services.UserService;
+import ru.mentor.util.RqGenerator;
 
 @Service
 @RequiredArgsConstructor
@@ -27,33 +28,65 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
     @Override
     public ResponseEntity<?> getCourseAccessToUser(AccessRequest request) {
         UserEntity user = userService.getCurrentUser();
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
+                rqUId,
+                request.getUserId(),
+                request.getCourseId(),
+                user.getId()
+        ));
         Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        return mentorClient.getCourseAccessToUser(innerRequest);
+        return mentorClient.getCourseAccessToUser(rqUId, innerRequest);
     }
 
     @Override
     public ResponseEntity<?> deleteCourseAccessToUser(AccessRequest request) {
         UserEntity user = userService.getCurrentUser();
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
+                rqUId,
+                request.getUserId(),
+                request.getCourseId(),
+                user.getId()
+        ));
         Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        return mentorClient.deleteCourseAccessToUser(innerRequest);
+        return mentorClient.deleteCourseAccessToUser(rqUId, innerRequest);
     }
 
     @Override
     public ResponseEntity<?> getModuleAccessToUser(AccessRequest request) {
         UserEntity user = userService.getCurrentUser();
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
+                rqUId,
+                request.getUserId(),
+                request.getModuleId(),
+                user.getId()
+        ));
         Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-       return mentorClient.getModuleAccessToUser(innerRequest);
+        return mentorClient.getModuleAccessToUser(rqUId, innerRequest);
     }
 
     @Override
     public ResponseEntity<?> deleteModuleAccessToUser(AccessRequest request) {
         UserEntity user = userService.getCurrentUser();
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
+                rqUId,
+                request.getUserId(),
+                request.getModuleId(),
+                user.getId()
+        ));
         Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        return mentorClient.deleteModuleAccessToUser(innerRequest);
+        return mentorClient.deleteModuleAccessToUser(rqUId, innerRequest);
     }
 
 }

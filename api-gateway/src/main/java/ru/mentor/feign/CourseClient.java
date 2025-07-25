@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -29,7 +30,9 @@ public interface CourseClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    CourseDto createCourse(@RequestBody InnerCreateCourseRequest dto);
+    CourseDto createCourse(
+            @RequestHeader("RqUId") String rqUId,
+            @RequestBody InnerCreateCourseRequest dto);
 
     @RequestMapping(
             method = RequestMethod.DELETE,
@@ -37,7 +40,10 @@ public interface CourseClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<?> deleteCourse(@PathVariable Long userId, @PathVariable Long courseId);
+    ResponseEntity<?> deleteCourse(
+            @RequestHeader("RqUId") String rqUId,
+            @PathVariable Long userId,
+            @PathVariable Long courseId);
 
     @RequestMapping(
             method = RequestMethod.GET,
@@ -45,7 +51,10 @@ public interface CourseClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    CourseDto getCourseById(@PathVariable Long userId, @PathVariable Long courseId);
+    CourseDto getCourseById(
+            @RequestHeader("RqUId") String rqUId,
+            @PathVariable Long userId,
+            @PathVariable Long courseId);
 
     @RequestMapping(
             method = RequestMethod.GET,
@@ -53,7 +62,9 @@ public interface CourseClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    List<CourseDto> getAllActiveCourses(@PathVariable Long userId);
+    List<CourseDto> getAllActiveCourses(
+            @RequestHeader("RqUId") String rqUId,
+            @PathVariable Long userId);
 
     @RequestMapping(
             method = RequestMethod.GET,
@@ -61,7 +72,7 @@ public interface CourseClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    List<CourseDto> getAllCourses(@PathVariable Long userId);
+    List<CourseDto> getAllCourses(@RequestHeader("RqUId") String rqUId, @PathVariable Long userId);
 
     @RequestMapping(
             method = RequestMethod.POST,
@@ -69,7 +80,9 @@ public interface CourseClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ModuleDto createModule(@RequestBody InnerCreateModuleRequest request);
+    ModuleDto createModule(
+            @RequestHeader("RqUId") String rqUId,
+            @RequestBody InnerCreateModuleRequest request);
 
     @RequestMapping(
             method = RequestMethod.POST,
@@ -78,6 +91,7 @@ public interface CourseClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ModuleDto importModuleFromMarkdown(
+            @RequestHeader("RqUId") String rqUId,
             @RequestBody InnerCreateModuleRequest request,
             @RequestPart("file") MultipartFile file);
 
@@ -88,6 +102,7 @@ public interface CourseClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<?> deleteModule(
+            @RequestHeader("RqUId") String rqUId,
             @PathVariable Long userId,
             @PathVariable Long courseId,
             @PathVariable Long moduleId);
@@ -99,6 +114,7 @@ public interface CourseClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ModuleDto getModuleById(
+            @RequestHeader("RqUId") String rqUId,
             @PathVariable Long userId,
             @PathVariable Long courseId,
             @PathVariable Long moduleId);

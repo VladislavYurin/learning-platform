@@ -13,6 +13,7 @@ import ru.mentor.feign.CourseClient;
 import ru.mentor.mapper.CourseMapper;
 import ru.mentor.services.RedirectCourseService;
 import ru.mentor.services.UserService;
+import ru.mentor.util.RqGenerator;
 
 @Service
 @Slf4j
@@ -28,8 +29,14 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
     @Override
     public CourseDto createCourse(CreateCourseRequest request) {
         UserEntity user = userService.getCurrentUser();
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на создание курса юзером [ ID = %d ].",
+                rqUId,
+                user.getId()
+        ));
         Role.checkUserIsAdminOrMentor(user);
-        return courseClient.createCourse(courseMapper.mapToInnerCreateCourseRequest(
+        return courseClient.createCourse(rqUId, courseMapper.mapToInnerCreateCourseRequest(
                 user.getId(),
                 request
         ));
@@ -38,26 +45,52 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
     @Override
     public ResponseEntity<?> deleteCourse(Long courseId) {
         UserEntity user = userService.getCurrentUser();
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на удаление курса [ ID = %d ] юзером [ ID = %d ].",
+                rqUId,
+                courseId,
+                user.getId()
+        ));
         Role.checkUserIsAdminOrMentor(user);
-        return courseClient.deleteCourse(user.getId(), courseId);
+        return courseClient.deleteCourse(rqUId, user.getId(), courseId);
     }
 
     @Override
     public CourseDto getCourseById(Long courseId) {
         UserEntity user = userService.getCurrentUser();
-        return courseClient.getCourseById(user.getId(), courseId);
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на получение курса [ ID = %d ] юзером [ ID = %d ].",
+                rqUId,
+                courseId,
+                user.getId()
+        ));
+        return courseClient.getCourseById(rqUId, user.getId(), courseId);
     }
 
     @Override
     public List<CourseDto> getAllActiveCourses() {
         UserEntity user = userService.getCurrentUser();
-        return courseClient.getAllActiveCourses(user.getId());
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на получение активных курсов юзером [ ID = %d ].",
+                rqUId,
+                user.getId()
+        ));
+        return courseClient.getAllActiveCourses(rqUId, user.getId());
     }
 
     @Override
     public List<CourseDto> getAllCourses() {
         UserEntity user = userService.getCurrentUser();
-        return courseClient.getAllActiveCourses(user.getId());
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на получение всех курсов юзером [ ID = %d ].",
+                rqUId,
+                user.getId()
+        ));
+        return courseClient.getAllActiveCourses(rqUId, user.getId());
     }
 
 }

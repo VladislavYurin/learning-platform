@@ -3,24 +3,16 @@ package ru.mentor.config;
 import feign.Client;
 import feign.FeignException;
 import feign.Response;
-import feign.RetryableException;
 import feign.Retryer;
-import feign.codec.Decoder;
 import feign.codec.ErrorDecoder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
-import org.springframework.cloud.openfeign.support.ResponseEntityDecoder;
-import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.StreamUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -77,123 +69,41 @@ public class CommonFeignConfig {
 
     }
 
-    /**
-     * Создает и возвращает пользовательский {@link ErrorDecoder}.
-     *
-     * @return экземпляр {@link ErrorDecoder} с пользовательской логикой обработки ошибок
-     */
-//    @Bean
-//    public ErrorDecoder customErrorDecoder() {
-//        return new CommonFeignConfig.CustomErrorDecoder();
-//    }
-
-    /**
-     * Пользовательский класс для обработки ошибок в ответах от сервера.
-     * Этот класс расширяет {@link ErrorDecoder.Default} и добавляет логирование.
-     */
-//    public static class CustomErrorDecoder extends ErrorDecoder.Default {
-//
-//        /**
-//         * Декодирует ответ от сервера и возвращает исключение {@link RetryableException}
-//         * для ошибок в диапазоне 4xx и 5xx.
-//         *
-//         * @param methodKey
-//         *         ключ метода
-//         * @param response
-//         *         ответ от сервера
-//         *
-//         * @return исключение {@link RetryableException} для ошибок в диапазоне 4xx и 5xx
-//         */
-//        @Override
-//        public Exception decode(String methodKey, Response response) {
-//            String url = response.request().url();
-//            int status = response.status();
-//            String responseBody = extractResponseBody(response);
-//            HttpStatus.Series series = HttpStatus.Series.resolve(status);
-//
-//            if (series == HttpStatus.Series.SERVER_ERROR) {
-//                log.error(
-//                        "Received server error response with status: {}, body = {}",
-//                        status,
-//                        responseBody
-//                );
-//
-//                return new RetryableException(
-//                        response.status(),
-//                        "Received server error response executing POST " + url,
-//                        response.request().httpMethod(),
-//                        (Long) null,
-//                        response.request()
-//                );
-//            } else if (series == HttpStatus.Series.CLIENT_ERROR) {
-//                log.error(
-//                        "Received client error response with status: {}, body = {}",
-//                        status,
-//                        responseBody
-//                );
-//
-//                return new Exception("Client error occurred. Status: " + status + ", URL: " + url);
-//            }
-//
-//            return super.decode(methodKey, response);
-//        }
-
-//    }
-
-//    /**
-//     * Извлекает тело ответа и возвращает его в виде строки.
-//     *
-//     * @param response
-//     *         ответ от сервера
-//     *
-//     * @return тело ответа в виде строки
-//     */
-//    private static String extractResponseBody(Response response) {
-//        if (response.body() != null) {
-//            try {
-//                return IOUtils.toString(response.body().asInputStream(), StandardCharsets.UTF_8);
-//            } catch (IOException e) {
-//                log.error("Error reading response body", e);
-//            }
-//        }
-//
-//        return "No response body";
-//    }
-
     @Bean
     public ErrorDecoder errorDecoder() {
         return new CustomErrorDecoder();
-    }
-
-    @Bean
-    public Decoder feignDecoder() {
-        return new ResponseEntityDecoder(new SpringDecoder(feignHttpMessageConverter()));
-    }
-
-    private ObjectFactory<HttpMessageConverters> feignHttpMessageConverter() {
-        return () -> new HttpMessageConverters(
-                new MappingJackson2HttpMessageConverter()
-        );
     }
 
     public static class CustomErrorDecoder implements ErrorDecoder {
 
         @Override
         public Exception decode(String methodKey, Response response) {
-            // Возвращаем специальное исключение с Response для обработки в Feign
-            return new FeignClientExceptionWithResponse(response);
+            try {
+                return new FeignClientExceptionWithResponse(response);
+            } catch (IOException ignored) {
+            }
+            return null;
         }
 
         @Getter
         public static class FeignClientExceptionWithResponse extends FeignException {
-            private final Response response;
 
-            protected FeignClientExceptionWithResponse(Response response) {
+            private final int status;
+            private final String body;
+
+            protected FeignClientExceptionWithResponse(Response response)
+                    throws IOException {
                 super(response.status(), "Feign client error", response.request());
-                this.response = response;
+                this.status = response.status();
+                this.body = response.body() == null ? "" :
+                        StreamUtils.copyToString(
+                                response.body().asInputStream(),
+                                StandardCharsets.UTF_8
+                        );
             }
 
         }
+
     }
 
 }

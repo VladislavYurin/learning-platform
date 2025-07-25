@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.mentor.config.CommonFeignConfig;
@@ -24,7 +25,9 @@ public interface MentorClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<?> getCourseAccessToUser(@RequestBody GetAccessRequest dto);
+    ResponseEntity<?> getCourseAccessToUser(
+            @RequestHeader("RqUId") String rqUId,
+            @RequestBody GetAccessRequest dto);
 
     @RequestMapping(
             method = RequestMethod.POST,
@@ -32,7 +35,9 @@ public interface MentorClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<?> deleteCourseAccessToUser(@RequestBody GetAccessRequest dto);
+    ResponseEntity<?> deleteCourseAccessToUser(
+            @RequestHeader("RqUId") String rqUId,
+            @RequestBody GetAccessRequest dto);
 
     @RequestMapping(
             method = RequestMethod.POST,
@@ -40,7 +45,9 @@ public interface MentorClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<?> getModuleAccessToUser(@RequestBody GetAccessRequest dto);
+    ResponseEntity<?> getModuleAccessToUser(
+            @RequestHeader("RqUId") String rqUId,
+            @RequestBody GetAccessRequest dto);
 
     @RequestMapping(
             method = RequestMethod.POST,
@@ -48,7 +55,9 @@ public interface MentorClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<?> deleteModuleAccessToUser(@RequestBody GetAccessRequest dto);
+    ResponseEntity<?> deleteModuleAccessToUser(
+            @RequestHeader("RqUId") String rqUId,
+            @RequestBody GetAccessRequest dto);
 
     @RequestMapping(
             method = RequestMethod.GET,
@@ -57,6 +66,7 @@ public interface MentorClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<CourseProgressResponse> getCourseProgressByMentor(
+            @RequestHeader("RqUId") String rqUId,
             @PathVariable Long mentorId,
             @PathVariable Long courseId);
 
