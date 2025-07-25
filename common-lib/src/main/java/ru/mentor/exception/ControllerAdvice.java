@@ -14,26 +14,31 @@ public class ControllerAdvice {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
+        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException e) {
+        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<String> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
+        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
     @ExceptionHandler(FileProcessingException.class)
     public ResponseEntity<String> handleConversionException(FileProcessingException e) {
+        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
     @ExceptionHandler(UserException.class)
     public ResponseEntity<String> handleUserException(UserException e) {
+        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 

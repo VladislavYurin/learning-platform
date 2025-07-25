@@ -41,11 +41,11 @@ public class AccessServiceImpl implements AccessService {
     private final KafkaFacade kafkaFacade;
 
     @Override
-    public void getCourseAccessToUser(GetAccessRequest request) {
+    public void getCourseAccessToUser(String rqUId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
         UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
-        checkUserIsAuthorOrAdmin(mentor, course);
+        checkUserIsAuthorOrAdmin(rqUId, mentor, course);
         if (!accessChecker.hasAccessToCourse(user.getId(), course.getId())) {
             UserCourseAccessEntity access = UserCourseAccessEntity.builder()
                                                                   .user(user)
@@ -59,42 +59,52 @@ public class AccessServiceImpl implements AccessService {
                     "Юзер с ID = %d уже имеет доступ к курсу %d",
                     user.getId(),
                     course.getId()
-            ));
+            ), rqUId);
         }
     }
 
     @Override
-    public void getModuleAccessToUser(GetAccessRequest request) {
+    public void getModuleAccessToUser(String rqUId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
         UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
         ModuleEntity module = moduleRepository.findByIdOrThrow(request.getModuleId());
-        checkUserIsAuthorOrAdmin(mentor, course);
-        checkModuleIsInCourse(course, module);
-        if (!accessChecker.hasAccessToModule(user.getId(), course.getId())) {
-            UserModuleAccessEntity access = UserModuleAccessEntity.builder()
-                                                                  .user(user)
-                                                                  .course(course)
-                                                                  .module(module)
-                                                                  .build();
-            UserModuleAccessEntity savedAccess = userModuleAccessRepository.save(access);
-            kafkaFacade.sendModuleAccessGrantedMessage(user, mentor, course, module, savedAccess);
-        } else {
+        checkUserIsAuthorOrAdmin(rqUId, mentor, course);
+        checkModuleIsInCourse(rqUId, course, module);
+
+        if (accessChecker.hasAccessToModule(user.getId(), module.getId())) {
             throw new EntityAlreadyExistsException(String.format(
                     "Юзер с ID = %d уже имеет доступ к модулю %d",
                     user.getId(),
                     module.getId()
-            ));
+            ), rqUId);
         }
+
+        if (!accessChecker.hasAccessToCourse(user.getId(), course.getId())) {
+            throw new EntityNotFoundException(String.format(
+                    "Юзер с ID = %d не имеет доступа к курсу %d",
+                    user.getId(),
+                    course.getId()
+            ), rqUId);
+        }
+
+        UserModuleAccessEntity access = UserModuleAccessEntity.builder()
+                                                              .user(user)
+                                                              .course(course)
+                                                              .module(module)
+                                                              .accessGrantedBy(mentor)
+                                                              .build();
+        UserModuleAccessEntity savedAccess = userModuleAccessRepository.save(access);
+        kafkaFacade.sendModuleAccessGrantedMessage(user, mentor, course, module, savedAccess);
 
     }
 
     @Override
-    public void deleteCourseAccessToUser(GetAccessRequest request) {
+    public void deleteCourseAccessToUser(String rqUId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
         userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
-        checkUserIsAuthorOrAdmin(mentor, course);
+        checkUserIsAuthorOrAdmin(rqUId, mentor, course);
         accessChecker.hasAccessToCourse(request.getUserId(), request.getCourseId());
         userCourseAccessRepository.deleteByUserIdAndCourseId(
                 request.getUserId(),
@@ -107,13 +117,13 @@ public class AccessServiceImpl implements AccessService {
     }
 
     @Override
-    public void deleteModuleAccessToUser(GetAccessRequest request) {
+    public void deleteModuleAccessToUser(String rqUId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
         userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
         ModuleEntity module = moduleRepository.findByIdOrThrow(request.getModuleId());
-        checkUserIsAuthorOrAdmin(mentor, course);
-        checkModuleIsInCourse(course, module);
+        checkUserIsAuthorOrAdmin(rqUId, mentor, course);
+        checkModuleIsInCourse(rqUId, course, module);
         accessChecker.hasAccessToCourse(request.getUserId(), request.getCourseId());
         accessChecker.hasAccessToModule(request.getUserId(), request.getModuleId());
         userModuleAccessRepository.deleteByUserIdAndModuleId(
@@ -122,7 +132,7 @@ public class AccessServiceImpl implements AccessService {
         );
     }
 
-    private void checkUserIsAuthorOrAdmin(UserEntity mentor, CourseEntity course) {
+    private void checkUserIsAuthorOrAdmin(String rqUId, UserEntity mentor, CourseEntity course) {
         if (Role.checkIsAdmin(mentor)) {
             return;
         }
@@ -135,10 +145,13 @@ public class AccessServiceImpl implements AccessService {
                 "Юзер с ID = %d не имеет доступа к выдаче доступа к курсу %d",
                 mentor.getId(),
                 course.getId()
-        ));
+        ), rqUId);
     }
 
-    private void checkModuleIsInCourse(CourseEntity course, ModuleEntity moduleEntity) {
+    private void checkModuleIsInCourse(
+            String rqUId,
+            CourseEntity course,
+            ModuleEntity moduleEntity) {
         if (Objects.equals(moduleEntity.getCourse().getId(), course.getId())) {
             return;
         }
@@ -147,8 +160,7 @@ public class AccessServiceImpl implements AccessService {
                         "Модуль с ID = %d не принадлежит курсу с ID = %d",
                         moduleEntity.getId(),
                         course.getId()
-                )
-        );
+                ), rqUId);
     }
 
 }

@@ -48,6 +48,7 @@ public class CourseController {
                     @ApiResponse(responseCode = "200", description = "Курс успешно создан",
                             content = @Content(schema = @Schema(implementation = CourseDto.class))),
                     @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен")
             }
     )
@@ -60,7 +61,9 @@ public class CourseController {
     /**
      * Удаляет курс по идентификатору
      *
-     * @param courseId Идентификатор курса
+     * @param courseId
+     *         Идентификатор курса
+     *
      * @return Пустой ответ со статусом 200
      */
     @Operation(
@@ -68,6 +71,7 @@ public class CourseController {
             description = "Позволяет удалить курс. Требуются права ADMIN или MENTOR",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Курс успешно удален"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
                     @ApiResponse(responseCode = "404", description = "Курс не найден")
             }
@@ -81,7 +85,9 @@ public class CourseController {
     /**
      * Получает курс по идентификатору
      *
-     * @param courseId Идентификатор курса
+     * @param courseId
+     *         Идентификатор курса
+     *
      * @return Найденный курс
      */
     @Operation(
@@ -90,6 +96,7 @@ public class CourseController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Информация о курсе",
                             content = @Content(schema = @Schema(implementation = CourseDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
                     @ApiResponse(responseCode = "404", description = "Курс не найден")
             }
     )
@@ -108,7 +115,8 @@ public class CourseController {
             description = "Возвращает список всех активных курсов",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Список активных курсов",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = CourseDto.class))))
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = CourseDto.class)))),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
             }
     )
     @GetMapping("/all/active")
@@ -126,7 +134,8 @@ public class CourseController {
             description = "Возвращает список всех курсов, включая неактивные",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Список всех курсов",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = CourseDto.class))))
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = CourseDto.class)))),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
             }
     )
     @GetMapping("/all")

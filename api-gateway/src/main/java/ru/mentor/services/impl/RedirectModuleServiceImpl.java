@@ -76,4 +76,19 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
         return courseClient.importModuleFromMarkdown(rqUId, innerCreateModuleRequest, file);
     }
 
+    @Override
+    public void deleteModule(Long courseId, Long moduleId) {
+        UserEntity user = userService.getCurrentUser();
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на удаление модуля [ ID = %d ] в курсе [ ID = %d ] юзером [ ID = %d ].",
+                rqUId,
+                moduleId,
+                courseId,
+                user.getId()
+        ));
+        Role.checkUserIsAdminOrMentor(user);
+        courseClient.deleteModule(rqUId, user.getId(), courseId, moduleId);
+    }
+
 }

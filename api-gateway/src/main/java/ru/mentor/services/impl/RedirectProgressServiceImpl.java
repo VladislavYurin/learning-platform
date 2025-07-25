@@ -25,7 +25,7 @@ public class RedirectProgressServiceImpl implements RedirectProgressService {
         UserEntity user = userService.getCurrentUser();
         String rqUId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на прогресса учеников в курсе [ ID = %d ] юзером [ ID = %d ].",
+                "[ RqUId = %s ] Получен запрос на получение прогресса учеников в курсе [ ID = %d ] юзером [ ID = %d ].",
                 rqUId,
                 courseId,
                 user.getId()

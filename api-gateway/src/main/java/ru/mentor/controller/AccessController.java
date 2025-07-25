@@ -38,6 +38,7 @@ public class AccessController {
             description = "Позволяет выдать доступ пользователю к указанному курсу",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Доступ успешно выдан"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
                     @ApiResponse(responseCode = "404", description = "Курс или пользователь не найден")
             }
@@ -61,6 +62,7 @@ public class AccessController {
             description = "Позволяет отозвать доступ пользователя к указанному курсу",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Доступ успешно отозван"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
                     @ApiResponse(responseCode = "404", description = "Доступ не найден")
             }
@@ -84,6 +86,7 @@ public class AccessController {
             description = "Позволяет выдать доступ пользователю к указанному модулю курса",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Доступ успешно выдан"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
                     @ApiResponse(responseCode = "404", description = "Модуль или пользователь не найден")
             }
@@ -107,6 +110,7 @@ public class AccessController {
             description = "Позволяет отозвать доступ пользователя к указанному модулю курса",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Доступ успешно отозван"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
                     @ApiResponse(responseCode = "404", description = "Доступ не найден")
             }

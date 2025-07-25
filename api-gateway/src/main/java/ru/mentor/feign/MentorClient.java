@@ -31,7 +31,7 @@ public interface MentorClient {
 
     @RequestMapping(
             method = RequestMethod.POST,
-            value = "/course/delete-access",
+            value = "/access/course/delete-access",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
@@ -41,7 +41,7 @@ public interface MentorClient {
 
     @RequestMapping(
             method = RequestMethod.POST,
-            value = "/module/get-access",
+            value = "/access/module/get-access",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
@@ -51,7 +51,7 @@ public interface MentorClient {
 
     @RequestMapping(
             method = RequestMethod.POST,
-            value = "/module/delete-access",
+            value = "/access/module/delete-access",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )

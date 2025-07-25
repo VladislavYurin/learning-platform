@@ -12,4 +12,6 @@ public interface RedirectModuleService {
 
     ModuleDto importModuleFromFile(CreateModuleRequest request, MultipartFile file);
 
+    void deleteModule(Long courseId, Long moduleId);
+
 }

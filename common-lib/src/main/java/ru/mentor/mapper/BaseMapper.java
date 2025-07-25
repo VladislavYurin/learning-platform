@@ -76,6 +76,7 @@ public class BaseMapper {
                           .role(entity.getRole())
                           .firstName(entity.getFirstName())
                           .lastName(entity.getLastName())
+                          .tgNickname(entity.getTgNickname())
                           .build();
 
     }
