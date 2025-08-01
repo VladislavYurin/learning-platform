@@ -10,7 +10,7 @@ import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.entity.UserModuleAccessEntity;
-import ru.mentor.exception.AccessDeniedException;
+import ru.mentor.exception.CustomAccessDeniedException;
 import ru.mentor.exception.EntityAlreadyExistsException;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.kafka.KafkaFacade;
@@ -141,7 +141,7 @@ public class AccessServiceImpl implements AccessService {
             return;
         }
 
-        throw new AccessDeniedException(String.format(
+        throw new CustomAccessDeniedException(String.format(
                 "Юзер с ID = %d не имеет доступа к выдаче доступа к курсу %d",
                 mentor.getId(),
                 course.getId()

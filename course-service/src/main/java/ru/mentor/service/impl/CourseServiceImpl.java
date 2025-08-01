@@ -13,7 +13,7 @@ import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.entity.UserModuleAccessEntity;
-import ru.mentor.exception.AccessDeniedException;
+import ru.mentor.exception.CustomAccessDeniedException;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.UserCourseAccessRepository;
@@ -49,7 +49,7 @@ public class CourseServiceImpl implements CourseService {
             CourseEntity courseEntity = courseRepository.save(course);
             return baseMapper.mapCourse(courseEntity, user, false, false);
         } else {
-            throw new AccessDeniedException(
+            throw new CustomAccessDeniedException(
                     String.format(
                             "Юзер с ID = %d не имеет доступа к созданию курса",
                             request.getAuthorId()
@@ -76,7 +76,7 @@ public class CourseServiceImpl implements CourseService {
         }
 
         // Если дошли сюда — доступ запрещён
-        throw new AccessDeniedException(
+        throw new CustomAccessDeniedException(
                 String.format(
                         "Юзер с ID = %d не имеет доступа к удалению курса с ID = %d",
                         userId,
@@ -148,7 +148,7 @@ public class CourseServiceImpl implements CourseService {
             courseDto.setModules(modules);
             return courseDto;
         }
-        throw new AccessDeniedException(
+        throw new CustomAccessDeniedException(
                 String.format(
                         "Юзер с ID = %d не имеет доступа к курсу с ID = %d",
                         userId,

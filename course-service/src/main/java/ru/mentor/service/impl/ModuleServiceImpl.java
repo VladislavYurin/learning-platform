@@ -13,7 +13,7 @@ import ru.mentor.dto.ModuleDto;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
-import ru.mentor.exception.AccessDeniedException;
+import ru.mentor.exception.CustomAccessDeniedException;
 import ru.mentor.exception.FileProcessingException;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.CourseRepository;
@@ -62,7 +62,7 @@ public class ModuleServiceImpl implements ModuleService {
             ModuleEntity moduleEntity = moduleRepository.save(module);
             return baseMapper.mapModule(moduleEntity, false);
         } else {
-            throw new AccessDeniedException(
+            throw new CustomAccessDeniedException(
                     String.format(
                             "Юзер с ID = %d не имеет доступа к добавлению модуля в курс с ID = %d",
                             request.getUserId(),
@@ -82,7 +82,7 @@ public class ModuleServiceImpl implements ModuleService {
             ModuleEntity moduleEntity = moduleRepository.findByIdOrThrow(moduleId);
             moduleRepository.delete(moduleEntity);
         } else {
-            throw new AccessDeniedException(
+            throw new CustomAccessDeniedException(
                     String.format(
                             "Юзер с ID = %d не имеет доступа к удалению модуля с ID = %d в курсе с ID = %d",
                             userId,
@@ -104,7 +104,7 @@ public class ModuleServiceImpl implements ModuleService {
                         accessChecker.hasAccessToModule(userId, moduleId))) {
             return baseMapper.mapModule(module, true);
         }
-        throw new AccessDeniedException(
+        throw new CustomAccessDeniedException(
                 String.format(
                         "Юзер с ID = %d не имеет доступа к модулю с ID = %d",
                         userId,
@@ -121,7 +121,7 @@ public class ModuleServiceImpl implements ModuleService {
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
         if (!Role.checkIsAdmin(user) &&
                 !(Role.checkIsMentor(user) && Role.checkMentorIsAuthorOfCourse(user, course))) {
-            throw new AccessDeniedException("Нет прав на импорт модулей");
+            throw new CustomAccessDeniedException("Нет прав на импорт модулей");
         }
         try {
             String markdownContent = new String(file.getBytes(), StandardCharsets.UTF_8);

@@ -15,7 +15,7 @@ import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.entity.UserModuleAccessEntity;
-import ru.mentor.exception.AccessDeniedException;
+import ru.mentor.exception.CustomAccessDeniedException;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.ModuleRepository;
 import ru.mentor.repository.UserCourseAccessRepository;
@@ -109,7 +109,7 @@ public class ProgressServiceImpl implements ProgressService {
                                          .statistic(statistic)
                                          .build();
         } else {
-            throw new AccessDeniedException(
+            throw new CustomAccessDeniedException(
                     String.format(
                             "Юзер с ID = %d не является автором курса с ID = %d",
                             mentorId,
@@ -165,7 +165,7 @@ public class ProgressServiceImpl implements ProgressService {
 
             return mentees;
         } else {
-            throw new AccessDeniedException(
+            throw new CustomAccessDeniedException(
                     String.format(
                             "Юзер с ID = %d не является автором курса с ID = %d",
                             mentorId,
