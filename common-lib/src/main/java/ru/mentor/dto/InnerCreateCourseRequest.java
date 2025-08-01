@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class InnerCreateCourseRequest {
 
-    private Long userId;
+    private Long authorId;
 
     private String courseName;
 

@@ -89,6 +89,7 @@ public class ProgressServiceImpl implements ProgressService {
                                              .firstName(student.getFirstName())
                                              .lastName(student.getLastName())
                                              .currentModuleId(currentModuleId)
+                                             .tgNickname(student.getTgNickname())
                                              .build());
             }
 
@@ -157,6 +158,7 @@ public class ProgressServiceImpl implements ProgressService {
                                              .userId(student.getId())
                                              .firstName(student.getFirstName())
                                              .lastName(student.getLastName())
+                                             .tgNickname(student.getTgNickname())
                                              .currentModuleId(currentModuleId)
                                              .build());
             }

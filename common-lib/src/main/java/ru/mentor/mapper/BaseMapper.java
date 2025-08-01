@@ -22,6 +22,7 @@ public class BaseMapper {
         return entities.stream()
                        .map(entity -> mapCourse(
                                entity,
+                               entity.getAuthor(),
                                isNeedToFetchModules,
                                isNeedToFetchSubmodules
                        ))
@@ -30,6 +31,7 @@ public class BaseMapper {
 
     public CourseDto mapCourse(
             CourseEntity entity,
+            UserEntity user,
             Boolean isNeedToFetchModules,
             Boolean isNeedToFetchModuleContent) {
         return CourseDto.builder()
@@ -37,7 +39,7 @@ public class BaseMapper {
                         .courseTitle(entity.getCourseTitle())
                         .courseDescription(entity.getDescription())
                         .isActive(entity.getIsActive())
-                        .authorId(entity.getAuthor().getId())
+                        .author(user != null ? mapUserDto(user) : null)
                         .modules(
                                 isNeedToFetchModules ? mapModules(
                                         entity.getModules(),

@@ -29,7 +29,6 @@ public class CourseController {
 
     @PostMapping("/create")
     public ResponseEntity<CourseDto> createCourse(@RequestBody @Valid InnerCreateCourseRequest request) {
-        System.out.println(request);
         return ResponseEntity.ok().body(courseService.createCourse(request));
     }
 

@@ -40,19 +40,19 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseDto createCourse(InnerCreateCourseRequest request) {
-        UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
+        UserEntity user = userRepository.findByIdOrThrow(request.getAuthorId());
         if (Role.checkIsMentor(user) || Role.checkIsAdmin(user)) {
             CourseEntity course = new CourseEntity();
             course.setAuthor(user);
             course.setCourseTitle(request.getCourseName());
             course.setDescription(request.getCourseDescription());
             CourseEntity courseEntity = courseRepository.save(course);
-            return baseMapper.mapCourse(courseEntity, false, false);
+            return baseMapper.mapCourse(courseEntity, user, false, false);
         } else {
             throw new AccessDeniedException(
                     String.format(
                             "Юзер с ID = %d не имеет доступа к созданию курса",
-                            request.getUserId()
+                            request.getAuthorId()
                     )
             );
         }
@@ -135,7 +135,7 @@ public class CourseServiceImpl implements CourseService {
         CourseEntity course = courseRepository.findByIdOrThrow(courseId);
         if (Role.checkIsAdmin(user) ||
                 Role.checkIsMentor(user) && Role.checkMentorIsAuthorOfCourse(user, course)) {
-            return baseMapper.mapCourse(course, true, false);
+            return baseMapper.mapCourse(course, course.getAuthor(), true, false);
         } else if (accessChecker.hasAccessToCourse(userId, courseId)) {
             List<UserModuleAccessEntity> userModuleAccessEntities = userModuleAccessRepository.findAllByUserIdAndCourseId(
                     userId,
@@ -143,7 +143,7 @@ public class CourseServiceImpl implements CourseService {
             );
             List<ModuleEntity> moduleEntities = userModuleAccessEntities.stream().map(
                     UserModuleAccessEntity::getModule).toList();
-            CourseDto courseDto = baseMapper.mapCourse(course, false, false);
+            CourseDto courseDto = baseMapper.mapCourse(course, course.getAuthor(), false, false);
             List<ModuleDto> modules = baseMapper.mapModules(moduleEntities, false);
             courseDto.setModules(modules);
             return courseDto;

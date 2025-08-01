@@ -27,7 +27,7 @@ public class CourseDto {
     private LocalDateTime createdAt;
 
     @Schema(description = "ID автора курса", example = "5")
-    private Long authorId;
+    private UserInfoDto author;
 
     @Schema(description = "Список модулей курса")
     private List<ModuleDto> modules;

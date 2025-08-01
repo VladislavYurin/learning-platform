@@ -137,7 +137,7 @@ public class AccessServiceImpl implements AccessService {
             return;
         }
 
-        if (Role.checkIsMentor(mentor) && course.getAuthor().equals(mentor)) {
+        if (Role.checkIsMentor(mentor) && Role.checkMentorIsAuthorOfCourse(mentor, course)) {
             return;
         }
 

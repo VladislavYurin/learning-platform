@@ -15,4 +15,6 @@ public class MenteeProgressDto {
 
     private Long currentModuleId;
 
+    private String tgNickname;
+
 }

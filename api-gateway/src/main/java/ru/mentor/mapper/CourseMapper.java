@@ -15,7 +15,7 @@ public class CourseMapper {
             Long userId,
             CreateCourseRequest createCourseRequest) {
         return InnerCreateCourseRequest.builder()
-                                       .userId(userId)
+                                       .authorId(userId)
                                        .courseDescription(createCourseRequest.getCourseDescription())
                                        .courseName(createCourseRequest.getCourseName())
                                        .build();
