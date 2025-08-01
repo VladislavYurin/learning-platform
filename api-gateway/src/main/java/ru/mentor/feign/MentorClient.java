@@ -1,5 +1,6 @@
 package ru.mentor.feign;
 
+import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import ru.mentor.config.CommonFeignConfig;
 import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.GetAccessRequest;
+import ru.mentor.dto.MenteeProgressDto;
 
 @FeignClient(
         name = "mentorClient",
@@ -61,11 +63,22 @@ public interface MentorClient {
 
     @RequestMapping(
             method = RequestMethod.GET,
-            value = "/progress/course/{mentorId}/{courseId}",
+            value = "/progress/course/{mentorId}/{courseId}/statistics",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<CourseProgressResponse> getCourseProgressByMentor(
+            @RequestHeader("RqUId") String rqUId,
+            @PathVariable Long mentorId,
+            @PathVariable Long courseId);
+
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = "/progress/course/{mentorId}/{courseId}/users",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    ResponseEntity<List<MenteeProgressDto>> getAllUsersAtCourse(
             @RequestHeader("RqUId") String rqUId,
             @PathVariable Long mentorId,
             @PathVariable Long courseId);

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.CourseProgressResponse;
+import ru.mentor.dto.MenteeProgressDto;
 import ru.mentor.services.RedirectProgressService;
 
 @RestController
@@ -33,9 +35,26 @@ public class ProgressController {
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен")
             }
     )
-    @GetMapping("/course/{courseId}")
+    @GetMapping("/course/{courseId}/statistics")
     public ResponseEntity<CourseProgressResponse> getCourseProgressByMentor(@PathVariable Long courseId) {
         CourseProgressResponse response = redirectProgressService.getCourseProgressByMentor(courseId);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @Operation(
+            summary = "Получить всех учеников в курсе",
+            description = "Позволяет получить информацию о всех учениках в курсе с текущим модулем. Требуются права ADMIN или MENTOR",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Информацию о всех учениках в курсе",
+                            content = @Content(schema = @Schema(allOf = MenteeProgressDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
+            }
+    )
+    @GetMapping("/course/{courseId}/users")
+    public ResponseEntity<List<MenteeProgressDto>> getAllUsersAtCourse(@PathVariable Long courseId) {
+        List<MenteeProgressDto> response = redirectProgressService.getAllUsersAtCourse(courseId);
         return ResponseEntity.ok().body(response);
     }
 

@@ -27,3 +27,7 @@ graph TD
 | `course-service`       | Управление курсами и модулями (CRUD, импорт)   |
 | `mentor-service`       | Управление доступами, статистика прогресса     |
 | `notification-service` | Отправка уведомлений (email, Telegram)         |
+
+## Swagger API Gateway
+
+http://localhost:8080/swagger-ui/index.html#/
