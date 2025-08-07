@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.calendar";
+option java_outer_classname = "CalendarProto";
+
+// Сервис для работы с календарем
+service CalendarService {
+  // Создание нового слота в календаре ментора
+  rpc CreateMentorTimeSlot (CreateTimeSlotRequest) returns (TimeSlotResponse);
+}
+
+// Запрос на создание слота
+message CreateTimeSlotRequest {
+  int64 mentor_id = 1;                  // ID ментора
+  google.protobuf.Timestamp start_time = 2; // Время начала слота
+  google.protobuf.Timestamp end_time = 3;   // Время окончания слота
+  SlotType slot_type = 4;               // Тип слота
+  SlotStatus slot_status = 5;           // Статус слота
+  int32 max_participants = 6;           // Макс. участников (для групповых)
+  string meeting_link = 7;              // Ссылка на встречу (опционально)
+  string description = 8;               // Описание слота (опционально)
+}
+
+// Ответ с созданным слотом
+message TimeSlotResponse {
+  int64 slot_id = 1;                    // ID созданного слота
+  int64 mentor_id = 2;                  // ID ментора
+  google.protobuf.Timestamp start_time = 3; // Время начала
+  google.protobuf.Timestamp end_time = 4;   // Время окончания
+  SlotType slot_type = 5;               // Тип слота
+  SlotStatus slot_status = 6;           // Статус слота
+  int32 max_participants = 7;           // Макс. участников
+  string meeting_link = 8;              // Ссылка на встречу
+  string description = 9;               // Описание
+  google.protobuf.Timestamp created_at = 10; // Время создания
+}
+
+// Типы слотов
+enum SlotType {
+  INDIVIDUAL = 0;
+  GROUP = 1;
+}
+
+// Статусы слотов
+enum SlotStatus {
+  ACQUAINTANCE = 0;
+  COMMUNICATION = 1;
+  ACCEPTING = 2;
+}
