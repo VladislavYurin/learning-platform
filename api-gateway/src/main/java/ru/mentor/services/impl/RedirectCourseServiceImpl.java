@@ -90,7 +90,7 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
                 rqUId,
                 user.getId()
         ));
-        return courseClient.getAllActiveCourses(rqUId, user.getId());
+        return courseClient.getAllCourses(rqUId, user.getId());
     }
 
 }
