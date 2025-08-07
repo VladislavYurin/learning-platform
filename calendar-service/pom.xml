@@ -25,13 +25,6 @@
       <version>1.0-SNAPSHOT</version>
     </dependency>
 
-    <!-- gRPC server dependencies -->
-    <dependency>
-      <groupId>net.devh</groupId>
-      <artifactId>grpc-server-spring-boot-starter</artifactId>
-      <version>${grpc.version}</version>
-    </dependency>
-
     <!-- Для работы с protobuf -->
     <dependency>
       <groupId>com.google.protobuf</groupId>

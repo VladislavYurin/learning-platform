@@ -144,6 +144,17 @@
       <version>1.53.0</version>
       <scope>runtime</scope>
     </dependency>
+    <!--- GRPC  -->
+    <dependency>
+      <groupId>net.devh</groupId>
+      <artifactId>grpc-client-spring-boot-starter</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.devh</groupId>
+      <artifactId>grpc-server-spring-boot-starter</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
 
   </dependencies>
 
