@@ -38,7 +38,10 @@ public class CalendarServiceGrpcClient {
         try {
             return blockingStub.createMentorTimeSlot(request);
         } catch (Exception e) {
-            throw new GrpcRetryException();
+            throw new GrpcRetryException(String.format(
+                    "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
+                    request.getRqUid()
+            ), request.getRqUid());
         }
     }
 
