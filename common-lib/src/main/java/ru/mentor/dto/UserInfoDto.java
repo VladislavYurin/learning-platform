@@ -20,4 +20,6 @@ public class UserInfoDto {
 
     private String tgNickname;
 
+    private Long tgChatId;
+
 }

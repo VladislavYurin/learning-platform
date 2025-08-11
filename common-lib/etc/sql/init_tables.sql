@@ -6,6 +6,7 @@ create table if not exists users
     last_name   varchar(255) not null,
     tg_nickname varchar(255) not null,
     password    varchar(255) not null,
+    telegram_chat_id bigint not null,
     user_role   varchar(255) not null default 'USER'
 );
 
