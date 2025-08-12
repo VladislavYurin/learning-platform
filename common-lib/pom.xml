@@ -155,7 +155,6 @@
       <artifactId>grpc-server-spring-boot-starter</artifactId>
       <version>${grpc.version}</version>
     </dependency>
-
   </dependencies>
 
   <build>
