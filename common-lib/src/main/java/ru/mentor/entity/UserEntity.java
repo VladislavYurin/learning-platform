@@ -66,6 +66,9 @@ public class UserEntity implements UserDetails {
     @Column(name = "tg_nickname", nullable = false)
     private String tgNickname;
 
+    @Column(name = "telegram_chat_id", nullable = false)
+    private Long tgChatId;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserCourseAccessEntity> courseAccesses = new ArrayList<>();
 
