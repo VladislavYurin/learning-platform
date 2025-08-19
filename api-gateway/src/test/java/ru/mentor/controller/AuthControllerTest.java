@@ -4,8 +4,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration;
+import net.devh.boot.grpc.server.autoconfigure.GrpcServerFactoryAutoConfiguration;
+import net.devh.boot.grpc.server.autoconfigure.GrpcServerSecurityAutoConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -20,6 +24,11 @@ import ru.mentor.ApiGatewayApplication;
 @Testcontainers
 @SpringBootTest(classes = ApiGatewayApplication.class)
 @AutoConfigureMockMvc
+@EnableAutoConfiguration(exclude = {
+        GrpcServerAutoConfiguration.class,
+        GrpcServerFactoryAutoConfiguration.class,
+        GrpcServerSecurityAutoConfiguration.class
+})
 public class AuthControllerTest {
 
     @Autowired
