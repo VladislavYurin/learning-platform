@@ -1,13 +1,13 @@
 create table if not exists users
 (
-    id_user     BIGSERIAL primary key,
-    username    varchar(255) not null,
-    first_name  varchar(255) not null,
-    last_name   varchar(255) not null,
-    tg_nickname varchar(255) not null,
-    password    varchar(255) not null,
-    telegram_chat_id bigint not null,
-    user_role   varchar(255) not null default 'USER'
+    id_user          BIGSERIAL primary key,
+    username         varchar(255) not null,
+    firstname        varchar(255) not null,
+    lastname         varchar(255) not null,
+    tg_nickname      varchar(255) not null,
+    password         varchar(255) not null,
+    telegram_chat_id bigint,
+    user_role        varchar(255) not null default 'USER'
 );
 
 CREATE TABLE IF NOT EXISTS courses

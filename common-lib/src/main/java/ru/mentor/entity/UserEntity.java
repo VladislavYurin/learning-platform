@@ -57,16 +57,16 @@ public class UserEntity implements UserDetails {
     @Column(name = "user_role", nullable = false)
     private Role role;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "firstname", nullable = false)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "lastname", nullable = false)
     private String lastName;
 
     @Column(name = "tg_nickname", nullable = false)
     private String tgNickname;
 
-    @Column(name = "telegram_chat_id", nullable = false)
+    @Column(name = "telegram_chat_id")
     private Long tgChatId;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
