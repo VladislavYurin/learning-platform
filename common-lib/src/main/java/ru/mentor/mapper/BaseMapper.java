@@ -11,10 +11,17 @@ import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 
+/**
+ * Базовый маппер для преобразования сущностей в DTO объекты.
+ * Предоставляет методы для маппинга курсов, модулей и пользователей.
+ */
 @Component
 @RequiredArgsConstructor
 public class BaseMapper {
 
+    /**
+     * Преобразует список сущностей курсов в список DTO курсов.
+     */
     public List<CourseDto> mapCourses(
             List<CourseEntity> entities,
             Boolean isNeedToFetchModules,
@@ -29,6 +36,9 @@ public class BaseMapper {
                        .toList();
     }
 
+    /**
+     * Преобразует сущность курса в DTO курса.
+     */
     public CourseDto mapCourse(
             CourseEntity entity,
             UserEntity user,
@@ -49,6 +59,10 @@ public class BaseMapper {
                         .build();
     }
 
+    /**
+     * Преобразует список сущностей модулей в список DTO модулей.
+     * Модули сортируются по порядковому номеру.
+     */
     public List<ModuleDto> mapModules(
             List<ModuleEntity> entities,
             Boolean isNeedToFetchModuleContent) {
@@ -58,6 +72,9 @@ public class BaseMapper {
                        .toList();
     }
 
+    /**
+     * Преобразует сущность модуля в DTO модуля.
+     */
     public ModuleDto mapModule(ModuleEntity entity, Boolean isNeedToFetchModuleContent) {
         return ModuleDto.builder()
                         .id(entity.getId())
@@ -71,6 +88,9 @@ public class BaseMapper {
                         .build();
     }
 
+    /**
+     * Преобразует сущность пользователя в DTO информации о пользователе.
+     */
     public UserInfoDto mapUserDto(UserEntity entity) {
         return UserInfoDto.builder()
                           .id(entity.getId())

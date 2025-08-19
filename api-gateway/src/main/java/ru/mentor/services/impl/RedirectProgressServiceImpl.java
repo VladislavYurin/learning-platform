@@ -13,6 +13,9 @@ import ru.mentor.services.RedirectProgressService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
 
+/**
+ * Реализация сервиса редиректов/агрегации прогресса по курсам.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -22,6 +25,11 @@ public class RedirectProgressServiceImpl implements RedirectProgressService {
 
     private final UserService userService;
 
+    /**
+     * Возвращает агрегированную статистику прогресса по курсу для наставника.
+     * @param courseId идентификатор курса
+     * @return сводный отчет по прогрессу курса
+     */
     @Override
     public CourseProgressResponse getCourseProgressByMentor(Long courseId) {
         UserEntity user = userService.getCurrentUser();
@@ -36,6 +44,11 @@ public class RedirectProgressServiceImpl implements RedirectProgressService {
         return mentorClient.getCourseProgressByMentor(rqUId, user.getId(), courseId).getBody();
     }
 
+    /**
+     * Возвращает список прогресса всех учеников курса для текущего наставника.
+     * @param courseId идентификатор курса
+     * @return список прогресса по каждому ученику
+     */
     @Override
     public List<MenteeProgressDto> getAllUsersAtCourse(Long courseId) {
         UserEntity user = userService.getCurrentUser();

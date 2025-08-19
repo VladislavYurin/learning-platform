@@ -17,6 +17,13 @@ import ru.mentor.dto.InnerCreateCourseRequest;
 import ru.mentor.dto.InnerCreateModuleRequest;
 import ru.mentor.dto.ModuleDto;
 
+/**
+ * Клиент OpenFeign для работы с курсами во внешнем сервисе.
+ * <p>
+ *      Инкапсулирует HTTP-вызовы API курсов: создание и удаление.
+ *      Для трассировки запросов передаёт корелляционный заголовок {@code RqUId}.
+ * </p>
+ */
 @FeignClient(
         name = "courseClient",
         url = "${integration.course-service.url}",
@@ -24,6 +31,12 @@ import ru.mentor.dto.ModuleDto;
 )
 public interface CourseClient {
 
+    /**
+     * Создает курс во внешнем сервисе.
+     * @param rqUId корелляционный идентификатор запроса (попадает в заголовок {@code RqUId})
+     * @param dto тело запроса для создания курса
+     * @return созданный курс
+     */
     @RequestMapping(
             method = RequestMethod.POST,
             value = "/course/create",
@@ -34,6 +47,13 @@ public interface CourseClient {
             @RequestHeader("RqUId") String rqUId,
             @RequestBody InnerCreateCourseRequest dto);
 
+    /**
+     * Удаляет курс во внешнем сервисе.
+     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param userId идентификатор пользователя-владельца курса
+     * @param courseId идентификатор курса
+     * @return ответ внешнего сервиса
+     */
     @RequestMapping(
             method = RequestMethod.DELETE,
             value = "/course/{userId}/{courseId}",
@@ -45,6 +65,13 @@ public interface CourseClient {
             @PathVariable Long userId,
             @PathVariable Long courseId);
 
+    /**
+     * Возвращает курс по его идентификатору.
+     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param userId идентификатор пользователя-владельца курса
+     * @param courseId идентификатор курса
+     * @return курс
+     */
     @RequestMapping(
             method = RequestMethod.GET,
             value = "/course/{userId}/{courseId}",
@@ -56,6 +83,12 @@ public interface CourseClient {
             @PathVariable Long userId,
             @PathVariable Long courseId);
 
+    /**
+     * Возвращает список всех активных курсов.
+     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param userId идентификатор пользователя-владельца курса
+     * @return список курсов
+     */
     @RequestMapping(
             method = RequestMethod.GET,
             value = "/course/{userId}/all/active",
@@ -66,6 +99,12 @@ public interface CourseClient {
             @RequestHeader("RqUId") String rqUId,
             @PathVariable Long userId);
 
+    /**
+     * Возвращает список всех курсов.
+     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param userId идентификатор пользователя-владельца курса
+     * @return список курсов
+     */
     @RequestMapping(
             method = RequestMethod.GET,
             value = "/course/{userId}/all",
@@ -74,6 +113,12 @@ public interface CourseClient {
     )
     List<CourseDto> getAllCourses(@RequestHeader("RqUId") String rqUId, @PathVariable Long userId);
 
+    /**
+     * Создает модуль во внешнем сервисе.
+     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param request тело запроса на создание модуля (метаданные модуля)
+     * @return созданный модуль
+     */
     @RequestMapping(
             method = RequestMethod.POST,
             value = "/module/create",
@@ -84,6 +129,13 @@ public interface CourseClient {
             @RequestHeader("RqUId") String rqUId,
             @RequestBody InnerCreateModuleRequest request);
 
+    /**
+     * Импортирует модуль из Markdown-файла.
+     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param request тело запроса на создание модуля (метаданные модуля)
+     * @param file загружаемый Markdown-файл с содержимым модуля
+     * @return модуль
+     */
     @RequestMapping(
             method = RequestMethod.POST,
             value = "/module/import",
@@ -95,6 +147,14 @@ public interface CourseClient {
             @RequestBody InnerCreateModuleRequest request,
             @RequestPart("file") MultipartFile file);
 
+    /**
+     * Удаляет модуль из внешнего сервиса.
+     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param userId идентификатор пользователя-владельца курса
+     * @param courseId идентификатор курса
+     * @param moduleId идентификатор модуля внутри курса
+     * @return ответ внешнего сервиса
+     */
     @RequestMapping(
             method = RequestMethod.DELETE,
             value = "/module/{userId}/{courseId}/{moduleId}",
@@ -107,6 +167,14 @@ public interface CourseClient {
             @PathVariable Long courseId,
             @PathVariable Long moduleId);
 
+    /**
+     * Возвращает модуль по его идентификатору.
+     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param userId идентификатор пользователя-владельца курса
+     * @param courseId идентификатор курса
+     ** @param moduleId идентификатор модуля
+     * @return курс
+     */
     @RequestMapping(
             method = RequestMethod.GET,
             value = "/module/{userId}/{courseId}/{moduleId}",

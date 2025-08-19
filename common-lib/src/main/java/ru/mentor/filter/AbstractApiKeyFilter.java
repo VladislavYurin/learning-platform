@@ -12,13 +12,27 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * Абстрактный фильтр для проверки API ключа в заголовках HTTP запросов.
+ * Проверяет наличие и корректность ключа авторизации в заголовке "X-Service-Auth".
+ * Если ключ отсутствует или неверен, возвращает HTTP статус 401 (UNAUTHORIZED).
+ */
 @Component
 @Order(1)
 public abstract class AbstractApiKeyFilter implements Filter {
 
+    /**
+     * Действительный API ключ, загружаемый из конфигурационных свойств.
+     */
     @Value("${microservice.auth-key}")
     private String validApiKey;
 
+    /**
+     * Метод фильтрации запросов, проверяющий API ключ.
+     * Извлекает заголовок "X-Service-Auth" из HTTP запроса и сравнивает его с действительным ключом.
+     * Если ключ отсутствует или неверен, отправляет ошибку 401 (UNAUTHORIZED).
+     * В противном случае передает запрос дальше по цепочке фильтров.
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {

@@ -13,14 +13,28 @@ import ru.mentor.calendar.CreateTimeSlotRequest;
 import ru.mentor.calendar.TimeSlotResponse;
 import ru.mentor.exception.GrpcRetryException;
 
+/**
+ * gRPC-клиент для взаимодействия с Calendar Service.
+ * Инкапсулирует вызовы блокирующего stub'а.
+ */
 @Component
 @NoArgsConstructor
 @AllArgsConstructor
 public class CalendarServiceGrpcClient {
 
+    /**
+     * Блокирующий gRPC-stub Calendar Service.
+     */
     @GrpcClient("calendar-service-client")
     private CalendarServiceBlockingStub blockingStub;
 
+    /**
+     * Создаёт тайм-слот наставника в Calendar Service.
+     * Выполняет RPC-вызов {@code createMentorTimeSlot}.
+     * @param request запрос на создание тайм-слота (должен содержать корректный {@code rqUid})
+     * @return Calendar Service с данными созданного тайм-слота
+     * @throws GrpcRetryException при ошибке отправки/выполнения RPC будет перехвачен ретраем
+     */
     @GrpcMethod(
             grpcMethodType = GrpcMethodType.CLIENT,
             grpcInstanceType = CalendarServiceGrpcClient.class,

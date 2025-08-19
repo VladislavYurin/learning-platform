@@ -25,14 +25,6 @@ public class AccessController {
 
     private final RedirectAccessService redirectAccessService;
 
-    /**
-     * Выдает доступ пользователю к курсу
-     *
-     * @param request
-     *         Запрос на выдачу доступа
-     *
-     * @return ResponseEntity с HTTP статусом
-     */
     @Operation(
             summary = "Выдать доступ к курсу",
             description = "Позволяет выдать доступ пользователю к указанному курсу",
@@ -49,14 +41,6 @@ public class AccessController {
         return redirectAccessService.getCourseAccessToUser(request);
     }
 
-    /**
-     * Отзывает доступ пользователя к курсу
-     *
-     * @param request
-     *         Запрос на отзыв доступа
-     *
-     * @return ResponseEntity с HTTP статусом
-     */
     @Operation(
             summary = "Отозвать доступ к курсу",
             description = "Позволяет отозвать доступ пользователя к указанному курсу",
@@ -73,14 +57,6 @@ public class AccessController {
         return redirectAccessService.deleteCourseAccessToUser(request);
     }
 
-    /**
-     * Выдает доступ пользователю к модулю курса
-     *
-     * @param request
-     *         Запрос на выдачу доступа
-     *
-     * @return ResponseEntity с HTTP статусом
-     */
     @Operation(
             summary = "Выдать доступ к модулю",
             description = "Позволяет выдать доступ пользователю к указанному модулю курса",
@@ -97,14 +73,6 @@ public class AccessController {
         return redirectAccessService.getModuleAccessToUser(request);
     }
 
-    /**
-     * Отзывает доступ пользователя к модулю курса
-     *
-     * @param request
-     *         Запрос на отзыв доступа
-     *
-     * @return ResponseEntity с HTTP статусом
-     */
     @Operation(
             summary = "Отозвать доступ к модулю",
             description = "Позволяет отозвать доступ пользователя к указанному модулю курса",

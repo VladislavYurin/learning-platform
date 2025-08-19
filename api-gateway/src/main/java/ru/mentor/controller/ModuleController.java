@@ -24,6 +24,10 @@ import ru.mentor.dto.front.CreateModuleRequest;
 import ru.mentor.services.RedirectModuleService;
 import ru.mentor.validation.ValidMarkdownFile;
 
+/**
+ * Контроллер для управления модулями образовательной платформы.
+ * Предоставляет endpoints для создания, получения и управления модулями.
+ */
 @RestController
 @RequestMapping("/module")
 @RequiredArgsConstructor

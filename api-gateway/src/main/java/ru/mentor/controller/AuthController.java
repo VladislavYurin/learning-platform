@@ -28,14 +28,6 @@ public class AuthController {
 
     private final AuthenticationService authenticationService;
 
-    /**
-     * Регистрация нового пользователя
-     *
-     * @param request
-     *         содержит нужные данные для регистрации
-     *
-     * @return JwtAuthenticationResponse, хранящий токен в виде строки
-     */
     @Operation(
             summary = "Регистрация пользователя",
             description = "Позволяет зарегистрировать пользователя с ролью USER",
@@ -50,14 +42,6 @@ public class AuthController {
         return authenticationService.registration(request);
     }
 
-    /**
-     * Авторизация пользователя
-     *
-     * @param request
-     *         вмещает необходимые данные для авторизации
-     *
-     * @return JwtAuthenticationResponse, хранящий токен в виде строки
-     */
     @Operation(summary = "Авторизация пользователя")
     @PostMapping("/login")
     @PermitAll
@@ -65,14 +49,6 @@ public class AuthController {
         return authenticationService.authentication(request);
     }
 
-    /**
-     * Обновление токена
-     *
-     * @param refreshToken
-     *         хранить данные из перехваченного заголовка Authorization
-     *
-     * @return JwtAuthenticationResponse, хранящий токен в виде строки
-     */
     @Operation(summary = "Обновление токена")
     @PostMapping("/token/refresh")
     public JwtAuthResponse refreshToken(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String refreshToken) {

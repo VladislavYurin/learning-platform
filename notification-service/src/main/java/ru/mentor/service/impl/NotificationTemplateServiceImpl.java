@@ -11,10 +11,19 @@ import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
 import ru.mentor.service.NotificationTemplateService;
 
+/**
+ * Реализация сервиса шаблонов уведомлений.
+ *
+ * Генерирует содержимое электронных писем и темы уведомлений
+ * для различных типов уведомлений, используя предопределенные шаблоны.
+ */
 @Service
 @RequiredArgsConstructor
 public class NotificationTemplateServiceImpl implements NotificationTemplateService {
 
+    /**
+     * Предопределенные шаблоны электронных писем для различных типов уведомлений.
+     */
     private final Map<NotificationTypeEnum, String> emailTemplates = Map.of(
             NotificationTypeEnum.COURSE_ACCESS_GRANTED, """
                     Уважаемый %s!
@@ -30,6 +39,13 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
                     """
     );
 
+    /**
+     * Генерирует содержимое электронного письма на основе данных уведомления.
+     *
+     * @param dto объект, содержащий данные уведомления, для которого нужно сгенерировать содержание.
+     * @return сгенерированное содержание электронного письма.
+     * @throws IllegalArgumentException если тип уведомления неизвестен.
+     */
     @Override
     public String generateEmailContent(KafkaNotificationDto dto) {
         String template = emailTemplates.get(dto.getNotificationType());
@@ -66,6 +82,11 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
         };
     }
 
+    /**
+     * Получает тему электронного письма на основе типа уведомления.
+     * @param type тип уведомления, для которого требуется получить тему письма.
+     * @return тема электронного письма для заданного типа уведомления.
+     */
     @Override
     public String getEmailSubject(NotificationTypeEnum type) {
         return switch (type) {
@@ -74,6 +95,12 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
         };
     }
 
+    /**
+     * Форматирует дату и время в строку.
+     *
+     * @param dateTime дата и время для форматирования.
+     * @return форматированная строка даты и времени.
+     */
     private String formatDateTime(LocalDateTime dateTime) {
         return dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
     }

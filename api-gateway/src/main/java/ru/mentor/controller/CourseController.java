@@ -33,14 +33,6 @@ public class CourseController {
 
     private final RedirectCourseService redirectCourseService;
 
-    /**
-     * Создает новый курс
-     *
-     * @param request
-     *         Данные для создания курса
-     *
-     * @return Созданный курс
-     */
     @Operation(
             summary = "Создать курс",
             description = "Позволяет создать новый курс. Требуются права ADMIN или MENTOR",
@@ -58,14 +50,6 @@ public class CourseController {
         return ResponseEntity.ok(redirectCourseService.createCourse(request));
     }
 
-    /**
-     * Удаляет курс по идентификатору
-     *
-     * @param courseId
-     *         Идентификатор курса
-     *
-     * @return Пустой ответ со статусом 200
-     */
     @Operation(
             summary = "Удалить курс",
             description = "Позволяет удалить курс. Требуются права ADMIN или MENTOR",
@@ -82,14 +66,6 @@ public class CourseController {
         return redirectCourseService.deleteCourse(courseId);
     }
 
-    /**
-     * Получает курс по идентификатору
-     *
-     * @param courseId
-     *         Идентификатор курса
-     *
-     * @return Найденный курс
-     */
     @Operation(
             summary = "Получить курс по ID",
             description = "Возвращает информацию о курсе по его идентификатору",
@@ -105,11 +81,6 @@ public class CourseController {
         return ResponseEntity.ok().body(redirectCourseService.getCourseById(courseId));
     }
 
-    /**
-     * Получает список всех активных курсов
-     *
-     * @return Список активных курсов
-     */
     @Operation(
             summary = "Получить активные курсы",
             description = "Возвращает список всех активных курсов",
@@ -124,11 +95,6 @@ public class CourseController {
         return ResponseEntity.ok().body(redirectCourseService.getAllActiveCourses());
     }
 
-    /**
-     * Получает список всех курсов (включая неактивные)
-     *
-     * @return Список всех курсов
-     */
     @Operation(
             summary = "Получить все курсы",
             description = "Возвращает список всех курсов, включая неактивные",

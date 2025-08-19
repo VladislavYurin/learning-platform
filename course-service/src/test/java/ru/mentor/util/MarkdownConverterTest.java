@@ -7,8 +7,15 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.util.ResourceUtils;
 
+
 public class MarkdownConverterTest {
 
+    /**
+     * Проверяет, что метод {@link MarkdownConverter#markdownToHtml(String)}
+     * корректно конвертирует содержимое файла Markdown в HTML.
+     *
+     * @throws IOException Если происходит ошибка при чтении файла Markdown.
+     */
     @Test
     public void markdownToHtml_correctMdFileAsParam_returnCorrectHTML()
             throws IOException {

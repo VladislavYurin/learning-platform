@@ -16,13 +16,17 @@ import ru.mentor.service.TelegramSenderService;
 public class TelegramSenderServiceImpl implements TelegramSenderService {
 
     private final TelegramBotProperties botProperties;
+
     private final TelegramApiClient telegramApiClient;
 
     /**
      * Отправляет сообщение в Telegram.
      *
+     * Если chatId равен null, отправка сообщения отменяется.
+     *
      * @param chatId ID чата получателя. Если null — отправка отменяется.
-     * @param text   текст сообщения
+     * @param text   текст сообщения, которое будет отправлено.
+     * @param html   флаг, указывающий, требуется ли обрабатывать текст как HTML.
      */
     @Override
     public void sendMessage(Long chatId, String text, boolean html) {

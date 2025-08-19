@@ -14,6 +14,13 @@ import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.MenteeProgressDto;
 import ru.mentor.service.ProgressService;
 
+/**
+ * Контроллер для получения информации о прогрессе обучения менторов и учеников.
+ *
+ * Данный контроллер предоставляет API для получения статистики по прогрессу
+ * учеников в курсах и списка всех учеников, которые принимают участие
+ * в указанном курсе под руководством заданного наставника.
+ */
 @RestController
 @RequestMapping("/progress")
 @RequiredArgsConstructor
@@ -23,6 +30,14 @@ public class MenteeProgressController {
 
     private final ProgressService progressService;
 
+    /**
+     * Получает статистику прогресса учеников в курсе для заданного наставника.
+     *
+     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param mentorId Идентификатор наставника, чьи ученики должны быть проверены.
+     * @param courseId Идентификатор курса, для которого запрашивается статистика.
+     * @return Ответ с объектом CourseProgressResponse, содержащим статистику прогресса.
+     */
     @GetMapping("/course/{mentorId}/{courseId}/statistics")
     public ResponseEntity<CourseProgressResponse> getCourseProgressByMentor(
             @RequestHeader("RqUId") String rqUId,
@@ -47,6 +62,14 @@ public class MenteeProgressController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     * Получает список всех учеников, участвующих в курсе под руководством заданного наставника.
+     *
+     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param mentorId Идентификатор наставника, чьи ученики должны быть проверены.
+     * @param courseId Идентификатор курса, для которого запрашивается список учеников.
+     * @return Ответ с списком объектов MenteeProgressDto, представляющих учеников.
+     */
     @GetMapping("/course/{mentorId}/{courseId}/users")
     public ResponseEntity<List<MenteeProgressDto>> getAllUsersAtCourse(
             @RequestHeader("RqUId") String rqUId,

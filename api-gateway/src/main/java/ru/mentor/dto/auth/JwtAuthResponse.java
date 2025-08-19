@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * ДТО, передающее токен клиенту
+ * ДТО, передающее токен клиенту. Содержит пару токенов.
  */
 @Data
 @Builder
@@ -16,9 +16,15 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Ответ c токеном доступа")
 public class JwtAuthResponse {
 
+    /**
+     * Короткоживущий токен доступа
+     */
     @Schema(description = "Access Token", example = "eyJhbGci...")
     private String accessToken;
 
+    /**
+     * Долгоживущий токен доступа
+     */
     @Schema(description = "Refresh Token", example = "eyJhbGci...")
     private String refreshToken;
 

@@ -14,6 +14,11 @@ import ru.mentor.service.AccessService;
 
 /**
  * Контроллер для работы с доступами со стороны ментора.
+ * Управляет доступом пользователей к курсам и модулям.
+ *
+ * Этот контроллер предоставляет API для добавления и удаления доступа к курсам и модулям
+ * для конкретных пользователей. Использует аннотации Spring для определения маршрутов
+ * и обработки HTTP запросов.
  */
 @RestController
 @RequestMapping("/access")
@@ -24,6 +29,13 @@ public class AccessController {
 
     private final AccessService accessService;
 
+    /**
+     * Запрос на добавление доступа пользователя к курсу.
+     *
+     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request Объект запроса, содержащий идентификаторы пользователя и курса.
+     * @return Ответ с подтверждением успешного добавления доступа.
+     */
     @PostMapping("/course/get-access")
     public ResponseEntity<?> getCourseAccessToUser(
             @RequestHeader("RqUId") String rqUId,
@@ -46,6 +58,13 @@ public class AccessController {
         return ResponseEntity.ok().body(null);
     }
 
+    /**
+     * Запрос на удаление доступа пользователя к курсу.
+     *
+     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request Объект запроса, содержащий идентификаторы пользователя и курса.
+     * @return Ответ с подтверждением успешного удаления доступа.
+     */
     @PostMapping("/course/delete-access")
     public ResponseEntity<?> deleteCourseAccessToUser(
             @RequestHeader("RqUId") String rqUId,
@@ -68,6 +87,13 @@ public class AccessController {
         return ResponseEntity.ok().body(null);
     }
 
+/**
+ * Запрос на добавление доступа пользователя к модулю.
+ *
+ * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
+ * @param request Объект запроса, содержащий идентификаторы пользователя и модуля.
+ * @return Ответ с подтверждением успешного добавления доступа к модулю.
+ */
     @PostMapping("/module/get-access")
     public ResponseEntity<?> getModuleAccessToUser(
             @RequestHeader("RqUId") String rqUId,
@@ -90,6 +116,13 @@ public class AccessController {
         return ResponseEntity.ok().body(null);
     }
 
+    /**
+     * Запрос на удаление доступа пользователя к модулю.
+     *
+     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request Объект запроса, содержащий идентификаторы пользователя и модуля.
+     * @return Ответ с подтверждением успешного удаления доступа к модулю.
+     */
     @PostMapping("/module/delete-access")
     public ResponseEntity<?> deleteModuleAccessToUser(
             @RequestHeader("RqUId") String rqUId,

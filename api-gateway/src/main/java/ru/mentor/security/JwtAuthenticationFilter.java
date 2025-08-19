@@ -28,7 +28,6 @@ import ru.mentor.services.UserService;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String HEADER_NAME = "Authorization";
     private final JwtService jwtService;
@@ -96,6 +95,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
+    /**
+     * Определяет, для каких запросов фильтр не должен применяться.
+     * @param request текущий HTTP-запрос
+     * @return true, если фильтр не должен выполняться для этого запроса, иначе false
+     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
@@ -107,6 +111,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/webjars");
     }
 
+    /**
+     * Формирует и отправляет JSON-ответ об ошибке аутентификации (JWT) со статусом {@code 401 Unauthorized}.
+     * @param response HTTP-ответ, в который будет записано сообщение об ошибке
+     * @param message текст ошибки для клиента (короткий и безопасный)
+     * @throws IOException при ошибке записи в поток ответа
+     */
     private void handleJwtException(HttpServletResponse response, String message)
             throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

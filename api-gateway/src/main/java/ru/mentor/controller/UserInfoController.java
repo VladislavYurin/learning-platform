@@ -13,6 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.services.UserInfoService;
 
+/**
+ * Контроллер для управления информацией пользователя.
+ * Предоставляет эндпоинты для получения данных о текущем пользователе,
+ * просмотра профиля другого пользователя по идентификатору и назначения
+ * роли наставника текущему пользователю.
+ */
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor

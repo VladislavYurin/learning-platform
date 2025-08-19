@@ -15,6 +15,9 @@ import ru.mentor.services.RedirectModuleService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
 
+/**
+ * Реализация сервиса редиректов/интеграции для операций с модулями курса.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,6 +29,11 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
 
     private final CourseMapper courseMapper;
 
+    /**
+     * Создаёт новый модуль в составе курса.
+     * @param request данные для создания модуля
+     * @return созданный модуль
+     */
     @Override
     public ModuleDto createModule(CreateModuleRequest request) {
         UserEntity user = userService.getCurrentUser();
@@ -44,6 +52,12 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
         return courseClient.createModule(rqUId, innerCreateModuleRequest);
     }
 
+    /**
+     * Возвращает модуль по идентификатору курса и модуля.
+     * @param courseId идентификатор курса
+     * @param moduleId идентификатор модуля внутри курса
+     * @return найденный модуль
+     */
     @Override
     public ModuleDto getModuleById(Long courseId, Long moduleId) {
         UserEntity user = userService.getCurrentUser();
@@ -58,6 +72,12 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
         return courseClient.getModuleById(rqUId, user.getId(), courseId, moduleId);
     }
 
+    /**
+     * Импортирует модуль из загруженного файла (например, Markdown).
+     * @param request параметры создаваемого модуля
+     * @param file файл с содержимым модуля
+     * @return созданный модуль
+     */
     @Override
     public ModuleDto importModuleFromFile(CreateModuleRequest request, MultipartFile file) {
         UserEntity user = userService.getCurrentUser();
@@ -76,6 +96,11 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
         return courseClient.importModuleFromMarkdown(rqUId, innerCreateModuleRequest, file);
     }
 
+    /**
+     * Удаляет модуль из курса.
+     * @param courseId идентификатор курса
+     * @param moduleId идентификатор модуля внутри курса
+     */
     @Override
     public void deleteModule(Long courseId, Long moduleId) {
         UserEntity user = userService.getCurrentUser();

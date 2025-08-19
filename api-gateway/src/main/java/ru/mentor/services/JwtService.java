@@ -40,6 +40,14 @@ public interface JwtService {
      */
     boolean isTokenValid(String token, UserDetails userDetails);
 
+    /**
+     * Генерация долгоживущего JWT-токена на основе данных пользователя.
+     *
+     * @param userDetails
+     *         объект с деталями пользователя
+     *
+     * @return сгенерированный JWT-токен
+     */
     String generateRefreshToken(UserDetails userDetails);
 
 }

@@ -14,6 +14,9 @@ import ru.mentor.services.RedirectAccessService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
 
+/**
+ * Реализация сервиса редиректов/интеграции для операций выдачи/отзыва доступа к курсам и модулям.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,6 +28,11 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
 
     private final MentorClient mentorClient;
 
+    /**
+     * Предоставляет пользователю доступ к курсу.
+     * @param request параметры предоставления доступа (идентификаторы пользователя и курса)
+     * @return ответ внешнего сервиса с кодом статуса операции
+     */
     @Override
     public ResponseEntity<?> getCourseAccessToUser(AccessRequest request) {
         UserEntity user = userService.getCurrentUser();
@@ -41,6 +49,11 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
         return mentorClient.getCourseAccessToUser(rqUId, innerRequest);
     }
 
+    /**
+     * Закрывает доступ пользователя к курсу.
+     * @param request параметры предоставления доступа (идентификаторы пользователя и курса)
+     * @return ответ внешнего сервиса с кодом статуса операции
+     */
     @Override
     public ResponseEntity<?> deleteCourseAccessToUser(AccessRequest request) {
         UserEntity user = userService.getCurrentUser();
@@ -57,6 +70,11 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
         return mentorClient.deleteCourseAccessToUser(rqUId, innerRequest);
     }
 
+    /**
+     * Предоставляет пользователю доступ к модулю.
+     * @param request параметры предоставления доступа (идентификаторы пользователя, курса и модуля)
+     * @return ответ внешнего сервиса с кодом статуса операции
+     */
     @Override
     public ResponseEntity<?> getModuleAccessToUser(AccessRequest request) {
         UserEntity user = userService.getCurrentUser();
@@ -73,6 +91,11 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
         return mentorClient.getModuleAccessToUser(rqUId, innerRequest);
     }
 
+    /**
+     * Закрывает доступ пользователя к модулю.
+     * @param request параметры предоставления доступа (идентификаторы пользователя, курса и модуля)
+     * @return ответ внешнего сервиса с кодом статуса операции
+     */
     @Override
     public ResponseEntity<?> deleteModuleAccessToUser(AccessRequest request) {
         UserEntity user = userService.getCurrentUser();

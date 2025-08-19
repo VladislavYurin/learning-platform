@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Класс для управления доступом к курсу или модулю.
+ */
 @Data
 @Builder
 @Schema(description = "Запрос на управление доступом к курсу или модулю")

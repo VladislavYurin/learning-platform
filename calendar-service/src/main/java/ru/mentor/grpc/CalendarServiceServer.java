@@ -8,16 +8,31 @@ import ru.mentor.calendar.CalendarServiceGrpc;
 import ru.mentor.calendar.CreateTimeSlotRequest;
 import ru.mentor.calendar.TimeSlotResponse;
 
+/**
+ * Реализация сервиса календаря с использованием gRPC.
+ *
+ * Этот сервис позволяет менторам создавать временные слоты для планирования.
+ * Он расширяет сгенерированный класс CalendarServiceImplBase из Protocol Buffers,
+ * чтобы предоставить фактическую реализацию методов gRPC, определенных в .proto файле.
+ */
 @GrpcService
 @Slf4j
 @RequiredArgsConstructor
 public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceImplBase {
 
+    /**
+     * Создает временной слот для ментора.
+     *
+     * @param request           Запрос, содержащий детали временного слота, который нужно создать.
+     * @param responseObserver  Наблюдатель для отправки ответа обратно клиенту.
+     */
     @Override
     public void createMentorTimeSlot(
             CreateTimeSlotRequest request,
             StreamObserver<TimeSlotResponse> responseObserver) {
-
+        // TODO
+        // Метод для создания временного слота.
+        // Реализация должна будет вызвать соответствующий сервис и отправить ответ.
     }
 
 }

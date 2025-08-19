@@ -9,9 +9,16 @@ import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
 import ru.mentor.dto.kafka.NotificationPayload;
 
+/**
+ * Маппер для создания DTO объектов, используемых при работе с Kafka.
+ * Предоставляет методы для создания уведомлений и payloads для различных типов событий.
+ */
 @Component
 public class KafkaMapper {
 
+    /**
+     * Создает DTO уведомления для отправки в Kafka.
+     */
     public KafkaNotificationDto createKafkaNotificationDto(
             NotificationTypeEnum notificationType,
             UserInfoDto forUser,
@@ -23,6 +30,9 @@ public class KafkaMapper {
                                    .build();
     }
 
+    /**
+     * Создает payload уведомления о предоставлении доступа к курсу.
+     */
     public CourseAccessGrantedNotificationPayload createCourseAccessGrantedNotificationPayload(
             String courseTitle,
             LocalDateTime accessGrantedAt,
@@ -34,6 +44,9 @@ public class KafkaMapper {
                                                      .build();
     }
 
+    /**
+     * Создает payload уведомления о предоставлении доступа к модулю.
+     */
     public ModuleAccessGrantedNotificationPayload createModuleAccessGrantedNotificationPayload(
             String courseTitle,
             String moduleTitle,

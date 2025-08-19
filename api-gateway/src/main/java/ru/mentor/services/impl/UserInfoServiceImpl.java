@@ -12,6 +12,13 @@ import ru.mentor.services.UserInfoService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
 
+/**
+ * Реализация сервиса для работы с пользовательской информацией.
+ * <p>
+ *     Предоставляет операции получения данных текущего пользователя,
+ *     просмотра профиля другого пользователя и назначения роли наставника.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -23,6 +30,10 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     private final BaseMapper baseMapper;
 
+    /**
+     * Возвращает данные текущего (аутентифицированного) пользователя.
+     * @return DTO с информацией о текущем пользователе
+     */
     @Override
     public UserInfoDto getMyUserInfo() {
         UserEntity user = userService.getCurrentUser();
@@ -35,6 +46,11 @@ public class UserInfoServiceImpl implements UserInfoService {
         return baseMapper.mapUserDto(user);
     }
 
+    /**
+     * Возвращает данные другого пользователя по его идентификатору.
+     * @param userId идентификатор другого пользователя
+     * @return DTO с информацией о запрашиваемом пользователе
+     */
     @Override
     public UserInfoDto getOtherUserInfo(Long userId) {
         UserEntity user = userRepository.findByIdOrThrow(userId);
@@ -48,6 +64,10 @@ public class UserInfoServiceImpl implements UserInfoService {
         return baseMapper.mapUserDto(user);
     }
 
+    /**
+     * Назначает текущему пользователю роль наставника и возвращает обновлённые данные.
+     * @return DTO с актуальными данными пользователя после назначения роли
+     */
     @Override
     public UserInfoDto assignMentorRole() {
         UserEntity user = userService.getCurrentUser();

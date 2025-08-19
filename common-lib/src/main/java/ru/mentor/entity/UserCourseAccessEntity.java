@@ -17,6 +17,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+/**
+ * Сущность доступа пользователя к курсу.
+ * Представляет собой запись о предоставленном доступе пользователя к определенному курсу.
+ */
 @Entity
 @Getter
 @Setter
@@ -26,23 +30,40 @@ import org.hibernate.annotations.CreationTimestamp;
 @Table(name = "user_course_access")
 public class UserCourseAccessEntity {
 
+    /**
+     * Уникальный идентификатор записи доступа.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_access")
     private Long id;
 
+    /**
+     * Пользователь, которому предоставлен доступ к курсу.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
+    /**
+     * Курс, к которому предоставлен доступ.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private CourseEntity course;
 
+    /**
+     * Пользователь, который предоставил доступ.
+     * Содержит информацию о том, кто дал право доступа к курсу.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "access_granted_by", nullable = false)
     private UserEntity accessGrantedBy;
 
+    /**
+     * Дата и время предоставления доступа к курсу.
+     * Автоматически устанавливается при создании записи о доступе.
+     */
     @Column(name = "access_granted_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime accessGrantedAt;
