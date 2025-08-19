@@ -41,7 +41,7 @@ services:
     container_name: calendar-service
     image: mentor/calendar-service:local
     ports:
-      - "8086:8086"
+      - "8084:8084"
     networks:
       - backend
 
