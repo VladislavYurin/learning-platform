@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.mentor.constant.Role;
 import ru.mentor.dto.InnerCreateModuleRequest;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.front.CreateModuleRequest;
@@ -36,7 +35,6 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 request.getCourseId(),
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         InnerCreateModuleRequest innerCreateModuleRequest = courseMapper.mapToInnerCreateModuleRequest(
                 user.getId(),
                 request
@@ -68,7 +66,6 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 request.getCourseId(),
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         InnerCreateModuleRequest innerCreateModuleRequest = courseMapper.mapToInnerCreateModuleRequest(
                 user.getId(),
                 request
@@ -87,7 +84,6 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 courseId,
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         courseClient.deleteModule(rqUId, user.getId(), courseId, moduleId);
     }
 

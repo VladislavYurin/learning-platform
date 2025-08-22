@@ -45,4 +45,14 @@ public class CalendarServiceGrpcClient {
         }
     }
 
+    public TimeSlotResponse bookTimeSlot(BookTimeSlotRequest bookTimeSlotRequest) {
+        try {
+            return blockingStub.bookTimeslot(bookTimeSlotRequest);
+        } catch (Exception e) {
+            throw new GrpcRetryException(String.format(
+                    "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
+                    bookTimeSlotRequest.getRqUid()
+            ), bookTimeSlotRequest.getRqUid());
+        }
+    }
 }

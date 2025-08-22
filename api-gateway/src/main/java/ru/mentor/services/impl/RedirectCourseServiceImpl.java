@@ -1,11 +1,9 @@
 package ru.mentor.services.impl;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.front.CreateCourseRequest;
 import ru.mentor.entity.UserEntity;
@@ -14,6 +12,8 @@ import ru.mentor.mapper.CourseMapper;
 import ru.mentor.services.RedirectCourseService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -35,7 +35,6 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
                 rqUId,
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         return courseClient.createCourse(rqUId, courseMapper.mapToInnerCreateCourseRequest(
                 user.getId(),
                 request
@@ -52,7 +51,6 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
                 courseId,
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         return courseClient.deleteCourse(rqUId, user.getId(), courseId);
     }
 

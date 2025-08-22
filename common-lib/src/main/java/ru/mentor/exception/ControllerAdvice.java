@@ -65,4 +65,9 @@ public class ControllerAdvice {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
+    @ExceptionHandler(TimeSlotUnavailableException.class)
+    public ResponseEntity<String> handleTimeSlotUnavailableException(TimeSlotUnavailableException e) {
+        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
 }

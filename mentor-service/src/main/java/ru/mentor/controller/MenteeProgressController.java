@@ -1,18 +1,16 @@
 package ru.mentor.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.MenteeProgressDto;
 import ru.mentor.service.ProgressService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/progress")
@@ -24,6 +22,7 @@ public class MenteeProgressController {
     private final ProgressService progressService;
 
     @GetMapping("/course/{mentorId}/{courseId}/statistics")
+    @PreAuthorize("hasRole('MENTOR')")
     public ResponseEntity<CourseProgressResponse> getCourseProgressByMentor(
             @RequestHeader("RqUId") String rqUId,
             @PathVariable Long mentorId,
@@ -48,6 +47,7 @@ public class MenteeProgressController {
     }
 
     @GetMapping("/course/{mentorId}/{courseId}/users")
+    @PreAuthorize("hasRole('MENTOR')")
     public ResponseEntity<List<MenteeProgressDto>> getAllUsersAtCourse(
             @RequestHeader("RqUId") String rqUId,
             @PathVariable Long mentorId,

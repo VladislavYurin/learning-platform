@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.mentor.constant.Role;
 import ru.mentor.dto.GetAccessRequest;
 import ru.mentor.dto.front.AccessRequest;
 import ru.mentor.entity.UserEntity;
@@ -36,7 +35,6 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getCourseId(),
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
         return mentorClient.getCourseAccessToUser(rqUId, innerRequest);
     }
@@ -52,7 +50,6 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getCourseId(),
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
         return mentorClient.deleteCourseAccessToUser(rqUId, innerRequest);
     }
@@ -68,7 +65,6 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getModuleId(),
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
         return mentorClient.getModuleAccessToUser(rqUId, innerRequest);
     }
@@ -84,7 +80,6 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getModuleId(),
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
         return mentorClient.deleteModuleAccessToUser(rqUId, innerRequest);
     }
