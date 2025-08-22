@@ -13,6 +13,8 @@ import ru.mentor.services.RedirectProgressService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
 
+import java.util.List;
+
 /**
  * Реализация сервиса редиректов/агрегации прогресса по курсам.
  */

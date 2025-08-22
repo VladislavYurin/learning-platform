@@ -47,20 +47,4 @@ public enum Role {
         return course.getAuthor().equals(user);
     }
 
-    /**
-     * Проверяет, является ли пользователь администратором или ментором.
-     * Если пользователь не имеет соответствующих прав, выбрасывается исключение.
-     *
-     * @param user объект пользователя для проверки
-     * @throws CustomAccessDeniedException если пользователь не является ни администратором, ни ментором
-     */
-    public static void checkUserIsAdminOrMentor(UserEntity user) {
-        if (!checkIsAdmin(user) && !checkIsMentor(user)) {
-            throw new CustomAccessDeniedException(String.format(
-                    "Юзер с ID = %d не имеет доступа к выдаче доступа к курсам и модулям",
-                    user.getId()
-            ));
-        }
-    }
-
 }

@@ -14,6 +14,8 @@ import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.MenteeProgressDto;
 import ru.mentor.service.ProgressService;
 
+import java.util.List;
+
 /**
  * Контроллер для получения информации о прогрессе обучения менторов и учеников.
  *
@@ -39,6 +41,7 @@ public class MenteeProgressController {
      * @return Ответ с объектом CourseProgressResponse, содержащим статистику прогресса.
      */
     @GetMapping("/course/{mentorId}/{courseId}/statistics")
+    @PreAuthorize("hasRole('MENTOR')")
     public ResponseEntity<CourseProgressResponse> getCourseProgressByMentor(
             @RequestHeader("RqUId") String rqUId,
             @PathVariable Long mentorId,
@@ -71,6 +74,7 @@ public class MenteeProgressController {
      * @return Ответ с списком объектов MenteeProgressDto, представляющих учеников.
      */
     @GetMapping("/course/{mentorId}/{courseId}/users")
+    @PreAuthorize("hasRole('MENTOR')")
     public ResponseEntity<List<MenteeProgressDto>> getAllUsersAtCourse(
             @RequestHeader("RqUId") String rqUId,
             @PathVariable Long mentorId,

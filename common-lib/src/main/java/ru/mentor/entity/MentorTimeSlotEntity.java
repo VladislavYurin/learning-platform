@@ -24,6 +24,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 import ru.mentor.constant.CalendarSlotStatus;
 import ru.mentor.constant.CalendarSlotType;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Сущность временного слота ментора.
  * Представляет собой доступное время ментора для проведения встреч или занятий.
@@ -72,13 +76,9 @@ public class MentorTimeSlotEntity {
     @Column(name = "slot_type", nullable = false, length = 50)
     private CalendarSlotType slotType;
 
-    /**
-     * Статус слота календаря.
-     * Определяет текущее состояние слота.
-     */
     @Enumerated(EnumType.STRING)
-    @Column(name = "slot_status", nullable = false, length = 50)
-    private CalendarSlotStatus slotStatus;
+    @Column(name = "slot_meeting_type", nullable = false, length = 50)
+    private CalendarSlotMeetingType slotMeetingType;
 
     /**
      * Максимальное количество участников слота.
@@ -120,11 +120,10 @@ public class MentorTimeSlotEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    /**
-     * Забронированный слот, связанный с данным временным слотом.
-     * Содержит информацию о бронировании, если слот был забронирован.
-     */
-    @OneToOne(mappedBy = "slot", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private BookedTimeSlotEntity bookedSlot;
+    @ManyToMany
+    @JoinTable(name = "mentor_time_slot__users",
+            joinColumns = @JoinColumn(name = "time_slot_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<UserEntity> meetingParticipants = new HashSet<>();
 
 }

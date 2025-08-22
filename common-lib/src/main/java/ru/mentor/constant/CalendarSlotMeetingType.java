@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum CalendarSlotStatus {
+public enum CalendarSlotMeetingType {
 
     /**
      * Статус слота для знакомства.

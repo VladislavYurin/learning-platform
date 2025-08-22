@@ -60,6 +60,7 @@ public class SecurityConfig {
                     .requestMatchers("/course/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .requestMatchers("/module/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "MENTOR")
+                    .requestMatchers("/slot/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .anyRequest().authenticated()
             )
             .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
