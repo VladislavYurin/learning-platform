@@ -2,6 +2,7 @@ package ru.mentor.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
@@ -15,8 +16,8 @@ import ru.mentor.service.TelegramSenderService;
 @RequiredArgsConstructor
 public class DefaultNotificationServiceImpl implements DefaultNotificationService {
 
-    private final EmailSenderService emailSenderService;
-    private final TelegramSenderService telegramSenderService;
+    private final ObjectProvider<EmailSenderService> emailSenderServiceProvider;
+    private final ObjectProvider<TelegramSenderService> telegramSenderServiceProvider;
     private final NotificationTemplateService notificationTemplateService;
 
     @Override
@@ -27,6 +28,13 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
 
     private void notifyByEmail(KafkaNotificationDto notificationDto) {
         try {
+            EmailSenderService emailSenderService = emailSenderServiceProvider.getIfAvailable();
+
+            if (emailSenderService == null) {
+                log.error("Не удалось отправить сообщение по почте");
+                return;
+            }
+
             String emailContent = notificationTemplateService.generateEmailContent(notificationDto);
             String subject = notificationTemplateService.getEmailSubject(notificationDto.getNotificationType());
 
@@ -47,9 +55,10 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
     private void notifyByTelegram(KafkaNotificationDto notificationDto) {
         String text = notificationTemplateService.generateEmailContent(notificationDto);
         UserInfoDto userInfo = notificationDto.getUserInfo();
+        TelegramSenderService telegramSenderService = telegramSenderServiceProvider.getIfAvailable();
 
-        if (userInfo.getTgChatId() != null) {
-            telegramSenderService.sendMessage(userInfo.getTgChatId(), text, true);
+        if (userInfo.getTgChatId() != null && telegramSenderService != null) {
+            telegramSenderServiceProvider.getIfAvailable().sendMessage(userInfo.getTgChatId(), text, true);
             log.info("Сообщение отправлено в Телеграм чат айди = {}, имя пользователя = {}, айди пользователя = {}",
                     userInfo.getTgChatId(), userInfo.getUsername(), userInfo.getId());
         } else {

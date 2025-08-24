@@ -2,6 +2,7 @@ package ru.mentor.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import ru.mentor.config.TelegramBotProperties;
 import ru.mentor.integration.telegram.TelegramApiClient;
@@ -13,6 +14,7 @@ import ru.mentor.service.TelegramSenderService;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "application.notify.telegram.enable", havingValue = "true")
 public class TelegramSenderServiceImpl implements TelegramSenderService {
 
     private final TelegramBotProperties botProperties;
