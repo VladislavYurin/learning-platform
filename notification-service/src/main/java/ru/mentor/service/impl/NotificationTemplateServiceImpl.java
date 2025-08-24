@@ -1,56 +1,55 @@
 package ru.mentor.service.impl;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.mentor.cache.NotificationCacheProcessor;
 import ru.mentor.constant.NotificationTypeEnum;
 import ru.mentor.dto.kafka.CourseAccessGrantedNotificationPayload;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
 import ru.mentor.service.NotificationTemplateService;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
- * Реализация сервиса шаблонов уведомлений.
- *
- * Генерирует содержимое электронных писем и темы уведомлений
- * для различных типов уведомлений, используя предопределенные шаблоны.
+ * Реализация сервиса {@link ru.mentor.service.NotificationTemplateService} для работы с шаблонами уведомлений.
+ * <p>
+ * Сервис отвечает за:
+ * <ul>
+ *     <li>Генерацию содержимого email-сообщений на основе данных из {@link ru.mentor.dto.kafka.KafkaNotificationDto}
+ *         и шаблонов, получаемых из {@link ru.mentor.cache.NotificationCacheProcessor}.</li>
+ *     <li>Предоставление заголовков писем для разных типов уведомлений
+ *         ({@link ru.mentor.constant.NotificationTypeEnum}).</li>
+ * </ul>
+ * </p>
  */
 @Service
 @RequiredArgsConstructor
 public class NotificationTemplateServiceImpl implements NotificationTemplateService {
 
-    /**
-     * Предопределенные шаблоны электронных писем для различных типов уведомлений.
-     */
-    private final Map<NotificationTypeEnum, String> emailTemplates = Map.of(
-            NotificationTypeEnum.COURSE_ACCESS_GRANTED, """
-                    Уважаемый %s!
-                    Вам предоставлен доступ к курсу "%s".
-                    Доступ предоставил: %s %s
-                    Дата предоставления: %s
-                    """,
-            NotificationTypeEnum.MODULE_ACCESS_GRANTED, """
-                    Уважаемый %s!
-                    Открыт новый модуль "%s" в курсе "%s".
-                    Доступ предоставил: %s %s
-                    Дата предоставления: %s
-                    """
-    );
+    private final NotificationCacheProcessor notificationCacheProcessor;
 
     /**
-     * Генерирует содержимое электронного письма на основе данных уведомления.
+     * Формирует содержимое email-сообщения на основе данных из Kafka-уведомления и шаблона из кэша.
+     * <p>
+     * В зависимости от типа уведомления ({@link NotificationTypeEnum}):
+     * <ul>
+     *     <li>{@link NotificationTypeEnum#COURSE_ACCESS_GRANTED} — генерируется письмо о предоставлении доступа к курсу.</li>
+     *     <li>{@link NotificationTypeEnum#MODULE_ACCESS_GRANTED} — генерируется письмо о предоставлении доступа к модулю.</li>
+     * </ul>
+     * </p>
      *
-     * @param dto объект, содержащий данные уведомления, для которого нужно сгенерировать содержание.
-     * @return сгенерированное содержание электронного письма.
-     * @throws IllegalArgumentException если тип уведомления неизвестен.
+     * @param dto объект {@link KafkaNotificationDto}, содержащий тип уведомления,
+     * данные пользователя и payload с деталями события
+     * @return готовое текстовое содержимое email-сообщения
+     * @throws IllegalArgumentException если для указанного типа уведомления не найден шаблон
      */
     @Override
     public String generateEmailContent(KafkaNotificationDto dto) {
-        String template = emailTemplates.get(dto.getNotificationType());
+        String template = notificationCacheProcessor.getTemplateCache(dto.getNotificationType());
 
-        if (template == null) {
+        if (template.isEmpty()) {
             throw new IllegalArgumentException(
                     "Неизвестный тип уведомления: " + dto.getNotificationType());
         }
@@ -83,9 +82,10 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
     }
 
     /**
-     * Получает тему электронного письма на основе типа уведомления.
-     * @param type тип уведомления, для которого требуется получить тему письма.
-     * @return тема электронного письма для заданного типа уведомления.
+     * Возвращает заголовок email-сообщения для указанного типа уведомления.
+     *
+     * @param type тип уведомления ({@link NotificationTypeEnum})
+     * @return строка с темой письма
      */
     @Override
     public String getEmailSubject(NotificationTypeEnum type) {
@@ -96,13 +96,12 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
     }
 
     /**
-     * Форматирует дату и время в строку.
+     * Форматирует дату и время в строку по шаблону {@code dd.MM.yyyy HH:mm}.
      *
-     * @param dateTime дата и время для форматирования.
-     * @return форматированная строка даты и времени.
+     * @param dateTime объект {@link LocalDateTime}, подлежащий форматированию
+     * @return строковое представление даты и времени
      */
     private String formatDateTime(LocalDateTime dateTime) {
         return dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
     }
-
 }

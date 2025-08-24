@@ -1,5 +1,6 @@
 package ru.mentor.integration.telegram;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import ru.mentor.config.TelegramApiConfig;
         url = "${telegram.bot.api-url}",
         configuration = TelegramApiConfig.class
 )
+@ConditionalOnProperty(name = "application.notify.telegram.enable", havingValue = "true")
 public interface TelegramApiClient {
 
     /**

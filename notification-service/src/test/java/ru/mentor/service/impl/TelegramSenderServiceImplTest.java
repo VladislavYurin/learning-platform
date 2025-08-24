@@ -7,10 +7,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import ru.mentor.config.TelegramBotProperties;
 import ru.mentor.integration.telegram.TelegramApiClient;
 
 @ExtendWith(MockitoExtension.class)
+@ConditionalOnProperty(name = "application.notify.telegram.enable", havingValue = "true")
 class TelegramSenderServiceImplTest {
 
     public static final String TOKEN = "TEST_TOKEN";
