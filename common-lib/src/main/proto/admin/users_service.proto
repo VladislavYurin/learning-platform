@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "ru.mentor.admin";
+option java_multiple_files = false;
+option java_outer_classname = "UsersProto";
+
+service UsersService {
+  rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
+}
+
+message GetUserByIdRequest {
+  int64 id = 1;
+}
+
+message GetUserByIdResponse {
+  UserInfoDto user = 1;
+}
+
+message UserInfoDto {
+  int64 id = 1;
+  string username = 2;
+  Role role = 3;
+  string firstName = 4;
+  string lastName = 5;
+  string tgNickname = 6;
+  string tgChatId = 7;
+}
+
+enum Role {
+  USER = 0;
+  ADMIN = 1;
+  MENTOR = 2;
+}
