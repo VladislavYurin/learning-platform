@@ -1,4 +1,4 @@
-package ru.mentor.controller;
+package ru.mentor.controller.admin;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -7,29 +7,30 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.services.UserInfoService;
 
 /**
- * Контроллер для управления информацией пользователя.
- * Предоставляет эндпоинты для получения данных о текущем пользователе,
- * просмотра профиля другого пользователя по идентификатору и назначения
- * роли наставника текущему пользователю.
+ * Контроллер для управления учетными записями пользователей для администраторов.
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/admin/user")
 @RequiredArgsConstructor
 @Tag(name = "User Management", description = "Получение или изменение информации о пользователе")
-public class UserInfoController {
+public class AdminUserInfoController {
 
     private final UserInfoService userInfoService;
 
+    /**
+     * Возвращает данные учетной записи отправителя запроса
+     *
+     * @return {@link UserInfoDto}
+     */
     @Operation(
-            summary = "Получить свою информацию",
-            description = "Позволяет получить пользовательскую информацию от пользователя",
+            summary = "Получить информацию о своем профиле.",
+            description = "Позволяет получить информацию о своем профиле.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Пользовательская информация выдана"),
                     @ApiResponse(responseCode = "404", description = "Пользователь не найден")
@@ -41,9 +42,17 @@ public class UserInfoController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     * Возвращает данные учетной записи пользователя по ID
+     *
+     * @param userId
+     *         ID учетной записи
+     *
+     * @return {@link UserInfoDto}
+     */
     @Operation(
-            summary = "Получить информацию о другом пользователе",
-            description = "Позволяет получить пользовательскую информацию о другом пользователе",
+            summary = "Получить информацию о другом профиле.",
+            description = "Позволяет получить информацию о профиле другого пользователя.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Пользовательская информация выдана"),
                     @ApiResponse(responseCode = "404", description = "Пользователь не найден")
@@ -52,20 +61,6 @@ public class UserInfoController {
     @GetMapping("/{userId}")
     public ResponseEntity<?> getOtherUserInfo(@PathVariable Long userId) {
         UserInfoDto response = userInfoService.getOtherUserInfo(userId);
-        return ResponseEntity.ok().body(response);
-    }
-
-    @Operation(
-            summary = "Выдает пользователю роль МЕНТОР",
-            description = "Позволяет выдать пользователю роль МЕНТОР",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Роль МЕНТОР выдана"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден")
-            }
-    )
-    @PostMapping("/mentor/register")
-    public ResponseEntity<?> assignMentorRole() {
-        UserInfoDto response = userInfoService.assignMentorRole();
         return ResponseEntity.ok().body(response);
     }
 

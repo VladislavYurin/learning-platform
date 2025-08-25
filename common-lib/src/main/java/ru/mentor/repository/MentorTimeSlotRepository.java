@@ -1,13 +1,12 @@
 package ru.mentor.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.exception.EntityNotFoundException;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Repository
 public interface MentorTimeSlotRepository
@@ -15,29 +14,30 @@ public interface MentorTimeSlotRepository
 
     default MentorTimeSlotEntity findByIdOrThrow(Long slotId) {
         return this.findById(slotId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format(
-                                "Слот с ID = %d не найден",
-                                slotId
-                        )
-                ));
+                   .orElseThrow(() -> new EntityNotFoundException(
+                           String.format(
+                                   "Слот с ID = %d не найден",
+                                   slotId
+                           )
+                   ));
     }
 
-    @Query(value = """
-            select case when count(ts) > 0 then true else false end
-            from MentorTimeSlotEntity ts
-            join ts.mentor_time_slot__users mu
-            where mu.id_user = :userId
-            and (ts.start_time, ts.end_time) overlaps (:start, :end)
+    @Query(nativeQuery = true, value = """
+            select exists(
+                select 1
+                from mentor_time_slot__users slots_users join mentor_time_slots slots
+                    on slots.id_slot = slots_users.time_slot_id
+                where slots_users.user_id = :userId
+                    and (slots.start_time, slots.end_time) overlaps (:start, :end)
+                ) as result
             """)
-    default boolean existsOverlappingSlots(Long userId, LocalDateTime start, LocalDateTime end) {
-        return false;
-    }
+    boolean existsOverlappingSlots(Long userId, LocalDateTime start, LocalDateTime end);
 
     @Query(value = """
-        SELECT slot FROM MentorTimeSlotEntity slot JOIN FETCH slot.meetingParticipants
-        WHERE slot.mentor.id = :mentorId
-        ORDER BY slot.startTime
-    """)
+                SELECT slot FROM MentorTimeSlotEntity slot JOIN FETCH slot.meetingParticipants
+                WHERE slot.mentor.id = :mentorId
+                ORDER BY slot.startTime
+            """)
     List<MentorTimeSlotEntity> findByMentorIdWithParticipants(Long mentorId);
+
 }

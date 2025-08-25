@@ -1,7 +1,21 @@
 package ru.mentor.mapper;
 
+import static ru.mentor.mapper.UtilMapper.buildTimestamp;
+import static ru.mentor.mapper.UtilMapper.calendarSlotMeetingTypeToSlotMeetingType;
+import static ru.mentor.mapper.UtilMapper.calendarSlotTypeToSlotType;
+import static ru.mentor.mapper.UtilMapper.slotMeetingTypeToCalendarSlotMeetingType;
+import static ru.mentor.mapper.UtilMapper.slotTypeToCalendarSlotType;
+import static ru.mentor.mapper.UtilMapper.timestampToLocalDateTime;
+import static ru.mentor.mapper.UtilMapper.userEntityRoleToUserInfoRole;
+import static ru.mentor.mapper.UtilMapper.userInfoRoleToUserInfoDtoRole;
+
 import com.google.protobuf.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
+import ru.mentor.admin.AllTimeSlotsResponse;
+import ru.mentor.admin.PageDetails;
 import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CreateTimeSlotRequest;
 import ru.mentor.calendar.MentorSlotInfo;
@@ -19,17 +33,6 @@ import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static ru.mentor.mapper.UtilMapper.buildTimestamp;
-import static ru.mentor.mapper.UtilMapper.calendarSlotMeetingTypeToSlotMeetingType;
-import static ru.mentor.mapper.UtilMapper.calendarSlotTypeToSlotType;
-import static ru.mentor.mapper.UtilMapper.slotMeetingTypeToCalendarSlotMeetingType;
-import static ru.mentor.mapper.UtilMapper.slotTypeToCalendarSlotType;
-import static ru.mentor.mapper.UtilMapper.timestampToLocalDateTime;
-import static ru.mentor.mapper.UtilMapper.userEntityRoleToUserInfoRole;
-import static ru.mentor.mapper.UtilMapper.userInfoRoleToUserInfoDtoRole;
 
 /**
  * Маппер для {@link MentorTimeSlotEntity}
@@ -37,7 +40,6 @@ import static ru.mentor.mapper.UtilMapper.userInfoRoleToUserInfoDtoRole;
 @Component
 public class TimeSlotMapper {
 
-    private UtilMapper utilMapper;
     /**
      * Преобразовывает объект, полученный через gRPC в DTO для отправки клиенту.
      *
@@ -302,4 +304,61 @@ public class TimeSlotMapper {
                 .addAllSlots(mentorSlotsWithUsersInfo)
                 .build();
     }
+
+    /**
+     * Преобразует страницу сущностей слотов в gRPC-объект, содержащий слоты
+     * @param mentorTimeSlotEntities объект {@link Page} со списком {@link MentorTimeSlotEntity}
+     * @param requestId сквозной UUID запроса
+     *
+     * @return gRPC-объект {@link AllTimeSlotsResponse}
+     */
+    public AllTimeSlotsResponse mapMentorTimeSlotEntityPageToAllTimeSlotsResponse
+            (Page<MentorTimeSlotEntity> mentorTimeSlotEntities, String requestId) {
+
+        return AllTimeSlotsResponse.newBuilder()
+                                   .setPageDetails(extractPageDetailsFromMentorTimeSlotEntityPage(
+                                           mentorTimeSlotEntities))
+                                   .addAllTimeSlots(mapMentorTimeSlotEntityPageToMentorSlotInfoList(
+                                           mentorTimeSlotEntities,
+                                           requestId
+                                   ))
+                                   .build();
+    }
+
+    /**
+     * Преобразует gRPC-объект, содержащий список слотов в список DTO слотов.
+     *
+     * @param allTimeSlots gRPC-объект со списком слотов
+     *
+     * @return список {@link MentorSlotInfoDto}
+     */
+    public List<MentorSlotInfoDto> mapGrpcAllTimeSlotsResponseToMentorSlotInfoDtoList
+            (AllTimeSlotsResponse allTimeSlots) {
+        return allTimeSlots.getTimeSlotsList().stream()
+                           .map(this::toDtoMentorSlotInfo)
+                           .toList();
+    }
+
+    private List<MentorSlotInfo> mapMentorTimeSlotEntityPageToMentorSlotInfoList
+            (Page<MentorTimeSlotEntity> mentorTimeSlotEntities, String requestId) {
+
+        return mentorTimeSlotEntities.stream()
+                                     .map(entity -> entityMentorTimeSlotToMentorSlotInfo(
+                                             entity,
+                                             requestId
+                                     ))
+                                     .toList();
+    }
+
+    private PageDetails extractPageDetailsFromMentorTimeSlotEntityPage
+            (Page<MentorTimeSlotEntity> mentorTimeSlotEntities) {
+
+        return PageDetails.newBuilder()
+                          .setPage(mentorTimeSlotEntities.getNumber())
+                          .setSize(mentorTimeSlotEntities.getSize())
+                          .setTotalPages(mentorTimeSlotEntities.getTotalPages())
+                          .setTotalElements(mentorTimeSlotEntities.getTotalElements())
+                          .build();
+    }
+
 }

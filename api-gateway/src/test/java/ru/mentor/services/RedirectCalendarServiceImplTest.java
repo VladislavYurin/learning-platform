@@ -1,7 +1,14 @@
 package ru.mentor.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+
 import com.google.protobuf.Timestamp;
-import org.jetbrains.annotations.NotNull;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -9,7 +16,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.mentor.calendar.*;
+import ru.mentor.calendar.BookTimeSlotRequest;
+import ru.mentor.calendar.CreateTimeSlotRequest;
+import ru.mentor.calendar.SlotMeetingType;
+import ru.mentor.calendar.SlotType;
+import ru.mentor.calendar.TimeSlotResponse;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.constant.Role;
@@ -19,13 +30,6 @@ import ru.mentor.entity.UserEntity;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.util.RqGenerator;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class RedirectCalendarServiceImplTest {
@@ -53,72 +57,76 @@ class RedirectCalendarServiceImplTest {
 
     public UserEntity getTestUserWith(Role role) {
         return UserEntity.builder()
-                .id(1L)
-                .username(testUsername)
-                .password(testPassword)
-                .role(role)
-                .firstName(testFirstName)
-                .lastName(testLastName)
-                .tgNickname(testTgNickname)
-                .build();
+                         .id(1L)
+                         .username(testUsername)
+                         .password(testPassword)
+                         .role(role)
+                         .firstName(testFirstName)
+                         .lastName(testLastName)
+                         .tgNickname(testTgNickname)
+                         .build();
     }
 
-    private @NotNull TimeSlotResponse getTestTimeSlotResponse(LocalDateTime startTime, LocalDateTime endTime) {
+    private TimeSlotResponse getTestTimeSlotResponse(
+            LocalDateTime startTime,
+            LocalDateTime endTime) {
         Timestamp startTimestamp = Timestamp.newBuilder()
-                .setSeconds(startTime.toEpochSecond(ZoneOffset.UTC))
-                .build();
+                                            .setSeconds(startTime.toEpochSecond(ZoneOffset.UTC))
+                                            .build();
 
         Timestamp endTimestamp = Timestamp.newBuilder()
-                .setSeconds(endTime.toEpochSecond(ZoneOffset.UTC))
-                .build();
+                                          .setSeconds(endTime.toEpochSecond(ZoneOffset.UTC))
+                                          .build();
 
         Timestamp createdAt = Timestamp.newBuilder()
-                .setSeconds(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
-                .build();
+                                       .setSeconds(LocalDateTime.now()
+                                                                .toEpochSecond(ZoneOffset.UTC))
+                                       .build();
 
         return TimeSlotResponse.newBuilder()
-                .setRqUid(RqGenerator.generateRqId())
-                .setSlotId(1L)
-                .setMentorId(1L)
-                .setStartTime(startTimestamp)
-                .setEndTime(endTimestamp)
-                .setSlotType(SlotType.INDIVIDUAL)
-                .setSlotMeetingType(SlotMeetingType.COMMUNICATION)
-                .setMaxParticipants(5)
-                .setMeetingLink(testLink)
-                .setDescription(testDescription)
-                .setCreatedAt(createdAt)
-                .build();
+                               .setRqUid(RqGenerator.generateRqId())
+                               .setSlotId(1L)
+                               .setMentorId(1L)
+                               .setStartTime(startTimestamp)
+                               .setEndTime(endTimestamp)
+                               .setSlotType(SlotType.INDIVIDUAL)
+                               .setSlotMeetingType(SlotMeetingType.COMMUNICATION)
+                               .setMaxParticipants(5)
+                               .setMeetingLink(testLink)
+                               .setDescription(testDescription)
+                               .setCreatedAt(createdAt)
+                               .build();
     }
 
     private MentorTimeSlotCreateRequest getTestMentorTimeSlotCreateRequest() {
         return MentorTimeSlotCreateRequest.builder()
-                .startTime(LocalDateTime.of(2024, 1, 1, 10, 0, 0))
-                .endTime(LocalDateTime.of(2024, 1, 1, 11, 0, 0))
-                .slotType(CalendarSlotType.INDIVIDUAL)
-                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
-                .maxParticipants(5)
-                .meetingLink(testLink)
-                .description(testDescription)
-                .build();
+                                          .startTime(LocalDateTime.of(2024, 1, 1, 10, 0, 0))
+                                          .endTime(LocalDateTime.of(2024, 1, 1, 11, 0, 0))
+                                          .slotType(CalendarSlotType.INDIVIDUAL)
+                                          .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                                          .maxParticipants(5)
+                                          .meetingLink(testLink)
+                                          .description(testDescription)
+                                          .build();
     }
 
     private MentorTimeSlotDto getTestMentorTimeSlotDto() {
         LocalDateTime now = LocalDateTime.now();
         return MentorTimeSlotDto.builder()
-                .id(1L)
-                .mentorId(123L)
-                .rqUId("6e8f4e02-c91c-465f-b22d-7f102fca381b")
-                .startTime(now)
-                .endTime(now.plusHours(1))
-                .slotType(CalendarSlotType.INDIVIDUAL)
-                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
-                .maxParticipants(10)
-                .isActive(true)
-                .meetingLink("https://www.meet.ru/abc123-def456")
-                .description("Знакомство и обсуждение плана дальнейшего взаимодействия")
-                .createdAt(now.minusDays(1))
-                .build();
+                                .id(1L)
+                                .mentorId(123L)
+                                .rqUId("6e8f4e02-c91c-465f-b22d-7f102fca381b")
+                                .startTime(now)
+                                .endTime(now.plusHours(1))
+                                .slotType(CalendarSlotType.INDIVIDUAL)
+                                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                                .maxParticipants(10)
+                                .isActive(true)
+                                .meetingLink("https://www.meet.ru/abc123-def456")
+                                .description(
+                                        "Знакомство и обсуждение плана дальнейшего взаимодействия")
+                                .createdAt(now.minusDays(1))
+                                .build();
     }
 
     @Test
@@ -132,7 +140,7 @@ class RedirectCalendarServiceImplTest {
 
         Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
         Mockito.when(calendarServiceClient.createMentorTimeSlot(any(CreateTimeSlotRequest.class)))
-                .thenReturn(testGrpcResponse);
+               .thenReturn(testGrpcResponse);
 
         // When
         MentorTimeSlotDto result = redirectCalendarService.createTimeSlot(testCreateRequest);
@@ -152,11 +160,11 @@ class RedirectCalendarServiceImplTest {
 
         Mockito.verify(userService, Mockito.times(1)).getCurrentUser();
         Mockito.verify(calendarServiceClient, Mockito.times(1))
-                .createMentorTimeSlot(any(CreateTimeSlotRequest.class));
+               .createMentorTimeSlot(any(CreateTimeSlotRequest.class));
         Mockito.verify(timeSlotMapper, Mockito.times(1))
-                .requestCreateToGrpcDto(any(), anyString(), any());
+               .requestCreateToGrpcDto(any(), anyString(), any());
         Mockito.verify(timeSlotMapper, Mockito.times(1))
-                .grpcResponseToDto(any());
+               .grpcResponseToDto(any());
     }
 
     @Test
@@ -165,13 +173,13 @@ class RedirectCalendarServiceImplTest {
         // Given
         UserEntity testUser = getTestUserWith(Role.USER);
         Mockito.when(userService.getCurrentUser())
-                .thenReturn(testUser);
+               .thenReturn(testUser);
 
         LocalDateTime startTime = LocalDateTime.now();
         LocalDateTime endTime = startTime.plusHours(1L);
         TimeSlotResponse testTimeSlotResponse = getTestTimeSlotResponse(startTime, endTime);
         Mockito.when(calendarServiceClient.bookTimeSlot(any(BookTimeSlotRequest.class)))
-                        .thenReturn(testTimeSlotResponse);
+               .thenReturn(testTimeSlotResponse);
 
         // When
         long slotId = 1L;
@@ -182,12 +190,13 @@ class RedirectCalendarServiceImplTest {
 
         Mockito.verify(userService).getCurrentUser();
         Mockito.verify(calendarServiceClient, Mockito.times(1))
-                .bookTimeSlot(any(BookTimeSlotRequest.class));
+               .bookTimeSlot(any(BookTimeSlotRequest.class));
         Mockito.verify(timeSlotMapper).grpcResponseToDto(testTimeSlotResponse);
         Mockito.verify(timeSlotMapper, Mockito.times(1))
-                .toGrpcBookTimeSlotRequest(anyString(), anyLong(), anyLong());
+               .toGrpcBookTimeSlotRequest(anyString(), anyLong(), anyLong());
         Mockito.verify(timeSlotMapper, Mockito.times(1))
-                .grpcResponseToDto(testTimeSlotResponse);
+               .grpcResponseToDto(testTimeSlotResponse);
 
     }
+
 }

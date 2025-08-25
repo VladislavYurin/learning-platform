@@ -3,9 +3,13 @@ package ru.mentor.mapper;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+import ru.mentor.admin.GrpcPageRequest;
+import ru.mentor.admin.PageDetails;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.ModuleDto;
+import ru.mentor.dto.PageSettings;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.ModuleEntity;
@@ -103,7 +107,6 @@ public class BaseMapper {
                                 isNeedToFetchModuleContent ? entity.getModuleContent() : null)
                         .isActive(entity.getIsActive())
                         .createdAt(entity.getCreatedAt())
-                        .createdAt(entity.getCreatedAt())
                         .build();
     }
 
@@ -123,6 +126,48 @@ public class BaseMapper {
                           .tgNickname(entity.getTgNickname())
                           .build();
 
+    }
+
+    /**
+     * Создать gRPC-объект для запроса страницы любых объектов (аналог {@link PageRequest})
+     *
+     * @param requestId
+     *         сквозной UUID запроса
+     * @param pageSettings
+     *         настройки страницы (номер страницы и размер)
+     *
+     * @return gRPC-объект {@link GrpcPageRequest}
+     */
+    public GrpcPageRequest constructGrpcPageRequest(String requestId, PageSettings pageSettings) {
+        return GrpcPageRequest.newBuilder()
+                              .setRequestId(requestId)
+                              .setPageNumber(pageSettings.getPageNumber())
+                              .setPageSize(pageSettings.getPageSize())
+                              .build();
+    }
+
+    /**
+     * Преобразовать gRPC-объект в {@link PageRequest}
+     *
+     * @param pageDetails
+     *         rRPC-объект {@link PageDetails}
+     *
+     * @return {@link PageRequest}
+     */
+    public PageRequest mapGrpcPageDetailsToPageRequest(PageDetails pageDetails) {
+        return PageRequest.of(pageDetails.getPage(), pageDetails.getSize());
+    }
+
+    /**
+     * Преобразовать gRPC-объект в {@link PageRequest}
+     *
+     * @param grpcPageRequest
+     *         gRPC-объект {@link GrpcPageRequest}
+     *
+     * @return {@link PageRequest}
+     */
+    public PageRequest mapGrpcPageRequestToPageRequest(GrpcPageRequest grpcPageRequest) {
+        return PageRequest.of(grpcPageRequest.getPageNumber(), grpcPageRequest.getPageSize());
     }
 
 }

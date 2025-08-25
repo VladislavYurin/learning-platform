@@ -6,8 +6,6 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import ru.mentor.annotaion.GrpcMethod;
-import ru.mentor.annotaion.GrpcMethodType;
 import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CalendarServiceGrpc.CalendarServiceBlockingStub;
 import ru.mentor.calendar.CreateTimeSlotRequest;
@@ -38,12 +36,6 @@ public class CalendarServiceGrpcClient {
      * @return Calendar Service с данными созданного тайм-слота
      * @throws GrpcRetryException при ошибке отправки/выполнения RPC будет перехвачен ретраем
      */
-    @GrpcMethod(
-            grpcMethodType = GrpcMethodType.CLIENT,
-            grpcInstanceType = CalendarServiceGrpcClient.class,
-            requestType = CreateTimeSlotRequest.class,
-            getters = {"getRqUid"}
-    )
     @Retryable(
             retryFor = GrpcRetryException.class,
             maxAttemptsExpression = "${grpc.retry.max-attempts}",
@@ -62,6 +54,18 @@ public class CalendarServiceGrpcClient {
         }
     }
 
+    /**
+     * Бронирует слот.
+     *
+     * @param bookTimeSlotRequest объект, содержащий данные для бронирования
+     *
+     * @return {@link TimeSlotResponse}
+     */
+    @Retryable(
+            retryFor = GrpcRetryException.class,
+            maxAttemptsExpression = "${grpc.retry.max-attempts}",
+            backoff = @Backoff(delayExpression = "${grpc.retry.delay}")
+    )
     public TimeSlotResponse bookTimeSlot(BookTimeSlotRequest bookTimeSlotRequest) {
         try {
             return blockingStub.bookTimeslot(bookTimeSlotRequest);
@@ -78,6 +82,11 @@ public class CalendarServiceGrpcClient {
      * @param mentorSlotsInfoRequest {@link MentorSlotsInfoRequest} сгенерированный из proto класс запроса
      * @return {@link MentorSlotsInfoResponse} сгенерированный класс ответа
      */
+    @Retryable(
+            retryFor = GrpcRetryException.class,
+            maxAttemptsExpression = "${grpc.retry.max-attempts}",
+            backoff = @Backoff(delayExpression = "${grpc.retry.delay}")
+    )
     public MentorSlotsInfoResponse getMentorSlotsInfo(MentorSlotsInfoRequest mentorSlotsInfoRequest) {
         try {
             return blockingStub.getMentorSlots(mentorSlotsInfoRequest);

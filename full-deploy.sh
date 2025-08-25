@@ -17,7 +17,8 @@ docker-compose up -d \
   course-service \
   mentor-service \
   notification-service \
-  calendar-service
+  calendar-service \
+  admin-service
 
 # --- 4. Проверка статуса ---
 echo "✅ Готово! Статус контейнеров:"

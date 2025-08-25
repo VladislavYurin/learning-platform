@@ -45,6 +45,14 @@ services:
     networks:
       - backend
 
+  admin-service:
+    container_name: admin-service
+    image: mentor/admin-service:local
+    ports:
+      - "8085:8085"
+    networks:
+      - backend
+
   database:
     container_name: mentor-database
     image: postgres:15.3-alpine

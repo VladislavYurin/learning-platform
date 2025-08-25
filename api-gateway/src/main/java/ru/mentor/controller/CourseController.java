@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.front.CreateCourseRequest;
 import ru.mentor.services.RedirectCourseService;
+
+import java.util.List;
 
 /**
  * Контроллер для управления курсами и их содержимым.
@@ -45,7 +46,7 @@ public class CourseController {
             }
     )
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
+    @PreAuthorize("hasRole('MENTOR')")
     public ResponseEntity<CourseDto> createCourse(@RequestBody CreateCourseRequest request) {
         return ResponseEntity.ok(redirectCourseService.createCourse(request));
     }
@@ -61,7 +62,7 @@ public class CourseController {
             }
     )
     @DeleteMapping("/{courseId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
+    @PreAuthorize("hasRole('MENTOR')")
     public ResponseEntity<?> deleteCourse(@PathVariable Long courseId) {
         return redirectCourseService.deleteCourse(courseId);
     }
