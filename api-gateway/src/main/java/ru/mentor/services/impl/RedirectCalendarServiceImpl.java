@@ -1,5 +1,6 @@
-package ru.mentor.services;
+package ru.mentor.services.impl;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,9 @@ import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
 import ru.mentor.mapper.TimeSlotMapper;
+import ru.mentor.services.RedirectCalendarService;
+import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
-
-import java.util.List;
 
 /**
  * Сервис редиректа запросов в микросервис calendar-service

@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "calendar.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.admin";
+option java_outer_classname = "AdminProto";
+
+// Сервис для админских запросов по курсам
+service AdminCourseService {
+
+  // Получить курс по ID
+  rpc GetCourse (GetCourseRequest) returns (CourseResponse);
+
+  // Получить все курсы
+  rpc GetAllCourses (GrpcPageRequest) returns (AllCoursesResponse);
+
+}
+
+// Сервис для админских запросов по слотам
+service AdminCalendarService {
+
+  // Получить все слоты
+  rpc GetAllTimeSlots (GrpcPageRequest) returns (AllTimeSlotsResponse);
+
+}
+
+// Сервис для админских запросов по модулям
+service AdminModuleService {
+
+  // Получить модуль по ID
+  rpc GetModule (GetModuleRequest) returns (ModuleResponse);
+
+  // Получить все модули
+  rpc GetAllModules (GrpcPageRequest) returns (AllModulesResponse);
+
+}
+
+// Запрос на получение курса
+message GetCourseRequest {
+  string request_id = 1;
+  uint64 course_id = 2;
+}
+
+// Запрошенный курс
+message CourseResponse {
+  uint64 course_id = 1;
+  string title = 2;
+  string description = 3;
+  bool is_active = 4;
+  google.protobuf.Timestamp created_at = 5;
+  AuthorResponse author = 6;
+}
+
+// Автор курса
+message AuthorResponse {
+  uint64 user_id = 1;
+  string username = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string tg_nickname = 5;
+  uint64 tg_chat_id = 6;
+}
+
+// Запрос страницы сущностей
+message GrpcPageRequest {
+  string request_id = 1;
+  uint32 page_number = 2;
+  uint32 page_size = 3;
+}
+
+// Детали страницы. gRPC-клиенты собирает с его помощью Page для отправки пользователю.
+message PageDetails {
+  uint32 page = 1;
+  uint32 size = 2;
+  uint64 total_elements = 3;
+  uint32 total_pages = 4;
+}
+
+// Страница запрошенных курсов
+message AllCoursesResponse {
+  PageDetails page_details = 1;
+  repeated CourseResponse courses = 2;
+}
+
+// Страница запрошенных слотов
+message AllTimeSlotsResponse {
+  PageDetails page_details = 1;
+  repeated MentorSlotInfo time_slots = 2;
+}
+
+// Запрос на получение модуля
+message GetModuleRequest {
+  string request_id = 1;
+  uint64 module_id = 2;
+}
+
+// Запрошенный модуль
+message ModuleResponse {
+  uint64 module_id = 1;
+  string title = 2;
+  uint32 order_number = 3;
+  string content = 4;
+  bool is_active = 5;
+  google.protobuf.Timestamp created_at = 6;
+  uint64 course_id = 7;
+}
+
+// Страница запрошенных модулей
+message AllModulesResponse {
+  PageDetails page_details = 1;
+  repeated ModuleResponse modules = 2;
+}

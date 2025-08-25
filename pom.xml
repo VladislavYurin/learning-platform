@@ -22,6 +22,7 @@
     <module>mentor-service</module>
     <module>notification-service</module>
     <module>calendar-service</module>
+    <module>admin-service</module>
   </modules>
 
   <properties>
