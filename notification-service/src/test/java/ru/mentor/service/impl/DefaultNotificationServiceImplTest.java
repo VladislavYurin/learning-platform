@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.service.EmailSenderService;
@@ -38,7 +39,8 @@ class DefaultNotificationServiceImplTest {
         Mockito.when(dto.getUserInfo()).thenReturn(user);
         Mockito.when(templateService.getEmailSubject(Mockito.any())).thenReturn("SUBJ");
 
-        var service = new DefaultNotificationServiceImpl(emailSenderService, telegramSenderService, templateService);
+        var service = new DefaultNotificationServiceImpl(mockProvider(emailSenderService),
+                mockProvider(telegramSenderService), templateService);
 
         service.notifyUser(dto);
 
@@ -59,12 +61,19 @@ class DefaultNotificationServiceImplTest {
         Mockito.when(dto.getUserInfo()).thenReturn(user);
 
         var service = new DefaultNotificationServiceImpl(
-                emailSenderService, telegramSenderService, templateService);
+                mockProvider(emailSenderService), mockProvider(telegramSenderService), templateService);
 
         service.notifyUser(dto);
 
         Mockito.verifyNoInteractions(telegramSenderService);
         Mockito.verify(emailSenderService, Mockito.atLeastOnce())
                 .sendEmail(EMAIL_TEST, "SUBJ", MESSAGE);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> ObjectProvider<T> mockProvider(T bean) {
+        ObjectProvider<T> provider = Mockito.mock(ObjectProvider.class);
+        Mockito.when(provider.getIfAvailable()).thenReturn(bean);
+        return provider;
     }
 }

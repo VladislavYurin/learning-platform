@@ -108,3 +108,11 @@ CREATE TABLE IF NOT EXISTS call_participants
     FOREIGN KEY (mentee_id) REFERENCES users (id_user) ON DELETE CASCADE,
     CONSTRAINT unique_mentee_booking UNIQUE (booking_id, mentee_id)
 );
+
+CREATE TABLE IF NOT EXISTS notification_templates
+(
+    id_template         BIGSERIAL       PRIMARY KEY,
+    template_type           VARCHAR(255)    NOT NULL,
+    template_text           TEXT            NOT NULL,
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
