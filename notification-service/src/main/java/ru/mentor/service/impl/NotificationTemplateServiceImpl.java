@@ -1,5 +1,7 @@
 package ru.mentor.service.impl;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.mentor.cache.NotificationCacheProcessor;
@@ -9,8 +11,6 @@ import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
 import ru.mentor.service.NotificationTemplateService;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Реализация сервиса {@link ru.mentor.service.NotificationTemplateService} для работы с шаблонами уведомлений.
