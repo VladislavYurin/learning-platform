@@ -10,6 +10,8 @@ public interface KafkaProducerService {
 
     /**
      * Отправляет сообщение уведомления в Kafka.
+     *
+     * @param order DTO объект уведомления для отправки
      */
     void send(KafkaNotificationDto order);
 

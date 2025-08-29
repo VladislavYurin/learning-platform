@@ -34,6 +34,15 @@ public class MarkdownFileValidator implements
 
     /**
      * Проверяет корректность переданного файла.
+     * Выполняет следующие проверки:
+     * - файл не пустой
+     * - тип содержимого соответствует разрешенным
+     * - размер файла не превышает максимальный
+     * - файл имеет расширение .md
+     *
+     * @param file файл для валидации
+     * @param context контекст валидатора
+     * @return true, если файл прошел все проверки, иначе false
      */
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
@@ -73,6 +82,9 @@ public class MarkdownFileValidator implements
 
     /**
      * Проверяет, является ли тип содержимого файла допустимым.
+     *
+     * @param contentType тип содержимого файла
+     * @return true, если тип содержимого допустим, иначе false
      */
     private boolean isContentTypeValid(String contentType) {
         if (contentType == null) {
@@ -88,6 +100,9 @@ public class MarkdownFileValidator implements
 
     /**
      * Добавляет нарушение ограничения в контекст валидации с указанным сообщением.
+     *
+     * @param context контекст валидатора
+     * @param message сообщение об ошибке
      */
     private void addConstraintViolation(ConstraintValidatorContext context, String message) {
         context.disableDefaultConstraintViolation();

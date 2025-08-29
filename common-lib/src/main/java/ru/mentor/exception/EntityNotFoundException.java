@@ -23,6 +23,8 @@ public class EntityNotFoundException extends RuntimeException {
 
     /**
      * Создает новое исключение EntityNotFoundException с указанным сообщением.
+     *
+     * @param message сообщение об ошибке
      */
     public EntityNotFoundException(String message) {
         super(message);
@@ -30,6 +32,9 @@ public class EntityNotFoundException extends RuntimeException {
 
     /**
      * Создает новое исключение EntityNotFoundException с указанным сообщением и идентификатором запроса.
+     *
+     * @param message сообщение об ошибке
+     * @param rqUId идентификатор запроса
      */
     public EntityNotFoundException(String message, String rqUId) {
         super(message);

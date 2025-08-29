@@ -12,9 +12,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CalendarSlotType {
 
+    /**
+     * Индивидуальный тип слота.
+     * Используется для обозначения слотов, предназначенных для одиночных встреч.
+     */
     INDIVIDUAL("Индивидуальный слот"),
+    /**
+     * Групповой тип слота.
+     * Используется для обозначения слотов, предназначенных для групповых встреч.
+     */
     GROUP("Групповой слот");
 
+    /**
+     * Описание типа слота календаря.
+     */
     private final String description;
 
 }

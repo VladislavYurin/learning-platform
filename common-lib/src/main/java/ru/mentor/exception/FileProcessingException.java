@@ -23,6 +23,8 @@ public class FileProcessingException extends RuntimeException {
 
     /**
      * Создает новое исключение FileProcessingException с указанным сообщением.
+     *
+     * @param message сообщение об ошибке
      */
     public FileProcessingException(String message) {
         super(message);
@@ -30,6 +32,9 @@ public class FileProcessingException extends RuntimeException {
 
     /**
      * Создает новое исключение FileProcessingException с указанным сообщением и идентификатором запроса.
+     *
+     * @param message сообщение об ошибке
+     * @param rqUId идентификатор запроса
      */
     public FileProcessingException(String message, String rqUId) {
         super(message);

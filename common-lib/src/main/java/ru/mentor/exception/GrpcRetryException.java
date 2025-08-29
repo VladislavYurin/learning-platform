@@ -23,6 +23,8 @@ public class GrpcRetryException extends RuntimeException {
 
     /**
      * Создает новое исключение GrpcRetryException с указанным сообщением.
+     *
+     * @param message сообщение об ошибке
      */
     public GrpcRetryException(String message) {
         super(message);
@@ -30,6 +32,9 @@ public class GrpcRetryException extends RuntimeException {
 
     /**
      * Создает новое исключение GrpcRetryException с указанным сообщением и идентификатором запроса.
+     *
+     * @param message сообщение об ошибке
+     * @param rqUId идентификатор запроса
      */
     public GrpcRetryException(String message, String rqUId) {
         super(message);

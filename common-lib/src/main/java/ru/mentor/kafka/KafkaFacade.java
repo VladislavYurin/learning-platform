@@ -38,6 +38,11 @@ public class KafkaFacade {
     /**
      * Отправляет сообщение о предоставлении доступа к курсу.
      * Создает и отправляет уведомление типа COURSE_ACCESS_GRANTED через Kafka.
+     *
+     * @param user сущность пользователя, которому предоставлен доступ
+     * @param mentor сущность ментора, предоставившего доступ
+     * @param course сущность курса, к которому предоставлен доступ
+     * @param userCourseAccess сущность доступа пользователя к курсу
      */
     public void sendCourseAccessGrantedMessage(
             UserEntity user,
@@ -58,6 +63,12 @@ public class KafkaFacade {
     /**
      * Отправляет сообщение о предоставлении доступа к модулю.
      * Создает и отправляет уведомление типа MODULE_ACCESS_GRANTED через Kafka.
+     *
+     * @param user сущность пользователя, которому предоставлен доступ
+     * @param mentor сущность ментора, предоставившего доступ
+     * @param course сущность курса, к которому относится модуль
+     * @param module сущность модуля, к которому предоставлен доступ
+     * @param userModuleAccess сущность доступа пользователя к модулю
      */
     public void sendModuleAccessGrantedMessage(
             UserEntity user,

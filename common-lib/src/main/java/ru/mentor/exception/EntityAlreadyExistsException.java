@@ -12,6 +12,7 @@ public class EntityAlreadyExistsException extends RuntimeException {
 
     /**
      * Идентификатор запроса, связанный с исключением.
+     * Может быть null, если не установлен.
      */
     private String rqUId = null;
 
@@ -24,6 +25,8 @@ public class EntityAlreadyExistsException extends RuntimeException {
 
     /**
      * Создает новое исключение EntityAlreadyExistsException с указанным сообщением.
+     *
+     * @param message сообщение об ошибке
      */
     public EntityAlreadyExistsException(String message) {
         super(message);
@@ -31,6 +34,9 @@ public class EntityAlreadyExistsException extends RuntimeException {
 
     /**
      * Создает новое исключение EntityAlreadyExistsException с указанным сообщением и идентификатором запроса.
+     *
+     * @param message сообщение об ошибке
+     * @param rqUId идентификатор запроса
      */
     public EntityAlreadyExistsException(String message, String rqUId) {
         super(message);

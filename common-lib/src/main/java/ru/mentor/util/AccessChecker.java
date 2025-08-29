@@ -25,6 +25,10 @@ public class AccessChecker {
 
     /**
      * Проверяет, имеет ли пользователь доступ к указанному курсу.
+     *
+     * @param userId идентификатор пользователя
+     * @param courseId идентификатор курса
+     * @return true, если пользователь имеет доступ к курсу, иначе false
      */
     public boolean hasAccessToCourse(Long userId, Long courseId) {
         return userCourseAccessRepository.existsByUserIdAndCourseId(userId, courseId);
@@ -32,6 +36,10 @@ public class AccessChecker {
 
     /**
      * Проверяет, имеет ли пользователь доступ к указанному модулю.
+     *
+     * @param userId идентификатор пользователя
+     * @param moduleId идентификатор модуля
+     * @return true, если пользователь имеет доступ к модулю, иначе false
      */
     public boolean hasAccessToModule(Long userId, Long moduleId) {
         return userModuleAccessRepository.existsByUserIdAndModuleId(userId, moduleId);

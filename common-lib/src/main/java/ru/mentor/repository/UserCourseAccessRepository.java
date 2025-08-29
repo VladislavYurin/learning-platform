@@ -15,26 +15,43 @@ public interface UserCourseAccessRepository extends JpaRepository<UserCourseAcce
 
     /**
      * Проверяет, существует ли доступ пользователя к указанному курсу.
+     *
+     * @param userId идентификатор пользователя
+     * @param courseId идентификатор курса
+     * @return true, если доступ существует, иначе false
      */
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
 
     /**
      * Находит все записи доступа для указанного пользователя.
+     *
+     * @param userId идентификатор пользователя
+     * @return список всех записей доступа пользователя
      */
     List<UserCourseAccessEntity> findAllByUserId(Long userId);
 
     /**
      * Находит запись доступа пользователя к указанному курсу.
+     *
+     * @param userId идентификатор пользователя
+     * @param courseId идентификатор курса
+     * @return сущность доступа пользователя к курсу или null, если доступ не найден
      */
     UserCourseAccessEntity findByUserIdAndCourseId(Long userId, Long courseId);
 
     /**
      * Удаляет запись доступа пользователя к указанному курсу.
+     *
+     * @param userId идентификатор пользователя
+     * @param courseId идентификатор курса
      */
     void deleteByUserIdAndCourseId(Long userId, Long courseId);
 
     /**
      * Находит все записи доступа к указанному курсу.
+     *
+     * @param courseId идентификатор курса
+     * @return список всех записей доступа к курсу
      */
     List<UserCourseAccessEntity> findAllByCourseId(Long courseId);
 

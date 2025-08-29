@@ -4,7 +4,7 @@ import lombok.Getter;
 
 /**
  * Пользовательское исключение, представляющее ошибку отказа в доступе.
- * Расширяет RuntimeException и содержит дополнительную информацию об идентификаторе запроса.
+ * Расширяет RuntimeException и содержит дополнительную информацию о идентификаторе запроса.
  */
 @Getter
 public class CustomAccessDeniedException extends RuntimeException {
@@ -24,6 +24,8 @@ public class CustomAccessDeniedException extends RuntimeException {
 
     /**
      * Создает новое исключение CustomAccessDeniedException с указанным сообщением.
+     *
+     * @param message сообщение об ошибке
      */
     public CustomAccessDeniedException(String message) {
         super(message);
@@ -31,6 +33,9 @@ public class CustomAccessDeniedException extends RuntimeException {
 
     /**
      * Создает новое исключение CustomAccessDeniedException с указанным сообщением и идентификатором запроса.
+     *
+     * @param message сообщение об ошибке
+     * @param rqUId идентификатор запроса
      */
     public CustomAccessDeniedException(String message, String rqUId) {
         super(message);

@@ -16,16 +16,26 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     /**
      * Проверяет, существует ли пользователь с указанным именем пользователя.
+     *
+     * @param username имя пользователя
+     * @return true, если пользователь существует, иначе false
      */
     boolean existsByUsername(String username);
 
     /**
      * Находит пользователя по имени пользователя.
+     *
+     * @param username имя пользователя
+     * @return Optional с сущностью пользователя или пустой Optional, если пользователь не найден
      */
     Optional<UserEntity> findByUsername(String username);
 
     /**
      * Находит пользователя по имени пользователя или выбрасывает исключение, если пользователь не найден.
+     *
+     * @param username имя пользователя
+     * @return сущность пользователя
+     * @throws EntityNotFoundException если пользователь с указанным именем не найден
      */
     default UserEntity findByUsernameOrThrow(String username){
         return this.findByUsername(username)
@@ -39,6 +49,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     /**
      * Находит пользователя по его идентификатору или выбрасывает исключение, если пользователь не найден.
+     *
+     * @param userId идентификатор пользователя
+     * @return сущность пользователя
+     * @throws EntityNotFoundException если пользователь с указанным идентификатором не найден
      */
     default UserEntity findByIdOrThrow(Long userId) {
         return this.findById(userId)

@@ -32,6 +32,12 @@ public abstract class AbstractApiKeyFilter implements Filter {
      * Извлекает заголовок "X-Service-Auth" из HTTP запроса и сравнивает его с действительным ключом.
      * Если ключ отсутствует или неверен, отправляет ошибку 401 (UNAUTHORIZED).
      * В противном случае передает запрос дальше по цепочке фильтров.
+     *
+     * @param request  входящий сервлет запрос
+     * @param response исходящий сервлет ответ
+     * @param chain    цепочка фильтров для передачи запроса дальше
+     * @throws IOException      если происходит ошибка ввода-вывода
+     * @throws ServletException если происходит ошибка сервлета
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

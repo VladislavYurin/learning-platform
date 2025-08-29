@@ -16,6 +16,10 @@ public interface ModuleRepository extends JpaRepository<ModuleEntity, Long> {
 
     /**
      * Находит модуль по его идентификатору или выбрасывает исключение, если модуль не найден.
+     *
+     * @param moduleId идентификатор модуля
+     * @return сущность модуля
+     * @throws EntityNotFoundException если модуль с указанным идентификатором не найден
      */
     default ModuleEntity findByIdOrThrow(Long moduleId) {
         return this.findById(moduleId)
@@ -29,6 +33,9 @@ public interface ModuleRepository extends JpaRepository<ModuleEntity, Long> {
 
     /**
      * Находит все модули указанного курса, отсортированные по порядковому номеру.
+     *
+     * @param courseId идентификатор курса
+     * @return список модулей курса, отсортированный по порядковому номеру
      */
     List<ModuleEntity> findAllByCourseIdOrderByModuleOrderNumberAsc(Long courseId);
 

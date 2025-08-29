@@ -27,6 +27,8 @@ public class KafkaProducerServiceImpl implements KafkaProducerService {
      * Генерирует уникальный ключ сообщения и обрабатывает результат отправки асинхронно.
      * В случае успеха логирует метаданные отправленного сообщения,
      * в случае ошибки логирует информацию об исключении.
+     *
+     * @param notificationDto DTO объект уведомления для отправки
      */
     @Override
     public void send(KafkaNotificationDto notificationDto) {

@@ -16,16 +16,19 @@ public class KafkaNotificationDto {
 
     /**
      * Тип уведомления.
+     * Определяет категорию уведомления.
      */
     private NotificationTypeEnum notificationType;
 
     /**
      * Информация о пользователе-получателе уведомления.
+     * Содержит данные о пользователе, которому предназначено уведомление.
      */
     private UserInfoDto userInfo;
 
     /**
      * Полезная нагрузка уведомления.
+     * Содержит данные, связанные с типом уведомления.
      */
     private NotificationPayload payload;
 

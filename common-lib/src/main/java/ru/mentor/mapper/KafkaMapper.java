@@ -18,6 +18,11 @@ public class KafkaMapper {
 
     /**
      * Создает DTO уведомления для отправки в Kafka.
+     *
+     * @param notificationType тип уведомления
+     * @param forUser информация о пользователе, для которого предназначено уведомление
+     * @param notificationPayload содержимое уведомления
+     * @return DTO уведомления для Kafka
      */
     public KafkaNotificationDto createKafkaNotificationDto(
             NotificationTypeEnum notificationType,
@@ -32,6 +37,11 @@ public class KafkaMapper {
 
     /**
      * Создает payload уведомления о предоставлении доступа к курсу.
+     *
+     * @param courseTitle название курса
+     * @param accessGrantedAt дата и время предоставления доступа
+     * @param accessGrantedBy информация о пользователе, предоставившем доступ
+     * @return payload уведомления о доступе к курсу
      */
     public CourseAccessGrantedNotificationPayload createCourseAccessGrantedNotificationPayload(
             String courseTitle,
@@ -46,6 +56,12 @@ public class KafkaMapper {
 
     /**
      * Создает payload уведомления о предоставлении доступа к модулю.
+     *
+     * @param courseTitle название курса
+     * @param moduleTitle название модуля
+     * @param accessGrantedAt дата и время предоставления доступа
+     * @param accessGrantedBy информация о пользователе, предоставившем доступ
+     * @return payload уведомления о доступе к модулю
      */
     public ModuleAccessGrantedNotificationPayload createModuleAccessGrantedNotificationPayload(
             String courseTitle,

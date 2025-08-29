@@ -21,6 +21,9 @@ public class ControllerAdvice {
     /**
      * Обрабатывает исключение EntityNotFoundException.
      * Возвращает HTTP статус 404 (NOT_FOUND).
+     *
+     * @param e перехваченное исключение EntityNotFoundException
+     * @return ResponseEntity со статусом 404 и сообщением об ошибке в теле ответа
      */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
@@ -31,6 +34,9 @@ public class ControllerAdvice {
     /**
      * Обрабатывает исключение CustomAccessDeniedException.
      * Возвращает HTTP статус 403 (FORBIDDEN).
+     *
+     * @param e перехваченное исключение CustomAccessDeniedException
+     * @return ResponseEntity со статусом 403 и сообщением об ошибке в теле ответа
      */
     @ExceptionHandler(CustomAccessDeniedException.class)
     public ResponseEntity<String> handleCustomAccessDeniedException(CustomAccessDeniedException e) {
@@ -41,6 +47,9 @@ public class ControllerAdvice {
     /**
      * Обрабатывает исключение AccessDeniedException.
      * Возвращает HTTP статус 403 (FORBIDDEN) с фиксированным сообщением.
+     *
+     * @param e перехваченное исключение AccessDeniedException
+     * @return ResponseEntity со статусом 403 и сообщением "Отказано в доступе" в теле ответа
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException e) {
@@ -50,6 +59,9 @@ public class ControllerAdvice {
     /**
      * Обрабатывает исключение EntityAlreadyExistsException.
      * Возвращает HTTP статус 400 (BAD_REQUEST).
+     *
+     * @param e перехваченное исключение EntityAlreadyExistsException
+     * @return ResponseEntity со статусом 400 и сообщением об ошибке в теле ответа
      */
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<String> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
@@ -60,6 +72,9 @@ public class ControllerAdvice {
     /**
      * Обрабатывает исключение FileProcessingException.
      * Возвращает HTTP статус 400 (BAD_REQUEST).
+     *
+     * @param e перехваченное исключение FileProcessingException
+     * @return ResponseEntity со статусом 400 и сообщением об ошибке в теле ответа
      */
     @ExceptionHandler(FileProcessingException.class)
     public ResponseEntity<String> handleConversionException(FileProcessingException e) {
@@ -70,6 +85,9 @@ public class ControllerAdvice {
     /**
      * Обрабатывает исключение UserException.
      * Возвращает HTTP статус 400 (BAD_REQUEST).
+     *
+     * @param e перехваченное исключение UserException
+     * @return ResponseEntity со статусом 400 и сообщением об ошибке в теле ответа
      */
     @ExceptionHandler(UserException.class)
     public ResponseEntity<String> handleUserException(UserException e) {
@@ -81,6 +99,9 @@ public class ControllerAdvice {
      * Обрабатывает исключение ConstraintViolationException, возникающее при нарушении
      * ограничений валидации Jakarta Bean Validation.
      * Возвращает HTTP статус 400 (BAD_REQUEST) со списком всех нарушений.
+     *
+     * @param ex перехваченное исключение ConstraintViolationException
+     * @return ResponseEntity со статусом 400 и списком ошибок валидации в теле ответа
      */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<String> handleConstraintViolation(ConstraintViolationException ex) {
@@ -97,6 +118,9 @@ public class ControllerAdvice {
      * Обрабатывает исключение MethodArgumentNotValidException, возникающее при
      * нарушении ограничений валидации аргументов метода контроллера.
      * Возвращает HTTP статус 400 (BAD_REQUEST).
+     *
+     * @param e перехваченное исключение MethodArgumentNotValidException
+     * @return ResponseEntity со статусом 400 и сообщением об ошибке в теле ответа
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleConstraintViolation(MethodArgumentNotValidException e) {
