@@ -102,6 +102,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     }
 
+    /**
+     * Генерирует пару JWT-токенов (access/refresh) для указанного пользователя.
+     * @param user пользователь, для которого создаются токены
+     * @return объект с парой токенов
+     */
     private JwtAuthResponse generateTokens(UserEntity user) {
         return JwtAuthResponse.builder()
                               .accessToken(jwtService.generateToken(user))

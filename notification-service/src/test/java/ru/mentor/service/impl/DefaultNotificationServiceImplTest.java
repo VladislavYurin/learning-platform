@@ -28,6 +28,10 @@ class DefaultNotificationServiceImplTest {
     @Mock
     NotificationTemplateService templateService;
 
+    /**
+     * Проверяет, что уведомление отправляется в Telegram,
+     * если ID чата присутствует.
+     */
     @Test
     void notifyByTelegram_whenChatIdPresent_sendsToTelegram() {
         Mockito.when(templateService.generateEmailContent(Mockito.any())).thenReturn(MESSAGE);
@@ -49,6 +53,10 @@ class DefaultNotificationServiceImplTest {
                 .sendEmail(EMAIL_TEST, "SUBJ", MESSAGE);
     }
 
+    /**
+     * Проверяет, что уведомление отправляется по email,
+     * если ID чата отсутствует.
+     */
     @Test
     void notifyByTelegram_whenChatIdAbsent_fallbacksToEmail() {
         Mockito.when(templateService.generateEmailContent(Mockito.any())).thenReturn(MESSAGE);

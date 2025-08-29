@@ -47,54 +47,100 @@ public class UserEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Имя пользователя (логин).
+     */
     @Column(name = "username", unique = true, nullable = false)
     private String username;
 
+    /**
+     * Пароль пользователя.
+     */
     @Column(name = "password", nullable = false)
     private String password;
 
+    /**
+     * Роль пользователя в системе.
+     * Определяет уровень доступа пользователя.
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", nullable = false)
     private Role role;
 
+    /**
+     * Имя пользователя.
+     */
     @Column(name = "firstname", nullable = false)
     private String firstName;
 
+    /**
+     * Фамилия пользователя.
+     */
     @Column(name = "lastname", nullable = false)
     private String lastName;
 
+    /**
+     * Telegram никнейм пользователя.
+     */
     @Column(name = "tg_nickname", nullable = false)
     private String tgNickname;
 
+    /**
+     * Идентификатор чата Telegram пользователя.
+     */
     @Column(name = "telegram_chat_id")
     private Long tgChatId;
 
+    /**
+     * Список доступов пользователя к курсам.
+     * Содержит все записи о курсах, к которым предоставлен доступ данному пользователю.
+     */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserCourseAccessEntity> courseAccesses = new ArrayList<>();
 
+    /**
+     * Список доступов пользователя к модулям.
+     * Содержит все записи о модулях, к которым предоставлен доступ данному пользователю.
+     */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserModuleAccessEntity> moduleAccesses = new ArrayList<>();
 
+    /**
+     * Возвращает список ролей пользователя.
+     * Преобразует роль пользователя в формат, понятный Spring Security.
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }
 
+    /**
+     * Проверяет, не истек ли срок действия учетной записи.
+     */
     @Override
     public boolean isAccountNonExpired() {
         return UserDetails.super.isAccountNonExpired();
     }
 
+    /**
+     * Проверяет, не заблокирована ли учетная запись.
+     */
     @Override
     public boolean isAccountNonLocked() {
         return UserDetails.super.isAccountNonLocked();
     }
 
+    /**
+     * Проверяет, не истек ли срок действия учетных данных (пароля).
+     */
     @Override
     public boolean isCredentialsNonExpired() {
         return UserDetails.super.isCredentialsNonExpired();
     }
 
+    /**
+     * Проверяет, включена ли учетная запись.
+     */
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();

@@ -16,6 +16,7 @@ import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.entity.UserModuleAccessEntity;
 import ru.mentor.exception.CustomAccessDeniedException;
+import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.ModuleRepository;
 import ru.mentor.repository.UserCourseAccessRepository;
@@ -23,6 +24,10 @@ import ru.mentor.repository.UserModuleAccessRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.service.ProgressService;
 
+/**
+ * Реализация сервиса для получения информации о прогрессе учащихся в курсах.
+ * Предоставляет методы для получения прогресса курса и статистики по учащимся.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProgressServiceImpl implements ProgressService {
@@ -37,12 +42,21 @@ public class ProgressServiceImpl implements ProgressService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Получает прогресс курса для заданного наставника.
+     *
+     * @param mentorId Идентификатор наставника, которому принадлежит курс.
+     * @param courseId Идентификатор курса, для которого требуется получить прогресс.
+     * @return Объект CourseProgressResponse, содержащий сведения о прогрессе учащихся в курсе.
+     * @throws EntityNotFoundException Если курс или наставник не найдены.
+     */
     @Override
     public CourseProgressResponse getCourseProgressByMentor(Long mentorId, Long courseId) {
         UserEntity mentor = userRepository.findByIdOrThrow(mentorId);
         Role.checkUserIsAdminOrMentor(mentor);
         CourseEntity course = courseRepository.findByIdOrThrow(courseId);
 
+        // 1. Проверяем, что наставник является автором курса
         if (Role.checkMentorIsAuthorOfCourse(mentor, course) || Role.checkIsAdmin(mentor)) {
 
             // 2. Получаем всех учеников курса
@@ -109,6 +123,7 @@ public class ProgressServiceImpl implements ProgressService {
                                          .statistic(statistic)
                                          .build();
         } else {
+            // Если юзер не является автором курса, выбрасываем исключение
             throw new CustomAccessDeniedException(
                     String.format(
                             "Юзер с ID = %d не является автором курса с ID = %d",
@@ -119,12 +134,25 @@ public class ProgressServiceImpl implements ProgressService {
         }
     }
 
+    /**
+     * Получает список всех пользователей, участвующих в указанном курсе под руководством заданного наставника.
+     *
+     * @param mentorId Идентификатор наставника, который проводит курс.
+     * @param courseId Идентификатор курса, для которого требуется получить список пользователей.
+     * @return Список объектов MenteeProgressDto, представляющих пользователей, участвующих в курсе.
+     * @throws EntityNotFoundException Если курс или наставник не найдены.
+     * @throws CustomAccessDeniedException Если наставник не является автором курса или не имеет достаточных прав.
+     */
     @Override
     public List<MenteeProgressDto> getAllUsersAtCourse(Long mentorId, Long courseId) {
         UserEntity mentor = userRepository.findByIdOrThrow(mentorId);
         Role.checkUserIsAdminOrMentor(mentor);
         CourseEntity course = courseRepository.findByIdOrThrow(courseId);
+
+        // 1. Проверяем, что наставник является автором курса
         if (Role.checkMentorIsAuthorOfCourse(mentor, course) || Role.checkIsAdmin(mentor)) {
+
+            // 2. Получаем всех учеников курса
             List<UserCourseAccessEntity> courseAccesses = userCourseAccessRepository.findAllByCourseId(
                     courseId);
 
@@ -165,6 +193,7 @@ public class ProgressServiceImpl implements ProgressService {
 
             return mentees;
         } else {
+            // Если юзер не является автором курса, выбрасываем исключение
             throw new CustomAccessDeniedException(
                     String.format(
                             "Юзер с ID = %d не является автором курса с ID = %d",

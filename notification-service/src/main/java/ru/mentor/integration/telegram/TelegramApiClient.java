@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.mentor.config.TelegramApiConfig;
 
+/**
+ * Feign-клиент для REST-взаимодействия с API Telegram
+ */
 @FeignClient(
         name = "telegramApi",
         url = "${telegram.bot.api-url}",
@@ -16,6 +19,15 @@ import ru.mentor.config.TelegramApiConfig;
 @ConditionalOnProperty(name = "application.notify.telegram.enable", havingValue = "true")
 public interface TelegramApiClient {
 
+    /**
+     * Отправляет сообщение в Telegram-чат.
+     *
+     * @param token         токен API для доступа к вашему Telegram-боту.
+     * @param chatId       идентификатор чата, в который будет отправлено сообщение.
+     * @param text          текст сообщения, которое нужно отправить.
+     * @param disablePreview флаг, указывающий, нужно ли отключить предварительный просмотр веб-страниц в сообщении.
+     * @return ответ от API Telegram.
+     */
     @PostMapping(path = "/bot{token}/sendMessage",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     String sendMessage(@PathVariable("token") String token,

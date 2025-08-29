@@ -7,6 +7,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import ru.mentor.config.TelegramBotProperties;
 
+/**
+ * Главный класс сервиса уведомлений.
+ * @author Vladislav Yurin
+ */
 @EnableConfigurationProperties(TelegramBotProperties.class)
 @EnableFeignClients(basePackages = "ru.mentor.integration.telegram")
 @SpringBootApplication

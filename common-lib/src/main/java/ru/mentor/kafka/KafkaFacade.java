@@ -11,16 +11,39 @@ import ru.mentor.entity.UserModuleAccessEntity;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.KafkaMapper;
 
+/**
+ * Фасадный сервис для отправки сообщений в Kafka.
+ * Предоставляет удобные методы для отправки различных типов уведомлений,
+ * связанных с доступом пользователей к курсам и модулям.
+ */
 @Service
 @RequiredArgsConstructor
 public class KafkaFacade {
 
+    /**
+     * Сервис для отправки сообщений в Kafka.
+     */
     private final KafkaProducerService kafkaProducerService;
 
+    /**
+     * Маппер для преобразования сущностей в DTO для Kafka сообщений.
+     */
     private final KafkaMapper kafkaMapper;
 
+    /**
+     * Базовый маппер для преобразования сущностей в DTO.
+     */
     private final BaseMapper baseMapper;
 
+    /**
+     * Отправляет сообщение о предоставлении доступа к курсу.
+     * Создает и отправляет уведомление типа COURSE_ACCESS_GRANTED через Kafka.
+     *
+     * @param user сущность пользователя, которому предоставлен доступ
+     * @param mentor сущность ментора, предоставившего доступ
+     * @param course сущность курса, к которому предоставлен доступ
+     * @param userCourseAccess сущность доступа пользователя к курсу
+     */
     public void sendCourseAccessGrantedMessage(
             UserEntity user,
             UserEntity mentor,
@@ -37,6 +60,16 @@ public class KafkaFacade {
         ));
     }
 
+    /**
+     * Отправляет сообщение о предоставлении доступа к модулю.
+     * Создает и отправляет уведомление типа MODULE_ACCESS_GRANTED через Kafka.
+     *
+     * @param user сущность пользователя, которому предоставлен доступ
+     * @param mentor сущность ментора, предоставившего доступ
+     * @param course сущность курса, к которому относится модуль
+     * @param module сущность модуля, к которому предоставлен доступ
+     * @param userModuleAccess сущность доступа пользователя к модулю
+     */
     public void sendModuleAccessGrantedMessage(
             UserEntity user,
             UserEntity mentor,

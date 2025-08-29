@@ -8,13 +8,28 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
 
+/**
+ * Реализация сервиса для отправки сообщений в Kafka.
+ * Использует KafkaTemplate для асинхронной отправки уведомлений в указанный топик.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class KafkaProducerServiceImpl implements KafkaProducerService {
 
+    /**
+     * Шаблон Kafka для отправки сообщений с ключом типа String и значением типа KafkaNotificationDto.
+     */
     private final KafkaTemplate<String, KafkaNotificationDto> kafkaTemplate;
 
+    /**
+     * Отправляет сообщение уведомления в Kafka топик "notification-topic".
+     * Генерирует уникальный ключ сообщения и обрабатывает результат отправки асинхронно.
+     * В случае успеха логирует метаданные отправленного сообщения,
+     * в случае ошибки логирует информацию об исключении.
+     *
+     * @param notificationDto DTO объект уведомления для отправки
+     */
     @Override
     public void send(KafkaNotificationDto notificationDto) {
         try {

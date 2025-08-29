@@ -25,10 +25,17 @@ class TelegramSenderServiceImplTest {
     @Mock
     TelegramBotProperties botProperties;
 
+    /**
+     * @return экземпляр сервиса отправки сообщений в Telegram.
+     */
     private TelegramSenderServiceImpl service() {
         return new TelegramSenderServiceImpl(botProperties, telegramApiClient);
     }
 
+    /**
+     * Проверяет, что метод sendMessage делегирует вызов
+     * к Feign-клиенту с токеном из свойств.
+     */
     @Test
     void sendMessage_delegatesToFeignWithTokenFromProps() {
         Mockito.when(botProperties.token()).thenReturn(TOKEN);
@@ -38,6 +45,10 @@ class TelegramSenderServiceImplTest {
         Mockito.verifyNoMoreInteractions(telegramApiClient);
     }
 
+    /**
+     * Проверяет, что исключение, выбрасываемое Feign-клиентом,
+     * корректно пропагируется выше.
+     */
     @Test
     void sendMessage_whenFeignThrows_isPropagated() {
         Mockito.when(botProperties.token()).thenReturn(TOKEN);
@@ -48,6 +59,10 @@ class TelegramSenderServiceImplTest {
         Assertions.assertThrows(FeignException.class, () -> service().sendMessage(CHAT_ID, MESSAGE, true));
     }
 
+    /**
+     * Проверяет, что метод sendMessage вызывает Feign-клиент
+     * ровно один раз при переданных параметрах.
+     */
     @Test
     void sendMessage_withChatId_callsFeignOnce() {
         Mockito.when(botProperties.token()).thenReturn(TOKEN);

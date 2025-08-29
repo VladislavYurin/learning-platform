@@ -14,6 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.StreamUtils;
 
+/**
+ * Конфигурационный класс для клиентов OpenFeign в приложении.
+ * Класс используется для настройки поведения Feign-клиентов: уровня логирования,
+ * таймаутов, политики повторов, перехватчиков запросов, обработки ошибок через ErrorDecoder
+ * и кодеков сериализации.
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class CommonFeignConfig {
@@ -37,6 +43,11 @@ public class CommonFeignConfig {
     @Value("${feign.client.retry.maxAttempts}")
     private int maxAttempts;
 
+    /**
+     * Создает HTTP-клиент Feign по умолчанию.
+     * @return экземпляр клиента
+     * @throws RuntimeException если создание клиента завершилось ошибкой
+     */
     @Bean
     public Client client() {
         try {
@@ -69,13 +80,28 @@ public class CommonFeignConfig {
 
     }
 
+    /**
+     * Декодер ошибок Feign.
+     * @return экземпляр декодера
+     */
     @Bean
     public ErrorDecoder errorDecoder() {
         return new CustomErrorDecoder();
     }
 
+    /**
+     * Класс для преобразования ответа с ошибкой (4хх/5хх) в исключение со статусом и телом ответа.
+     * Если тело ответа прочитать не удалось, то возвращается стандартное исключение.
+     */
     public static class CustomErrorDecoder implements ErrorDecoder {
 
+        /**
+         * Преобразует ошибочный HTTP-ответ в исключение.
+         * @param methodKey идентификатор вызываемого метода Feign (интерфейс#метод)
+         * @param response исходный HTTP-ответ от удаленного сервера
+         * @return исключение, которое Feign выбрасывает взывающему коду,
+         * поведение Feign по умолчанию {@code null}
+         */
         @Override
         public Exception decode(String methodKey, Response response) {
             try {
@@ -85,12 +111,29 @@ public class CommonFeignConfig {
             return null;
         }
 
+        /**
+         * Исключение Feign со статусом и текстом тела ответа (читается как UTF-8),
+         * при отсутствии тела вовращается пустая строка.
+         */
         @Getter
         public static class FeignClientExceptionWithResponse extends FeignException {
 
+            /**
+             * HTTP-стутус ответа.
+             */
             private final int status;
+
+            /**
+             * Тело ответа в формате UTF-8 либо пустая строка.
+             */
             private final String body;
 
+            /**
+             * Конструктор исключения, сохраняет из ошибочного ответа Feign HTTP-статус и тело ответа
+             * для дальнейшего логирования и обработки.
+             * @param response исходный HTTP-ответ Feign
+             * @throws IOException при ошибке чтения ответа
+             */
             protected FeignClientExceptionWithResponse(Response response)
                     throws IOException {
                 super(response.status(), "Feign client error", response.request());

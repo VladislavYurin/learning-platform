@@ -9,10 +9,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Конфигурация для клиента API Telegram.
+ *
+ * Настраивает обработчик ошибок для взаимодействия с API Telegram
+ * через Feign-клиент. При возникновении ошибки он будет логировать подробности
+ * о запросах и ответах.
+ */
 @Slf4j
 @Configuration
 public class TelegramApiConfig {
 
+    /**
+     * Бин для настройки обработки ошибок API Telegram.
+     * @return объект, реализующий интерфейс ErrorDecoder.
+     */
     @Bean
     public ErrorDecoder telegramErrorDecoder() {
         return (String methodKey, Response response) -> {

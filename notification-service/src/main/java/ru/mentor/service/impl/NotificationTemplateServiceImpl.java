@@ -11,6 +11,7 @@ import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
 import ru.mentor.service.NotificationTemplateService;
 
+
 /**
  * Реализация сервиса {@link ru.mentor.service.NotificationTemplateService} для работы с шаблонами уведомлений.
  * <p>

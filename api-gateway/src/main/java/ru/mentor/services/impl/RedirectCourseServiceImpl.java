@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.front.CreateCourseRequest;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.feign.CourseClient;
@@ -15,6 +16,9 @@ import ru.mentor.services.RedirectCourseService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
 
+/**
+ * Реализация сервиса редиректов/интеграции для операций с курсами.
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -26,6 +30,11 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
 
     private final CourseMapper courseMapper;
 
+    /**
+     * Создает новый курс.
+     * @param request данные для создания курса
+     * @return созданный модуль
+     */
     @Override
     public CourseDto createCourse(CreateCourseRequest request) {
         UserEntity user = userService.getCurrentUser();
@@ -42,6 +51,11 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         ));
     }
 
+    /**
+     * Удаляет курс.
+     * @param courseId идентификатор курса
+     * @return пустой ответ со статусом 200
+     */
     @Override
     public ResponseEntity<?> deleteCourse(Long courseId) {
         UserEntity user = userService.getCurrentUser();
@@ -56,6 +70,11 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         return courseClient.deleteCourse(rqUId, user.getId(), courseId);
     }
 
+    /**
+     * Возвращает курс по идентификатору.
+     * @param courseId идентификатор курса
+     * @return найденный курс
+     */
     @Override
     public CourseDto getCourseById(Long courseId) {
         UserEntity user = userService.getCurrentUser();
@@ -69,6 +88,10 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         return courseClient.getCourseById(rqUId, user.getId(), courseId);
     }
 
+    /**
+     * Возвращает список всех активных курсов.
+     * @return список курсов
+     */
     @Override
     public List<CourseDto> getAllActiveCourses() {
         UserEntity user = userService.getCurrentUser();
@@ -81,6 +104,10 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         return courseClient.getAllActiveCourses(rqUId, user.getId());
     }
 
+    /**
+     * Возвращает список всех курсов.
+     * @return список курсов
+     */
     @Override
     public List<CourseDto> getAllCourses() {
         UserEntity user = userService.getCurrentUser();

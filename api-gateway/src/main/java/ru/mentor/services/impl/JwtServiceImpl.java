@@ -22,12 +22,21 @@ import ru.mentor.services.JwtService;
 @Service
 public class JwtServiceImpl implements JwtService {
 
+    /**
+     * Ключ подписи JWT.
+     */
     @Value("${token.signing.key}")
     private String jwtSigningKey;
 
+    /**
+     * Время жизни access-токена в минутах.
+     */
     @Value("${token.access.expiration.minutes}")
     private long accessExpirationMinutes;
 
+    /**
+     * Время жизни refresh-токена в днях.
+     */
     @Value("${token.refresh.expiration.day}")
     private long refreshExpirationDays;
 
@@ -60,11 +69,21 @@ public class JwtServiceImpl implements JwtService {
         return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
+    /**
+     * Генерирует короткоживущий access-токен для указанного пользователя.
+     * @param userDetails объект с деталями пользователя
+     * @return строковое представление JWT access-токена
+     */
     @Override
     public String generateToken(UserDetails userDetails) {
         return buildToken(userDetails, 1000 * 60 * accessExpirationMinutes);
     }
 
+    /**
+     * Генерирует долгоживущий refresh-токен для указанного пользователя.
+     * @param userDetails данные пользователя
+     * @return строковое представление JWT refresh-токена
+     */
     @Override
     public String generateRefreshToken(UserDetails userDetails) {
         return buildToken(userDetails, refreshExpirationDays * 24 * 60 * 60 * 1000);
@@ -87,6 +106,12 @@ public class JwtServiceImpl implements JwtService {
         return claimsResolvers.apply(claims);
     }
 
+    /**
+     * Собирает JWT с общими полями и подписью.
+     * @param userDetails данные пользователя
+     * @param expirationMs срок жизни токена в миллисекундах
+     * @return собранный и подписанный токен в виде строки
+     */
     private String buildToken(UserDetails userDetails, long expirationMs) {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof UserEntity user) {

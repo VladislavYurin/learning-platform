@@ -9,9 +9,21 @@ import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
 import ru.mentor.dto.kafka.NotificationPayload;
 
+/**
+ * Маппер для создания DTO объектов, используемых при работе с Kafka.
+ * Предоставляет методы для создания уведомлений и payloads для различных типов событий.
+ */
 @Component
 public class KafkaMapper {
 
+    /**
+     * Создает DTO уведомления для отправки в Kafka.
+     *
+     * @param notificationType тип уведомления
+     * @param forUser информация о пользователе, для которого предназначено уведомление
+     * @param notificationPayload содержимое уведомления
+     * @return DTO уведомления для Kafka
+     */
     public KafkaNotificationDto createKafkaNotificationDto(
             NotificationTypeEnum notificationType,
             UserInfoDto forUser,
@@ -23,6 +35,14 @@ public class KafkaMapper {
                                    .build();
     }
 
+    /**
+     * Создает payload уведомления о предоставлении доступа к курсу.
+     *
+     * @param courseTitle название курса
+     * @param accessGrantedAt дата и время предоставления доступа
+     * @param accessGrantedBy информация о пользователе, предоставившем доступ
+     * @return payload уведомления о доступе к курсу
+     */
     public CourseAccessGrantedNotificationPayload createCourseAccessGrantedNotificationPayload(
             String courseTitle,
             LocalDateTime accessGrantedAt,
@@ -34,6 +54,15 @@ public class KafkaMapper {
                                                      .build();
     }
 
+    /**
+     * Создает payload уведомления о предоставлении доступа к модулю.
+     *
+     * @param courseTitle название курса
+     * @param moduleTitle название модуля
+     * @param accessGrantedAt дата и время предоставления доступа
+     * @param accessGrantedBy информация о пользователе, предоставившем доступ
+     * @return payload уведомления о доступе к модулю
+     */
     public ModuleAccessGrantedNotificationPayload createModuleAccessGrantedNotificationPayload(
             String courseTitle,
             String moduleTitle,

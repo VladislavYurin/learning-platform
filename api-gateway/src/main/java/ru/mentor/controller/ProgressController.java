@@ -16,6 +16,10 @@ import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.MenteeProgressDto;
 import ru.mentor.services.RedirectProgressService;
 
+/**
+ * Контроллер для отслеживания прогресса прохождения курсов.
+ * Предоставляет endpoints для получения статистики по прогрессу прохождения курса и списка учеников в текущем модуле.
+ */
 @RestController
 @RequestMapping("/progress")
 @RequiredArgsConstructor
@@ -57,5 +61,4 @@ public class ProgressController {
         List<MenteeProgressDto> response = redirectProgressService.getAllUsersAtCourse(courseId);
         return ResponseEntity.ok().body(response);
     }
-
 }
