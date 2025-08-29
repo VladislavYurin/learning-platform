@@ -9,6 +9,7 @@ values (1, 'Core 1', 1, '<h1>Тест</h1>
 <h3>Тест1.</h3>', 1, true, now()),
        (2, 'Core 1', 2, '<h1>Еще один тест</h1>
 <h2>🐺 Привет 🐺</h2>
+<<<<<<< HEAD
 <h3>Еще тест2</h3>', 1, true, now());
 
 insert into notification_templates(enum_name, template_message)

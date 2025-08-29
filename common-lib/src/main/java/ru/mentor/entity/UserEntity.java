@@ -10,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -100,6 +99,7 @@ public class UserEntity implements UserDetails {
      * Список доступов пользователя к курсам.
      * Содержит все записи о курсах, к которым предоставлен доступ данному пользователю.
      */
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserCourseAccessEntity> courseAccesses = new ArrayList<>();
 
@@ -107,9 +107,11 @@ public class UserEntity implements UserDetails {
      * Список доступов пользователя к модулям.
      * Содержит все записи о модулях, к которым предоставлен доступ данному пользователю.
      */
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserModuleAccessEntity> moduleAccesses = new ArrayList<>();
 
+    @Builder.Default
     @ManyToMany(mappedBy = "meetingParticipants")
     private Set<MentorTimeSlotEntity> timeSlots = new HashSet<>();
 

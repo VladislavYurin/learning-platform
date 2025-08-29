@@ -16,10 +16,16 @@ public class CourseMapper {
 
     /**
      * Формирует внутренний запрос на создание курса.
-     * @param userId идентификатор автора курса
-     * @param createCourseRequest входной запрос с названием и описанием курса
+     *
+     * @param userId
+     *         идентификатор автора курса
+     * @param createCourseRequest
+     *         входной запрос с названием и описанием курса
+     *
      * @return собранный запрос для вызова внешнего сервиса
-     * @throws NullPointerException в случае, если запрос равен {@code null}
+     *
+     * @throws NullPointerException
+     *         в случае, если запрос равен {@code null}
      */
     public InnerCreateCourseRequest mapToInnerCreateCourseRequest(
             Long userId,
@@ -28,15 +34,22 @@ public class CourseMapper {
                                        .authorId(userId)
                                        .courseDescription(createCourseRequest.getCourseDescription())
                                        .courseName(createCourseRequest.getCourseName())
+                                       .tagIds(createCourseRequest.getTagIds())
                                        .build();
     }
 
     /**
      * Формирует внутренний запрос на создание модуля.
-     * @param userId идентификатор автора модуля
-     * @param createModuleRequest входной запрос с названием и описанием модуля
+     *
+     * @param userId
+     *         идентификатор автора модуля
+     * @param createModuleRequest
+     *         входной запрос с названием и описанием модуля
+     *
      * @return собранный запрос для вызова внешнего сервиса
-     * @throws NullPointerException в случае, если запрос равен {@code null}
+     *
+     * @throws NullPointerException
+     *         в случае, если запрос равен {@code null}
      */
     public InnerCreateModuleRequest mapToInnerCreateModuleRequest(
             Long userId,
