@@ -49,7 +49,7 @@ services:
     container_name: admin-service
     image: mentor/admin-service:local
     ports:
-      - "9091:9091"
+      - "8085:8085"
     networks:
       - backend
 
