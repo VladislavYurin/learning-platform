@@ -63,19 +63,19 @@ CREATE TABLE IF NOT EXISTS user_module_access
 
 CREATE TABLE IF NOT EXISTS mentor_time_slots
 (
-    id_slot          BIGSERIAL PRIMARY KEY,
-    mentor_id        BIGINT      NOT NULL,
-    start_time       TIMESTAMP   NOT NULL,
-    end_time         TIMESTAMP   NOT NULL,
-    slot_type        VARCHAR(50) NOT NULL CHECK (slot_type IN ('INDIVIDUAL', 'GROUP')),
-    slot_status      VARCHAR(50) NOT NULL CHECK (slot_status IN
-                                                 ('ACQUAINTANCE', 'COMMUNICATION', 'ACCEPTING')),
-    max_participants INT         NOT NULL DEFAULT 1,
-    is_active        BOOLEAN     NOT NULL DEFAULT TRUE,
-    meeting_link     VARCHAR(255),
-    description      TEXT,
-    created_at       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id_slot           BIGSERIAL PRIMARY KEY,
+    mentor_id         BIGINT      NOT NULL,
+    start_time        TIMESTAMP   NOT NULL,
+    end_time          TIMESTAMP   NOT NULL,
+    slot_type         VARCHAR(50) NOT NULL CHECK (slot_type IN ('INDIVIDUAL', 'GROUP')),
+    slot_meeting_type VARCHAR(50) NOT NULL CHECK
+        (slot_meeting_type IN ('ACQUAINTANCE', 'COMMUNICATION', 'ACCEPTING')),
+    max_participants  INTEGER    NOT NULL DEFAULT 1,
+    meeting_link      TEXT,
+    description       TEXT,
+    is_active         boolean     not null default true,
+    created_at        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (mentor_id) REFERENCES users (id_user) ON DELETE CASCADE,
     CONSTRAINT valid_slot_time CHECK (end_time > start_time),
     CONSTRAINT individual_slot_limit CHECK (
@@ -84,29 +84,11 @@ CREATE TABLE IF NOT EXISTS mentor_time_slots
         )
 );
 
-CREATE TABLE IF NOT EXISTS booked_time_slots
+CREATE TABLE IF NOT EXISTS mentor_time_slot__users
 (
-    id_booking      BIGSERIAL PRIMARY KEY,
-    slot_id         BIGINT    NOT NULL,
-    mentor_notes    TEXT,
-    meeting_outcome TEXT,
-    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (slot_id) REFERENCES mentor_time_slots (id_slot) ON DELETE CASCADE,
-    CONSTRAINT unique_slot_booking UNIQUE (slot_id)
-);
-
-CREATE TABLE IF NOT EXISTS call_participants
-(
-    id_participation BIGSERIAL PRIMARY KEY,
-    booking_id       BIGINT    NOT NULL,
-    mentee_id        BIGINT    NOT NULL,
-    attended         BOOLEAN            DEFAULT FALSE,
-    created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (booking_id) REFERENCES booked_time_slots (id_booking) ON DELETE CASCADE,
-    FOREIGN KEY (mentee_id) REFERENCES users (id_user) ON DELETE CASCADE,
-    CONSTRAINT unique_mentee_booking UNIQUE (booking_id, mentee_id)
+    id           BIGSERIAL PRIMARY KEY,
+    time_slot_id BIGINT NOT NULL,
+    user_id      BIGINT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS notification_templates

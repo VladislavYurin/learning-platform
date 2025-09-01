@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.MenteeProgressDto;
 import ru.mentor.services.RedirectProgressService;
+
+import java.util.List;
 
 /**
  * Контроллер для отслеживания прогресса прохождения курсов.
@@ -40,6 +43,7 @@ public class ProgressController {
             }
     )
     @GetMapping("/course/{courseId}/statistics")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
     public ResponseEntity<CourseProgressResponse> getCourseProgressByMentor(@PathVariable Long courseId) {
         CourseProgressResponse response = redirectProgressService.getCourseProgressByMentor(courseId);
         return ResponseEntity.ok().body(response);
@@ -57,8 +61,10 @@ public class ProgressController {
             }
     )
     @GetMapping("/course/{courseId}/users")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
     public ResponseEntity<List<MenteeProgressDto>> getAllUsersAtCourse(@PathVariable Long courseId) {
         List<MenteeProgressDto> response = redirectProgressService.getAllUsersAtCourse(courseId);
         return ResponseEntity.ok().body(response);
     }
+
 }

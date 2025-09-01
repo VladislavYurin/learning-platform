@@ -16,6 +16,8 @@ import ru.mentor.services.RedirectCourseService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
 
+import java.util.List;
+
 /**
  * Реализация сервиса редиректов/интеграции для операций с курсами.
  */

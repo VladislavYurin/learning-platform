@@ -24,6 +24,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.mentor.constant.Role;
 
+import java.util.*;
+
 /**
  * Сущность — пользователь, на которой завязаны процессы
  * регистрации и авторизации
@@ -104,6 +106,9 @@ public class UserEntity implements UserDetails {
      */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserModuleAccessEntity> moduleAccesses = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "meetingParticipants")
+    private Set<MentorTimeSlotEntity> timeSlots = new HashSet<>();
 
     /**
      * Возвращает список ролей пользователя.

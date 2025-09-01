@@ -10,11 +10,6 @@ import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.CourseProgressStatisticDto;
 import ru.mentor.dto.MenteeProgressDto;
-import ru.mentor.entity.CourseEntity;
-import ru.mentor.entity.ModuleEntity;
-import ru.mentor.entity.UserCourseAccessEntity;
-import ru.mentor.entity.UserEntity;
-import ru.mentor.entity.UserModuleAccessEntity;
 import ru.mentor.exception.CustomAccessDeniedException;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.repository.CourseRepository;
@@ -23,6 +18,11 @@ import ru.mentor.repository.UserCourseAccessRepository;
 import ru.mentor.repository.UserModuleAccessRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.service.ProgressService;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Реализация сервиса для получения информации о прогрессе учащихся в курсах.
@@ -53,7 +53,6 @@ public class ProgressServiceImpl implements ProgressService {
     @Override
     public CourseProgressResponse getCourseProgressByMentor(Long mentorId, Long courseId) {
         UserEntity mentor = userRepository.findByIdOrThrow(mentorId);
-        Role.checkUserIsAdminOrMentor(mentor);
         CourseEntity course = courseRepository.findByIdOrThrow(courseId);
 
         // 1. Проверяем, что наставник является автором курса
