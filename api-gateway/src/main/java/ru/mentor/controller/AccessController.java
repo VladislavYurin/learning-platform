@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.mentor.dto.front.AccessRequest;
+import ru.mentor.dto.front.CourseAccessRequest;
+import ru.mentor.dto.front.ModuleAccessRequest;
 import ru.mentor.services.RedirectAccessService;
 
 /**
@@ -37,8 +38,8 @@ public class AccessController {
     )
     @PostMapping("/course/get-access")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
-    public ResponseEntity<?> getCourseAccessToUser(@RequestBody AccessRequest request) {
-        return redirectAccessService.getCourseAccessToUser(request);
+    public ResponseEntity<?> giveCourseAccess(@RequestBody CourseAccessRequest request) {
+        return redirectAccessService.giveCourseAccess(request);
     }
 
     @Operation(
@@ -53,8 +54,8 @@ public class AccessController {
     )
     @PostMapping("/course/delete-access")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
-    public ResponseEntity<?> deleteCourseAccessToUser(@RequestBody AccessRequest request) {
-        return redirectAccessService.deleteCourseAccessToUser(request);
+    public ResponseEntity<?> revokeCourseAccess(@RequestBody CourseAccessRequest request) {
+        return redirectAccessService.revokeCourseAccess(request);
     }
 
     @Operation(
@@ -69,8 +70,8 @@ public class AccessController {
     )
     @PostMapping("/module/get-access")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
-    public ResponseEntity<?> getModuleAccessToUser(@RequestBody AccessRequest request) {
-        return redirectAccessService.getModuleAccessToUser(request);
+    public ResponseEntity<?> giveModuleAccess(@RequestBody ModuleAccessRequest request) {
+        return redirectAccessService.giveModuleAccess(request);
     }
 
     @Operation(
@@ -85,8 +86,8 @@ public class AccessController {
     )
     @PostMapping("/module/delete-access")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
-    public ResponseEntity<?> deleteModuleAccessToUser(@RequestBody AccessRequest request) {
-        return redirectAccessService.deleteModuleAccessToUser(request);
+    public ResponseEntity<?> revokeModuleAccess(@RequestBody ModuleAccessRequest request) {
+        return redirectAccessService.revokeModuleAccess(request);
     }
 
 }

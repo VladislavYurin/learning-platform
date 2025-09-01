@@ -1,32 +1,25 @@
 type: collection.insomnia.rest/5.0
 name: Scratch Pad
 meta:
-  id: wrk_scratchpad
-  created: 1707982864302
-  modified: 1707982864302
+  id: wrk_435ffe18ea884140adc7c3b2c061e300
+  created: 1756878594931
+  modified: 1756878594931
   description: ""
 collection:
-  - name: travel
-    meta:
-      id: fld_30e83ec0ab0e4badb8b5d80c0315ca4a
-      created: 1749194583883
-      modified: 1752059980986
-      sortKey: -1749194583883
-      description: ""
   - name: mentor
     meta:
-      id: fld_3f4ee20df81848e1ba40cae6e4074d06
+      id: fld_f5b5448b0b21452288bf6b115cbff86f
       created: 1753170814479
-      modified: 1754551498958
+      modified: 1756890216297
       sortKey: -1753170814479
       description: ""
     children:
       - url: localhost:8080/auth/login
         name: login ADMIN
         meta:
-          id: req_73266a63aad54fd8b62134e101eb5c42
+          id: req_62b72a0f8b2449a1b5c4fc175538c05a
           created: 1753170820936
-          modified: 1753175903723
+          modified: 1756103770940
           isPrivate: false
           description: ""
           sortKey: -1753170820936
@@ -41,7 +34,6 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_34d83e14787b494b97db8e0cb3a4d2b0
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -53,7 +45,7 @@ collection:
       - url: localhost:8080/course/create
         name: create course
         meta:
-          id: req_56f819a65425404f8b2e8ead1850206c
+          id: req_75be3bd4c4754760acbb140bde13ad44
           created: 1753172110502
           modified: 1754551568757
           isPrivate: false
@@ -70,11 +62,9 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_bf01b351311142e4aece96e615a8d4c7
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo4LCJzdWIiOiJsYXNsbyIsImlhdCI6MTc1MzE3NzMyMCwiZXhwIjoxNzUzMzIxMzIwfQ.Y_S_TLpYCH2r9K4xluz09usGBZ5T8q7nt8HkWGDXafs
-            id: pair_a64902c5631145299bf608b92c838fdf
         authentication:
           type: none
         settings:
@@ -88,9 +78,9 @@ collection:
       - url: localhost:8080/auth/reg
         name: registration USER
         meta:
-          id: req_17f983a7b56043f9a445af4082e34b15
+          id: req_903a60fa57534429927bad36e0115fbb
           created: 1753175907628
-          modified: 1754037765333
+          modified: 1756885988792
           isPrivate: false
           description: ""
           sortKey: -1751183239966
@@ -99,20 +89,18 @@ collection:
           mimeType: application/json
           text: |-
             {
-            	"username": "111",
+            	"username": "111@mail.ru",
             	"password": "testtesttest",
-            	"tgName": "@vladislavyurin",
+            	"confirmPassword": "testtesttest",
+            	"tgNickname": "@vladislavyurin",
             	"firstName": "11",
             	"lastName":"11"
             }
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_c531bf49080148568185f811807be402
           - name: User-Agent
             value: insomnia/11.2.0
-            id: pair_8435bdbc83e64d7ca10264d79bdf6f43
-            disabled: true
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -124,7 +112,7 @@ collection:
       - url: localhost:8080/auth/login
         name: login USER
         meta:
-          id: req_1a092ca20b1b4c65ac079ac1e3122477
+          id: req_ba65d2f60f6e4e39852f9ccd25654bc3
           created: 1753177308609
           modified: 1753363828744
           isPrivate: false
@@ -141,7 +129,6 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_34d83e14787b494b97db8e0cb3a4d2b0
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -153,7 +140,7 @@ collection:
       - url: localhost:8080/course/all
         name: get all courses
         meta:
-          id: req_2ec60c98dba24e59ad83830a48c35238
+          id: req_80c8477322cf487b9566b5882a40ba8a
           created: 1753177692439
           modified: 1754037093383
           isPrivate: false
@@ -164,7 +151,6 @@ collection:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwMzcwODYsImV4cCI6MTc1NDAzNzk4Nn0.csYnXQ-BuEdDbVAN2U3GzQelUMOxPOVVAhp0hOP5gps
-            id: pair_a64902c5631145299bf608b92c838fdf
         authentication:
           type: none
         settings:
@@ -175,23 +161,20 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: localhost:8080/auth/token/refresh
+      - url: localhost:8080/
         name: refresh token
         meta:
-          id: req_44133bc0e37049efb9e46f866f4d7804
+          id: req_79860fee0df543ab9784ee9edfc0c334
           created: 1753347860377
-          modified: 1753364072101
+          modified: 1756060857308
           isPrivate: false
           description: ""
           sortKey: -1751183239866
         method: POST
         headers:
-          - id: pair_a20bb7216b66476186e837f3eb41f1e8
-            name: Authorization
+          - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTMzNDc5MTUsImV4cCI6MTc1NDY0MzkxNX0.T7_8Blo-r2m398FA-Y9CK_vQM323R7G8vDcmRaunmi8
-            description: ""
-            disabled: false
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -203,7 +186,7 @@ collection:
       - url: localhost:8080/auth/login
         name: login mentor
         meta:
-          id: req_9441b617b6e94f5ba9a0ec0169a87592
+          id: req_4a9db7f216114bf68b97154f2da718fb
           created: 1753363533150
           modified: 1753363967779
           isPrivate: false
@@ -218,11 +201,8 @@ collection:
             	"password": "140698"
             }
         headers:
-          - id: pair_306cd3ad68ec4ebc835fca9c13e31a6a
-            name: Content-Type
+          - name: Content-Type
             value: application/json
-            description: ""
-            disabled: false
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -234,7 +214,7 @@ collection:
       - url: localhost:8080/course/1
         name: get course by id
         meta:
-          id: req_77e40cffe82d4cfba548606ecd04d33f
+          id: req_b19373acea8b4df986970277d3d902fc
           created: 1753364051008
           modified: 1754037785288
           isPrivate: false
@@ -242,12 +222,9 @@ collection:
           sortKey: -1753171143327.5
         method: GET
         headers:
-          - id: pair_f44fe3aab7184cee8907c6d912d4e547
-            name: Authorization
+          - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
-            description: ""
-            disabled: false
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -259,7 +236,7 @@ collection:
       - url: localhost:8080/module/1/1
         name: get module by id
         meta:
-          id: req_944c011e9cae4ba7a459ae6fc016ce6b
+          id: req_b1a3a5b4e1664b35a3cb63a5121c0c4d
           created: 1753364113630
           modified: 1754037792557
           isPrivate: false
@@ -270,7 +247,6 @@ collection:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
-            id: pair_ba7a7d7819d449499c2333767779d1b9
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -282,7 +258,7 @@ collection:
       - url: localhost:8080/user/me
         name: get my info
         meta:
-          id: req_e9f48c3e950b45cdafc28c30325e56ce
+          id: req_63c90c8ecb764956a36566826477982d
           created: 1753448222803
           modified: 1754037775401
           isPrivate: false
@@ -290,12 +266,9 @@ collection:
           sortKey: -1753171062729.625
         method: GET
         headers:
-          - id: pair_f44fe3aab7184cee8907c6d912d4e547
-            name: Authorization
+          - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
-            description: ""
-            disabled: false
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -304,23 +277,20 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: localhost:8080/user/2
+      - url: localhost:8080/users/2
         name: get user info by userId
         meta:
-          id: req_c301cbbb06f54c90866fec7985074168
+          id: req_40b6dbc1db264b8fb3e254e7d6010a67
           created: 1753448250573
-          modified: 1754037129116
+          modified: 1756398073599
           isPrivate: false
           description: ""
           sortKey: -1753171022430.6875
         method: GET
         headers:
-          - id: pair_f44fe3aab7184cee8907c6d912d4e547
-            name: Authorization
+          - name: Authorization
             value: Bearer
-              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwMzcwODYsImV4cCI6MTc1NDAzNzk4Nn0.csYnXQ-BuEdDbVAN2U3GzQelUMOxPOVVAhp0hOP5gps
-            description: ""
-            disabled: false
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTYzODIwMTcsImV4cCI6MTc1NjM4MjkxN30.kHfpAvnYDFsZTmazgKg56WvPkzx5YdACuNM-vHPGvcg
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -332,9 +302,9 @@ collection:
       - url: localhost:8080/access/course/get-access
         name: get access to course by mentor
         meta:
-          id: req_82c0419962c347ed84e9f8b416a66b56
+          id: req_1a29e2fdb359426499ed99621144193a
           created: 1753448300097
-          modified: 1753451074640
+          modified: 1756889826626
           isPrivate: false
           description: ""
           sortKey: -1753171788110.5
@@ -350,11 +320,11 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_bf01b351311142e4aece96e615a8d4c7
+            id: pair_677143dcbcb345f190fed26b09ab00aa
           - name: Authorization
             value: Bearer
-              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTM0NTAzNzIsImV4cCI6MTc1MzQ1MTI3Mn0.3cXAR3jrGc5AgVhwmzK2qEQKeGTzPAWUIIw5yZXc-5g
-            id: pair_a64902c5631145299bf608b92c838fdf
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTY4ODk4MDMsImV4cCI6MTc1Njg5MDcwM30.tTrU4A-gS2h9Gdq6QBcFNJSn7JuQ-WZg7G6bkzUz5yg
+            id: pair_e8584ae2734e4a658fe0dd9e788a1491
         authentication:
           type: none
         settings:
@@ -368,7 +338,7 @@ collection:
       - url: localhost:8080/access/module/get-access
         name: get access to module by mentor
         meta:
-          id: req_89b0de7970d64b32b7c161d388df5023
+          id: req_2fd6a3d99ce64bc6a9b4fce98a8ba129
           created: 1753448372276
           modified: 1754037833684
           isPrivate: false
@@ -386,11 +356,9 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_bf01b351311142e4aece96e615a8d4c7
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
-            id: pair_a64902c5631145299bf608b92c838fdf
         authentication:
           type: none
         settings:
@@ -404,7 +372,7 @@ collection:
       - url: localhost:8080/progress/course/1/statistics
         name: get course progress by mentor
         meta:
-          id: req_1da4dbd8c8c14734a9a6a43903f41d7d
+          id: req_c8e2ca2729ae43f58813c1c7b758bd05
           created: 1753450655582
           modified: 1754044947064
           isPrivate: false
@@ -415,7 +383,6 @@ collection:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwNDQ5MzgsImV4cCI6MTc1NDA0NTgzOH0.mqf4tECY26pz8tqXraiz-EgC9fn8UiEvQ2iXdlZSpRs
-            id: pair_a64902c5631145299bf608b92c838fdf
         authentication:
           type: none
         settings:
@@ -429,7 +396,7 @@ collection:
       - url: localhost:8080/progress/course/1/users
         name: get all users at course by mentor
         meta:
-          id: req_fb71b170ef88486cb1a83237d190359e
+          id: req_af05cec80e924117b7dfa5b57817f009
           created: 1754044919871
           modified: 1754044958582
           isPrivate: false
@@ -440,7 +407,6 @@ collection:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwNDQ5MzgsImV4cCI6MTc1NDA0NTgzOH0.mqf4tECY26pz8tqXraiz-EgC9fn8UiEvQ2iXdlZSpRs
-            id: pair_a64902c5631145299bf608b92c838fdf
         authentication:
           type: none
         settings:
@@ -454,23 +420,22 @@ collection:
 cookieJar:
   name: Default Jar
   meta:
-    id: jar_99d30891da4bdcebc63947a8fc17f076de878684
+    id: jar_f484637005684749a7af0532a92e097f
     created: 1707982926593
     modified: 1747039962482
   cookies:
-    - key: JSESSIONID
+    - id: 9f1c8c25-c0d8-44cd-9e79-f7099abb9056
+      key: JSESSIONID
       value: 055894B5844AADD199D67A58AD29258E
       domain: localhost
       path: /
+      secure: false
       httpOnly: true
       hostOnly: true
-      creation: 2025-05-12T08:49:14.754Z
-      lastAccessed: 2025-05-12T08:52:42.482Z
-      id: 9f1c8c25-c0d8-44cd-9e79-f7099abb9056
 environments:
   name: Base Environment
   meta:
-    id: env_99d30891da4bdcebc63947a8fc17f076de878684
+    id: env_589e4f2826084944adcbc1f86924b993
     created: 1707982926589
     modified: 1707982926589
     isPrivate: false

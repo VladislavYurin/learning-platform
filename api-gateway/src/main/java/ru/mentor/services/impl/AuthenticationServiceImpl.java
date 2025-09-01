@@ -43,7 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = UserEntity.builder()
                              .username(request.getUsername())
                              .password(passwordEncoder.encode(request.getPassword()))
-                             .tgNickname(request.getTgName())
+                             .tgNickname(request.getTgNickname())
                              .firstName(request.getFirstName())
                              .lastName(request.getLastName())
                              .role(Role.USER)
@@ -111,6 +111,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return JwtAuthResponse.builder()
                               .accessToken(jwtService.generateToken(user))
                               .refreshToken(jwtService.generateRefreshToken(user))
+                              .role(user.getRole())
                               .build();
     }
 

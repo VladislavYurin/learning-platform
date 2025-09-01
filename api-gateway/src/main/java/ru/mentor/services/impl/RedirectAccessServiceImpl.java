@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.mentor.dto.GetAccessRequest;
-import ru.mentor.dto.front.AccessRequest;
+import ru.mentor.dto.front.CourseAccessRequest;
+import ru.mentor.dto.front.ModuleAccessRequest;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.feign.MentorClient;
 import ru.mentor.mapper.AccessMapper;
@@ -33,7 +34,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
-    public ResponseEntity<?> getCourseAccessToUser(AccessRequest request) {
+    public ResponseEntity<?> giveCourseAccess(CourseAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
         String rqUId = RqGenerator.generateRqId();
         log.info(String.format(
@@ -43,8 +44,8 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getCourseId(),
                 user.getId()
         ));
-        GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        return mentorClient.getCourseAccessToUser(rqUId, innerRequest);
+        GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
+        return mentorClient.giveCourseAccess(rqUId, innerRequest);
     }
 
     /**
@@ -53,7 +54,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
-    public ResponseEntity<?> deleteCourseAccessToUser(AccessRequest request) {
+    public ResponseEntity<?> revokeCourseAccess(CourseAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
         String rqUId = RqGenerator.generateRqId();
         log.info(String.format(
@@ -63,8 +64,8 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getCourseId(),
                 user.getId()
         ));
-        GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        return mentorClient.deleteCourseAccessToUser(rqUId, innerRequest);
+        GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
+        return mentorClient.revokeCourseAccess(rqUId, innerRequest);
     }
 
     /**
@@ -73,7 +74,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
-    public ResponseEntity<?> getModuleAccessToUser(AccessRequest request) {
+    public ResponseEntity<?> giveModuleAccess(ModuleAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
         String rqUId = RqGenerator.generateRqId();
         log.info(String.format(
@@ -83,8 +84,8 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getModuleId(),
                 user.getId()
         ));
-        GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        return mentorClient.getModuleAccessToUser(rqUId, innerRequest);
+        GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
+        return mentorClient.giveModuleAccess(rqUId, innerRequest);
     }
 
     /**
@@ -93,7 +94,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
-    public ResponseEntity<?> deleteModuleAccessToUser(AccessRequest request) {
+    public ResponseEntity<?> revokeModuleAccess(ModuleAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
         String rqUId = RqGenerator.generateRqId();
         log.info(String.format(
@@ -103,8 +104,8 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getModuleId(),
                 user.getId()
         ));
-        GetAccessRequest innerRequest = accessMapper.mapToInnerRequest(user, request);
-        return mentorClient.deleteModuleAccessToUser(rqUId, innerRequest);
+        GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
+        return mentorClient.revokeModuleAccess(rqUId, innerRequest);
     }
 
 }

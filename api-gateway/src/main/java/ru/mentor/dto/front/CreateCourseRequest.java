@@ -5,10 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
 
-/**
- * Класс для создания запроса на создание курса.
- * Используется как тело HTTP-запроса при создании/импорте курса.
- */
 @Data
 @Builder
 @Schema(description = "Запрос на создание курса")
@@ -19,6 +15,7 @@ public class CreateCourseRequest {
     private String courseName;
 
     @Schema(description = "Описание курса", example = "Курс по основам Spring Framework")
+    @NotBlank
     private String courseDescription;
 
 }
