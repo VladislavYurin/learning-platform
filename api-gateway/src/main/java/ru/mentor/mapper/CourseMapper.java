@@ -46,8 +46,7 @@ public class CourseMapper {
                                        .courseId(createModuleRequest.getCourseId())
                                        .moduleTitle(createModuleRequest.getModuleTitle())
                                        .moduleOrderNumber(createModuleRequest.getModuleOrderNumber())
-                                       .moduleContent(
-                                               createModuleRequest.getModuleContent())
+                                       .moduleContent(createModuleRequest.getModuleContentDescription())
                                        .build();
 
     }

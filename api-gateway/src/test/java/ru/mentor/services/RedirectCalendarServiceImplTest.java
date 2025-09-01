@@ -40,7 +40,7 @@ class RedirectCalendarServiceImplTest {
     private TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
 
     @InjectMocks
-    private RedirectCalendarServiceImpl redirectCalendarService;
+    private ru.mentor.services.RedirectCalendarServiceImpl redirectCalendarService;
 
     String testLink = "link";
     String testDescription = "text";
