@@ -8,6 +8,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import ru.mentor.annotaion.GrpcMethod;
 import ru.mentor.annotaion.GrpcMethodType;
+import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CalendarServiceGrpc.CalendarServiceBlockingStub;
 import ru.mentor.calendar.CreateTimeSlotRequest;
 import ru.mentor.calendar.TimeSlotResponse;

@@ -1,10 +1,8 @@
 package ru.mentor.services.impl;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.MenteeProgressDto;
 import ru.mentor.entity.UserEntity;
@@ -42,7 +40,6 @@ public class RedirectProgressServiceImpl implements RedirectProgressService {
                 courseId,
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         return mentorClient.getCourseProgressByMentor(rqUId, user.getId(), courseId).getBody();
     }
 
@@ -61,7 +58,6 @@ public class RedirectProgressServiceImpl implements RedirectProgressService {
                 courseId,
                 user.getId()
         ));
-        Role.checkUserIsAdminOrMentor(user);
         return mentorClient.getAllUsersAtCourse(rqUId, user.getId(), courseId).getBody();
     }
 
