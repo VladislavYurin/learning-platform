@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -109,6 +110,12 @@ public class UserEntity implements UserDetails {
 
     @ManyToMany(mappedBy = "meetingParticipants")
     private Set<MentorTimeSlotEntity> timeSlots = new HashSet<>();
+
+    /**
+     * Список уведомлений отправленных пользователю.
+     */
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NotificationEntity> notifications = new ArrayList<>();
 
     /**
      * Возвращает список ролей пользователя.
