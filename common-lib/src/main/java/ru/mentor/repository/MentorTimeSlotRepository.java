@@ -7,6 +7,7 @@ import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.exception.EntityNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface MentorTimeSlotRepository
@@ -32,4 +33,11 @@ public interface MentorTimeSlotRepository
     default boolean existsOverlappingSlots(Long userId, LocalDateTime start, LocalDateTime end) {
         return false;
     }
+
+    @Query(value = """
+        SELECT slot FROM MentorTimeSlotEntity slot JOIN FETCH slot.meetingParticipants
+        WHERE slot.mentor.id = :mentorId
+        ORDER BY slot.startTime
+    """)
+    List<MentorTimeSlotEntity> findByMentorIdWithParticipants(Long mentorId);
 }

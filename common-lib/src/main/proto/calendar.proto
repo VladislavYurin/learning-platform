@@ -12,6 +12,8 @@ service CalendarService {
   rpc CreateMentorTimeSlot (CreateTimeSlotRequest) returns (TimeSlotResponse);
   // Бронирование существующего слота
   rpc BookTimeslot (BookTimeSlotRequest) returns (TimeSlotResponse);
+  // Получение всех слотов ментора с информацией об участниках
+  rpc GetMentorSlots (MentorSlotsInfoRequest) returns (MentorSlotsInfoResponse);
 }
 
 // Запрос на создание слота
@@ -60,4 +62,38 @@ enum SlotMeetingType {
   ACQUAINTANCE = 0;
   COMMUNICATION = 1;
   ACCEPTING = 2;
+}
+
+// Запрос всех слотов ментора
+message MentorSlotsInfoRequest {
+  string rqUid = 1;
+  int64 mentor_id = 2;
+}
+
+// Ответ с информацией о слотах ментора и участниках в них
+message MentorSlotsInfoResponse {
+  repeated MentorSlotInfo slots = 1;
+}
+
+// Информация об одном забронированном слоте с информацией об участниках, если они есть
+message MentorSlotInfo {
+  TimeSlotResponse slot_info = 1;
+  repeated UserInfo participants = 2;
+}
+
+// Информация об участнике
+message UserInfo {
+  int64 id = 1;
+  string username = 2;
+  Role role = 3;
+  string firstName = 4;
+  string lastName = 5;
+  string tgNickname = 6;
+  optional int64 tgChatId = 7;
+}
+
+enum Role {
+  USER = 0;
+  ADMIN = 1;
+  MENTOR = 2;
 }
