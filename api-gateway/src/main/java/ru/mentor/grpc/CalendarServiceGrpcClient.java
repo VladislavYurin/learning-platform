@@ -11,6 +11,8 @@ import ru.mentor.annotaion.GrpcMethodType;
 import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CalendarServiceGrpc.CalendarServiceBlockingStub;
 import ru.mentor.calendar.CreateTimeSlotRequest;
+import ru.mentor.calendar.MentorSlotsInfoRequest;
+import ru.mentor.calendar.MentorSlotsInfoResponse;
 import ru.mentor.calendar.TimeSlotResponse;
 import ru.mentor.exception.GrpcRetryException;
 
@@ -68,6 +70,22 @@ public class CalendarServiceGrpcClient {
                     "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
                     bookTimeSlotRequest.getRqUid()
             ), bookTimeSlotRequest.getRqUid());
+        }
+    }
+
+    /**
+     * Возвращает gRPC-ответ с данными о слотах ментора и участниках в этих слотах
+     * @param mentorSlotsInfoRequest {@link MentorSlotsInfoRequest} сгенерированный из proto класс запроса
+     * @return {@link MentorSlotsInfoResponse} сгенерированный класс ответа
+     */
+    public MentorSlotsInfoResponse getMentorSlotsInfo(MentorSlotsInfoRequest mentorSlotsInfoRequest) {
+        try {
+            return blockingStub.getMentorSlots(mentorSlotsInfoRequest);
+        } catch (Exception e) {
+            throw new GrpcRetryException(String.format(
+                    "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
+                    mentorSlotsInfoRequest.getRqUid()
+            ));
         }
     }
 }

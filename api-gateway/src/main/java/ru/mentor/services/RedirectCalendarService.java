@@ -1,7 +1,10 @@
 package ru.mentor.services;
 
+import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
+
+import java.util.List;
 
 /**
  * Сервис редиректа запросов в микросервис calendar-service
@@ -24,4 +27,8 @@ public interface RedirectCalendarService {
      */
     MentorTimeSlotDto bookTimeSlot(long timeSlotId);
 
+    /**
+     * Отправляет запрос для получения всех слотов ментора с информацией об участниках.
+     */
+    List<MentorSlotInfoDto> getMentorSlotsInfo();
 }

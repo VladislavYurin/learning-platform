@@ -8,6 +8,8 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CalendarServiceGrpc;
 import ru.mentor.calendar.CreateTimeSlotRequest;
+import ru.mentor.calendar.MentorSlotsInfoRequest;
+import ru.mentor.calendar.MentorSlotsInfoResponse;
 import ru.mentor.calendar.TimeSlotResponse;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
@@ -16,6 +18,7 @@ import ru.mentor.exception.UserException;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
+import java.util.List;
 
 /**
  * Реализация сервиса календаря с использованием gRPC.
@@ -114,7 +117,7 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
         }
     }
 
-    private void checkSlotIsAvailable(MentorTimeSlotEntity slotEntity, Long userId) throws TimeSlotUnavailableException{
+    private void checkSlotIsAvailable(MentorTimeSlotEntity slotEntity, Long userId) throws TimeSlotUnavailableException {
         if (slotIsFull(slotEntity))
             throw new TimeSlotUnavailableException(
                     "На встрече нет свободных мест"
@@ -143,4 +146,30 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
         return mentorTimeSlotRepository.existsOverlappingSlots(userId, slotEntity.getStartTime(), slotEntity.getEndTime());
     }
 
+    /**
+     * gRPC - эндпоинт для получения всех слотов ментора
+     *
+     * @param request сгенерированный из proto {@link MentorSlotsInfoRequest}
+     * @param responseObserver - объект {@link StreamObserver} для возврата ответа
+     */
+
+    @Override
+    public void getMentorSlots(MentorSlotsInfoRequest request,
+                               StreamObserver<MentorSlotsInfoResponse> responseObserver) {
+
+        String rqUId = request.getRqUid();
+        long mentorId = request.getMentorId();
+
+        log.info("Поступил запрос {} в gRPC сервис на получение всех слотов ментора с ID {}",
+                rqUId, mentorId);
+
+        List<MentorTimeSlotEntity> mentorSlots =
+                mentorTimeSlotRepository.findByMentorIdWithParticipants(mentorId);
+
+        MentorSlotsInfoResponse response =
+                timeSlotMapper.convertToMentorSlotsInfoResponse(mentorSlots, rqUId);
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 }

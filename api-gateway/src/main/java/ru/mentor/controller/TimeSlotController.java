@@ -8,10 +8,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.services.RedirectCalendarService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/slot")
@@ -71,4 +79,24 @@ public class TimeSlotController {
         return ResponseEntity.ok(redirectCalendarService.bookTimeSlot(timeSlotId));
     }
 
+    /**
+     * Выдает информацию о слотах ментора с информацией об участниках
+     *
+     * @return {@link List<MentorSlotInfoDto>} Список слотов со списками участников.
+     */
+    @Operation(
+            summary = "Выдать информацию обо всех слотах ментора",
+            description = "Выдать информацию о слотах и об участниках. Требуются права MENTOR",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Выдан список слотов",
+                            content = @Content(schema = @Schema(implementation = MentorTimeSlotDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
+            }
+    )
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('MENTOR')")
+    public ResponseEntity<List<MentorSlotInfoDto>> getMentorSlotsInfo() {
+        return ResponseEntity.ok().body(redirectCalendarService.getMentorSlotsInfo());
+    }
 }

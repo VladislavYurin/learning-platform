@@ -5,13 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CreateTimeSlotRequest;
+import ru.mentor.calendar.MentorSlotInfo;
+import ru.mentor.calendar.MentorSlotsInfoRequest;
 import ru.mentor.calendar.TimeSlotResponse;
+import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.util.RqGenerator;
+
+import java.util.List;
 
 /**
  * Сервис редиректа запросов в микросервис calendar-service
@@ -74,5 +79,27 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
                 .bookTimeSlot(bookTimeSlotRequest);
 
         return timeSlotMapper.grpcResponseToDto(timeSlotGrpcResponse);
+    }
+
+    /**
+     * Отправляет запрос для получения информации о слотах текущего ментора и участниках в этих слотах
+     * @return список ДТО {@link List<MentorSlotInfoDto>}
+     */
+    @Override
+    public List<MentorSlotInfoDto> getMentorSlotsInfo() {
+
+        Long mentorId = userService.getCurrentUser().getId();
+        String rqUId = RqGenerator.generateRqId();
+
+        log.info("[ RqUId = {} ] Получен запрос на извлечение информации о слотах ментора [ ID = {} ].",
+                rqUId, mentorId);
+
+        MentorSlotsInfoRequest request =
+                timeSlotMapper.toMentorSlotsInfoGrpcRequest(mentorId, rqUId);
+
+        List<MentorSlotInfo> mentorSlotsList =
+                calendarServiceClient.getMentorSlotsInfo(request).getSlotsList();
+
+        return timeSlotMapper.toSlotInfoDtoList(mentorSlotsList);
     }
 }

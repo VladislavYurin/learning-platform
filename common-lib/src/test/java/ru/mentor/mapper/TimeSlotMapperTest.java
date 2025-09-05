@@ -1,193 +1,175 @@
 package ru.mentor.mapper;
 
 import com.google.protobuf.Timestamp;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.mentor.calendar.*;
+import ru.mentor.calendar.CreateTimeSlotRequest;
+import ru.mentor.calendar.MentorSlotsInfoResponse;
+import ru.mentor.calendar.SlotMeetingType;
+import ru.mentor.calendar.SlotType;
+import ru.mentor.calendar.TimeSlotResponse;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
-import ru.mentor.constant.Role;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.testutil.TestDataGenerator;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class TimeSlotMapperTest {
 
-    TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
-
-    String testUUID = UUID.randomUUID().toString();
-    String testLink = "link";
-    String testDescription = "text";
-    int testMaxParticipants = 10;
-
-    String testUsername = "mentor";
-    String testPassword = "password";
-    String testFirstName = "John";
-    String testLastName = "Doe";
-    String testTgNickname = "@johndoe";
-
-    public UserEntity getTestMentorUser() {
-        return UserEntity.builder()
-                .id(1L)
-                .username(testUsername)
-                .password(testPassword)
-                .role(Role.MENTOR)
-                .firstName(testFirstName)
-                .lastName(testLastName)
-                .tgNickname(testTgNickname)
-                .build();
-    }
+    @InjectMocks
+    TimeSlotMapper timeSlotMapper;
 
     @Test
     void grpcResponseToDto() {
-        Timestamp startTime = Timestamp.newBuilder()
-                .setSeconds(LocalDateTime.of(2025, 1, 15, 13, 0)
-                        .toEpochSecond(ZoneOffset.UTC)).build();
-        Timestamp endTime = Timestamp.newBuilder()
-                .setSeconds(LocalDateTime.of(2025, 1, 15, 14, 0)
-                        .toEpochSecond(ZoneOffset.UTC)).build();
-        Timestamp createdAt = Timestamp.newBuilder()
-                .setSeconds(LocalDateTime.of(2025, 1, 14, 10, 0)
-                        .toEpochSecond(ZoneOffset.UTC)).build();
+        Timestamp startTime = UtilMapper.buildTimestamp(
+                LocalDateTime.of(2025, 1, 15, 13, 0));
+        Timestamp endTime = UtilMapper.buildTimestamp(
+                LocalDateTime.of(2025, 1, 15, 14, 0));
+        Timestamp createdAt = UtilMapper.buildTimestamp(
+                LocalDateTime.of(2025, 1, 14, 10, 0));
 
-        TimeSlotResponse grpcResponse = TimeSlotResponse.newBuilder()
-                .setRqUid(testUUID)
-                .setSlotId(1L)
-                .setMentorId(1L)
-                .setStartTime(startTime)
-                .setEndTime(endTime)
-                .setSlotType(SlotType.INDIVIDUAL)
-                .setSlotMeetingType(SlotMeetingType.COMMUNICATION)
-                .setMaxParticipants(testMaxParticipants)
-                .setMeetingLink(testLink)
-                .setDescription(testDescription)
-                .setCreatedAt(createdAt)
-                .build();
+        TimeSlotResponse grpcResponse = TestDataGenerator.createTestTimeSlotGrpcResponse(
+                startTime, endTime, createdAt);
 
         MentorTimeSlotDto result = timeSlotMapper.grpcResponseToDto(grpcResponse);
 
-        assertNotNull(result);
-        assertEquals(testUUID, result.getRqUId());
-        assertEquals(1L, result.getId());
-        assertEquals(1L, result.getMentorId());
-        assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0), result.getStartTime());
-        assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0), result.getEndTime());
-        assertEquals(CalendarSlotType.INDIVIDUAL, result.getSlotType());
-        assertEquals(CalendarSlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
-        assertEquals(testMaxParticipants, result.getMaxParticipants());
-        assertEquals(testLink, result.getMeetingLink());
-        assertEquals(testDescription, result.getDescription());
-        assertEquals(LocalDateTime.of(2025, 1, 14, 10, 0), result.getCreatedAt());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getRqUId());
+        Assertions.assertEquals(1L, result.getId());
+        Assertions.assertEquals(1L, result.getMentorId());
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0), result.getStartTime());
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0), result.getEndTime());
+        Assertions.assertEquals(CalendarSlotType.INDIVIDUAL, result.getSlotType());
+        Assertions.assertEquals(CalendarSlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
+        Assertions.assertEquals(TestDataGenerator.TEST_MAX_PARTICIPANTS, result.getMaxParticipants());
+        Assertions.assertEquals(TestDataGenerator.TEST_LINK, result.getMeetingLink());
+        Assertions.assertEquals(TestDataGenerator.TEST_DESCRIPTION, result.getDescription());
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 14, 10, 0), result.getCreatedAt());
     }
 
     @Test
     void requestCreateToGrpcDto() {
-        MentorTimeSlotCreateRequest createRequest = MentorTimeSlotCreateRequest.builder()
-                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
-                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
-                .slotType(CalendarSlotType.INDIVIDUAL)
-                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
-                .maxParticipants(testMaxParticipants)
-                .meetingLink(testLink)
-                .description(testDescription)
-                .build();
 
-        UserEntity testMentorUser = getTestMentorUser();
-        CreateTimeSlotRequest result = timeSlotMapper.requestCreateToGrpcDto(createRequest, testUUID, testMentorUser);
+        LocalDateTime startTime = LocalDateTime.of(2025, 1, 15, 13, 0);
+        LocalDateTime endTime = LocalDateTime.of(2025, 1, 15, 14, 0);
 
-        assertNotNull(result);
-        assertEquals(testUUID, result.getRqUid());
-        assertEquals(1L, result.getMentorId());
-        assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0)
+        MentorTimeSlotCreateRequest createRequest = TestDataGenerator.createTestMentorTimeSlotCreateRequest(
+                startTime, endTime);
+
+        UserEntity testMentorUser = TestDataGenerator.getTestMentorUser();
+        CreateTimeSlotRequest result = timeSlotMapper.requestCreateToGrpcDto(createRequest, TestDataGenerator.TEST_UUID, testMentorUser);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getRqUid());
+        Assertions.assertEquals(1L, result.getMentorId());
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0)
                         .toEpochSecond(ZoneOffset.UTC),
                 result.getStartTime().getSeconds());
-        assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0)
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0)
                         .toEpochSecond(ZoneOffset.UTC),
                 result.getEndTime().getSeconds());
-        assertEquals(SlotType.INDIVIDUAL, result.getSlotType());
-        assertEquals(SlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
-        assertEquals(testMaxParticipants, result.getMaxParticipants());
-        assertEquals(testLink, result.getMeetingLink());
-        assertEquals(testDescription, result.getDescription());
+        Assertions.assertEquals(SlotType.INDIVIDUAL, result.getSlotType());
+        Assertions.assertEquals(SlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
+        Assertions.assertEquals(TestDataGenerator.TEST_MAX_PARTICIPANTS, result.getMaxParticipants());
+        Assertions.assertEquals(TestDataGenerator.TEST_LINK, result.getMeetingLink());
+        Assertions.assertEquals(TestDataGenerator.TEST_DESCRIPTION, result.getDescription());
     }
 
     @Test
     void grpcCreateRequestToEntity() {
-        Timestamp startTime = Timestamp.newBuilder()
-                .setSeconds(LocalDateTime.of(2025, 1, 15, 13, 0)
-                        .toEpochSecond(ZoneOffset.UTC)).build();
-        Timestamp endTime = Timestamp.newBuilder()
-                .setSeconds(LocalDateTime.of(2025, 1, 15, 14, 0)
-                        .toEpochSecond(ZoneOffset.UTC)).build();
+        Timestamp startTime = UtilMapper.buildTimestamp(
+                LocalDateTime.of(2025, 1, 15, 13, 0));
+        Timestamp endTime = UtilMapper.buildTimestamp(
+                LocalDateTime.of(2025, 1, 15, 14, 0));
 
-        CreateTimeSlotRequest request = CreateTimeSlotRequest.newBuilder()
-                .setStartTime(startTime)
-                .setEndTime(endTime)
-                .setSlotType(SlotType.INDIVIDUAL)
-                .setSlotMeetingType(SlotMeetingType.COMMUNICATION)
-                .setMaxParticipants(testMaxParticipants)
-                .setMeetingLink(testLink)
-                .setDescription(testDescription)
-                .build();
-
-        UserEntity testMentorUser = getTestMentorUser();
+        CreateTimeSlotRequest request = TestDataGenerator.createTestCreateTimeSlotRequest(
+                startTime, endTime);
+        UserEntity testMentorUser = TestDataGenerator.getTestMentorUser();
         MentorTimeSlotEntity result = timeSlotMapper.grpcCreateRequestToEntity(request, testMentorUser);
 
-        assertNotNull(result);
-        assertEquals(testMentorUser, result.getMentor());
-        assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0), result.getStartTime());
-        assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0), result.getEndTime());
-        assertEquals(CalendarSlotType.INDIVIDUAL, result.getSlotType());
-        assertEquals(CalendarSlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
-        assertEquals(testMaxParticipants, result.getMaxParticipants());
-        assertEquals(testLink, result.getMeetingLink());
-        assertEquals(testDescription, result.getDescription());
-        assertTrue(result.getIsActive());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(testMentorUser, result.getMentor());
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0), result.getStartTime());
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0), result.getEndTime());
+        Assertions.assertEquals(CalendarSlotType.INDIVIDUAL, result.getSlotType());
+        Assertions.assertEquals(CalendarSlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
+        Assertions.assertEquals(TestDataGenerator.TEST_MAX_PARTICIPANTS, result.getMaxParticipants());
+        Assertions.assertEquals(TestDataGenerator.TEST_LINK, result.getMeetingLink());
+        Assertions.assertEquals(TestDataGenerator.TEST_DESCRIPTION, result.getDescription());
+        Assertions.assertTrue(result.getIsActive());
     }
 
     @Test
     void entityToGrpcResponse() {
-        UserEntity testMentorUser = getTestMentorUser();
-        MentorTimeSlotEntity timeSlotEntity = MentorTimeSlotEntity.builder()
-                .id(1L)
-                .mentor(testMentorUser)
-                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
-                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
-                .slotType(CalendarSlotType.INDIVIDUAL)
-                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
-                .maxParticipants(testMaxParticipants)
-                .meetingLink(testLink)
-                .description(testDescription)
-                .isActive(true)
-                .createdAt(LocalDateTime.of(2025, 1, 14, 10, 0))
-                .build();
 
-        TimeSlotResponse result = timeSlotMapper.entityToGrpcResponse(timeSlotEntity, testUUID);
+        MentorTimeSlotEntity timeSlotEntity = TestDataGenerator.createTestSlot(
+                1L, Collections.emptySet(), true);
 
-        assertNotNull(result);
-        assertEquals(testUUID, result.getRqUid());
-        assertEquals(1L, result.getSlotId());
-        assertEquals(1L, result.getMentorId());
-        assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0)
-                        .toEpochSecond(ZoneOffset.UTC), result.getStartTime().getSeconds());
-        assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0)
-                        .toEpochSecond(ZoneOffset.UTC), result.getEndTime().getSeconds());
-        assertEquals(SlotType.INDIVIDUAL, result.getSlotType());
-        assertEquals(SlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
-        assertEquals(testMaxParticipants, result.getMaxParticipants());
-        assertEquals(testLink, result.getMeetingLink());
-        assertEquals(testDescription, result.getDescription());
-        assertEquals(LocalDateTime.of(2025, 1, 14, 10, 0)
-                        .toEpochSecond(ZoneOffset.UTC), result.getCreatedAt().getSeconds());
+        TimeSlotResponse result = timeSlotMapper.entityToGrpcResponse(timeSlotEntity, TestDataGenerator.TEST_UUID);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getRqUid());
+        Assertions.assertEquals(1L, result.getSlotId());
+        Assertions.assertEquals(1L, result.getMentorId());
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0)
+                .toEpochSecond(ZoneOffset.UTC), result.getStartTime().getSeconds());
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0)
+                .toEpochSecond(ZoneOffset.UTC), result.getEndTime().getSeconds());
+        Assertions.assertEquals(SlotType.INDIVIDUAL, result.getSlotType());
+        Assertions.assertEquals(SlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
+        Assertions.assertEquals(TestDataGenerator.TEST_MAX_PARTICIPANTS, result.getMaxParticipants());
+        Assertions.assertEquals(TestDataGenerator.TEST_LINK, result.getMeetingLink());
+        Assertions.assertEquals(TestDataGenerator.TEST_DESCRIPTION, result.getDescription());
+        Assertions.assertEquals(LocalDateTime.of(2025, 1, 14, 10, 0)
+                .toEpochSecond(ZoneOffset.UTC), result.getCreatedAt().getSeconds());
     }
 
+    @Test
+    void toMentorSlotsInfoResponse_noSlots_empty() {
+        List<MentorTimeSlotEntity> emptySlots = Collections.emptyList();
+        String rqUId = "test-rq-id";
+
+        MentorSlotsInfoResponse response = timeSlotMapper.convertToMentorSlotsInfoResponse(emptySlots, rqUId);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertTrue(response.getSlotsList().isEmpty());
+    }
+
+    @Test
+    void toMentorSlotsInfoResponse_twoSlots_mixed_twoReturned() {
+        String rqUId = "test-rq-id";
+
+        Set<UserEntity> participants = new HashSet<>();
+        participants.add(TestDataGenerator.getTestParticipantUser());
+        MentorTimeSlotEntity bookedSlot = TestDataGenerator.createTestSlot(1L, participants, true);
+
+        MentorTimeSlotEntity freeSlot = TestDataGenerator.createTestSlot(2L, Collections.emptySet(), true);
+
+        List<MentorTimeSlotEntity> slots = Arrays.asList(bookedSlot, freeSlot);
+
+        MentorSlotsInfoResponse response = timeSlotMapper.convertToMentorSlotsInfoResponse(slots, rqUId);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(2, response.getSlotsList().size());
+
+        Assertions.assertFalse(response.getSlotsList().get(0).getParticipantsList().isEmpty());
+        Assertions.assertEquals(1, response.getSlotsList().get(0).getParticipantsList().size());
+        Assertions.assertEquals("participant", response.getSlotsList().get(0).getParticipantsList().get(0).getUsername());
+
+        Assertions.assertTrue(response.getSlotsList().get(1).getParticipantsList().isEmpty());
+    }
 }
