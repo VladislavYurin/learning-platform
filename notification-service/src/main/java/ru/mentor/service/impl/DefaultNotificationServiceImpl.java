@@ -30,7 +30,7 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
 
     private boolean mailSent = false;
     private boolean telegramSent = false;
-    private Exception lastException = null;
+    public Exception lastException = null;
 
     @Override
     public void notifyUser(KafkaNotificationDto notificationDto) {
@@ -108,7 +108,6 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
                 .notificationType(notificationDto.getNotificationType())
                 .recipient(getUserEntityFromNotificationDto(notificationDto))
                 .notificationStatus(getNotificationStatus())
-                .errorText(lastException.getMessage())
                 .build();
 
         if (lastException != null) {
