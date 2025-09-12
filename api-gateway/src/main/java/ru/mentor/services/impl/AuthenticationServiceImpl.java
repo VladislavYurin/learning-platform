@@ -12,7 +12,6 @@ import ru.mentor.dto.auth.AuthRequest;
 import ru.mentor.dto.auth.JwtAuthResponse;
 import ru.mentor.dto.auth.RegRequest;
 import ru.mentor.entity.UserEntity;
-import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.services.AuthenticationService;
 import ru.mentor.services.JwtService;
 import ru.mentor.services.UserService;
@@ -29,7 +28,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final KafkaFacade kafkaFacade;
 
     /**
      * Регистрация пользователя
@@ -45,16 +43,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = UserEntity.builder()
                              .username(request.getUsername())
                              .password(passwordEncoder.encode(request.getPassword()))
-                             .tgNickname(request.getTgNickname())
+                             .tgNickname(request.getTgName())
                              .firstName(request.getFirstName())
                              .lastName(request.getLastName())
                              .role(Role.USER)
                              .build();
 
         userService.create(user);
-        kafkaFacade.sendUserRegistrationMessage(user);
-        return generateTokens(user);
 
+        var jwt = jwtService.generateToken(user);
+        return new JwtAuthResponse(jwt);
     }
 
     /**
@@ -72,16 +70,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 request.getPassword()
         ));
 
-        UserEntity user = userService.getByUsername(request.getUsername());
-        return generateTokens(user);
+        var user = userService
+                .userDetailsService()
+                .loadUserByUsername(request.getUsername());
 
+        var jwt = jwtService.generateToken(user);
+        return new JwtAuthResponse(jwt);
     }
 
     /**
      * Обновление JWT-токена.
      * Проверяет действительность текущего токена и выдает новый.
      *
-     * @param refreshToken
+     * @param token
      *         текущий токен
      *
      * @return объект с новым JWT-токеном
@@ -90,32 +91,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      *         если токен недействителен
      */
     @Override
-    public JwtAuthResponse refreshToken(String refreshToken) {
-        String username = jwtService.extractUserName(refreshToken);
-        UserDetails user = userService.userDetailsService().loadUserByUsername(username);
+    public JwtAuthResponse refreshToken(String token) {
+        String username = jwtService.extractUserName(token);
 
-        if (!jwtService.isTokenValid(refreshToken, user)) {
-            throw new RuntimeException("Невалидный refresh-токен");
+        UserDetails userDetails = userService
+                .userDetailsService()
+                .loadUserByUsername(username);
+
+        if (jwtService.isTokenValid(token, userDetails)) {
+            String newToken = jwtService.generateToken(userDetails);
+            return new JwtAuthResponse(newToken);
         }
 
-        return JwtAuthResponse.builder()
-                              .accessToken(jwtService.generateToken(user))
-                              .refreshToken(jwtService.generateRefreshToken(user))
-                              .build();
-
-    }
-
-    /**
-     * Генерирует пару JWT-токенов (access/refresh) для указанного пользователя.
-     * @param user пользователь, для которого создаются токены
-     * @return объект с парой токенов
-     */
-    private JwtAuthResponse generateTokens(UserEntity user) {
-        return JwtAuthResponse.builder()
-                              .accessToken(jwtService.generateToken(user))
-                              .refreshToken(jwtService.generateRefreshToken(user))
-                              .role(user.getRole())
-                              .build();
+        throw new RuntimeException("Недопустимый токен");
     }
 
 }

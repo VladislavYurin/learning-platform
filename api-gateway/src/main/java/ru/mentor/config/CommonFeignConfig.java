@@ -1,25 +1,19 @@
 package ru.mentor.config;
 
 import feign.Client;
-import feign.FeignException;
 import feign.Response;
+import feign.RetryableException;
 import feign.Retryer;
 import feign.codec.ErrorDecoder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.util.StreamUtils;
+import org.springframework.http.HttpStatus;
 
-/**
- * Конфигурационный класс для клиентов OpenFeign в приложении.
- * Класс используется для настройки поведения Feign-клиентов: уровня логирования,
- * таймаутов, политики повторов, перехватчиков запросов, обработки ошибок через ErrorDecoder
- * и кодеков сериализации.
- */
 @Slf4j
 @RequiredArgsConstructor
 public class CommonFeignConfig {
@@ -43,11 +37,6 @@ public class CommonFeignConfig {
     @Value("${feign.client.retry.maxAttempts}")
     private int maxAttempts;
 
-    /**
-     * Создает HTTP-клиент Feign по умолчанию.
-     * @return экземпляр клиента
-     * @throws RuntimeException если создание клиента завершилось ошибкой
-     */
     @Bean
     public Client client() {
         try {
@@ -81,72 +70,86 @@ public class CommonFeignConfig {
     }
 
     /**
-     * Декодер ошибок Feign.
-     * @return экземпляр декодера
+     * Создает и возвращает пользовательский {@link ErrorDecoder}.
+     *
+     * @return экземпляр {@link ErrorDecoder} с пользовательской логикой обработки ошибок
      */
     @Bean
-    public ErrorDecoder errorDecoder() {
-        return new CustomErrorDecoder();
+    public ErrorDecoder customErrorDecoder() {
+        return new CommonFeignConfig.CustomErrorDecoder();
     }
 
     /**
-     * Класс для преобразования ответа с ошибкой (4хх/5хх) в исключение со статусом и телом ответа.
-     * Если тело ответа прочитать не удалось, то возвращается стандартное исключение.
+     * Пользовательский класс для обработки ошибок в ответах от сервера.
+     * Этот класс расширяет {@link ErrorDecoder.Default} и добавляет логирование.
      */
-    public static class CustomErrorDecoder implements ErrorDecoder {
+    public static class CustomErrorDecoder extends ErrorDecoder.Default {
 
         /**
-         * Преобразует ошибочный HTTP-ответ в исключение.
-         * @param methodKey идентификатор вызываемого метода Feign (интерфейс#метод)
-         * @param response исходный HTTP-ответ от удаленного сервера
-         * @return исключение, которое Feign выбрасывает взывающему коду,
-         * поведение Feign по умолчанию {@code null}
+         * Декодирует ответ от сервера и возвращает исключение {@link RetryableException}
+         * для ошибок в диапазоне 4xx и 5xx.
+         *
+         * @param methodKey
+         *         ключ метода
+         * @param response
+         *         ответ от сервера
+         *
+         * @return исключение {@link RetryableException} для ошибок в диапазоне 4xx и 5xx
          */
         @Override
         public Exception decode(String methodKey, Response response) {
+            String url = response.request().url();
+            int status = response.status();
+            String responseBody = extractResponseBody(response);
+            HttpStatus.Series series = HttpStatus.Series.resolve(status);
+
+            if (series == HttpStatus.Series.SERVER_ERROR) {
+                log.error(
+                        "Received server error response with status: {}, body = {}",
+                        status,
+                        responseBody
+                );
+
+                return new RetryableException(
+                        response.status(),
+                        "Received server error response executing POST " + url,
+                        response.request().httpMethod(),
+                        (Long) null,
+                        response.request()
+                );
+            } else if (series == HttpStatus.Series.CLIENT_ERROR) {
+                log.error(
+                        "Received client error response with status: {}, body = {}",
+                        status,
+                        responseBody
+                );
+
+                return new Exception("Client error occurred. Status: " + status + ", URL: " + url);
+            }
+
+            return super.decode(methodKey, response);
+        }
+
+    }
+
+    /**
+     * Извлекает тело ответа и возвращает его в виде строки.
+     *
+     * @param response
+     *         ответ от сервера
+     *
+     * @return тело ответа в виде строки
+     */
+    private static String extractResponseBody(Response response) {
+        if (response.body() != null) {
             try {
-                return new FeignClientExceptionWithResponse(response);
-            } catch (IOException ignored) {
+                return IOUtils.toString(response.body().asInputStream(), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                log.error("Error reading response body", e);
             }
-            return null;
         }
 
-        /**
-         * Исключение Feign со статусом и текстом тела ответа (читается как UTF-8),
-         * при отсутствии тела вовращается пустая строка.
-         */
-        @Getter
-        public static class FeignClientExceptionWithResponse extends FeignException {
-
-            /**
-             * HTTP-стутус ответа.
-             */
-            private final int status;
-
-            /**
-             * Тело ответа в формате UTF-8 либо пустая строка.
-             */
-            private final String body;
-
-            /**
-             * Конструктор исключения, сохраняет из ошибочного ответа Feign HTTP-статус и тело ответа
-             * для дальнейшего логирования и обработки.
-             * @param response исходный HTTP-ответ Feign
-             * @throws IOException при ошибке чтения ответа
-             */
-            protected FeignClientExceptionWithResponse(Response response)
-                    throws IOException {
-                super(response.status(), "Feign client error", response.request());
-                this.status = response.status();
-                this.body = response.body() == null ? "" :
-                        StreamUtils.copyToString(
-                                response.body().asInputStream(),
-                                StandardCharsets.UTF_8
-                        );
-            }
-
-        }
-
+        return "No response body";
     }
 
 }
