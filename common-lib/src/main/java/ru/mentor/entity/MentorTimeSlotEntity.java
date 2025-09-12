@@ -13,6 +13,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -125,4 +127,10 @@ public class MentorTimeSlotEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<UserEntity> meetingParticipants = new HashSet<>();
 
+    /**
+     * Связь слота и его брони.
+     */
+    @OneToMany(mappedBy = "slot",
+            cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<BookedTimeSlotEntity> bookings = new HashSet<>();
 }

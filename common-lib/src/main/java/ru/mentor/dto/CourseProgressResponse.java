@@ -1,8 +1,11 @@
 package ru.mentor.dto;
 
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO для передачи информации о прогрессе курса.
@@ -10,6 +13,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CourseProgressResponse {
 
     /**

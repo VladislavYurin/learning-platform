@@ -1,5 +1,6 @@
 package ru.mentor.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -134,10 +135,22 @@ public class AccessServiceImpl implements AccessService {
     @Override
     public void deleteCourseAccessToUser(String rqUId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
-        userRepository.findByIdOrThrow(request.getUserId());
+        UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
         checkUserIsAuthorOrAdmin(rqUId, mentor, course);
         accessChecker.hasAccessToCourse(request.getUserId(), request.getCourseId());
+        
+        // Получаем запись о доступе перед удалением, чтобы получить дату отзыва
+        UserCourseAccessEntity access = userCourseAccessRepository
+                .findByUserIdAndCourseId(request.getUserId(), request.getCourseId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Доступ пользователя %d к курсу %d не найден", 
+                                request.getUserId(), request.getCourseId()),
+                        rqUId));
+        
+        LocalDateTime accessRevokedAt = LocalDateTime.now();
+        
+        // Удаляем доступ к курсу и всем его модулям
         userCourseAccessRepository.deleteByUserIdAndCourseId(
                 request.getUserId(),
                 request.getCourseId()
@@ -146,6 +159,9 @@ public class AccessServiceImpl implements AccessService {
                 request.getUserId(),
                 request.getCourseId()
         );
+        
+        // Отправляем уведомление об отзыве доступа к курсу
+        kafkaFacade.sendCourseAccessRevokedMessage(user, mentor, course, accessRevokedAt);
     }
 
     /**
@@ -159,17 +175,32 @@ public class AccessServiceImpl implements AccessService {
     @Override
     public void deleteModuleAccessToUser(String rqUId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
-        userRepository.findByIdOrThrow(request.getUserId());
+        UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
         ModuleEntity module = moduleRepository.findByIdOrThrow(request.getModuleId());
         checkUserIsAuthorOrAdmin(rqUId, mentor, course);
         checkModuleIsInCourse(rqUId, course, module);
         accessChecker.hasAccessToCourse(request.getUserId(), request.getCourseId());
         accessChecker.hasAccessToModule(request.getUserId(), request.getModuleId());
+        
+        // Проверяем существование доступа перед удалением
+        if (!userModuleAccessRepository.existsByUserIdAndModuleId(request.getUserId(), request.getModuleId())) {
+            throw new EntityNotFoundException(
+                    String.format("Доступ пользователя %d к модулю %d не найден", 
+                            request.getUserId(), request.getModuleId()),
+                    rqUId);
+        }
+        
+        LocalDateTime accessRevokedAt = LocalDateTime.now();
+        
+        // Удаляем доступ к модулю
         userModuleAccessRepository.deleteByUserIdAndModuleId(
                 request.getUserId(),
                 request.getModuleId()
         );
+        
+        // Отправляем уведомление об отзыве доступа к модулю
+        kafkaFacade.sendModuleAccessRevokedMessage(user, mentor, course, module, accessRevokedAt);
     }
 
     /**

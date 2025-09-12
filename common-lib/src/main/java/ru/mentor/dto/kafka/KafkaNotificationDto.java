@@ -1,7 +1,9 @@
 package ru.mentor.dto.kafka;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.mentor.constant.NotificationTypeEnum;
 import ru.mentor.dto.UserInfoDto;
 
@@ -12,6 +14,8 @@ import ru.mentor.dto.UserInfoDto;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class KafkaNotificationDto {
 
     /**

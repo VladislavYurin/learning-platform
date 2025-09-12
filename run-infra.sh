@@ -1,1 +1,1 @@
-docker-compose up database kafka-1
+docker-compose up database kafka-1 kafka-ui

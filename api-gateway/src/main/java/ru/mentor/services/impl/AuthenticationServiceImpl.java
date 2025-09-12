@@ -12,6 +12,7 @@ import ru.mentor.dto.auth.AuthRequest;
 import ru.mentor.dto.auth.JwtAuthResponse;
 import ru.mentor.dto.auth.RegRequest;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.services.AuthenticationService;
 import ru.mentor.services.JwtService;
 import ru.mentor.services.UserService;
@@ -28,6 +29,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final KafkaFacade kafkaFacade;
 
     /**
      * Регистрация пользователя
@@ -50,6 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                              .build();
 
         userService.create(user);
+        kafkaFacade.sendUserRegistrationMessage(user);
         return generateTokens(user);
 
     }

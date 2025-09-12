@@ -5,19 +5,28 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CalendarServiceGrpc;
 import ru.mentor.calendar.CreateTimeSlotRequest;
-import ru.mentor.calendar.MentorSlotsInfoRequest;
-import ru.mentor.calendar.MentorSlotsInfoResponse;
 import ru.mentor.calendar.TimeSlotResponse;
+import ru.mentor.constant.BookingStatus;
+import ru.mentor.dto.UserInfoDto;
+import ru.mentor.entity.BookedTimeSlotEntity;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.TimeSlotUnavailableException;
 import ru.mentor.exception.UserException;
+import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
+import ru.mentor.kafka.KafkaFacade;
+import ru.mentor.repository.BookedTimeSlotRepository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -37,6 +46,12 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
     private final UserRepository userRepository;
 
     private final MentorTimeSlotRepository mentorTimeSlotRepository;
+
+    private final BookedTimeSlotRepository bookedTimeSlotRepository;
+
+    private final KafkaFacade kafkaFacade;
+
+    private final BaseMapper baseMapper;
 
     /**
      * Создает временной слот для ментора.
@@ -76,11 +91,15 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
     /**
      * gRPC-эндпоинт для бронирования слота учеником.
      * Возвращает ответ через объект {@link StreamObserver}
-     *
-     * @param request {@link BookTimeSlotRequest}
-     * @param responseObserver {@link StreamObserver}
+     * Планирует отправку уведомлений в Kafka после успешного коммита транзакции.
+     * Для отправки сообщений в Kafka используется {@link TransactionSynchronizationManager}
+     * который держит контекст текущей транзакции в ThreadLocal и позволяет подписаться
+     * на колбэки жизненного цикла транзакции после коммита.
+     * @param request запрос на бронирование {@link BookTimeSlotRequest}
+     * @param responseObserver наблюдатель отправки ответа клиенту {@link StreamObserver}
      */
     @Override
+    @Transactional
     public void bookTimeslot(
             BookTimeSlotRequest request,
             StreamObserver<TimeSlotResponse> responseObserver
@@ -99,12 +118,38 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             MentorTimeSlotEntity slotEntity = mentorTimeSlotRepository.findByIdOrThrow(slotId);
 
             checkSlotIsAvailable(slotEntity, userId);
+            checkSlotNotBooked(slotEntity);
 
-            slotEntity.getMeetingParticipants().add(user);
-            MentorTimeSlotEntity bookedTimeSlot = mentorTimeSlotRepository.save(slotEntity);
+            BookedTimeSlotEntity booking = bookedTimeSlotRepository.save(
+                    BookedTimeSlotEntity.builder()
+                            .mentor(slotEntity.getMentor())
+                            .mentee(user)
+                            .startTime(slotEntity.getStartTime())
+                            .endTime(slotEntity.getEndTime())
+                            .status(BookingStatus.CONFIRMED)
+                            .slot(slotEntity)
+                            .build()
+            );
 
-            responseObserver.onNext(timeSlotMapper.entityToGrpcResponse(bookedTimeSlot, rqUId));
+            responseObserver.onNext(timeSlotMapper.entityToGrpcResponse(slotEntity, rqUId));
             responseObserver.onCompleted();
+
+            UserInfoDto mentorDto = baseMapper.mapUserDto(slotEntity.getMentor());
+            UserInfoDto menteeDto = baseMapper.mapUserDto(user);
+            LocalDateTime startAt = booking.getStartTime();
+            LocalDateTime endAt = booking.getEndTime();
+
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override public void afterCommit() {
+                    try {
+                        kafkaFacade.sendCreateSlotBookedMessage(
+                                mentorDto, menteeDto, startAt, endAt);
+                    } catch (Exception ex) {
+                        log.error("Kafka: sendCreateSlotBookedMessage failed (slotId={}, mentorId={})",
+                                slotEntity.getId(), slotEntity.getMentor().getId(), ex);
+                    }
+                }
+            });
 
         } catch (TimeSlotUnavailableException e){
             responseObserver.onError(Status.UNAVAILABLE
@@ -117,7 +162,7 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
         }
     }
 
-    private void checkSlotIsAvailable(MentorTimeSlotEntity slotEntity, Long userId) throws TimeSlotUnavailableException {
+    private void checkSlotIsAvailable(MentorTimeSlotEntity slotEntity, Long userId) throws TimeSlotUnavailableException{
         if (slotIsFull(slotEntity))
             throw new TimeSlotUnavailableException(
                     "На встрече нет свободных мест"
@@ -147,29 +192,16 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
     }
 
     /**
-     * gRPC - эндпоинт для получения всех слотов ментора
-     *
-     * @param request сгенерированный из proto {@link MentorSlotsInfoRequest}
-     * @param responseObserver - объект {@link StreamObserver} для возврата ответа
+     * Проверяет отсутствие активных броней переданного слота.
+     * @param slot временной слот наставника, для которого выполняется проверка
      */
-
-    @Override
-    public void getMentorSlots(MentorSlotsInfoRequest request,
-                               StreamObserver<MentorSlotsInfoResponse> responseObserver) {
-
-        String rqUId = request.getRqUid();
-        long mentorId = request.getMentorId();
-
-        log.info("Поступил запрос {} в gRPC сервис на получение всех слотов ментора с ID {}",
-                rqUId, mentorId);
-
-        List<MentorTimeSlotEntity> mentorSlots =
-                mentorTimeSlotRepository.findByMentorIdWithParticipants(mentorId);
-
-        MentorSlotsInfoResponse response =
-                timeSlotMapper.convertToMentorSlotsInfoResponse(mentorSlots, rqUId);
-
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+    private void checkSlotNotBooked(MentorTimeSlotEntity slot) {
+        long active = bookedTimeSlotRepository.countBySlotIdAndStatusIn(
+                slot.getId(),
+                List.of(BookingStatus.REQUESTED, BookingStatus.CONFIRMED)
+        );
+        if (active > 0) {
+            throw new TimeSlotUnavailableException("Слот уже забронирован");
+        }
     }
 }

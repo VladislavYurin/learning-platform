@@ -21,10 +21,12 @@ import ru.mentor.calendar.TimeSlotResponse;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.constant.Role;
+import ru.mentor.entity.BookedTimeSlotEntity;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.mapper.TimeSlotMapper;
+import ru.mentor.repository.BookedTimeSlotRepository;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
 
@@ -32,7 +34,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,6 +53,9 @@ class CalendarServiceServerTest {
 
     @Mock
     private MentorTimeSlotRepository mentorTimeSlotRepository;
+
+    @Mock
+    BookedTimeSlotRepository bookedTimeSlotRepository;
 
     @Spy
     private TimeSlotMapper timeSlotMapper;
@@ -183,19 +187,12 @@ class CalendarServiceServerTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        MentorTimeSlotEntity savedTimeSlot = MentorTimeSlotEntity.builder()
+        BookedTimeSlotEntity savedTimeSlot = BookedTimeSlotEntity.builder()
                 .id(1L)
                 .mentor(mentorUser)
+                .mentee(testUser)
                 .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
                 .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
-                .slotType(CalendarSlotType.INDIVIDUAL)
-                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
-                .maxParticipants(maxParticipants)
-                .meetingLink(meetingLink)
-                .description(description)
-                .isActive(true)
-                .createdAt(LocalDateTime.now())
-                .meetingParticipants(Set.of(testUser))
                 .build();
 
         @SuppressWarnings("unchecked")
@@ -204,7 +201,7 @@ class CalendarServiceServerTest {
         Mockito.when(userRepository.findByIdOrThrow(userId)).thenReturn(testUser);
         Mockito.when(mentorTimeSlotRepository.findByIdOrThrow(timeSlotId)).thenReturn(originTimeSlot);
         Mockito.when(mentorTimeSlotRepository.existsOverlappingSlots(anyLong(), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(false);
-        Mockito.when(mentorTimeSlotRepository.save(any(MentorTimeSlotEntity.class))).thenReturn(savedTimeSlot);
+        Mockito.when(bookedTimeSlotRepository.save(any(BookedTimeSlotEntity.class))).thenReturn(savedTimeSlot);
 
         // When
         calendarServiceServer.bookTimeslot(request, responseObserver);
