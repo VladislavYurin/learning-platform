@@ -1,12 +1,12 @@
 package ru.mentor.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -23,28 +23,25 @@ import ru.mentor.services.AuthenticationService;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Аутентификация")
+@Tag(name = "Auth Management", description = "Регистрация и авторизация")
 public class AuthController {
 
     private final AuthenticationService authenticationService;
 
-    /**
-     * Регистрация нового пользователя
-     * @param request содержит нужные данные для регистрации
-     * @return JwtAuthenticationResponse, хранящий токен в виде строки
-     */
-    @Operation(summary = "Регистрация пользователя")
+    @Operation(
+            summary = "Регистрация пользователя",
+            description = "Позволяет зарегистрировать пользователя с ролью USER",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Регистрация успешна"),
+                    @ApiResponse(responseCode = "400", description = "Пользователь уже существует"),
+            }
+    )
     @PostMapping("/reg")
     @PermitAll
     public JwtAuthResponse registration(@RequestBody @Valid RegRequest request) {
         return authenticationService.registration(request);
     }
 
-    /**
-     * Авторизация пользователя
-     * @param request вмещает необходимые данные для авторизации
-     * @return JwtAuthenticationResponse, хранящий токен в виде строки
-     */
     @Operation(summary = "Авторизация пользователя")
     @PostMapping("/login")
     @PermitAll
@@ -52,19 +49,13 @@ public class AuthController {
         return authenticationService.authentication(request);
     }
 
-    /**
-     * Обновление токена
-     * @param authHeader хранить данные из перехваченного заголовка Authorization
-     * @return JwtAuthenticationResponse, хранящий токен в виде строки
-     */
     @Operation(summary = "Обновление токена")
-    @GetMapping("/token/refresh")
-    public JwtAuthResponse refreshToken(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    @PostMapping("/token/refresh")
+    public JwtAuthResponse refreshToken(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String refreshToken) {
+        if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
             throw new RuntimeException("Отсутствует токен");
         }
-
-        String token = authHeader.substring(7);
-        return authenticationService.refreshToken(token);
+        return authenticationService.refreshToken(refreshToken.substring(7));
     }
+
 }

@@ -4,18 +4,46 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Валидатор для проверки корректности Markdown файлов.
+ * Проверяет файл на пустоту, тип содержимого, размер и расширение файла.
+ */
 public class MarkdownFileValidator implements
         ConstraintValidator<ValidMarkdownFile, MultipartFile> {
 
+    /**
+     * Максимально допустимый размер файла в байтах.
+     */
     private long maxSize;
+
+    /**
+     * Массив разрешенных типов содержимого файла.
+     */
     private String[] allowedTypes;
 
+    /**
+     * Инициализирует валидатор с параметрами из аннотации.
+     *
+     * @param constraint аннотация с параметрами валидации
+     */
     @Override
     public void initialize(ValidMarkdownFile constraint) {
         this.maxSize = constraint.maxSize();
         this.allowedTypes = constraint.allowedTypes();
     }
 
+    /**
+     * Проверяет корректность переданного файла.
+     * Выполняет следующие проверки:
+     * - файл не пустой
+     * - тип содержимого соответствует разрешенным
+     * - размер файла не превышает максимальный
+     * - файл имеет расширение .md
+     *
+     * @param file файл для валидации
+     * @param context контекст валидатора
+     * @return true, если файл прошел все проверки, иначе false
+     */
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
         if (file == null || file.isEmpty()) {
@@ -52,6 +80,12 @@ public class MarkdownFileValidator implements
         return true;
     }
 
+    /**
+     * Проверяет, является ли тип содержимого файла допустимым.
+     *
+     * @param contentType тип содержимого файла
+     * @return true, если тип содержимого допустим, иначе false
+     */
     private boolean isContentTypeValid(String contentType) {
         if (contentType == null) {
             return false;
@@ -64,6 +98,12 @@ public class MarkdownFileValidator implements
         return false;
     }
 
+    /**
+     * Добавляет нарушение ограничения в контекст валидации с указанным сообщением.
+     *
+     * @param context контекст валидатора
+     * @param message сообщение об ошибке
+     */
     private void addConstraintViolation(ConstraintValidatorContext context, String message) {
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message)

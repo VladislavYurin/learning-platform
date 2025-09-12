@@ -1,5 +1,6 @@
 package ru.mentor.services.impl;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -8,13 +9,12 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.services.JwtService;
-import io.jsonwebtoken.Claims;
-import java.util.function.Function;
 
 /**
  * Реализация {@link JwtService} для генерации, валидации и извлечения данных из JWT-токенов.
@@ -22,13 +22,30 @@ import java.util.function.Function;
 @Service
 public class JwtServiceImpl implements JwtService {
 
+    /**
+     * Ключ подписи JWT.
+     */
     @Value("${token.signing.key}")
     private String jwtSigningKey;
 
     /**
+     * Время жизни access-токена в минутах.
+     */
+    @Value("${token.access.expiration.minutes}")
+    private long accessExpirationMinutes;
+
+    /**
+     * Время жизни refresh-токена в днях.
+     */
+    @Value("${token.refresh.expiration.day}")
+    private long refreshExpirationDays;
+
+    /**
      * Извлечение имени пользователя из токена
      *
-     * @param token токен
+     * @param token
+     *         токен
+     *
      * @return имя пользователя
      */
     @Override
@@ -37,26 +54,13 @@ public class JwtServiceImpl implements JwtService {
     }
 
     /**
-     * Генерация токена
-     *
-     * @param userDetails данные пользователя
-     * @return токен
-     */
-    @Override
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        if (userDetails instanceof UserEntity customUserEntityDetails) {
-            claims.put("id", customUserEntityDetails.getId());
-            claims.put("role", customUserEntityDetails.getRole().name());
-        }
-        return generateToken(claims, userDetails);
-    }
-
-    /**
      * Проверка токена на валидность
      *
-     * @param token       токен
-     * @param userDetails данные пользователя
+     * @param token
+     *         токен
+     * @param userDetails
+     *         данные пользователя
+     *
      * @return true, если токен валиден
      */
     @Override
@@ -66,11 +70,35 @@ public class JwtServiceImpl implements JwtService {
     }
 
     /**
+     * Генерирует короткоживущий access-токен для указанного пользователя.
+     * @param userDetails объект с деталями пользователя
+     * @return строковое представление JWT access-токена
+     */
+    @Override
+    public String generateToken(UserDetails userDetails) {
+        return buildToken(userDetails, 1000 * 60 * accessExpirationMinutes);
+    }
+
+    /**
+     * Генерирует долгоживущий refresh-токен для указанного пользователя.
+     * @param userDetails данные пользователя
+     * @return строковое представление JWT refresh-токена
+     */
+    @Override
+    public String generateRefreshToken(UserDetails userDetails) {
+        return buildToken(userDetails, refreshExpirationDays * 24 * 60 * 60 * 1000);
+    }
+
+    /**
      * Извлечение данных из токена
      *
-     * @param token           токен
-     * @param claimsResolvers функция извлечения данных
-     * @param <T>             тип данных
+     * @param token
+     *         токен
+     * @param claimsResolvers
+     *         функция извлечения данных
+     * @param <T>
+     *         тип данных
+     *
      * @return данные
      */
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
@@ -79,23 +107,32 @@ public class JwtServiceImpl implements JwtService {
     }
 
     /**
-     * Генерация токена
-     *
-     * @param extraClaims дополнительные данные
+     * Собирает JWT с общими полями и подписью.
      * @param userDetails данные пользователя
-     * @return токен
+     * @param expirationMs срок жизни токена в миллисекундах
+     * @return собранный и подписанный токен в виде строки
      */
-    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
-                   .setIssuedAt(new Date(System.currentTimeMillis()))
-                   .setExpiration(new Date(System.currentTimeMillis() + 100000 * 60 * 24))
-                   .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+    private String buildToken(UserDetails userDetails, long expirationMs) {
+        Map<String, Object> claims = new HashMap<>();
+        if (userDetails instanceof UserEntity user) {
+            claims.put("id", user.getId());
+            claims.put("role", user.getRole().name());
+        }
+        return Jwts.builder()
+                   .setClaims(claims)
+                   .setSubject(userDetails.getUsername())
+                   .setIssuedAt(new Date())
+                   .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                   .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                   .compact();
     }
 
     /**
      * Проверка токена на просроченность
      *
-     * @param token токен
+     * @param token
+     *         токен
+     *
      * @return true, если токен просрочен
      */
     private boolean isTokenExpired(String token) {
@@ -105,7 +142,9 @@ public class JwtServiceImpl implements JwtService {
     /**
      * Извлечение даты истечения токена
      *
-     * @param token токен
+     * @param token
+     *         токен
+     *
      * @return дата истечения
      */
     private Date extractExpiration(String token) {
@@ -115,7 +154,9 @@ public class JwtServiceImpl implements JwtService {
     /**
      * Извлечение всех данных из токена
      *
-     * @param token токен
+     * @param token
+     *         токен
+     *
      * @return данные
      */
     private Claims extractAllClaims(String token) {
@@ -132,4 +173,5 @@ public class JwtServiceImpl implements JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSigningKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
 }
