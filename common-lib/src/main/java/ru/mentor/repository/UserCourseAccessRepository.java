@@ -1,6 +1,8 @@
 package ru.mentor.repository;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.mentor.entity.UserCourseAccessEntity;
@@ -37,7 +39,7 @@ public interface UserCourseAccessRepository extends JpaRepository<UserCourseAcce
      * @param courseId идентификатор курса
      * @return сущность доступа пользователя к курсу или null, если доступ не найден
      */
-    UserCourseAccessEntity findByUserIdAndCourseId(Long userId, Long courseId);
+    Optional<UserCourseAccessEntity> findByUserIdAndCourseId(Long userId, Long courseId);
 
     /**
      * Удаляет запись доступа пользователя к указанному курсу.

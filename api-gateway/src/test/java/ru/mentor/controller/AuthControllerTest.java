@@ -2,10 +2,14 @@ package ru.mentor.controller;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -14,6 +18,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.mentor.ApiGatewayApplication;
+import ru.mentor.dto.kafka.KafkaNotificationDto;
+import ru.mentor.kafka.KafkaProducerServiceImpl;
 import ru.mentor.utils.AuthTestUtil;
 
 @Testcontainers
@@ -27,6 +33,12 @@ public class AuthControllerTest {
 
     @Autowired
     private AuthTestUtil testUtil;
+
+    @MockBean(name = "kafkaTemplate")
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    @MockBean
+    KafkaProducerServiceImpl kafkaProducerService;
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
@@ -53,15 +65,26 @@ public class AuthControllerTest {
         registry.add("spring.liquibase.enabled", () -> "false");
     }
 
+    @BeforeEach
+    void stubPublisher() {
+        Mockito.doNothing().when(kafkaProducerService)
+                .send(Mockito.any(KafkaNotificationDto.class));
+    }
     @Test
     void reg_Success() throws Exception {
         testUtil.getRegistration(mockMvc);
+
+        Mockito.verify(kafkaProducerService, Mockito.atLeastOnce())
+                .send(Mockito.any(KafkaNotificationDto.class));
     }
 
     @Test
     void login_Success() throws Exception {
         testUtil.getRegistration(mockMvc);
         testUtil.getAuth(mockMvc);
+
+        Mockito.verify(kafkaProducerService, Mockito.atLeastOnce())
+                .send(Mockito.any(KafkaNotificationDto.class));
     }
 
 }

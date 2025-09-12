@@ -124,5 +124,4 @@ public class MentorTimeSlotEntity {
             joinColumns = @JoinColumn(name = "time_slot_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<UserEntity> meetingParticipants = new HashSet<>();
-
 }

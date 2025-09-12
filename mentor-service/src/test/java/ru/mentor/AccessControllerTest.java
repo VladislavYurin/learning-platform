@@ -33,7 +33,7 @@ import ru.mentor.repository.UserCourseAccessRepository;
 import ru.mentor.testUtil.CommonTestUtil;
 
 @Testcontainers
-@SpringBootTest(classes = MentorApplication.class)
+@SpringBootTest(classes = MentorApplication.class, properties = "grpc.server.port=0")
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class AccessControllerTest {

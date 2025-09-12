@@ -1,7 +1,9 @@
 package ru.mentor.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.mentor.constant.Role;
 
 /**
@@ -10,6 +12,8 @@ import ru.mentor.constant.Role;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserInfoDto {
 
     /**

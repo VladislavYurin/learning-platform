@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CreateTimeSlotRequest;
 import ru.mentor.calendar.SlotMeetingType;
@@ -32,6 +34,8 @@ import ru.mentor.constant.Role;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.EntityNotFoundException;
+import ru.mentor.kafka.KafkaFacade;
+import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
@@ -44,6 +48,12 @@ class CalendarServiceServerTest {
 
     @Mock
     private MentorTimeSlotRepository mentorTimeSlotRepository;
+
+    @Mock
+    private KafkaFacade kafkaFacade;
+
+    @Mock
+    private BaseMapper baseMapper;
 
     @Spy
     private TimeSlotMapper timeSlotMapper;
@@ -86,6 +96,17 @@ class CalendarServiceServerTest {
 
     }
 
+    @BeforeEach
+    void initSync() {
+        TransactionSynchronizationManager.initSynchronization();
+    }
+
+    @AfterEach
+    void clearSync() {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
     @Test
     void createMentorTimeSlot_Success() {
         Timestamp startTime = Timestamp.newBuilder()
@@ -110,31 +131,18 @@ class CalendarServiceServerTest {
                                                              .build();
 
         MentorTimeSlotEntity savedTimeSlot = MentorTimeSlotEntity.builder()
-                                                                 .id(mentorId)
-                                                                 .mentor(mentorUser)
-                                                                 .startTime(LocalDateTime.of(
-                                                                         2025,
-                                                                         1,
-                                                                         15,
-                                                                         13,
-                                                                         0
-                                                                 ))
-                                                                 .endTime(LocalDateTime.of(
-                                                                         2025,
-                                                                         1,
-                                                                         15,
-                                                                         14,
-                                                                         0
-                                                                 ))
-                                                                 .slotType(CalendarSlotType.INDIVIDUAL)
-                                                                 .slotMeetingType(
-                                                                         CalendarSlotMeetingType.COMMUNICATION)
-                                                                 .maxParticipants(maxParticipants)
-                                                                 .meetingLink(meetingLink)
-                                                                 .description(description)
-                                                                 .isActive(true)
-                                                                 .createdAt(LocalDateTime.now())
-                                                                 .build();
+                .id(mentorId)
+                .mentor(mentorUser)
+                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
+                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
+                .slotType(CalendarSlotType.INDIVIDUAL)
+                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(maxParticipants)
+                .meetingLink(meetingLink)
+                .description(description)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         @SuppressWarnings("unchecked")
         StreamObserver<TimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -175,61 +183,34 @@ class CalendarServiceServerTest {
                                                          .build();
 
         MentorTimeSlotEntity originTimeSlot = MentorTimeSlotEntity.builder()
-                                                                  .id(1L)
-                                                                  .mentor(mentorUser)
-                                                                  .startTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          13,
-                                                                          0
-                                                                  ))
-                                                                  .endTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          14,
-                                                                          0
-                                                                  ))
-                                                                  .slotType(CalendarSlotType.INDIVIDUAL)
-                                                                  .slotMeetingType(
-                                                                          CalendarSlotMeetingType.COMMUNICATION)
-                                                                  .maxParticipants(maxParticipants)
-                                                                  .meetingParticipants(new HashSet<UserEntity>())
-                                                                  .meetingLink(meetingLink)
-                                                                  .description(description)
-                                                                  .isActive(true)
-                                                                  .createdAt(LocalDateTime.now())
-                                                                  .build();
+                .id(1L)
+                .mentor(mentorUser)
+                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
+                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
+                .slotType(CalendarSlotType.INDIVIDUAL)
+                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(maxParticipants)
+                .meetingParticipants(new HashSet<UserEntity>())
+                .meetingLink(meetingLink)
+                .description(description)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         MentorTimeSlotEntity savedTimeSlot = MentorTimeSlotEntity.builder()
-                                                                 .id(1L)
-                                                                 .mentor(mentorUser)
-                                                                 .startTime(LocalDateTime.of(
-                                                                         2025,
-                                                                         1,
-                                                                         15,
-                                                                         13,
-                                                                         0
-                                                                 ))
-                                                                 .endTime(LocalDateTime.of(
-                                                                         2025,
-                                                                         1,
-                                                                         15,
-                                                                         14,
-                                                                         0
-                                                                 ))
-                                                                 .slotType(CalendarSlotType.INDIVIDUAL)
-                                                                 .slotMeetingType(
-                                                                         CalendarSlotMeetingType.COMMUNICATION)
-                                                                 .maxParticipants(maxParticipants)
-                                                                 .meetingLink(meetingLink)
-                                                                 .description(description)
-                                                                 .isActive(true)
-                                                                 .createdAt(LocalDateTime.now())
-                                                                 .meetingParticipants(Set.of(
-                                                                         testUser))
-                                                                 .build();
+                .id(1L)
+                .mentor(mentorUser)
+                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
+                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
+                .slotType(CalendarSlotType.INDIVIDUAL)
+                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(maxParticipants)
+                .meetingLink(meetingLink)
+                .description(description)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .meetingParticipants(Set.of(testUser))
+                .build();
 
         @SuppressWarnings("unchecked")
         StreamObserver<TimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -242,9 +223,8 @@ class CalendarServiceServerTest {
                 ArgumentMatchers.any(LocalDateTime.class),
                 ArgumentMatchers.any(LocalDateTime.class)
         )).thenReturn(false);
-        Mockito.when(mentorTimeSlotRepository.save(ArgumentMatchers.any(MentorTimeSlotEntity.class)))
-               .thenReturn(
-                       savedTimeSlot);
+        Mockito.when(mentorTimeSlotRepository.saveAndFlush(ArgumentMatchers.any(MentorTimeSlotEntity.class)))
+               .thenReturn(savedTimeSlot);
 
         calendarServiceServer.bookTimeslot(request, responseObserver);
 
@@ -273,7 +253,7 @@ class CalendarServiceServerTest {
     }
 
     @Test
-    void bookTimeSlot_slotIsAlreadyFull_throwException() {
+    void bookTimeSlot_slotIsAlreadyFull_throwException(){
         BookTimeSlotRequest request = BookTimeSlotRequest.newBuilder()
                                                          .setRqUid(requestUUID)
                                                          .setSlotId(timeSlotId)
@@ -281,32 +261,19 @@ class CalendarServiceServerTest {
                                                          .build();
 
         MentorTimeSlotEntity originTimeSlot = MentorTimeSlotEntity.builder()
-                                                                  .id(1L)
-                                                                  .mentor(mentorUser)
-                                                                  .startTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          13,
-                                                                          0
-                                                                  ))
-                                                                  .endTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          14,
-                                                                          0
-                                                                  ))
-                                                                  .slotType(CalendarSlotType.INDIVIDUAL)
-                                                                  .slotMeetingType(
-                                                                          CalendarSlotMeetingType.COMMUNICATION)
-                                                                  .maxParticipants(0)
-                                                                  .meetingParticipants(new HashSet<UserEntity>())
-                                                                  .meetingLink(meetingLink)
-                                                                  .description(description)
-                                                                  .isActive(true)
-                                                                  .createdAt(LocalDateTime.now())
-                                                                  .build();
+                .id(1L)
+                .mentor(mentorUser)
+                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
+                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
+                .slotType(CalendarSlotType.INDIVIDUAL)
+                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(0)
+                .meetingParticipants(new HashSet<UserEntity>())
+                .meetingLink(meetingLink)
+                .description(description)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         @SuppressWarnings("unchecked")
         StreamObserver<TimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -348,32 +315,20 @@ class CalendarServiceServerTest {
                                                          .build();
 
         MentorTimeSlotEntity originTimeSlot = MentorTimeSlotEntity.builder()
-                                                                  .id(1L)
-                                                                  .mentor(mentorUser)
-                                                                  .startTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          13,
-                                                                          0
-                                                                  ))
-                                                                  .endTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          14,
-                                                                          0
-                                                                  ))
-                                                                  .slotType(CalendarSlotType.INDIVIDUAL)
-                                                                  .slotMeetingType(
-                                                                          CalendarSlotMeetingType.COMMUNICATION)
-                                                                  .maxParticipants(1)
-                                                                  .meetingParticipants(new HashSet<UserEntity>())
-                                                                  .meetingLink(meetingLink)
-                                                                  .description(description)
-                                                                  .isActive(false)
-                                                                  .createdAt(LocalDateTime.now())
-                                                                  .build();
+                .id(1L)
+                .mentor(mentorUser)
+                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
+                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
+                .slotType(CalendarSlotType.INDIVIDUAL)
+                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(1)
+                .meetingParticipants(new HashSet<UserEntity>())
+                .meetingLink(meetingLink)
+                .description(description)
+                .isActive(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+
 
         @SuppressWarnings("unchecked")
         StreamObserver<TimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -415,32 +370,19 @@ class CalendarServiceServerTest {
                                                          .build();
 
         MentorTimeSlotEntity originTimeSlot = MentorTimeSlotEntity.builder()
-                                                                  .id(1L)
-                                                                  .mentor(mentorUser)
-                                                                  .startTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          13,
-                                                                          0
-                                                                  ))
-                                                                  .endTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          14,
-                                                                          0
-                                                                  ))
-                                                                  .slotType(CalendarSlotType.INDIVIDUAL)
-                                                                  .slotMeetingType(
-                                                                          CalendarSlotMeetingType.COMMUNICATION)
-                                                                  .maxParticipants(1)
-                                                                  .meetingParticipants(new HashSet<UserEntity>())
-                                                                  .meetingLink(meetingLink)
-                                                                  .description(description)
-                                                                  .isActive(true)
-                                                                  .createdAt(LocalDateTime.now())
-                                                                  .build();
+                .id(1L)
+                .mentor(mentorUser)
+                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
+                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
+                .slotType(CalendarSlotType.INDIVIDUAL)
+                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(1)
+                .meetingParticipants(new HashSet<UserEntity>())
+                .meetingLink(meetingLink)
+                .description(description)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         @SuppressWarnings("unchecked")
         StreamObserver<TimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -488,32 +430,19 @@ class CalendarServiceServerTest {
                                                          .build();
 
         MentorTimeSlotEntity originTimeSlot = MentorTimeSlotEntity.builder()
-                                                                  .id(1L)
-                                                                  .mentor(mentorUser)
-                                                                  .startTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          13,
-                                                                          0
-                                                                  ))
-                                                                  .endTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          14,
-                                                                          0
-                                                                  ))
-                                                                  .slotType(CalendarSlotType.INDIVIDUAL)
-                                                                  .slotMeetingType(
-                                                                          CalendarSlotMeetingType.COMMUNICATION)
-                                                                  .maxParticipants(1)
-                                                                  .meetingParticipants(new HashSet<UserEntity>())
-                                                                  .meetingLink(meetingLink)
-                                                                  .description(description)
-                                                                  .isActive(true)
-                                                                  .createdAt(LocalDateTime.now())
-                                                                  .build();
+                .id(1L)
+                .mentor(mentorUser)
+                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
+                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
+                .slotType(CalendarSlotType.INDIVIDUAL)
+                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(1)
+                .meetingParticipants(new HashSet<UserEntity>())
+                .meetingLink(meetingLink)
+                .description(description)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         @SuppressWarnings("unchecked")
         StreamObserver<TimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -524,6 +453,7 @@ class CalendarServiceServerTest {
                         userId
                 )
         ));
+
         calendarServiceServer.bookTimeslot(request, responseObserver);
 
         Mockito.verify(userRepository).findByIdOrThrow(userId);
@@ -561,32 +491,19 @@ class CalendarServiceServerTest {
                                                          .build();
 
         MentorTimeSlotEntity originTimeSlot = MentorTimeSlotEntity.builder()
-                                                                  .id(1L)
-                                                                  .mentor(mentorUser)
-                                                                  .startTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          13,
-                                                                          0
-                                                                  ))
-                                                                  .endTime(LocalDateTime.of(
-                                                                          2025,
-                                                                          1,
-                                                                          15,
-                                                                          14,
-                                                                          0
-                                                                  ))
-                                                                  .slotType(CalendarSlotType.INDIVIDUAL)
-                                                                  .slotMeetingType(
-                                                                          CalendarSlotMeetingType.COMMUNICATION)
-                                                                  .maxParticipants(1)
-                                                                  .meetingParticipants(new HashSet<UserEntity>())
-                                                                  .meetingLink(meetingLink)
-                                                                  .description(description)
-                                                                  .isActive(true)
-                                                                  .createdAt(LocalDateTime.now())
-                                                                  .build();
+                .id(1L)
+                .mentor(mentorUser)
+                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
+                .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
+                .slotType(CalendarSlotType.INDIVIDUAL)
+                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(1)
+                .meetingParticipants(new HashSet<UserEntity>())
+                .meetingLink(meetingLink)
+                .description(description)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         @SuppressWarnings("unchecked")
         StreamObserver<TimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);

@@ -110,3 +110,78 @@ CREATE TABLE IF NOT EXISTS sent_notification
     CONSTRAINT fk_recipient FOREIGN KEY (recipient_id)
     REFERENCES users (id_user)
 );
+
+CREATE TABLE IF NOT EXISTS booked_time_slots
+(
+    id_slot             BIGSERIAL     PRIMARY KEY,
+    mentor_id           BIGINT        NOT NULL,
+    mentee_id           BIGINT        NOT NULL,
+    start_time          TIMESTAMP     NOT NULL,
+    end_time            TIMESTAMP     NOT NULL,
+    slot_id             BIGINT        NOT NULL,
+    booking_status_type VARCHAR(50)   NOT NULL,
+    FOREIGN KEY (mentor_id) REFERENCES users (id_user) ON DELETE RESTRICT,
+    FOREIGN KEY (mentee_id) REFERENCES users (id_user) ON DELETE RESTRICT,
+    FOREIGN KEY (slot_id) REFERENCES mentor_time_slots(id_slot) ON DELETE RESTRICT,
+    CONSTRAINT valid_slot_time CHECK (end_time > start_time),
+    CONSTRAINT booking_status_type CHECK (
+        (booking_status_type IN ('REQUESTED', 'CONFIRMED'))
+        )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_active_booking_per_slot_mentee
+ON booked_time_slots (slot_id, mentee_id)
+WHERE booking_status_type IN ('REQUESTED','CONFIRMED');
+
+-- Вставка шаблонов уведомлений
+INSERT INTO notification_templates(template_type, template_text)
+VALUES
+('COURSE_ACCESS_GRANTED', $$
+Уважаемый %s!
+Вам предоставлен доступ к курсу "%s".
+Доступ предоставил: %s %s
+Дата предоставления: %s$$),
+
+('MODULE_ACCESS_GRANTED', $$
+Уважаемый %s!
+Открыт новый модуль "%s" в курсе "%s".
+Доступ предоставил: %s %s
+Дата предоставления: %s$$),
+
+('COURSE_CREATED_MENTOR', $$
+Уважаемый, %s!
+Создан новый курс "%s".
+Автор курса: %s %s.
+Получатель: %s %s.
+Дата создания: %s.$$),
+
+('MODULE_CREATED_MENTOR', $$
+Уважаемый, %s!
+Создан новый модуль "%s" в курсе "%s".
+Автор модуля: %s %s.
+Получатель: %s %s.
+Дата создания: %s.$$),
+
+('COURSE_DELETED', $$
+Уважаемый, %s!
+Курс "%s" удален.$$),
+
+('USER_REGISTRATION_USER', $$
+Уважаемый, %s!
+Вы успешно зарегистрированы!
+Дата создания: %s.$$),
+
+('COURSE_ACCESS_REVOKED', $$
+Уважаемый, %s!
+Доступ к курсу "%s" отозван.
+Дата создания: %s.$$),
+
+('MODULE_ACCESS_REVOKED', $$
+Уважаемый, %s!
+Доступ к модулю "%s" отозван.
+Дата создания: %s.$$),
+
+('SLOT_BOOKED_MENTOR', $$
+Уважаемый, %s!
+Слот на дату и время: %s - %s
+забронирован пользователем %s %s.$$);

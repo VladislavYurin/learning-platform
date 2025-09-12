@@ -15,6 +15,7 @@ import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.entity.UserModuleAccessEntity;
 import ru.mentor.exception.CustomAccessDeniedException;
+import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.UserCourseAccessRepository;
@@ -44,6 +45,8 @@ public class CourseServiceImpl implements CourseService {
 
     private final UserModuleAccessRepository userModuleAccessRepository;
 
+    private final KafkaFacade kafkaFacade;
+
     /**
      * Создает новый курс от имени пользователя (ментора или администратора).
      *
@@ -62,6 +65,9 @@ public class CourseServiceImpl implements CourseService {
             course.setCourseTitle(request.getCourseName());
             course.setDescription(request.getCourseDescription());
             CourseEntity courseEntity = courseRepository.save(course);
+
+            UserEntity mentor = user;
+            kafkaFacade.sendCourseCreatedMessage(courseEntity, mentor, user);
             return baseMapper.mapCourse(courseEntity, user, false, false);
         } else {
             throw new CustomAccessDeniedException(
@@ -89,12 +95,14 @@ public class CourseServiceImpl implements CourseService {
         // Админ может удалять любой курс
         if (Role.checkIsAdmin(deletedByUser)) {
             courseRepository.deleteById(courseId);
+            kafkaFacade.sendCourseDeletedMessage(course, deletedByUser);
             return;
         }
 
         // Ментор может удалять только свои курсы
         if (Role.checkIsMentor(deletedByUser) && course.getAuthor().equals(deletedByUser)) {
             courseRepository.delete(course);
+            kafkaFacade.sendCourseDeletedMessage(course, deletedByUser);
             return;
         }
 

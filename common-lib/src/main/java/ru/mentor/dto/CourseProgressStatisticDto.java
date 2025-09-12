@@ -1,8 +1,11 @@
 package ru.mentor.dto;
 
 import java.util.Map;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO для передачи статистики прогресса курса.
@@ -10,6 +13,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CourseProgressStatisticDto {
 
     /**

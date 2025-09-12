@@ -5,19 +5,27 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CalendarServiceGrpc;
 import ru.mentor.calendar.CreateTimeSlotRequest;
 import ru.mentor.calendar.MentorSlotsInfoRequest;
 import ru.mentor.calendar.MentorSlotsInfoResponse;
 import ru.mentor.calendar.TimeSlotResponse;
+import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.TimeSlotUnavailableException;
 import ru.mentor.exception.UserException;
+import ru.mentor.kafka.KafkaFacade;
+import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -37,6 +45,10 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
     private final UserRepository userRepository;
 
     private final MentorTimeSlotRepository mentorTimeSlotRepository;
+
+    private final BaseMapper baseMapper;
+
+    private final KafkaFacade kafkaFacade;
 
     /**
      * Создает временной слот для ментора.
@@ -76,10 +88,13 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
     /**
      * gRPC-эндпоинт для бронирования слота учеником.
      * Возвращает ответ через объект {@link StreamObserver}
-     *
-     * @param request {@link BookTimeSlotRequest}
-     * @param responseObserver {@link StreamObserver}
+     * Планирует отправку сообщений в Kafka после успешного коммита транзакции.
+     * Используется {@link TransactionSynchronizationManager} - позволяет подписаться
+     * на колбэки жизненного цикла транзакции после коммита.
+     * @param request запрос на бронирование {@link BookTimeSlotRequest}
+     * @param responseObserver наблюдатель отправки ответа клиенту {@link StreamObserver}
      */
+    @Transactional
     @Override
     public void bookTimeslot(
             BookTimeSlotRequest request,
@@ -101,7 +116,29 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             checkSlotIsAvailable(slotEntity, userId);
 
             slotEntity.getMeetingParticipants().add(user);
-            MentorTimeSlotEntity bookedTimeSlot = mentorTimeSlotRepository.save(slotEntity);
+            MentorTimeSlotEntity bookedTimeSlot = mentorTimeSlotRepository.saveAndFlush(slotEntity);
+
+            UserInfoDto mentorDto = baseMapper.mapUserDto(slotEntity.getMentor());
+            UserInfoDto menteeDto = baseMapper.mapUserDto(user);
+            LocalDateTime startAt = slotEntity.getStartTime();
+            LocalDateTime endAt = slotEntity.getEndTime();
+
+            TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            try {
+                                kafkaFacade.sendCreateSlotBookedMessage(mentorDto, startAt, endAt, menteeDto);
+                            } catch (Exception ex) {
+                                log.error(String.format(
+                                        "[ Slot = %s ] Ошибка отправки сообщения в Kafka [ MentorId = %s ].",
+                                        slotId,
+                                        mentorDto.getId()
+                                ));
+                            }
+                        }
+                    }
+            );
 
             responseObserver.onNext(timeSlotMapper.entityToGrpcResponse(bookedTimeSlot, rqUId));
             responseObserver.onCompleted();
@@ -117,7 +154,7 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
         }
     }
 
-    private void checkSlotIsAvailable(MentorTimeSlotEntity slotEntity, Long userId) throws TimeSlotUnavailableException {
+    private void checkSlotIsAvailable(MentorTimeSlotEntity slotEntity, Long userId) throws TimeSlotUnavailableException{
         if (slotIsFull(slotEntity))
             throw new TimeSlotUnavailableException(
                     "На встрече нет свободных мест"

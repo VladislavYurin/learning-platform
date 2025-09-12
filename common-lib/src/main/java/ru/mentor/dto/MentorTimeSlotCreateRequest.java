@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 
 @Getter @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MentorTimeSlotCreateRequest {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
