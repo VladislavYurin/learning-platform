@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import ru.mentor.service.EmailSenderService;
 
@@ -18,7 +17,7 @@ import ru.mentor.service.EmailSenderService;
 @ConditionalOnProperty(name = "application.notify.email.enable", havingValue = "true")
 public class EmailSenderServiceImpl implements EmailSenderService {
 
-    private final JavaMailSender emailSender = new JavaMailSenderImpl();
+    private final JavaMailSender emailSender;
 
     /**
      * Отправляет электронное письмо на указанный адрес.
