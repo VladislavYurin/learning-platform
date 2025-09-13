@@ -17,11 +17,6 @@ public interface UserService {
      */
     UserEntity create(UserEntity userEntity);
 
-    /**
-     * Проверяет наличие пользователя по его имени.
-     * @param username имя пользователя для проверки (не {@code null})
-     * @return true, если пользователь с таким именем существует, иначе false
-     */
     boolean existsByUserName(String username);
 
     /**

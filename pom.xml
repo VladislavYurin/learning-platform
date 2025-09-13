@@ -21,7 +21,6 @@
     <module>course-service</module>
     <module>mentor-service</module>
     <module>notification-service</module>
-    <module>calendar-service</module>
   </modules>
 
   <properties>
@@ -35,8 +34,6 @@
     <docker.tag>local</docker.tag>
     <docker.java-image>openjdk:17-oracle</docker.java-image>
     <hibernate.version>6.5.2.Final</hibernate.version>
-    <grpc.version>3.1.0.RELEASE</grpc.version>
-    <liquibase.maven.version>4.4.2</liquibase.maven.version>
   </properties>
 
   <profiles>
@@ -135,20 +132,9 @@
           <artifactId>maven-checkstyle-plugin</artifactId>
           <version>3.6.0</version>
           <configuration>
-            <configLocation>google_checks.xml</configLocation>
+            <configLocation>checkstyle.xml</configLocation>
             <includeResources>false</includeResources>
-            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-            <failOnViolation>true</failOnViolation>
           </configuration>
-          <executions>
-            <execution>
-              <id>run-checkstyle</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -185,7 +171,7 @@
                   <argument>--build-arg</argument>
                   <argument>NAME=${project.artifactId}</argument>
                   <argument>-t</argument>
-                  <argument>mentor/${project.artifactId}:${docker.tag}</argument>
+                  <argument>travel/${project.artifactId}:${docker.tag}</argument>
                   <argument>.</argument>
                 </arguments>
               </configuration>
@@ -194,20 +180,18 @@
         </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-    </plugins>
   </build>
 
   <dependencies>
-    <!-- Основные зависимости -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <version>${spring-boot.version}</version>
+      <groupId>org.springframework.ws</groupId>
+      <artifactId>spring-ws-core</artifactId>
+      <version>${spring-ws.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>2.18.3</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -215,67 +199,31 @@
       <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
     </dependency>
-
-    <!-- Вспомогательные библиотеки -->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>${lombok.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
-      <version>2.17.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.3.0</version>
-    </dependency>
-
-    <!-- Тестовые зависимости -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <version>${spring-boot.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.junit.vintage</groupId>
-          <artifactId>junit-vintage-engine</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>1.19.3</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>1.19.3</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>kafka</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.kafka</groupId>
-      <artifactId>spring-kafka-test</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

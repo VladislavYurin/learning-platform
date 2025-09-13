@@ -19,9 +19,7 @@ import ru.mentor.dto.ModuleDto;
 import ru.mentor.service.ModuleService;
 
 /**
- * Контроллер для работы с модулями курсов.
- * Этот контроллер предоставляет API для создания, удаления,
- * получения информации о модулях и импорта модулей из файлов.
+ * Контроллер для работы с курсами.
  */
 @RestController
 @RequestMapping("/module")
@@ -31,26 +29,12 @@ public class ModuleController {
 
     private final ModuleService moduleService;
 
-    /**
-     * Создает новый модуль на основе предоставленного запроса.
-     *
-     * @param request Запрос, содержащий данные для создания модуля.
-     * @return ResponseEntity с DTO модуля, который был создан.
-     */
     @PostMapping("/create")
     @Operation(summary = "Добавление модуля, доступно только админу или ментору-автору курса")
     public ResponseEntity<ModuleDto> createModule(@RequestBody InnerCreateModuleRequest request) {
         return ResponseEntity.ok().body(moduleService.createModule(request));
     }
 
-    /**
-     * Удаляет модуль по заданным идентификаторам.
-     *
-     * @param userId Идентификатор пользователя, инициирующего удаление модуля.
-     * @param courseId Идентификатор курса, к которому принадлежит модуль.
-     * @param moduleId Идентификатор модуля, который необходимо удалить.
-     * @return ResponseEntity с пустым телом и статусом 200 OK.
-     */
     @DeleteMapping("/{userId}/{courseId}/{moduleId}")
     @Operation(summary = "Удаление модуля по его ID, доступно только админу или ментору-автору курса")
     public ResponseEntity<?> deleteModule(
@@ -61,14 +45,6 @@ public class ModuleController {
         return ResponseEntity.ok().body(null);
     }
 
-    /**
-     * Получает модуль по его идентификатору.
-     *
-     * @param userId Идентификатор пользователя, запрашивающего модуль.
-     * @param courseId Идентификатор курса, к которому принадлежит модуль.
-     * @param moduleId Идентификатор запрашиваемого модуля.
-     * @return ResponseEntity с DTO модуля, найденного по заданному идентификатору.
-     */
     @GetMapping("/{userId}/{courseId}/{moduleId}")
     @Operation(summary = "Получение модуля по его ID")
     public ResponseEntity<ModuleDto> getModuleById(
@@ -78,13 +54,6 @@ public class ModuleController {
         return ResponseEntity.ok().body(moduleService.getModuleById(userId, courseId, moduleId));
     }
 
-    /**
-    * Импортирует модуль из Markdown файла.
-    *
-    * @param file Файл, содержащий Markdown-содержимое для импорта.
-    * @param request Запрос с данными для создания модуля.
-    * @return ResponseEntity с DTO импортированного модуля.
-    */
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Импорт модуля из Markdown файла")
     public ResponseEntity<ModuleDto> importModuleFromMarkdown(

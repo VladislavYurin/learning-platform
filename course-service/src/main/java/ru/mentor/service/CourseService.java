@@ -4,10 +4,6 @@ import java.util.List;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.InnerCreateCourseRequest;
 
-/**
- * Сервис для управления курсами в системе управления онлайн-курсами.
- * Интерфейс предоставляет методы для создания, удаления и получения информации о курсах.
- */
 public interface CourseService {
 
     CourseDto createCourse(InnerCreateCourseRequest request);

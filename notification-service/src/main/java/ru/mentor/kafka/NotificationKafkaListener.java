@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.service.DefaultNotificationService;
 
-/**
- * Слушатель Kafka для обработки уведомлений.
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -19,13 +16,8 @@ public class NotificationKafkaListener {
 
     private final DefaultNotificationService defaultNotificationService;
 
-    /**
-     * Обрабатывает входящие уведомления из Kafka.
-     * @param notificationDto объект, содержащий данные уведомления, полученные из Kafka.
-     */
     @KafkaHandler
     public void processNotification(KafkaNotificationDto notificationDto) {
-        log.info("Получено уведомление: {}", notificationDto);
         defaultNotificationService.notifyUser(notificationDto);
     }
 
