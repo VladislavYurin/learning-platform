@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.UserInfoDto;
+import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
@@ -123,6 +124,24 @@ public class BaseMapper {
                           .tgNickname(entity.getTgNickname())
                           .build();
 
+    }
+
+    /**
+     * Преобразует DTO информации о пользователе в сущность пользователя.
+     *
+     * @param userInfoDto DTO информации о пользователе для преобразования
+     * @return сущность пользователя
+     */
+    public UserEntity mapUserEntity(UserInfoDto userInfoDto) {
+        return UserEntity.builder()
+                .id(userInfoDto.getId())
+                .username(userInfoDto.getUsername())
+                .role(userInfoDto.getRole())
+                .firstName(userInfoDto.getFirstName())
+                .lastName(userInfoDto.getLastName())
+                .tgNickname(userInfoDto.getTgNickname())
+                .tgChatId(userInfoDto.getTgChatId())
+                .build();
     }
 
 }
