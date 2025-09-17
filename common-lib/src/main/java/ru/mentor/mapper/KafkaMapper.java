@@ -85,41 +85,22 @@ public class KafkaMapper {
      *
      * @param notificationDto DTO уведомление из Kafka
      * @param notificationDestination пункт назначения уведомления
+     * @param exceptionMessage сообщение об ошибке
+     * @param notificationStatus статус уведомления
      * @param userEntity сущность пользователя
      * @return сущность уведомления
      */
     public NotificationEntity mapNotificationEntity(
             KafkaNotificationDto notificationDto,
             NotificationDestination notificationDestination,
-            UserEntity userEntity) {
-        return NotificationEntity.builder()
-                                 .notificationType(notificationDto.getNotificationType())
-                                 .recipient(userEntity)
-                                 .notificationDestination(notificationDestination)
-                                 .notificationStatus(NotificationStatus.OK)
-                                 .build();
-    }
-
-    /**
-     * Создает сущность уведомления из DTO, которое не было отправлено из-за ошибки.
-     *
-     * @param notificationDto DTO уведомление из Kafka
-     * @param notificationDestination пункт назначения уведомления
-     * @param exceptionMessage сообщение об ошибки
-     * @param userEntity сущность пользователя
-     * @return сущность уведомления с ошибкой об отправлении
-     */
-    public NotificationEntity mapNotificationEntityError(
-            KafkaNotificationDto notificationDto,
-            NotificationDestination notificationDestination,
             String exceptionMessage,
+            NotificationStatus notificationStatus,
             UserEntity userEntity) {
         return NotificationEntity.builder()
                                  .notificationType(notificationDto.getNotificationType())
                                  .recipient(userEntity)
                                  .notificationDestination(notificationDestination)
-                                 .errorText(exceptionMessage)
-                                 .notificationStatus(NotificationStatus.ERROR)
+                                 .notificationStatus(notificationStatus)
                                  .build();
     }
 }

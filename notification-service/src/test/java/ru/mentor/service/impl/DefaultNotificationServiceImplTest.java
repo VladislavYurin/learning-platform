@@ -1,10 +1,12 @@
 package ru.mentor.service.impl;
 
+import org.apache.catalina.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.ObjectProvider;
 import ru.mentor.constant.Role;
@@ -30,6 +32,7 @@ class DefaultNotificationServiceImplTest {
     private UserEntity userEntity;
     private NotificationEntity notificationEntity;
     private DefaultNotificationServiceImpl service;
+    private UserInfoDto userInfoDto;
 
     @Mock
     EmailSenderService emailSenderService;
@@ -43,10 +46,10 @@ class DefaultNotificationServiceImplTest {
     @Mock
     NotificationRepository notificationRepository;
 
-    @Mock
+    @Spy
     BaseMapper baseMapper;
 
-    @Mock
+    @Spy
     KafkaMapper kafkaMapper;
 
     @BeforeEach
@@ -63,8 +66,6 @@ class DefaultNotificationServiceImplTest {
                 .build();
 
         notificationEntity = new NotificationEntity();
-
-        Mockito.when(baseMapper.mapUserEntity(Mockito.any())).thenReturn(userEntity);
     }
 
     /**
@@ -80,7 +81,6 @@ class DefaultNotificationServiceImplTest {
         Mockito.when(user.getUsername()).thenReturn(EMAIL_TEST);
         Mockito.when(dto.getUserInfo()).thenReturn(user);
         Mockito.when(templateService.getEmailSubject(Mockito.any())).thenReturn("SUBJ");
-        Mockito.when(kafkaMapper.mapNotificationEntity(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationEntity);
 
         service = new DefaultNotificationServiceImpl(mockProvider(emailSenderService),
                 mockProvider(telegramSenderService), templateService, notificationRepository, baseMapper, kafkaMapper);
@@ -108,8 +108,6 @@ class DefaultNotificationServiceImplTest {
         Mockito.when(user.getUsername()).thenReturn(EMAIL_TEST);
         Mockito.when(dto.getUserInfo()).thenReturn(user);
         Mockito.when(notificationRepository.save(Mockito.any(NotificationEntity.class))).thenReturn(notificationEntity);
-        Mockito.when(baseMapper.mapUserEntity(Mockito.any())).thenReturn(userEntity);
-        Mockito.when(kafkaMapper.mapNotificationEntityError(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationEntity);
 
         service = new DefaultNotificationServiceImpl(
                 mockProvider(emailSenderService), mockProvider(null), templateService, notificationRepository, baseMapper, kafkaMapper);
@@ -133,8 +131,6 @@ class DefaultNotificationServiceImplTest {
         Mockito.when(user.getTgChatId()).thenReturn(CHAT_ID);
         Mockito.when(user.getUsername()).thenReturn(EMAIL_TEST);
         Mockito.when(dto.getUserInfo()).thenReturn(user);
-        Mockito.when(baseMapper.mapUserEntity(Mockito.any())).thenReturn(userEntity);
-        Mockito.when(kafkaMapper.mapNotificationEntityError(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationEntity);
 
         service = new DefaultNotificationServiceImpl(mockProvider(null),
                 mockProvider(telegramSenderService), templateService, notificationRepository, baseMapper, kafkaMapper);
@@ -157,8 +153,6 @@ class DefaultNotificationServiceImplTest {
         Mockito.when(user.getTgChatId()).thenReturn(null);
         Mockito.when(user.getUsername()).thenReturn(EMAIL_TEST);
         Mockito.when(dto.getUserInfo()).thenReturn(user);
-        Mockito.when(baseMapper.mapUserEntity(Mockito.any())).thenReturn(userEntity);
-        Mockito.when(kafkaMapper.mapNotificationEntityError(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationEntity);
 
         service = new DefaultNotificationServiceImpl(
                 mockProvider(null), mockProvider(null), templateService, notificationRepository, baseMapper, kafkaMapper);

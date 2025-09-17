@@ -110,6 +110,8 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
         NotificationEntity notification = kafkaMapper.mapNotificationEntity(
                                                       notificationDto,
                                                       notificationDestination,
+                                                      null,
+                                                      NotificationStatus.OK,
                                                       getUserEntityFromNotificationDto(notificationDto));
 
         notificationRepository.save(notification);
@@ -124,10 +126,11 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
      */
     private void saveNotificationWithError(KafkaNotificationDto notificationDto, NotificationDestination notificationDestination, String exceptionMessage) {
 
-        NotificationEntity notification = kafkaMapper.mapNotificationEntityError(
+        NotificationEntity notification = kafkaMapper.mapNotificationEntity(
                 notificationDto,
                 notificationDestination,
                 exceptionMessage,
+                NotificationStatus.ERROR,
                 getUserEntityFromNotificationDto(notificationDto));
 
         notificationRepository.save(notification);

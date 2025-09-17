@@ -102,10 +102,10 @@ CREATE TABLE IF NOT EXISTS notification_templates
 CREATE TABLE IF NOT EXISTS sent_notification
 (
     notification_id          BIGSERIAL          PRIMARY KEY,
-    notification_type        VARCHAR(255)       NOT NULL CHECK ( notification_type IN ('COURSE_ACCESS_GRANTED', 'MODULE_ACCESS_GRANTED')),
-    recipient_id             BIGSERIAL             NOT NULL,
-    notification_status      VARCHAR(255)       NOT NULL CHECK ( notification_status IN ('ERROR', 'OK') ),
-    notification_destination VARCHAR(255)       CHECK ( notification_destination IN ('TELEGRAM', 'MAIL') ),
+    notification_type        VARCHAR(255)       NOT NULL ,
+    recipient_id             BIGSERIAL          NOT NULL,
+    notification_status      VARCHAR(255)       NOT NULL,
+    notification_destination VARCHAR(255),
     error_text               VARCHAR(255),
     CONSTRAINT fk_recipient FOREIGN KEY (recipient_id)
     REFERENCES users (id_user)
