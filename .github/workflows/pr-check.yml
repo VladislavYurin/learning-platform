@@ -1,0 +1,117 @@
+name: PR CI (Java microservices)
+
+on:
+  pull_request:
+    branches: [ master, develop ]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  REPO: ${{ github.repository }}
+  PR_TAG: pr-${{ github.event.pull_request.number }}
+
+jobs:
+  java-build:
+    name: Build & Test — ${{ matrix.svc.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Имена должны совпадать с именами модулей из <modules> в корневом pom.xml
+        svc:
+          - { name: api-gateway,          module: api-gateway }
+          - { name: course-service,       module: course-service }
+          - { name: mentor-service,       module: mentor-service }
+          - { name: notification-service, module: notification-service }
+          - { name: calendar-service,     module: calendar-service }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # Собираем только указанный модуль + его зависимости (-am)
+      - name: Maven verify
+        run: mvn -B -ntp -pl ${{ matrix.svc.module }} -am clean verify
+
+      - name: Upload surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-${{ matrix.svc.name }}
+          path: |
+            ${{ matrix.svc.module }}/target/surefire-reports/*
+            ${{ matrix.svc.module }}/target/site/surefire-report.html
+
+      - name: Upload JaCoCo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-${{ matrix.svc.name }}
+          path: |
+            ${{ matrix.svc.module }}/target/site/jacoco/*
+            ${{ matrix.svc.module }}/target/jacoco*.xml
+            ${{ matrix.svc.module }}/target/jacoco.xml
+
+  # 2) Сборка Docker-образов для каждого сервиса (тег — pr-N)
+  docker-build:
+    name: Build Docker — ${{ matrix.svc.name }}
+    runs-on: ubuntu-latest
+    needs: java-build
+    if: contains(github.event.pull_request.labels.*.name, 'docker')
+    strategy:
+      fail-fast: false
+      matrix:
+        svc:
+          - { name: api-gateway,          path: services/api-gateway,          img: api-gateway }
+          - { name: course-service,       path: services/course-service,       img: course-service }
+          - { name: mentor-service,       path: services/mentor-service,       img: mentor-service }
+          - { name: notification-service, path: services/notification-service, img: notification-service }
+          - { name: calendar-service,     path: services/calendar-service,     img: calendar-service }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/$REPO/${{ matrix.svc.img }}
+          tags: |
+            type=raw,value=${{ env.PR_TAG }}
+            type=sha
+
+      - name: Build & Push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.svc.path }}
+          file: ${{ matrix.svc.path }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
