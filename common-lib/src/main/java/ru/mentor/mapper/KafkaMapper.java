@@ -8,8 +8,11 @@ import ru.mentor.constant.NotificationTypeEnum;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.dto.kafka.CourseAccessGrantedNotificationPayload;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
+import ru.mentor.dto.kafka.MentorReminderNotificationPayload;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
 import ru.mentor.dto.kafka.NotificationPayload;
+import ru.mentor.dto.kafka.StudentReminderNotificationPayload;
+import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.NotificationEntity;
 import ru.mentor.entity.UserEntity;
 
@@ -103,4 +106,46 @@ public class KafkaMapper {
                                  .notificationStatus(notificationStatus)
                                  .build();
     }
+
+    /**
+     * Создает payload уведомления для студента о предстоящей встрече
+     * @param slot слот, о котором нужно напомнить
+     * @param student студент, которому нужно направить уведомление
+     * @return {@link StudentReminderNotificationPayload}
+     */
+    public StudentReminderNotificationPayload createStudentReminderNotificationPayload(
+            MentorTimeSlotEntity slot,
+            UserEntity student) {
+
+        return StudentReminderNotificationPayload.builder()
+                .studentName(student.getFirstName())
+                .calendarSlotTime(slot.getStartTime())
+                .mentorName(slot.getMentor().getFirstName())
+                .slotMeetingType(slot.getSlotMeetingType().toString())
+                .slotType(slot.getSlotType().toString())
+                .description(slot.getDescription())
+                .meetingLink(slot.getMeetingLink())
+                .build();
+    }
+
+    /**
+     * Создает payload уведомления для ментора о предстоящей встрече
+     * @param slot слот, о котором нужно напомнить
+     *
+     * @return {@link MentorReminderNotificationPayload}
+     */
+    public MentorReminderNotificationPayload createMentorReminderNotificationPayload(
+            MentorTimeSlotEntity slot) {
+
+        return MentorReminderNotificationPayload.builder()
+                .mentorName(slot.getMentor().getFirstName())
+                .calendarSlotTime(slot.getStartTime())
+                .slotMeetingType(slot.getSlotMeetingType().toString())
+                .slotType(slot.getSlotType().toString())
+                .description(slot.getDescription())
+                .meetingLink(slot.getMeetingLink())
+                .studentNames(slot.getMeetingParticipants().stream().map(UserEntity::getFirstName).toList())
+                .build();
+    }
+
 }

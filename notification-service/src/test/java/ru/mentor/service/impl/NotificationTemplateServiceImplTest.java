@@ -1,6 +1,6 @@
 package ru.mentor.service.impl;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -10,9 +10,10 @@ import ru.mentor.dto.UserInfoDto;
 import ru.mentor.dto.kafka.CourseAccessGrantedNotificationPayload;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
-import java.time.LocalDateTime;
-import org.junit.jupiter.api.Assertions;
+import ru.mentor.dto.kafka.StudentReminderNotificationPayload;
 import ru.mentor.exception.EntityNotFoundException;
+
+import java.time.LocalDateTime;
 
 
 class NotificationTemplateServiceImplTest {
@@ -92,6 +93,49 @@ class NotificationTemplateServiceImplTest {
     }
 
     @Test
+    void generateEmailContent_generatedStudentReminderText_success() {
+        String template = """
+            Уважаемый %s!
+            Напоминаем о запланированной на %s
+            встрече с ментором %s
+            Тип встречи: %s
+            Формат встречи: %s
+            Описание встречи: %s
+            Ссылка на встречу: %s
+        """;
+        Mockito.when(cacheProcessor.getTemplateCache(NotificationTypeEnum.STUDENT_CALENDAR_SLOT_REMINDER))
+                .thenReturn(template);
+
+        KafkaNotificationDto dto = KafkaNotificationDto.builder()
+                .notificationType(NotificationTypeEnum.STUDENT_CALENDAR_SLOT_REMINDER)
+                .userInfo(UserInfoDto.builder()
+                        .firstName("Maksim")
+                        .build())
+                .payload(StudentReminderNotificationPayload.builder()
+                        .calendarSlotTime(LocalDateTime.of(2025, 11, 25, 15, 45))
+                        .mentorName("MentorName")
+                        .slotMeetingType("Знакомство")
+                        .slotType("Индивидуальный")
+                        .description("Первая встреча")
+                        .meetingLink("https://www.google.com")
+                        .build())
+                .build();
+
+        String content = service.generateEmailContent(dto);
+        String expected = """
+            Уважаемый Maksim!
+            Напоминаем о запланированной на 25.11.2025 15:45
+            встрече с ментором MentorName
+            Тип встречи: Знакомство
+            Формат встречи: Индивидуальный
+            Описание встречи: Первая встреча
+            Ссылка на встречу: https://www.google.com
+        """;
+
+        Assertions.assertEquals(expected, content);
+    }
+
+    @Test
     void generateEmailContent_templateNotFound_throwsException() {
         Mockito.when(cacheProcessor.getTemplateCache(NotificationTypeEnum.COURSE_ACCESS_GRANTED))
                 .thenThrow(new EntityNotFoundException("Template with type COURSE_ACCESS_GRANTED not found"));
@@ -122,7 +166,11 @@ class NotificationTemplateServiceImplTest {
 
     @Test
     void getEmailSubject_returnsCorrectSubject() {
-        Assertions.assertEquals("Доступ к курсу", service.getEmailSubject(NotificationTypeEnum.COURSE_ACCESS_GRANTED));
-        Assertions.assertEquals("Новый модуль доступен", service.getEmailSubject(NotificationTypeEnum.MODULE_ACCESS_GRANTED));
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Доступ к курсу", service.getEmailSubject(NotificationTypeEnum.COURSE_ACCESS_GRANTED)),
+                () -> Assertions.assertEquals("Новый модуль доступен", service.getEmailSubject(NotificationTypeEnum.MODULE_ACCESS_GRANTED)),
+                () -> Assertions.assertEquals("Напоминание о встрече", service.getEmailSubject(NotificationTypeEnum.MENTOR_CALENDAR_SLOT_REMINDER)),
+                () -> Assertions.assertEquals("Напоминание о встрече", service.getEmailSubject(NotificationTypeEnum.STUDENT_CALENDAR_SLOT_REMINDER))
+        );
     }
 }
