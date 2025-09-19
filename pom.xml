@@ -25,18 +25,26 @@
   </modules>
 
   <properties>
-    <java.version>17</java.version>
-    <spring-boot.version>3.3.0</spring-boot.version>
-    <spring.version>6.1.8</spring.version>
-    <spring-security.version>6.3.0</spring-security.version>
+    <java.version>21</java.version>
+
     <lombok.version>1.18.32</lombok.version>
-    <ignite.version>2.17.0</ignite.version>
-    <maven.compiler.release>${java.version}</maven.compiler.release>
-    <docker.tag>local</docker.tag>
-    <docker.java-image>openjdk:17-oracle</docker.java-image>
-    <hibernate.version>6.5.2.Final</hibernate.version>
-    <grpc.version>3.1.0.RELEASE</grpc.version>
+    <grpc.spring.starter.version>3.1.0.RELEASE</grpc.spring.starter.version>
+    <grpc.version>1.63.2</grpc.version>
+    <protobuf.java.version>4.28.3</protobuf.java.version>
+    <openfeign.version>4.1.1</openfeign.version>
+    <jjwt.version>0.12.6</jjwt.version>
+    <jwks.rsa.version>0.22.1</jwks.rsa.version>
+    <java.jwt.version>4.4.0</java.jwt.version>
+    <postgres.version>42.7.3</postgres.version>
+    <apache.httpclient5.version>5.3.1</apache.httpclient5.version>
+    <commons-lang3.version>3.18.0</commons-lang3.version>
+    <swagger.annotations.version>2.2.34</swagger.annotations.version>
+    <commonmark.version>0.21.0</commonmark.version>
+    <kafka.spring.version>4.0.0-M3</kafka.spring.version>
     <liquibase.maven.version>4.4.2</liquibase.maven.version>
+
+    <docker.tag>local</docker.tag>
+    <docker.java-image>openjdk:21</docker.java-image>
   </properties>
 
   <profiles>
@@ -48,66 +56,110 @@
     </profile>
   </profiles>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- Централизация общих библиотек -->
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgres.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.auth0</groupId>
+        <artifactId>java-jwt</artifactId>
+        <version>${java.jwt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.auth0</groupId>
+        <artifactId>jwks-rsa</artifactId>
+        <version>${jwks.rsa.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents.client5</groupId>
+        <artifactId>httpclient5</artifactId>
+        <version>${apache.httpclient5.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-annotations</artifactId>
+        <version>${swagger.annotations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.commonmark</groupId>
+        <artifactId>commonmark</artifactId>
+        <version>${commonmark.version}</version>
+      </dependency>
+
+      <!-- gRPC -->
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-stub</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-protobuf</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-netty</artifactId>
+        <version>${grpc.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>${protobuf.java.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.devh</groupId>
+        <artifactId>grpc-client-spring-boot-starter</artifactId>
+        <version>${grpc.spring.starter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.devh</groupId>
+        <artifactId>grpc-server-spring-boot-starter</artifactId>
+        <version>${grpc.spring.starter.version}</version>
+      </dependency>
+
+      <!-- OpenFeign -->
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-openfeign</artifactId>
+        <version>${openfeign.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <build>
     <pluginManagement>
       <plugins>
+        <!-- Spring Boot -->
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
-          <version>${spring-boot.version}</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.codehaus.plexus</groupId>
-              <artifactId>plexus-utils</artifactId>
-              <version>4.0.2</version>
-            </dependency>
-            <dependency>
-              <groupId>commons-io</groupId>
-              <artifactId>commons-io</artifactId>
-              <version>2.17.0</version>
-            </dependency>
-          </dependencies>
-          <executions>
-            <execution>
-              <id>executable-jar</id>
-              <phase>install</phase>
-              <goals>
-                <goal>repackage</goal>
-              </goals>
-              <configuration>
-                <executable>true</executable>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>${maven-jar-plugin.version}</version>
-          <executions>
-            <execution>
-              <id>default-jar</id>
-              <phase>package</phase>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-              <configuration>
-                <archive>
-                  <manifestEntries>
-                    <Add-Opens>java.base/java.nio</Add-Opens>
-                  </manifestEntries>
-                </archive>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
+
+        <!-- Компилятор под Java 21 -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>${maven-compiler-plugin.version}</version>
           <configuration>
-            <source>${java.version}</source>
-            <target>${java.version}</target>
+            <release>${java.version}</release>
             <annotationProcessorPaths>
               <path>
                 <groupId>org.projectlombok</groupId>
@@ -120,16 +172,17 @@
             </compilerArgs>
           </configuration>
         </plugin>
+
+        <!-- Тесты -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.4.0</version>
           <configuration>
-            <argLine>
-              --add-opens java.base/java.nio=ALL-UNNAMED
-            </argLine>
+            <argLine>--add-opens java.base/java.nio=ALL-UNNAMED</argLine>
           </configuration>
         </plugin>
+
+        <!-- Checkstyle -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
@@ -150,18 +203,8 @@
             </execution>
           </executions>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.3.1</version>
-          <dependencies>
-            <dependency>
-              <groupId>commons-io</groupId>
-              <artifactId>commons-io</artifactId>
-              <version>2.17.0</version>
-            </dependency>
-          </dependencies>
-        </plugin>
+
+        <!-- Exec для docker build -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
@@ -192,8 +235,16 @@
             </execution>
           </executions>
         </plugin>
+
+        <!-- Liquibase (только версия плагина) -->
+        <plugin>
+          <groupId>org.liquibase</groupId>
+          <artifactId>liquibase-maven-plugin</artifactId>
+          <version>${liquibase.maven.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -203,16 +254,20 @@
   </build>
 
   <dependencies>
-    <!-- Основные зависимости -->
+    <!-- Общие для всех модулей зависимости -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <version>${spring-boot.version}</version>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <version>2.6.0</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
-      <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -220,29 +275,10 @@
       <scope>runtime</scope>
     </dependency>
 
-    <!-- Вспомогательные библиотеки -->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>${lombok.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
-      <version>2.17.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.3.0</version>
-    </dependency>
-
-    <!-- Тестовые зависимости -->
+    <!-- Тестовые -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <version>${spring-boot.version}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -259,13 +295,11 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>1.19.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
-      <version>1.19.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
