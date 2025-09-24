@@ -17,7 +17,7 @@ import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
-import ru.mentor.testutil.TestDataGenerator;
+import ru.mentor.testUtil.TestDataGenerator;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

@@ -1,4 +1,4 @@
-package ru.mentor.testutil;
+package ru.mentor.testUtil;
 
 import com.google.protobuf.Timestamp;
 import ru.mentor.calendar.CreateTimeSlotRequest;

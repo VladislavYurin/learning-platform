@@ -1,16 +1,11 @@
 package ru.mentor;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +18,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -56,9 +53,9 @@ class AccessControllerTest {
     // Поднимаем только Postgres
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.3-alpine")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test");
+                                                     .withDatabaseName("testdb")
+                                                     .withUsername("test")
+                                                     .withPassword("test");
 
     // Подменяем реальный KafkaTemplate мок-объектом
     @MockBean
@@ -90,7 +87,11 @@ class AccessControllerTest {
         CompletableFuture<org.springframework.kafka.support.SendResult<String, KafkaNotificationDto>> done =
                 new CompletableFuture<>();
         done.complete(null);
-        Mockito.when(kafkaTemplate.send(eq(TOPIC), anyString(), any(KafkaNotificationDto.class)))
+        Mockito.when(kafkaTemplate.send(
+                       ArgumentMatchers.eq(TOPIC),
+                       ArgumentMatchers.anyString(),
+                       ArgumentMatchers.any(KafkaNotificationDto.class)
+               ))
                .thenReturn(done);
 
         UserEntity mentor = commonTestUtil.createUser(
@@ -102,47 +103,50 @@ class AccessControllerTest {
 
         String rqUId = UUID.randomUUID().toString();
 
-        mockMvc.perform(post("/access/course/get-access")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .header("RqUId", rqUId)
-                                .header("X-Service-Auth", API_KEY)
-                                .content(String.format(
-                                        """
-                                                {
-                                                  "mentorId": %d,
-                                                  "userId": %d,
-                                                  "courseId": %d,
-                                                  "moduleId": null
-                                                }
-                                                """,
-                                        mentor.getId(),
-                                        mentee.getId(),
-                                        course.getId()
-                                )))
-               .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.post("/access/course/get-access")
+                                              .contentType(MediaType.APPLICATION_JSON)
+                                              .header("RqUId", rqUId)
+                                              .header("X-Service-Auth", API_KEY)
+                                              .content(String.format(
+                                                      """
+                                                              {
+                                                                "mentorId": %d,
+                                                                "userId": %d,
+                                                                "courseId": %d,
+                                                                "moduleId": null
+                                                              }
+                                                              """,
+                                                      mentor.getId(),
+                                                      mentee.getId(),
+                                                      course.getId()
+                                              )))
+               .andExpect(MockMvcResultMatchers.status().isOk());
 
-        assertThat(userCourseAccessRepository
-                           .existsByUserIdAndCourseId(mentee.getId(), course.getId()))
-                .isTrue();
+        Assertions.assertThat(userCourseAccessRepository
+                                      .existsByUserIdAndCourseId(mentee.getId(), course.getId()))
+                  .isTrue();
 
         ArgumentCaptor<KafkaNotificationDto> dtoCaptor = ArgumentCaptor.forClass(
                 KafkaNotificationDto.class);
 
         Mockito.verify(kafkaTemplate, Mockito.times(1))
-               .send(eq(TOPIC), anyString(), dtoCaptor.capture());
+               .send(ArgumentMatchers.eq(TOPIC), ArgumentMatchers.anyString(), dtoCaptor.capture());
 
         KafkaNotificationDto sent = dtoCaptor.getValue();
-        assertThat(sent).isNotNull();
-        assertThat(sent.getNotificationType()).isEqualTo(NotificationTypeEnum.COURSE_ACCESS_GRANTED);
-        assertThat(sent.getUserInfo()).isNotNull();
-        assertThat(sent.getUserInfo().getUsername()).isEqualTo("student@example.com");
-        assertThat(sent.getPayload()).isInstanceOf(CourseAccessGrantedNotificationPayload.class);
+        Assertions.assertThat(sent).isNotNull();
+        Assertions.assertThat(sent.getNotificationType())
+                  .isEqualTo(NotificationTypeEnum.COURSE_ACCESS_GRANTED);
+        Assertions.assertThat(sent.getUserInfo()).isNotNull();
+        Assertions.assertThat(sent.getUserInfo().getUsername()).isEqualTo("student@example.com");
+        Assertions.assertThat(sent.getPayload())
+                  .isInstanceOf(CourseAccessGrantedNotificationPayload.class);
         CourseAccessGrantedNotificationPayload payload =
                 (CourseAccessGrantedNotificationPayload) sent.getPayload();
-        assertThat(payload.getCourseTitle()).isEqualTo("Test Course");
-        assertThat(payload.getAccessGrantedBy()).isNotNull();
-        assertThat(payload.getAccessGrantedBy().getUsername()).isEqualTo("mentor@example.com");
-        assertThat(payload.getAccessGrantedAt()).isNotNull();
+        Assertions.assertThat(payload.getCourseTitle()).isEqualTo("Test Course");
+        Assertions.assertThat(payload.getAccessGrantedBy()).isNotNull();
+        Assertions.assertThat(payload.getAccessGrantedBy().getUsername()).isEqualTo(
+                "mentor@example.com");
+        Assertions.assertThat(payload.getAccessGrantedAt()).isNotNull();
     }
 
 }

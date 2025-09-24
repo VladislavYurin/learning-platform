@@ -1,8 +1,10 @@
 package ru.mentor.controller;
 
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,6 +16,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -22,14 +26,6 @@ import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.services.RedirectCalendarService;
-
-import java.time.LocalDateTime;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 /**
  * Тест для проверки работы эндпоинта создания слота ментором.
@@ -47,9 +43,9 @@ class TimeSlotControllerTest {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test");
+                                                     .withDatabaseName("testdb")
+                                                     .withUsername("test")
+                                                     .withPassword("test");
 
     @BeforeAll
     static void beforeAll() {
@@ -75,7 +71,6 @@ class TimeSlotControllerTest {
     @Sql(scripts = "/init_test_user.sql")
     void createSlot() throws Exception {
 
-        // Given
         String testRequestUUID = "6e8f4e02-c91c-465f-b22d-7f102fca381b";
         String testLink = "testLink";
         String testDescription = "testDescription";
@@ -87,53 +82,62 @@ class TimeSlotControllerTest {
         boolean timeSlotIsActive = true;
 
         MentorTimeSlotDto timeSlotDto = MentorTimeSlotDto.builder()
-                .id(1L)
-                .mentorId(1L)
-                .rqUId(testRequestUUID)
-                .startTime(LocalDateTime.parse(startTime))
-                .endTime(LocalDateTime.parse(endTime))
-                .slotType(CalendarSlotType.GROUP)
-                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
-                .maxParticipants(maxParticipants)
-                .isActive(timeSlotIsActive)
-                .meetingLink(testLink)
-                .description(testDescription)
-                .createdAt(LocalDateTime.parse(startTime))
-                .build();
+                                                         .id(1L)
+                                                         .mentorId(1L)
+                                                         .rqUId(testRequestUUID)
+                                                         .startTime(LocalDateTime.parse(startTime))
+                                                         .endTime(LocalDateTime.parse(endTime))
+                                                         .slotType(CalendarSlotType.GROUP)
+                                                         .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                                                         .maxParticipants(maxParticipants)
+                                                         .isActive(timeSlotIsActive)
+                                                         .meetingLink(testLink)
+                                                         .description(testDescription)
+                                                         .createdAt(LocalDateTime.parse(startTime))
+                                                         .build();
 
-        Mockito.when(redirectCalendarService.createTimeSlot(any(MentorTimeSlotCreateRequest.class)))
-                .thenReturn(timeSlotDto);
+        Mockito.when(redirectCalendarService.createTimeSlot(ArgumentMatchers.any(
+                       MentorTimeSlotCreateRequest.class)))
+               .thenReturn(timeSlotDto);
 
-        // When
-        mockMvc.perform(post("/slot/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "startTime": "%s",
-                                  "endTime": "%s",
-                                  "slotType": "%s",
-                                  "slotMeetingType": "%s",
-                                  "maxParticipants": %s,
-                                  "meetingLink": "%s",
-                                  "description": "%s"
-                                }
-                                """.formatted(startTime, endTime, slotTypeGroup, slotMeetingTypeCommunication,
-                                maxParticipants, testLink, testDescription)))
+        mockMvc.perform(MockMvcRequestBuilders.post("/slot/create")
+                                              .contentType(MediaType.APPLICATION_JSON)
+                                              .content("""
+                                                               {
+                                                                 "startTime": "%s",
+                                                                 "endTime": "%s",
+                                                                 "slotType": "%s",
+                                                                 "slotMeetingType": "%s",
+                                                                 "maxParticipants": %s,
+                                                                 "meetingLink": "%s",
+                                                                 "description": "%s"
+                                                               }
+                                                               """.formatted(
+                                                      startTime,
+                                                      endTime,
+                                                      slotTypeGroup,
+                                                      slotMeetingTypeCommunication,
+                                                      maxParticipants,
+                                                      testLink,
+                                                      testDescription
+                                              )))
 
-                // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.mentorId").exists())
-                .andExpect(jsonPath("$.rqUId").exists())
-                .andExpect(jsonPath("$.startTime").value(startTime))
-                .andExpect(jsonPath("$.endTime").value(endTime))
-                .andExpect(jsonPath("$.slotType").value(slotTypeGroup))
-                .andExpect(jsonPath("$.slotMeetingType").value(slotMeetingTypeCommunication))
-                .andExpect(jsonPath("$.maxParticipants").value(maxParticipants))
-                .andExpect(jsonPath("$.isActive").value(timeSlotIsActive))
-                .andExpect(jsonPath("$.meetingLink").value(testLink))
-                .andExpect(jsonPath("$.description").value(testDescription))
-                .andExpect(jsonPath("$.createdAt").exists());
+               .andExpect(MockMvcResultMatchers.status().isOk())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.mentorId").exists())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.rqUId").exists())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.startTime").value(startTime))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.endTime").value(endTime))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.slotType").value(slotTypeGroup))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.slotMeetingType")
+                                               .value(slotMeetingTypeCommunication))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.maxParticipants")
+                                               .value(maxParticipants))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.isActive").value(timeSlotIsActive))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.meetingLink").value(testLink))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(testDescription))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").exists());
 
     }
+
 }
