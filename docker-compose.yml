@@ -6,6 +6,13 @@ networks:
 services:
   
   api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+      args:
+        JAVA_IMAGE: openjdk:21
+        VERSION: 1.0-SNAPSHOT
+        NAME: api-gateway
     container_name: api-gateway
     image: mentor/api-gateway:local
     ports:
@@ -14,6 +21,13 @@ services:
       - backend
 
   course-service:
+    build:
+      context: ./course-service
+      dockerfile: Dockerfile
+      args:
+        JAVA_IMAGE: openjdk:21
+        VERSION: 1.0-SNAPSHOT
+        NAME: course-service
     container_name: course-service
     image: mentor/course-service:local
     ports:
@@ -22,6 +36,13 @@ services:
       - backend
 
   mentor-service:
+    build:
+      context: ./mentor-service
+      dockerfile: Dockerfile
+      args:
+        JAVA_IMAGE: openjdk:21
+        VERSION: 1.0-SNAPSHOT
+        NAME: mentor-service
     container_name: mentor-service
     image: mentor/mentor-service:local
     ports:
@@ -30,6 +51,13 @@ services:
       - backend
 
   notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+      args:
+        JAVA_IMAGE: openjdk:21
+        VERSION: 1.0-SNAPSHOT
+        NAME: notification-service
     container_name: notification-service
     image: mentor/notification-service:local
     ports:
@@ -38,6 +66,13 @@ services:
       - backend
 
   calendar-service:
+    build:
+      context: ./calendar-service
+      dockerfile: Dockerfile
+      args:
+        JAVA_IMAGE: openjdk:21
+        VERSION: 1.0-SNAPSHOT
+        NAME: calendar-service
     container_name: calendar-service
     image: mentor/calendar-service:local
     ports:
@@ -46,6 +81,13 @@ services:
       - backend
 
   admin-service:
+    build:
+      context: ./admin-service
+      dockerfile: Dockerfile
+      args:
+        JAVA_IMAGE: openjdk:21
+        VERSION: 1.0-SNAPSHOT
+        NAME: admin-service
     container_name: admin-service
     image: mentor/admin-service:local
     ports:

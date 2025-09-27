@@ -20,20 +20,20 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <profiles>
-    <profile>
-      <id>docker-build</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>3.0.0</version>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+<!--  <profiles>-->
+<!--    <profile>-->
+<!--      <id>docker-build</id>-->
+<!--      <build>-->
+<!--        <plugins>-->
+<!--          <plugin>-->
+<!--            <groupId>org.codehaus.mojo</groupId>-->
+<!--            <artifactId>exec-maven-plugin</artifactId>-->
+<!--            <version>3.0.0</version>-->
+<!--          </plugin>-->
+<!--        </plugins>-->
+<!--      </build>-->
+<!--    </profile>-->
+<!--  </profiles>-->
 
   <build>
     <plugins>
