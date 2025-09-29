@@ -1,2 +1,8 @@
+echo "Удаление старых образов mentor/..."
 docker rmi -f $(docker images --format '{{.Repository}}:{{.Tag}}' | grep 'mentor/')
-mvn clean package -P docker-build $1 -DskipTests
+
+echo "Сборка jarников..."
+mvn clean package -DskipTests
+
+echo "Сборка Docker-образов..."
+docker-compose build
