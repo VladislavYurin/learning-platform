@@ -9,6 +9,7 @@ import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
+import ru.mentor.dto.kafka.StudentReminderNotificationPayload;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
 
@@ -20,34 +21,53 @@ public class TestDataGenerator {
     public static final String TEST_LINK = "link";
     public static final String TEST_DESCRIPTION = "text";
     public static final int TEST_MAX_PARTICIPANTS = 10;
-    public static final String TEST_USERNAME = "mentor";
     public static final String TEST_PASSWORD = "password";
-    public static final String TEST_FIRST_NAME = "John";
-    public static final String TEST_LAST_NAME = "Doe";
-    public static final String TEST_TG_NICKNAME = "@johndoe";
     public static final String TEST_UUID = UUID.randomUUID().toString();
+
+    public static final String TEST_MENTOR_NAME = "mentor";
+    public static final String TEST_MENTOR_FIRST_NAME = "John";
+    public static final String TEST_MENTOR_LAST_NAME = "Doe";
+    public static final String TEST_MENTOR_TG_NICKNAME = "@johndoe";
+
+    public static final String TEST_USER_NAME = "participant";
+    public static final String TEST_USER_FIRST_NAME = "Alice";
+    public static final String TEST_USER_LAST_NAME = "Jane";
+    public static final String TEST_USER_TG_NICKNAME = "@janet";
+    public static final LocalDateTime DEFAULT_START_TIME = LocalDateTime.of(2025, 1, 15, 13, 0);
 
     public static UserEntity getTestMentorUser() {
         return UserEntity.builder()
                 .id(1L)
-                .username(TEST_USERNAME)
+                .username(TEST_MENTOR_NAME)
                 .password(TEST_PASSWORD)
                 .role(Role.MENTOR)
-                .firstName(TEST_FIRST_NAME)
-                .lastName(TEST_LAST_NAME)
-                .tgNickname(TEST_TG_NICKNAME)
+                .firstName(TEST_MENTOR_FIRST_NAME)
+                .lastName(TEST_MENTOR_LAST_NAME)
+                .tgNickname(TEST_MENTOR_TG_NICKNAME)
                 .build();
     }
 
     public static UserEntity getTestParticipantUser() {
         return UserEntity.builder()
                 .id(2L)
-                .username("participant")
-                .password("participant_pass")
+                .username(TEST_USER_NAME)
+                .password(TEST_PASSWORD)
                 .role(Role.USER)
-                .firstName("Alice")
-                .lastName("Smith")
-                .tgNickname("@alice")
+                .firstName(TEST_USER_FIRST_NAME)
+                .lastName(TEST_USER_LAST_NAME)
+                .tgNickname(TEST_USER_TG_NICKNAME)
+                .build();
+    }
+
+    public static UserEntity getAnotherTestParticipantUser() {
+        return UserEntity.builder()
+                .id(3L)
+                .username("participant2")
+                .password("pass1234")
+                .role(Role.USER)
+                .firstName("Ivan")
+                .lastName("Petrov")
+                .tgNickname("@ivanpetrov")
                 .build();
     }
 
@@ -55,7 +75,7 @@ public class TestDataGenerator {
         return MentorTimeSlotEntity.builder()
                 .id(id)
                 .mentor(getTestMentorUser())
-                .startTime(LocalDateTime.of(2025, 1, 15, 13, 0))
+                .startTime(DEFAULT_START_TIME)
                 .endTime(LocalDateTime.of(2025, 1, 15, 14, 0))
                 .slotType(CalendarSlotType.INDIVIDUAL)
                 .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
@@ -68,8 +88,26 @@ public class TestDataGenerator {
                 .build();
     }
 
+    public static MentorTimeSlotEntity createTestSlot(Long id, Set<UserEntity> participants, boolean isActive,
+                                                      LocalDateTime start, LocalDateTime end) {
+        return MentorTimeSlotEntity.builder()
+                .id(id)
+                .mentor(getTestMentorUser())
+                .startTime(start)
+                .endTime(end)
+                .slotType(CalendarSlotType.GROUP)
+                .slotMeetingType(CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(TEST_MAX_PARTICIPANTS)
+                .meetingLink(TEST_LINK)
+                .description(TEST_DESCRIPTION)
+                .createdAt(LocalDateTime.of(2025, 1, 14, 10, 0))
+                .isActive(isActive)
+                .meetingParticipants(participants)
+                .build();
+    }
+
     public static TimeSlotResponse createTestTimeSlotGrpcResponse(Timestamp start, Timestamp end,
-                                                              Timestamp createdAt) {
+                                                                  Timestamp createdAt) {
         return TimeSlotResponse.newBuilder()
                 .setRqUid(TestDataGenerator.TEST_UUID)
                 .setSlotId(1L)
@@ -86,7 +124,7 @@ public class TestDataGenerator {
     }
 
     public static MentorTimeSlotCreateRequest createTestMentorTimeSlotCreateRequest(LocalDateTime start,
-                                                                                LocalDateTime end) {
+                                                                                    LocalDateTime end) {
 
         return MentorTimeSlotCreateRequest.builder()
                 .startTime(start)
@@ -100,7 +138,7 @@ public class TestDataGenerator {
     }
 
     public static CreateTimeSlotRequest createTestCreateTimeSlotRequest(Timestamp start,
-                                                                    Timestamp end) {
+                                                                        Timestamp end) {
 
         return CreateTimeSlotRequest.newBuilder()
                 .setStartTime(start)
@@ -110,6 +148,21 @@ public class TestDataGenerator {
                 .setMaxParticipants(TestDataGenerator.TEST_MAX_PARTICIPANTS)
                 .setMeetingLink(TestDataGenerator.TEST_LINK)
                 .setDescription(TestDataGenerator.TEST_DESCRIPTION)
+                .build();
+    }
+
+    public static StudentReminderNotificationPayload createTestStudentReminderNotificationPayload(
+            MentorTimeSlotEntity testSlot,
+            UserEntity testUser) {
+
+        return StudentReminderNotificationPayload.builder()
+                .studentName(testUser.getFirstName())
+                .calendarSlotTime(testSlot.getStartTime())
+                .mentorName(testSlot.getMentor().getFirstName())
+                .slotMeetingType(testSlot.getSlotMeetingType().toString())
+                .slotType(testSlot.getSlotType().toString())
+                .description(testSlot.getDescription())
+                .meetingLink(testSlot.getMeetingLink())
                 .build();
     }
 }

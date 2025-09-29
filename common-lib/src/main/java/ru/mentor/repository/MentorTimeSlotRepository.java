@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.exception.EntityNotFoundException;
@@ -40,4 +41,10 @@ public interface MentorTimeSlotRepository
             """)
     List<MentorTimeSlotEntity> findByMentorIdWithParticipants(Long mentorId);
 
+    @Query(value = """
+            SELECT slot FROM MentorTimeSlotEntity slot JOIN FETCH slot.meetingParticipants
+            WHERE slot.startTime > :currentTime AND slot.startTime <= :endTime
+    """)
+    List<MentorTimeSlotEntity> findUpcomingTimeSlotsWithParticipants(@Param("currentTime") LocalDateTime currentTime,
+                                                                     @Param("endTime") LocalDateTime endTime);
 }

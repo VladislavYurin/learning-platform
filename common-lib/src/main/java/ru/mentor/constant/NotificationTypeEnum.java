@@ -15,4 +15,12 @@ public enum NotificationTypeEnum {
      * Используется для уведомления пользователей о том, что им предоставлен доступ к определенному модулю курса.
      */
     MODULE_ACCESS_GRANTED,
+    /**
+     * Тип уведомления о предстоящей встрече для ученика
+     */
+    STUDENT_CALENDAR_SLOT_REMINDER,
+    /**
+     * Тип уведомления о предстоящей встрече для ментора
+     */
+    MENTOR_CALENDAR_SLOT_REMINDER
 }

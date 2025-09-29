@@ -1,15 +1,18 @@
 package ru.mentor.service.impl;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.mentor.cache.NotificationCacheProcessor;
 import ru.mentor.constant.NotificationTypeEnum;
 import ru.mentor.dto.kafka.CourseAccessGrantedNotificationPayload;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
+import ru.mentor.dto.kafka.MentorReminderNotificationPayload;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
+import ru.mentor.dto.kafka.StudentReminderNotificationPayload;
 import ru.mentor.service.NotificationTemplateService;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -37,6 +40,8 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
      * <ul>
      *     <li>{@link NotificationTypeEnum#COURSE_ACCESS_GRANTED} — генерируется письмо о предоставлении доступа к курсу.</li>
      *     <li>{@link NotificationTypeEnum#MODULE_ACCESS_GRANTED} — генерируется письмо о предоставлении доступа к модулю.</li>
+     *     <li>{@link NotificationTypeEnum#MENTOR_CALENDAR_SLOT_REMINDER} — генерируется письмо c напоминанием о встрече для ментора.</li>
+     *     <li>{@link NotificationTypeEnum#STUDENT_CALENDAR_SLOT_REMINDER} — генерируется письмо c напоминанием о встрече для ученика.</li>
      * </ul>
      * </p>
      *
@@ -78,6 +83,32 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
                         formatDateTime(payload.getAccessGrantedAt())
                 );
             }
+            case MENTOR_CALENDAR_SLOT_REMINDER -> {
+                MentorReminderNotificationPayload payload = (MentorReminderNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        formatDateTime(payload.getCalendarSlotTime()),
+                        payload.getSlotMeetingType(),
+                        payload.getSlotType(),
+                        payload.getDescription(),
+                        payload.getMeetingLink(),
+                        String.join(", ", payload.getStudentNames())
+                );
+            }
+            case STUDENT_CALENDAR_SLOT_REMINDER -> {
+                StudentReminderNotificationPayload payload = (StudentReminderNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        formatDateTime(payload.getCalendarSlotTime()),
+                        payload.getMentorName(),
+                        payload.getSlotMeetingType(),
+                        payload.getSlotType(),
+                        payload.getDescription(),
+                        payload.getMeetingLink()
+                );
+            }
         };
     }
 
@@ -92,6 +123,7 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
         return switch (type) {
             case COURSE_ACCESS_GRANTED -> "Доступ к курсу";
             case MODULE_ACCESS_GRANTED -> "Новый модуль доступен";
+            case MENTOR_CALENDAR_SLOT_REMINDER, STUDENT_CALENDAR_SLOT_REMINDER -> "Напоминание о встрече";
         };
     }
 
