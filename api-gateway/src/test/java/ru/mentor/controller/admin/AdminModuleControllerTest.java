@@ -1,5 +1,7 @@
 package ru.mentor.controller.admin;
 
+import java.util.List;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -7,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -34,16 +38,36 @@ class AdminModuleControllerTest {
     private UserService userService;
 
     @Test
-    void getModuleById_success() throws Exception {
+    @SneakyThrows
+    void getModuleById_success() {
         ModuleDto dto = TestEntityStubGenerator.constructModuleDto();
+
         Mockito.when(redirectAdminModuleService.getModuleById(ArgumentMatchers.anyLong()))
                .thenReturn(dto);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/admin/module/get-one")
-                                              .param(
-                                                      "moduleId",
-                                                      String.valueOf(TestConstantHolder.moduleId)
-                                              ))
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                       "/admin/module/{moduleId}",
+                       TestConstantHolder.moduleId
+               ))
+               .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void getAllModules_success() {
+        ModuleDto moduleDto = TestEntityStubGenerator.constructModuleDto();
+
+        Mockito.when(redirectAdminModuleService.getAllModules(ArgumentMatchers.anyLong()))
+               .thenReturn(new PageImpl<>(
+                       List.of(moduleDto),
+                       PageRequest.of(0, 10),
+                       TestConstantHolder.totalElementsCount
+               ));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                       "/admin/module/by-course-id/{courseId}",
+                       TestConstantHolder.courseId
+               ))
                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

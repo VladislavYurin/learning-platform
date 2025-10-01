@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.ModuleDto;
@@ -42,9 +44,33 @@ public class AdminModuleController {
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен")
             }
     )
-    @GetMapping("/get-one")
-    public ModuleDto getModuleById(Long moduleId) {
+    @GetMapping("/{moduleId}")
+    public ModuleDto getModuleById(@PathVariable Long moduleId) {
         return redirectAdminModuleService.getModuleById(moduleId);
+    }
+
+    /**
+     * Возвращает все модули курса по его ID.
+     *
+     * @param courseId
+     *         ID курса
+     *
+     * @return {@link ModuleDto}
+     */
+    @Operation(
+            summary = "Получить модуль по ID.",
+            description = "Возвращает информацию о модуле по его идентификатору. Необходимы права администратора.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Информация о модуле",
+                            content = @Content(schema = @Schema(implementation = ModuleDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
+            }
+    )
+    @GetMapping("/all-by-course-id/{courseId}")
+    public Page<ModuleDto> getAllModules(@PathVariable Long courseId) {
+        return redirectAdminModuleService.getAllModules(courseId);
     }
 
 }

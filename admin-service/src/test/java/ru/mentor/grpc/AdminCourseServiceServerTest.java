@@ -1,30 +1,33 @@
 package ru.mentor.grpc;
 
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
-import java.util.List;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import ru.mentor.admin.AllCoursesResponse;
-import ru.mentor.admin.CourseResponse;
-import ru.mentor.admin.GrpcPageRequest;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import ru.mentor.common.AllCoursesResponse;
+import ru.mentor.common.CourseResponse;
+import ru.mentor.common.GetCourseRequest;
+import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.entity.CourseEntity;
+import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.EntityNotFoundException;
+import ru.mentor.grpc.error.GrpcErrorText;
 import ru.mentor.mapper.AdminCourseMapper;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.UserMapper;
 import ru.mentor.repository.CourseRepository;
+import ru.mentor.repository.UserRepository;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
@@ -32,107 +35,217 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 @ExtendWith(MockitoExtension.class)
 class AdminCourseServiceServerTest {
 
-    private final UserMapper userMapper = new UserMapper();
-
+    @Spy
+    private UserMapper userMapper = new UserMapper();
     @Mock
     private CourseRepository courseRepository;
+    @Mock
+    private UserRepository userRepository;
     @Spy
     private BaseMapper baseMapper;
     @Spy
     private final AdminCourseMapper courseMapper = new AdminCourseMapper(userMapper);
-    @Mock
-    private StreamObserver<CourseResponse> courseResponseObserver;
-    @Mock
-    private StreamObserver<AllCoursesResponse> allCoursesResponseObserver;
-    @Captor
-    private ArgumentCaptor<CourseResponse> courseResponseCaptor;
-    @Captor
-    private ArgumentCaptor<AllCoursesResponse> allCoursesResponseCaptor;
-    @Captor
-    private ArgumentCaptor<Throwable> entityNotFoundCaptor;
     @InjectMocks
     private AdminCourseServiceServer adminCourseServiceServer;
 
     @Test
-    void getCourse_success() {
+    void getCourse_successfulFlow_returnsCourseResponse() {
         CourseEntity courseEntity = TestEntityStubGenerator.constructCourseEntity();
-        CourseResponse courseResponse = TestGrpcStubGenerator.constructCourseResponse();
+        UserEntity authorEntity = TestEntityStubGenerator.constructAuthorUserEntity();
 
-        Mockito.when(courseRepository.findByIdOrThrow(TestConstantHolder.courseId))
-               .thenReturn(courseEntity);
+        GetCourseRequest getCourseRequest = TestGrpcStubGenerator.constructGetCourseRequest();
+        CourseResponse expectedCourseResponse = TestGrpcStubGenerator.constructCourseResponse();
 
-        adminCourseServiceServer.getCourse(
-                TestGrpcStubGenerator.constructGetCourseRequest(),
-                courseResponseObserver
-        );
+        Mockito.when(courseRepository.findByIdOrThrow(TestConstantHolder.COURSE_ID))
+               .thenReturn(Mono.just(courseEntity));
+        Mockito.when(userRepository.findByIdOrThrow(TestConstantHolder.MENTOR_ID))
+               .thenReturn(Mono.just(authorEntity));
 
-        Mockito.verify(courseResponseObserver).onNext(courseResponseCaptor.capture());
-        Assertions.assertThat(courseResponseCaptor.getValue())
-                  .usingRecursiveComparison()
-                  .isEqualTo(courseResponse);
+        StepVerifier.create(adminCourseServiceServer.getCourse(Mono.just(getCourseRequest)))
+                    .expectNext(expectedCourseResponse)
+                    .verifyComplete();
     }
 
     @Test
-    void getCourse_notFound() {
-        Mockito.when(courseRepository.findByIdOrThrow(TestConstantHolder.courseId))
-               .thenThrow(new EntityNotFoundException(TestConstantHolder.notFoundExceptionText));
+    void getCourse_courseNotFound_returnsNotFoundStatus() {
+        Mockito.when(courseRepository.findByIdOrThrow(TestConstantHolder.COURSE_ID))
+               .thenReturn(Mono.error(
+                       new EntityNotFoundException(TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT)));
 
-        adminCourseServiceServer.getCourse(
-                TestGrpcStubGenerator.constructGetCourseRequest(),
-                courseResponseObserver
-        );
+        GetCourseRequest getCourseRequest = TestGrpcStubGenerator.constructGetCourseRequest();
 
-        Mockito.verify(courseResponseObserver).onError(entityNotFoundCaptor.capture());
+        StepVerifier.create(adminCourseServiceServer.getCourse(Mono.just(getCourseRequest)))
+                    .expectErrorSatisfies(error -> {
 
-        Throwable entityNotFoundException = entityNotFoundCaptor.getValue();
-        Assertions.assertThat(entityNotFoundException)
-                  .isInstanceOf(StatusRuntimeException.class)
-                  .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
+                        Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+
+                        StatusRuntimeException exception = (StatusRuntimeException) error;
+
+                        Assertions.assertEquals(
+                                exception.getStatus().getCode(),
+                                Status.NOT_FOUND.getCode()
+                        );
+
+                        Assertions.assertEquals(
+                                exception.getStatus().getDescription(),
+                                TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT
+                        );
+                    })
+                    .verify();
     }
 
     @Test
-    void getAllCourses_success() {
-        GrpcPageRequest grpcRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
+    void getCourse_courseAuthorNotFound_returnsNotFoundStatus() {
+        CourseEntity courseEntity = TestEntityStubGenerator.constructCourseEntity();
+        GetCourseRequest getCourseRequest = TestGrpcStubGenerator.constructGetCourseRequest();
+
+        Mockito.when(courseRepository.findByIdOrThrow(TestConstantHolder.COURSE_ID))
+               .thenReturn(Mono.just(courseEntity));
+        Mockito.when(userRepository.findByIdOrThrow(TestConstantHolder.COURSE_AUTHOR_ID))
+               .thenReturn(Mono.error(
+                       new EntityNotFoundException(TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT)));
+
+        StepVerifier.create(adminCourseServiceServer.getCourse(getCourseRequest))
+                    .expectErrorSatisfies(error -> {
+                        Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+
+                        StatusRuntimeException statusRuntimeException =
+                                (StatusRuntimeException) error;
+
+                        Assertions.assertEquals(
+                                statusRuntimeException.getStatus().getCode(),
+                                Status.NOT_FOUND.getCode()
+                        );
+
+                        Assertions.assertEquals(
+                                statusRuntimeException.getStatus().getDescription(),
+                                TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT
+                        );
+                    })
+                    .verify();
+    }
+
+    @Test
+    void getCourse_emptyRequest_returnsInvalidArgumentStatus() {
+        Mono<GetCourseRequest> getCourseRequest = Mono.empty();
+
+        StepVerifier.create(adminCourseServiceServer.getCourse(getCourseRequest))
+                    .expectErrorSatisfies(error -> {
+                        Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+
+                        StatusRuntimeException statusRuntimeException =
+                                (StatusRuntimeException) error;
+
+                        Assertions.assertEquals(
+                                statusRuntimeException.getStatus().getCode(),
+                                Status.INVALID_ARGUMENT.getCode()
+                        );
+
+                        Assertions.assertEquals(
+                                statusRuntimeException.getStatus().getDescription(),
+                                GrpcErrorText.EMPTY_REQUEST
+                        );
+                    })
+                    .verify();
+    }
+
+    @Test
+    void getAllCourses_emptyRequest_returnsInvalidArgument() {
+        StepVerifier.create(adminCourseServiceServer.getAllCourses(Mono.empty()))
+                    .expectErrorSatisfies(error -> {
+
+                        Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+                        StatusRuntimeException statusRuntimeException = (StatusRuntimeException) error;
+
+                        Assertions.assertEquals(
+                                Status.Code.INVALID_ARGUMENT,
+                                statusRuntimeException.getStatus().getCode()
+                        );
+                        Assertions.assertEquals(
+                                TestConstantHolder.EMPTY_REQUEST_TEXT,
+                                statusRuntimeException.getStatus().getDescription()
+                        );
+                    })
+                    .verify();
+    }
+
+    @Test
+    void getAllCourses_successfulFlow_returnsResponse() {
+        CourseEntity courseEntityStub = TestEntityStubGenerator.constructCourseEntity();
+        UserEntity userEntityStub = TestEntityStubGenerator.constructAuthorUserEntity();
+        GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
         PageRequest pageRequest = PageRequest.of(
-                TestConstantHolder.pageNumber,
-                TestConstantHolder.pageSize
+                TestConstantHolder.PAGE_NUMBER,
+                TestConstantHolder.PAGE_SIZE
         );
-
-        CourseEntity courseEntity = TestEntityStubGenerator.constructCourseEntity();
-        Page<CourseEntity> coursePage = new PageImpl<>(
-                List.of(courseEntity));
-
+        CourseResponse expectedCourseResponse = TestGrpcStubGenerator.constructCourseResponse();
         AllCoursesResponse allCoursesResponse = TestGrpcStubGenerator.constructAllCoursesResponse();
 
-        Mockito.when(courseRepository.findAll(pageRequest))
-               .thenReturn(coursePage);
+        Mockito.when(baseMapper.mapGrpcPageRequestToPageRequest(grpcPageRequest)).thenReturn(
+                pageRequest);
+        Mockito.when(courseRepository.findAllBy(pageRequest))
+               .thenReturn(Flux.just(courseEntityStub));
+        Mockito.when(userRepository.findById(TestConstantHolder.COURSE_AUTHOR_ID))
+               .thenReturn(Mono.just(userEntityStub));
 
-        adminCourseServiceServer.getAllCourses(grpcRequest, allCoursesResponseObserver);
+        Mockito.when(courseMapper.mapCourseEntityToGrpcCourseResponse(
+                       courseEntityStub,
+                       userEntityStub
+               ))
+               .thenReturn(expectedCourseResponse);
+        Mockito.when(courseRepository.count())
+               .thenReturn(Mono.just(TestConstantHolder.TOTAL_ELEMENTS_COUNT));
 
-        Mockito.verify(allCoursesResponseObserver).onNext(allCoursesResponseCaptor.capture());
-        Assertions.assertThat(allCoursesResponseCaptor.getValue())
-                  .usingRecursiveComparison().isEqualTo(allCoursesResponse);
+        StepVerifier.create(adminCourseServiceServer.getAllCourses(Mono.just(grpcPageRequest)))
+                    .expectNext(allCoursesResponse)
+                    .verifyComplete();
+
+        Mockito.verify(baseMapper).mapGrpcPageRequestToPageRequest(grpcPageRequest);
+        Mockito.verify(courseRepository).findAllBy(pageRequest);
+        Mockito.verify(userRepository).findById(userEntityStub.getId());
+        Mockito.verify(courseRepository).count();
+        Mockito.verify(courseMapper).mapCourseEntityToGrpcCourseResponse(
+                courseEntityStub,
+                userEntityStub
+        );
+        Mockito.verify(courseMapper, Mockito.atLeastOnce())
+               .mapCourseResponsePageToGrpcAllCoursesResponse(ArgumentMatchers.any());
+        Mockito.verifyNoMoreInteractions(
+                baseMapper,
+                courseRepository,
+                userRepository,
+                courseMapper
+        );
     }
 
     @Test
-    void getAllCourses_notFound() {
-        GrpcPageRequest grpcRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
+    void getAllCourses_entitiesNotFound_returnsNotFoundStatus() {
+        GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
         PageRequest pageRequest = PageRequest.of(
-                TestConstantHolder.pageNumber,
-                TestConstantHolder.pageSize
+                TestConstantHolder.PAGE_NUMBER,
+                TestConstantHolder.PAGE_SIZE
         );
 
-        Mockito.when(courseRepository.findAll(pageRequest))
-               .thenThrow(new EntityNotFoundException(TestConstantHolder.notFoundExceptionText));
+        Mockito.when(courseRepository.findAllBy(pageRequest))
+               .thenReturn(Flux.error(new EntityNotFoundException(
+                       TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT)));
+        Mockito.when(courseRepository.count()).thenReturn(Mono.just(0L));
 
-        adminCourseServiceServer.getAllCourses(grpcRequest, allCoursesResponseObserver);
+        StepVerifier.create(adminCourseServiceServer.getAllCourses(Mono.just(grpcPageRequest)))
+                    .expectErrorSatisfies(error -> {
+                        Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+                        StatusRuntimeException statusRuntimeException = (StatusRuntimeException) error;
 
-        Mockito.verify(allCoursesResponseObserver).onError(entityNotFoundCaptor.capture());
-
-        Throwable entityNotFoundException = entityNotFoundCaptor.getValue();
-        Assertions.assertThat(entityNotFoundException)
-                  .isInstanceOf(StatusRuntimeException.class)
-                  .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
+                        Assertions.assertEquals(
+                                statusRuntimeException.getStatus().getCode(),
+                                Status.NOT_FOUND.getCode()
+                        );
+                        Assertions.assertEquals(
+                                statusRuntimeException.getStatus().getDescription(),
+                                TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT
+                        );
+                    })
+                    .verify();
     }
 
 }

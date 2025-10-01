@@ -1,22 +1,18 @@
 package ru.mentor.grpc;
 
 import io.grpc.Status;
-import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import ru.mentor.admin.AdminCourseServiceGrpc.AdminCourseServiceImplBase;
-import ru.mentor.admin.AllCoursesResponse;
-import ru.mentor.admin.CourseResponse;
-import ru.mentor.admin.GetCourseRequest;
-import ru.mentor.admin.GrpcPageRequest;
-import ru.mentor.entity.CourseEntity;
+import reactor.core.publisher.Mono;
+import ru.mentor.admin.ReactorAdminCourseServiceGrpc;
+import ru.mentor.common.AllCoursesResponse;
+import ru.mentor.common.CourseResponse;
+import ru.mentor.common.GetCourseRequest;
+import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.error.GrpcErrorText;
 import ru.mentor.exception.EntityNotFoundException;
-import ru.mentor.mapper.AdminCourseMapper;
-import ru.mentor.mapper.BaseMapper;
-import ru.mentor.repository.CourseRepository;
+import ru.mentor.facade.CourseFacade;
 
 /**
  * gRPC-сервис для работы с курсами для админов
@@ -24,79 +20,84 @@ import ru.mentor.repository.CourseRepository;
 @Slf4j
 @GrpcService
 @RequiredArgsConstructor
-public class AdminCourseServiceServer extends AdminCourseServiceImplBase {
+public class AdminCourseServiceServer extends
+        ReactorAdminCourseServiceGrpc.AdminCourseServiceImplBase {
 
-    private final CourseRepository courseRepository;
-
-    private final AdminCourseMapper courseMapper;
-
-    private final BaseMapper baseMapper;
+    private final CourseFacade courseFacade;
 
     /**
      * Возвращает курс по ID
      *
      * @param request
-     *         gRPC-объект {@link GrpcPageRequest} запроса страницы
-     * @param responseObserver
-     *         объект для возврата ответа
+     *         gRPC-объект {@link GetCourseRequest} запроса страницы
      */
     @Override
-    public void getCourse(
-            GetCourseRequest request,
-            StreamObserver<CourseResponse> responseObserver) {
+    public Mono<CourseResponse> getCourse(Mono<GetCourseRequest> request) {
 
-        String requestId = request.getRequestId();
-        long courseId = request.getCourseId();
-        log.info(
-                "[ rqUID = {} ] Поступил запрос  на получение данных о курсе [ ID = {} ] от администратора",
-                requestId,
-                courseId
-        );
+        return request
+                .switchIfEmpty(emptyRequestCheck())
+                .doOnNext(this::logRequest)
+                .map(GetCourseRequest::getCourseId)
+                .flatMap(courseFacade::findCourseWithAuthor)
+                .onErrorMap(
+                        EntityNotFoundException.class, e ->
+                                Status.NOT_FOUND
+                                        .withDescription(e.getMessage())
+                                        .asRuntimeException()
+                );
+    }
 
-        try {
-            CourseEntity courseEntity = courseRepository.findByIdOrThrow(courseId);
-            CourseResponse courseResponse = courseMapper
-                                                    .mapCourseEntityToGrpcCourseResponse(
-                                                            courseEntity);
-
-            responseObserver.onNext(courseResponse);
-            responseObserver.onCompleted();
-
-        } catch (EntityNotFoundException e) {
-            responseObserver.onError(Status.NOT_FOUND
-                                             .withDescription(e.getMessage())
-                                             .asRuntimeException());
-        }
+    private Mono<? extends GetCourseRequest> emptyRequestCheck() {
+        return Mono.error(Status.INVALID_ARGUMENT
+                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
+                                  .asRuntimeException());
 
     }
 
-    @Override
-    public void getAllCourses(
-            GrpcPageRequest request,
-            StreamObserver<AllCoursesResponse> responseObserver) {
-
-        String requestId = request.getRequestId();
+    private void logRequest(GetCourseRequest request) {
         log.info(
-                "[ rqUID = {} ] Поступил запрос на получение данных обо всех курсах от администратора",
-                requestId
+                "[ rqUID = {} ] Поступил запрос на получение данных о курсе"
+                        + " [ ID = {} ] от администратора [ ID = {} ]",
+                request.getRequestId(),
+                request.getCourseId(),
+                request.getSenderId()
         );
+    }
 
-        try {
-            PageRequest pageRequest = baseMapper.mapGrpcPageRequestToPageRequest(request);
-            Page<CourseEntity> courseEntity = courseRepository.findAll(pageRequest);
+    /**
+     * Возвращает gRPC-объект, содержащий список курсов.
+     *
+     * @param requestMono
+     *         gRPC-объект {@link GrpcPageRequest} запроса страницы сущностей
+     */
+    @Override
+    public Mono<AllCoursesResponse> getAllCourses(Mono<GrpcPageRequest> requestMono) {
 
-            AllCoursesResponse allCoursesResponse = courseMapper
-                                                            .mapCourseEntityPageToGrpcAllCoursesResponse(
-                                                                    courseEntity);
+        return requestMono
+                .switchIfEmpty(emptyGrpcPageRequestCheck())
+                .doOnNext(this::logAllCoursesGrpcPageRequest)
+                .flatMap(courseFacade::findAllCourses)
+                .onErrorMap(
+                        EntityNotFoundException.class, e ->
+                                Status.NOT_FOUND
+                                        .withDescription(e.getMessage())
+                                        .asRuntimeException()
+                );
+    }
 
-            responseObserver.onNext(allCoursesResponse);
-            responseObserver.onCompleted();
+    private Mono<? extends GrpcPageRequest> emptyGrpcPageRequestCheck() {
+        return Mono.error(Status.INVALID_ARGUMENT
+                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
+                                  .asRuntimeException());
+    }
 
-        } catch (EntityNotFoundException e) {
-            responseObserver.onError(Status.NOT_FOUND
-                                             .withDescription(e.getMessage())
-                                             .asRuntimeException());
-        }
+    private void logAllCoursesGrpcPageRequest(GrpcPageRequest request) {
+        log.info(
+                "[ rqUID = {} ] Поступил запрос  на получение данных обо всех курсах"
+                        + " от администратора [ ID = {} ]",
+                request.getRequestId(),
+                request.getSenderId()
+        );
     }
 
 }

@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-import ru.mentor.admin.AllModulesResponse;
-import ru.mentor.admin.GetModuleRequest;
-import ru.mentor.admin.GrpcPageRequest;
-import ru.mentor.admin.ModuleResponse;
+import ru.mentor.common.AllModulesResponse;
+import ru.mentor.common.GetAllModulesRequest;
+import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.ModuleResponse;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.grpc.AdminModuleServiceGrpcClient;
 import ru.mentor.mapper.AdminModuleMapper;
@@ -58,16 +58,12 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
     /**
      * Возвращает страницу модулей.
      *
-     * @param pageNumber
-     *         номер страницы
-     *
-     * @param pageSize
-     *         размер страницы
+     * @param courseId ID курса.
      *
      * @return объект {@link Page}, содержащий объекты {@link ModuleDto}
      */
     @Override
-    public Page<ModuleDto> getAllModules(int pageNumber, int pageSize) {
+    public Page<ModuleDto> getAllModules(long courseId) {
 
         String requestId = UUID.randomUUID().toString();
         Long adminId = userService.getCurrentUserId();
@@ -77,8 +73,8 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
                 adminId
         );
 
-        GrpcPageRequest grpcPageRequest = baseMapper.constructGrpcPageRequest(requestId, pageNumber, pageSize);
-        AllModulesResponse allModules = moduleGrpcClient.getAllModules(grpcPageRequest);
+        GetAllModulesRequest getAllModulesRequest = baseMapper.constructGetAllModulesRequest(requestId, courseId);
+        AllModulesResponse allModules = moduleGrpcClient.getAllModules(getAllModulesRequest);
         return moduleMapper.mapGrpcAllModulesResponseToModuleDtoPage(allModules);
     }
 

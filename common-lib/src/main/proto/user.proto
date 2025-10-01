@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "common.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.common";
+option java_outer_classname = "UserProto";
+
+// Информация об участнике
+message UserInfo {
+  int64 id = 1;
+  string username = 2;
+  Role role = 3;
+  string firstName = 4;
+  string lastName = 5;
+  string tgNickname = 6;
+  optional int64 tgChatId = 7;
+}
+
+// Автор курса
+message AuthorResponse {
+  uint64 user_id = 1;
+  string username = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string tg_nickname = 5;
+  uint64 tg_chat_id = 6;
+}

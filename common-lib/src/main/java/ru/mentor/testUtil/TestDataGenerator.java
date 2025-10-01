@@ -1,10 +1,10 @@
 package ru.mentor.testUtil;
 
 import com.google.protobuf.Timestamp;
-import ru.mentor.calendar.CreateTimeSlotRequest;
-import ru.mentor.calendar.SlotMeetingType;
-import ru.mentor.calendar.SlotType;
-import ru.mentor.calendar.TimeSlotResponse;
+import ru.mentor.common.CreateTimeSlotRequest;
+import ru.mentor.common.SlotMeetingType;
+import ru.mentor.common.SlotType;
+import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.constant.Role;

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.common";
+option java_outer_classname = "ModuleProto";
+
+// Запрос на получение модуля
+message GetModuleRequest {
+  string request_id = 1;
+  uint64 sender_id = 2;
+  uint64 module_id = 3;
+}
+
+// Запрос на получение всех модулей курса
+message GetAllModulesRequest {
+  string request_id = 1;
+  uint64 sender_id = 2;
+  uint64 course_id = 3;
+}
+
+// Запрошенный модуль
+message ModuleResponse {
+  uint64 module_id = 1;
+  string title = 2;
+  uint32 order_number = 3;
+  string content = 4;
+  bool is_active = 5;
+  google.protobuf.Timestamp created_at = 6;
+  uint64 course_id = 7;
+}
+
+// Страница запрошенных модулей
+message AllModulesResponse {
+  PageDetails page_details = 1;
+  repeated ModuleResponse modules = 2;
+}

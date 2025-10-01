@@ -9,10 +9,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import ru.mentor.admin.AllModulesResponse;
-import ru.mentor.admin.GetModuleRequest;
-import ru.mentor.admin.GrpcPageRequest;
-import ru.mentor.admin.ModuleResponse;
+import ru.mentor.common.AllModulesResponse;
+import ru.mentor.common.GetAllModulesRequest;
+import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.ModuleResponse;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.exception.GrpcRetryException;
 import ru.mentor.grpc.AdminModuleServiceGrpcClient;
@@ -87,54 +87,46 @@ class RedirectAdminModuleServiceImplTest {
 
     @Test
     void getAllModules_success() {
-        GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
+        GetAllModulesRequest getAllModulesRequest = TestGrpcStubGenerator.constructGetAllModulesRequest();
         AllModulesResponse grpcResponse = TestGrpcStubGenerator.constructAllModulesResponse();
         Page<ModuleDto> expectedPage = TestEntityStubGenerator.constructModuleDtoPage();
 
-        Mockito.when(baseMapper.constructGrpcPageRequest(
+        Mockito.when(baseMapper.constructGetAllModulesRequest(
                        ArgumentMatchers.any(),
-                       ArgumentMatchers.anyInt(),
-                       ArgumentMatchers.anyInt()
+                       ArgumentMatchers.eq(TestConstantHolder.courseId)
                ))
-               .thenReturn(grpcPageRequest);
-        Mockito.when(moduleGrpcClient.getAllModules(grpcPageRequest))
+               .thenReturn(getAllModulesRequest);
+        Mockito.when(moduleGrpcClient.getAllModules(getAllModulesRequest))
                .thenReturn(grpcResponse);
         Mockito.when(moduleMapper.mapGrpcAllModulesResponseToModuleDtoPage(grpcResponse))
                .thenReturn(expectedPage);
 
-        Page<ModuleDto> result = service.getAllModules(
-                TestConstantHolder.pageNumber,
-                TestConstantHolder.pageSize
-        );
+        Page<ModuleDto> result = service.getAllModules(TestConstantHolder.courseId);
 
         Assertions.assertThat(result).isEqualTo(expectedPage);
-        Mockito.verify(moduleGrpcClient).getAllModules(grpcPageRequest);
+        Mockito.verify(moduleGrpcClient).getAllModules(getAllModulesRequest);
     }
 
     @Test
     void getAllModules_failure() {
-        GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
+        GetAllModulesRequest getAllModulesRequest = TestGrpcStubGenerator.constructGetAllModulesRequest();
 
-        Mockito.when(baseMapper.constructGrpcPageRequest(
+        Mockito.when(baseMapper.constructGetAllModulesRequest(
                        ArgumentMatchers.any(),
-                       ArgumentMatchers.anyInt(),
-                       ArgumentMatchers.anyInt()
+                       ArgumentMatchers.eq(TestConstantHolder.courseId)
                ))
-               .thenReturn(grpcPageRequest);
-        Mockito.when(moduleGrpcClient.getAllModules(grpcPageRequest))
+               .thenReturn(getAllModulesRequest);
+        Mockito.when(moduleGrpcClient.getAllModules(getAllModulesRequest))
                .thenThrow(new GrpcRetryException(
                        TestConstantHolder.grpcExceptionText,
-                       grpcPageRequest.getRequestId()
+                       getAllModulesRequest.getRequestId()
                ));
 
-        Assertions.assertThatThrownBy(() -> service.getAllModules(
-                          TestConstantHolder.pageNumber,
-                          TestConstantHolder.pageSize
-                  ))
+        Assertions.assertThatThrownBy(() -> service.getAllModules(TestConstantHolder.courseId))
                   .isInstanceOf(GrpcRetryException.class)
                   .hasMessageContaining(TestConstantHolder.grpcExceptionText);
 
-        Mockito.verify(moduleGrpcClient).getAllModules(grpcPageRequest);
+        Mockito.verify(moduleGrpcClient).getAllModules(getAllModulesRequest);
     }
 
 }

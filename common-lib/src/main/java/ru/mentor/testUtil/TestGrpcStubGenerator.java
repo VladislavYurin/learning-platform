@@ -3,21 +3,22 @@ package ru.mentor.testUtil;
 import com.google.protobuf.Timestamp;
 import java.time.ZoneOffset;
 import java.util.List;
-import ru.mentor.admin.AllCoursesResponse;
-import ru.mentor.admin.AllModulesResponse;
-import ru.mentor.admin.AllTimeSlotsResponse;
-import ru.mentor.admin.AuthorResponse;
-import ru.mentor.admin.CourseResponse;
-import ru.mentor.admin.GetCourseRequest;
-import ru.mentor.admin.GetModuleRequest;
-import ru.mentor.admin.GrpcPageRequest;
-import ru.mentor.admin.ModuleResponse;
-import ru.mentor.admin.PageDetails;
-import ru.mentor.calendar.MentorSlotInfo;
-import ru.mentor.calendar.MentorSlotsInfoResponse;
-import ru.mentor.calendar.Role;
-import ru.mentor.calendar.TimeSlotResponse;
-import ru.mentor.calendar.UserInfo;
+import ru.mentor.common.AllCoursesResponse;
+import ru.mentor.common.AllModulesResponse;
+import ru.mentor.common.AllTimeSlotsResponse;
+import ru.mentor.common.AuthorResponse;
+import ru.mentor.common.CourseResponse;
+import ru.mentor.common.GetAllModulesRequest;
+import ru.mentor.common.GetCourseRequest;
+import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.ModuleResponse;
+import ru.mentor.common.PageDetails;
+import ru.mentor.common.MentorSlotInfo;
+import ru.mentor.common.MentorSlotsInfoResponse;
+import ru.mentor.common.Role;
+import ru.mentor.common.TimeSlotResponse;
+import ru.mentor.common.UserInfo;
 
 public class TestGrpcStubGenerator {
 
@@ -41,6 +42,13 @@ public class TestGrpcStubGenerator {
                               .setPageNumber(TestConstantHolder.pageNumber)
                               .setPageSize(TestConstantHolder.pageSize)
                               .build();
+    }
+
+    public static GetAllModulesRequest constructGetAllModulesRequest() {
+        return GetAllModulesRequest.newBuilder()
+                                   .setRequestId(TestConstantHolder.requestId)
+                                   .setCourseId(TestConstantHolder.courseId)
+                                   .build();
     }
 
     public static GetCourseRequest constructGetCourseRequest() {
@@ -152,8 +160,8 @@ public class TestGrpcStubGenerator {
 
     public static MentorSlotsInfoResponse constructMentorSlotsInfoResponse() {
         return MentorSlotsInfoResponse.newBuilder()
-                .addAllSlots(List.of(constructMentorSlotInfo()))
-                .build();
+                                      .addAllSlots(List.of(constructMentorSlotInfo()))
+                                      .build();
     }
 
 }
