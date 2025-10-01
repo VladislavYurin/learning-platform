@@ -6,8 +6,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import ru.mentor.admin.AdminModuleServiceGrpc.AdminModuleServiceBlockingStub;
 import ru.mentor.admin.AllModulesResponse;
+import ru.mentor.admin.GetAllModulesRequest;
 import ru.mentor.admin.GetModuleRequest;
-import ru.mentor.admin.GrpcPageRequest;
 import ru.mentor.admin.ModuleResponse;
 import ru.mentor.exception.GrpcRetryException;
 
@@ -59,7 +59,7 @@ public class AdminModuleServiceGrpcClient {
             maxAttemptsExpression = "${grpc.retry.max-attempts}",
             backoff = @Backoff(delayExpression = "${grpc.retry.delay}")
     )
-    public AllModulesResponse getAllModules(GrpcPageRequest request) {
+    public AllModulesResponse getAllModules(GetAllModulesRequest request) {
         try {
             return blockingStub.getAllModules(request);
         } catch (Exception e) {

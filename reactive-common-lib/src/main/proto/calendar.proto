@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.calendar";
+option java_outer_classname = "CalendarProto";
+
+// Сервис для работы с календарем
+service CalendarService {
+  // Создание нового слота в календаре ментора
+  rpc CreateMentorTimeSlot (CreateTimeSlotRequest) returns (TimeSlotResponse);
+  // Бронирование существующего слота
+  rpc BookTimeslot (BookTimeSlotRequest) returns (TimeSlotResponse);
+  // Получение всех слотов ментора с информацией об участниках
+  rpc GetMentorSlots (MentorSlotsInfoRequest) returns (MentorSlotsInfoResponse);
+}
+
+// Запрос на создание слота
+message CreateTimeSlotRequest {
+  string rqUid = 1;                         // Уникальный идентификатор запроса
+  int64 mentor_id = 2;                      // ID ментора
+  google.protobuf.Timestamp start_time = 3; // Время начала слота
+  google.protobuf.Timestamp end_time = 4;   // Время окончания слота
+  SlotType slot_type = 5;                   // Тип слота
+  SlotMeetingType slot_meeting_type = 6;    // Тип встречи
+  int32 max_participants = 7;               // Макс. участников (для групповых)
+  string meeting_link = 8;                  // Ссылка на встречу (опционально)
+  string description = 9;                   // Описание слота (опционально)
+}
+
+// Запрос на бронирование слота
+message BookTimeSlotRequest {
+  string rqUid = 1;                           // Уникальный идентификатор запроса
+  int64 slot_id = 2;                          // ID бронируемого слота
+  int64 user_id = 3;                          // ID пользователя
+}
+
+// Ответ с созданным слотом
+message TimeSlotResponse {
+  string rqUid = 1;                          // Уникальный идентификатор запроса
+  int64 slot_id = 2;                         // ID созданного слота
+  int64 mentor_id = 3;                       // ID ментора
+  google.protobuf.Timestamp start_time = 4;  // Время начала
+  google.protobuf.Timestamp end_time = 5;    // Время окончания
+  SlotType slot_type = 6;                    // Тип слота
+  SlotMeetingType slot_meeting_type = 7;     // Тип встречи
+  int32 max_participants = 8;                // Макс. участников
+  string meeting_link = 9;                   // Ссылка на встречу
+  string description = 10;                   // Описание
+  google.protobuf.Timestamp created_at = 11; // Время создания
+}
+
+// Типы слотов
+enum SlotType {
+  INDIVIDUAL = 0;
+  GROUP = 1;
+}
+
+// Статусы слотов
+enum SlotMeetingType {
+  ACQUAINTANCE = 0;
+  COMMUNICATION = 1;
+  ACCEPTING = 2;
+}
+
+// Запрос всех слотов ментора
+message MentorSlotsInfoRequest {
+  string rqUid = 1;
+  int64 mentor_id = 2;
+}
+
+// Ответ с информацией о слотах ментора и участниках в них
+message MentorSlotsInfoResponse {
+  repeated MentorSlotInfo slots = 1;
+}
+
+// Информация об одном забронированном слоте с информацией об участниках, если они есть
+message MentorSlotInfo {
+  TimeSlotResponse slot_info = 1;
+  repeated UserInfo participants = 2;
+}
+
+// Информация об участнике
+message UserInfo {
+  int64 id = 1;
+  string username = 2;
+  Role role = 3;
+  string firstName = 4;
+  string lastName = 5;
+  string tgNickname = 6;
+  optional int64 tgChatId = 7;
+}
+
+enum Role {
+  USER = 0;
+  ADMIN = 1;
+  MENTOR = 2;
+}

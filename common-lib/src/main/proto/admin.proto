@@ -32,15 +32,16 @@ service AdminModuleService {
   // Получить модуль по ID
   rpc GetModule (GetModuleRequest) returns (ModuleResponse);
 
-  // Получить все модули
-  rpc GetAllModules (GrpcPageRequest) returns (AllModulesResponse);
+  // Получить все модули курса
+  rpc GetAllModules (GetAllModulesRequest) returns (AllModulesResponse);
 
 }
 
 // Запрос на получение курса
 message GetCourseRequest {
   string request_id = 1;
-  uint64 course_id = 2;
+  uint64 sender_user_id = 2;
+  uint64 course_id = 3;
 }
 
 // Запрошенный курс
@@ -66,8 +67,9 @@ message AuthorResponse {
 // Запрос страницы сущностей
 message GrpcPageRequest {
   string request_id = 1;
-  uint32 page_number = 2;
-  uint32 page_size = 3;
+  uint64 admin_user_id = 2;
+  uint32 page_number = 3;
+  uint32 page_size = 4;
 }
 
 // Детали страницы. gRPC-клиенты собирает с его помощью Page для отправки пользователю.
@@ -93,7 +95,8 @@ message AllTimeSlotsResponse {
 // Запрос на получение модуля
 message GetModuleRequest {
   string request_id = 1;
-  uint64 module_id = 2;
+  uint64 admin_user_id = 2;
+  uint64 module_id = 3;
 }
 
 // Запрошенный модуль
@@ -111,4 +114,11 @@ message ModuleResponse {
 message AllModulesResponse {
   PageDetails page_details = 1;
   repeated ModuleResponse modules = 2;
+}
+
+// Запрос на получение всех модулей курса
+message GetAllModulesRequest {
+  string request_id = 1;
+  uint64 admin_user_id = 2;
+  uint64 course_id = 3;
 }

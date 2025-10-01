@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+import ru.mentor.admin.GetAllModulesRequest;
 import ru.mentor.admin.GrpcPageRequest;
 import ru.mentor.admin.PageDetails;
 import ru.mentor.dto.CourseDto;
@@ -159,6 +160,13 @@ public class BaseMapper {
      */
     public PageRequest mapGrpcPageRequestToPageRequest(GrpcPageRequest grpcPageRequest) {
         return PageRequest.of(grpcPageRequest.getPageNumber(), grpcPageRequest.getPageSize());
+    }
+
+    public GetAllModulesRequest constructGetAllModulesRequest(String requestId, long courseId) {
+        return GetAllModulesRequest.newBuilder()
+                                   .setRequestId(requestId)
+                                   .setCourseId(courseId)
+                                   .build();
     }
 
     private List<CourseTagDto> mapTags(List<CourseTagLinkEntity> courseTags) {
