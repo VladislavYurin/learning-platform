@@ -8,6 +8,7 @@ import ru.mentor.admin.AllModulesResponse;
 import ru.mentor.admin.AllTimeSlotsResponse;
 import ru.mentor.admin.AuthorResponse;
 import ru.mentor.admin.CourseResponse;
+import ru.mentor.admin.GetAllModulesRequest;
 import ru.mentor.admin.GetCourseRequest;
 import ru.mentor.admin.GetModuleRequest;
 import ru.mentor.admin.GrpcPageRequest;
@@ -41,6 +42,13 @@ public class TestGrpcStubGenerator {
                               .setPageNumber(TestConstantHolder.pageNumber)
                               .setPageSize(TestConstantHolder.pageSize)
                               .build();
+    }
+
+    public static GetAllModulesRequest constructGetAllModulesRequest() {
+        return GetAllModulesRequest.newBuilder()
+                                   .setRequestId(TestConstantHolder.requestId)
+                                   .setCourseId(TestConstantHolder.courseId)
+                                   .build();
     }
 
     public static GetCourseRequest constructGetCourseRequest() {
@@ -152,8 +160,8 @@ public class TestGrpcStubGenerator {
 
     public static MentorSlotsInfoResponse constructMentorSlotsInfoResponse() {
         return MentorSlotsInfoResponse.newBuilder()
-                .addAllSlots(List.of(constructMentorSlotInfo()))
-                .build();
+                                      .addAllSlots(List.of(constructMentorSlotInfo()))
+                                      .build();
     }
 
 }

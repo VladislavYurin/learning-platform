@@ -1,11 +1,10 @@
 package ru.mentor.grpc;
 
-import static ru.mentor.admin.AdminCourseServiceGrpc.AdminCourseServiceBlockingStub;
-
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import ru.mentor.admin.AdminCourseServiceGrpc.AdminCourseServiceBlockingStub;
 import ru.mentor.admin.AllCoursesResponse;
 import ru.mentor.admin.CourseResponse;
 import ru.mentor.admin.GetCourseRequest;
@@ -18,7 +17,7 @@ import ru.mentor.exception.GrpcRetryException;
 @Component
 public class AdminCourseServiceGrpcClient {
 
-    @GrpcClient("admin-course-service")
+    @GrpcClient("admin-course-client")
     private AdminCourseServiceBlockingStub blockingStub;
 
     /**

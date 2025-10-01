@@ -19,14 +19,10 @@ public interface RedirectAdminModuleService {
     /**
      * Возвращает страницу модулей.
      *
-     * @param pageNumber
-     *         номер страницы
-     *
-     * @param pageSize
-     *         размер страницы
+     * @param courseId ID курса.
      *
      * @return объект {@link Page}, содержащий объекты {@link ModuleDto}
      */
-    Page<ModuleDto> getAllModules(int pageNumber, int pageSize);
+    Page<ModuleDto> getAllModules(long courseId);
 
 }
