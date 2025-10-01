@@ -30,6 +30,7 @@ import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
+import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
@@ -361,4 +362,22 @@ public class TimeSlotMapper {
                           .build();
     }
 
+    /**
+     * Преобразует gRPC - ответ {@link List<MentorSlotInfo>} с информацией о слотах ментора
+     * в ДТО {@link MentorTimeSlotInfoForUserDto} для возврата ученику
+     * @param slotsInfoList gRPC ответ с данными о слотах ментора
+     * @return {@link List<MentorTimeSlotInfoForUserDto>} - список ДТО с информацией о слотах для ученика
+     */
+    public List<MentorTimeSlotInfoForUserDto> toSlotInfoForUserList(List<MentorSlotInfo> slotsInfoList) {
+        return slotsInfoList.stream()
+                .map(slotInfo -> {
+                    return MentorTimeSlotInfoForUserDto.builder()
+                            .isSlotFull(
+                                    slotInfo.getParticipantsList().size() == slotInfo.getSlotInfo().getMaxParticipants()
+                            )
+                            .mentorTimeSlotDto(this.grpcResponseToDto(slotInfo.getSlotInfo()))
+                            .build();
+                })
+                .toList();
+    }
 }

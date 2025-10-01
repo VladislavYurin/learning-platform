@@ -1,6 +1,8 @@
 package ru.mentor.services.impl;
 
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import ru.mentor.calendar.TimeSlotResponse;
 import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
+import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
 import ru.mentor.mapper.TimeSlotMapper;
@@ -87,20 +90,35 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
      * @return список ДТО {@link List<MentorSlotInfoDto>}
      */
     @Override
-    public List<MentorSlotInfoDto> getMentorSlotsInfo() {
+    public List<MentorSlotInfoDto> getMentorSlotsInfoForMentor() {
 
-        Long mentorId = userService.getCurrentUser().getId();
+        return timeSlotMapper.toSlotInfoDtoList(
+                this.getMentorSlotsInfoRequest(Optional.empty()));
+    }
+
+    /**
+     * Отправляет запрос для получения информации о слотах ментора с ID = mentorId
+     * @param mentorId - ID ментора, слоты которого нужно вернуть
+     * @return список ДТО {@link List<MentorTimeSlotInfoForUserDto>}
+     */
+    @Override
+    public List<MentorTimeSlotInfoForUserDto> getMentorSlotsInfoForUser(Long mentorId) {
+
+        return timeSlotMapper.toSlotInfoForUserList(
+                this.getMentorSlotsInfoRequest(Optional.of(mentorId)));
+    }
+
+    public List<MentorSlotInfo> getMentorSlotsInfoRequest(Optional<Long> mentorId) {
+
+        Long userId = userService.getCurrentUser().getId();
         String rqUId = RqGenerator.generateRqId();
 
-        log.info("[ RqUId = {} ] Получен запрос на извлечение информации о слотах ментора [ ID = {} ].",
-                rqUId, mentorId);
+        log.info("[ RqUId = {} ] Получен запрос от пользователя [ ID = {} ] на извлечение информации о слотах ментора [ ID = {} ].",
+                rqUId, userId, mentorId.orElse(userId));
 
         MentorSlotsInfoRequest request =
-                timeSlotMapper.toMentorSlotsInfoGrpcRequest(mentorId, rqUId);
+                timeSlotMapper.toMentorSlotsInfoGrpcRequest(mentorId.orElse(userId), rqUId);
 
-        List<MentorSlotInfo> mentorSlotsList =
-                calendarServiceClient.getMentorSlotsInfo(request).getSlotsList();
-
-        return timeSlotMapper.toSlotInfoDtoList(mentorSlotsList);
+        return calendarServiceClient.getMentorSlotsInfo(request).getSlotsList();
     }
 }

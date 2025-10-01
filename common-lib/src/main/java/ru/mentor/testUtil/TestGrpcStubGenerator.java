@@ -14,6 +14,7 @@ import ru.mentor.admin.GrpcPageRequest;
 import ru.mentor.admin.ModuleResponse;
 import ru.mentor.admin.PageDetails;
 import ru.mentor.calendar.MentorSlotInfo;
+import ru.mentor.calendar.MentorSlotsInfoResponse;
 import ru.mentor.calendar.Role;
 import ru.mentor.calendar.TimeSlotResponse;
 import ru.mentor.calendar.UserInfo;
@@ -147,6 +148,12 @@ public class TestGrpcStubGenerator {
                                    .setPageDetails(constructPageDetails())
                                    .addAllTimeSlots(List.of(constructMentorSlotInfo()))
                                    .build();
+    }
+
+    public static MentorSlotsInfoResponse constructMentorSlotsInfoResponse() {
+        return MentorSlotsInfoResponse.newBuilder()
+                .addAllSlots(List.of(constructMentorSlotInfo()))
+                .build();
     }
 
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
+import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.services.RedirectCalendarService;
 
 import java.util.List;
@@ -97,6 +98,28 @@ public class TimeSlotController {
     @GetMapping("/my")
     @PreAuthorize("hasRole('MENTOR')")
     public ResponseEntity<List<MentorSlotInfoDto>> getMentorSlotsInfo() {
-        return ResponseEntity.ok().body(redirectCalendarService.getMentorSlotsInfo());
+        return ResponseEntity.ok().body(redirectCalendarService.getMentorSlotsInfoForMentor());
     }
+
+    /**
+     * Выдает информацию о слотах ментора для ученика с признаком заполненности
+     *
+     * @return {@link List<MentorTimeSlotInfoForUserDto>} Список слотов.
+     */
+    @Operation(
+            summary = "Выдать информацию обо всех слотах ментора",
+            description = "Выдать информацию о слотах. Требуются права USER",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Выдан список слотов",
+                            content = @Content(schema = @Schema(implementation = MentorTimeSlotDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
+            }
+    )
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR') or hasRole('USER')")
+    public ResponseEntity<List<MentorTimeSlotInfoForUserDto>> getMentorSlotsInfoForUser(@RequestParam Long mentorId) {
+        return ResponseEntity.ok().body(redirectCalendarService.getMentorSlotsInfoForUser(mentorId));
+    }
+
 }
