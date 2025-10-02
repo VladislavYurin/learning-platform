@@ -2,6 +2,7 @@ package ru.mentor.testUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -15,8 +16,16 @@ import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.dto.tag.CourseTagDto;
 import ru.mentor.dto.tag.CreateCourseTagRequest;
+import ru.mentor.dto.mentorTag.MentorTagAttachResponseDto;
+import ru.mentor.dto.mentorTag.MentorTagDetachRequestDto;
+import ru.mentor.dto.mentorTag.MentorTagDetachResponseDto;
+import ru.mentor.dto.mentorTag.MentorTagDto;
+import ru.mentor.dto.mentorTag.MentorTagDtoCreateRequest;
+import ru.mentor.dto.mentorTag.MentorTagsAttachRequestDto;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.CourseTagEntity;
+import ru.mentor.entity.MentorTagEntity;
+import ru.mentor.entity.MentorTagLinkEntity;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
@@ -224,6 +233,82 @@ public class TestEntityStubGenerator {
                               .build();
     }
 
+    public static MentorTagEntity constructTestMentorTagEntity() {
+        return MentorTagEntity.builder()
+                              .id(TestConstantHolder.mentorTagId)
+                              .tagName(TestConstantHolder.mentorTagNameDirection)
+                              .type(TestConstantHolder.mentorTagTypeDirection)
+                              .build();
+    }
+
+    public static MentorTagEntity constructTestMentorTagEntityBadge() {
+        return MentorTagEntity.builder()
+                              .id(TestConstantHolder.mentorTagId)
+                              .tagName(TestConstantHolder.mentorTagNameBadge)
+                              .type(TestConstantHolder.mentorTagTypeBadge)
+                              .build();
+    }
+
+    public static MentorTagDto constructMentorTagDto() {
+        return MentorTagDto.builder()
+                           .id(TestConstantHolder.mentorTagId)
+                           .tagName(TestConstantHolder.mentorTagNameDirection)
+                           .type(TestConstantHolder.mentorTagTypeDirection)
+                           .build();
+    }
+
+    public static ArrayList<MentorTagDto> constructListMentorTagDto() {
+        ArrayList<MentorTagDto> list = new ArrayList<>();
+        list.add(constructMentorTagDto());
+        list.add(constructMentorTagDto());
+        return list;
+    }
+
+    public static MentorTagAttachResponseDto constructMentorTagAttachResponseDto() {
+        return MentorTagAttachResponseDto.builder()
+                                         .rqUid(TestConstantHolder.requestId)
+                                         .tagsIds(TestConstantHolder.mentorTagsIds)
+                                         .didntAttached(TestConstantHolder.mentorTagsIds)
+                                         .build();
+    }
+
+    public static MentorTagDetachResponseDto constructMentorTagDetachResponseDto() {
+        return MentorTagDetachResponseDto.builder()
+                                         .rqUid(TestConstantHolder.requestId)
+                                         .mentorId(TestConstantHolder.mentorId)
+                                         .tagIds(TestConstantHolder.mentorTagId)
+                                         .build();
+    }
+
+    public static MentorTagsAttachRequestDto constructMentorTagsAttachRequestDto() {
+        return MentorTagsAttachRequestDto.builder()
+                .mentorId(TestConstantHolder.mentorId)
+                .tagsIds(TestConstantHolder.mentorTagsIds)
+                .build();
+    }
+
+    public static MentorTagLinkEntity constructMentorTagLinkEntity() {
+        return MentorTagLinkEntity.builder()
+                .id(TestConstantHolder.mentorTagLinkId)
+                .mentor(TestDataGenerator.getTestMentorUser())
+                .tag(constructTestMentorTagEntity())
+                .attachedAt(TestConstantHolder.createdAt)
+                .build();
+    }
+
+    public static List<MentorTagLinkEntity> constructListMentorTagLinkEntity() {
+        ArrayList<MentorTagLinkEntity> list = new ArrayList<>();
+        list.add(constructMentorTagLinkEntity());
+        return list;
+    }
+
+    public static MentorTagDetachRequestDto constructMentorTagDetachRequestDto() {
+        return MentorTagDetachRequestDto.builder()
+                .mentorId(TestConstantHolder.mentorId)
+                .tagId(TestConstantHolder.mentorTagId)
+                .build();
+    }
+
     public static CourseTagDto constructCourseTagDto(){
         return CourseTagDto.builder()
                            .tagName(TestConstantHolder.courseTagName)
@@ -239,5 +324,11 @@ public class TestEntityStubGenerator {
                 .builder()
                 .tagName(TestConstantHolder.courseTagName)
                 .build();
+    }
+
+    public static MentorTagDtoCreateRequest constructMentorTagDtoCreateRequest() {
+        return MentorTagDtoCreateRequest.builder()
+                                        .tagName(TestConstantHolder.mentorTagNameBadge)
+                                        .build();
     }
 }

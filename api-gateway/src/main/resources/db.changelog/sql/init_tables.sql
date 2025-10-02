@@ -21,6 +21,29 @@ CREATE TABLE IF NOT EXISTS courses
     foreign key (course_author_id) references users (id_user) on delete cascade
 );
 
+CREATE TABLE IF NOT EXISTS course_tags
+(
+    id_tag     BIGSERIAL PRIMARY KEY,
+    tag_name   VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_active  boolean      NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE IF NOT EXISTS course_tag_link
+(
+    id_course_tag BIGSERIAL PRIMARY KEY,
+    id_course     BIGINT    NOT NULL,
+    id_tag        BIGINT    NOT NULL,
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_course_tags_course
+        FOREIGN KEY (id_course) REFERENCES courses (id_course) ON DELETE CASCADE,
+    CONSTRAINT fk_course_tags_tag
+        FOREIGN KEY (id_tag) REFERENCES course_tags (id_tag) ON DELETE CASCADE,
+
+    CONSTRAINT uk_course_tags_course_tag UNIQUE (id_course, id_tag)
+);
+
 CREATE TABLE IF NOT EXISTS modules
 (
     id_module      BIGSERIAL primary key,
@@ -109,4 +132,29 @@ CREATE TABLE IF NOT EXISTS sent_notification
     error_text               VARCHAR(255),
     CONSTRAINT fk_recipient FOREIGN KEY (recipient_id)
     REFERENCES users (id_user)
+);
+
+CREATE TABLE IF NOT EXISTS mentor_tags
+(
+    id_tag   BIGSERIAL PRIMARY KEY,
+    tag_name VARCHAR(50) NOT NULL,
+    type     VARCHAR(20) NOT NULL CHECK (type IN ('DIRECTION', 'BADGE'))
+);
+
+CREATE TABLE mentor_tag_link
+(
+    id_mentor_tag BIGSERIAL PRIMARY KEY,
+    id_user       BIGINT                      NOT NULL,
+    id_tag        BIGINT                      NOT NULL,
+    attached_at   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_mentor_tag_link_user
+        FOREIGN KEY (id_user)
+            REFERENCES users (id_user)
+            ON DELETE CASCADE,
+
+    CONSTRAINT fk_mentor_tag_link_tag
+        FOREIGN KEY (id_tag)
+            REFERENCES mentor_tags (id_tag)
+            ON DELETE CASCADE
 );

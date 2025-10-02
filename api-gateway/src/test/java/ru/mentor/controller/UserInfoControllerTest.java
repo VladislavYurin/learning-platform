@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.security.JwtAuthenticationFilter;
+import ru.mentor.services.RedirectMentorTagService;
 import ru.mentor.services.UserAvatarService;
 import ru.mentor.services.UserInfoService;
 import ru.mentor.services.UserService;
@@ -37,6 +38,9 @@ public class UserInfoControllerTest {
 
     @MockBean
     private UserAvatarService userAvatarService;
+
+    @MockBean
+    private RedirectMentorTagService mentorTagService;
 
     @Test
     void updateMyUserInfo() throws Exception {

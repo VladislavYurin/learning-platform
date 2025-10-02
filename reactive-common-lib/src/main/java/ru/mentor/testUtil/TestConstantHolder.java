@@ -3,14 +3,19 @@ package ru.mentor.testUtil;
 import com.google.protobuf.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
+import ru.mentor.common.Header;
+import ru.mentor.common.MentorTagTypeProto;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
+import ru.mentor.constant.MentorTagType;
 
-public final class TestConstantHolder {
+public final class
+TestConstantHolder {
 
     public static final String NOT_FOUND_EXCEPTION_TEXT = "Slots not found";
     public static final String EMPTY_REQUEST_TEXT = "Empty request";
@@ -43,6 +48,16 @@ public final class TestConstantHolder {
     public static final CalendarSlotMeetingType SLOT_MEETING_TYPE = CalendarSlotMeetingType.ACCEPTING;
     public static final SlotType GRPC_SLOT_TYPE = SlotType.INDIVIDUAL;
     public static final SlotMeetingType GRPC_SLOT_MEETING_TYPE = SlotMeetingType.ACCEPTING;
+
+    public static Long MENTOR_TAG_ID = 1L;
+    public static Long MENTOR_TAG_LINK_ID = 1L;
+    public static String MENTOR_TAG_NAME_DIRECTION = "Java";
+    public static String MENTOR_TAG_NAME_BADGE = "Учитель года села Алупки";
+    public static MentorTagType MENTOR_TAG_TYPE_DIRECTION = MentorTagType.DIRECTION;
+    public static MentorTagType MENTOR_TAG_TYPE_BADGE = MentorTagType.BADGE;
+    public static MentorTagTypeProto MENTOR_TAG_TYPE_PROTO_DIRECTION = MentorTagTypeProto.DIRECTION;
+    public static List<Long> MENTOR_TAGS_IDS = List.of(1L, 2L, 3L, 4L);
+    public static Header HEADER = Header.newBuilder().setRequestId(REQUEST_ID).setApiKey("test-api-key").setNodeId("test-node-id").build();
 
     public static final int MAX_PARTICIPANTS = 10;
     public static final String MEETING_LINK = "https://meet.test";

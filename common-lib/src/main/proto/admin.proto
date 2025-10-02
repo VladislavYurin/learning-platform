@@ -4,6 +4,7 @@ import "common.proto";
 import "course.proto";
 import "time_slot.proto";
 import "module.proto";
+import "mentor_tags.proto";
 
 option java_multiple_files = true;
 option java_package = "ru.mentor.admin";
@@ -37,4 +38,19 @@ service AdminModuleService {
   // Получить все модули курса
   rpc GetAllModules (GrpcPageRequest) returns (AllModulesResponse);
 
+}
+
+// Сервис для админских запросов к тэгам ментора
+service AdminMentorService {
+  //Создать кастомный тэг
+  rpc CreateCustomMentorTag (CreateCustomMentorTagRequest) returns (MentorTagResponse);
+
+  // Получить полный справочник тегов
+  rpc ListMentorTags (AllMentorTagsRequset) returns (AllMentorTagsResponse);
+
+  // Привязать теги к ментору
+  rpc AttachMentorTags (AttachMentorTagsRequest) returns (AttachMentorTagsResponse);
+
+  // Отвязать тег от ментора
+  rpc DetachMentorTag (DetachMentorTagRequest) returns (DetachMentorTagResponse);
 }

@@ -19,12 +19,23 @@ import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.MentorSlotInfo;
+import ru.mentor.common.MentorTag;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.PageDetails;
 import ru.mentor.common.Role;
 import ru.mentor.common.CourseTagResponse;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.common.UserInfo;
+import ru.mentor.grpc.tags.AllMentorTagsRequset;
+import ru.mentor.grpc.tags.AllMentorTagsResponse;
+import ru.mentor.grpc.tags.AttachMentorTagsRequest;
+import ru.mentor.grpc.tags.AttachMentorTagsResponse;
+import ru.mentor.grpc.tags.CreateCustomMentorTagRequest;
+import ru.mentor.grpc.tags.DetachMentorTagRequest;
+import ru.mentor.grpc.tags.DetachMentorTagResponse;
+import ru.mentor.grpc.tags.GetCurrentMentorTagsRequest;
+import ru.mentor.grpc.tags.MentorTagResponse;
+import ru.mentor.grpc.tags.MentorTagsResponse;
 
 public final class TestGrpcStubGenerator {
 
@@ -270,5 +281,114 @@ public final class TestGrpcStubGenerator {
         return listOfTags;
     }
 
+    public static MentorTag constructMentorTag() {
+        return MentorTag.newBuilder()
+                        .setId(TestConstantHolder.MENTOR_TAG_ID)
+                        .setName(TestConstantHolder.MENTOR_TAG_NAME_DIRECTION)
+                        .setType(TestConstantHolder.MENTOR_TAG_TYPE_PROTO_DIRECTION)
+                        .build();
+    }
+
+    public static AttachMentorTagsResponse constructAttachMentorTagsResponse() {
+        return AttachMentorTagsResponse.newBuilder()
+                                       .setRqUid(TestConstantHolder.REQUEST_ID)
+                                       .addAllAttachedTagIds(TestConstantHolder.MENTOR_TAGS_IDS)
+                                       .addAllNotAttachedTagIds(TestConstantHolder.MENTOR_TAGS_IDS)
+                                       .build();
+    }
+
+    public static DetachMentorTagResponse constructDetachMentorTagResponse() {
+        return DetachMentorTagResponse.newBuilder()
+                                      .setRqUid(TestConstantHolder.REQUEST_ID)
+                                      .setMentorId(TestConstantHolder.MENTOR_ID)
+                                      .setTagId(TestConstantHolder.MENTOR_TAG_ID)
+                                      .build();
+    }
+
+    public static MentorTagResponse constructMentorTagResponse() {
+        return MentorTagResponse.newBuilder()
+                                .setRqUid(TestConstantHolder.REQUEST_ID)
+                                .setMentorTag(TestGrpcStubGenerator.constructMentorTag())
+                                .build();
+    }
+
+    public static List<MentorTag> constructListMentorTag() {
+        return List.of(constructMentorTag(), constructMentorTag());
+    }
+
+    public static AllMentorTagsResponse constructAllMentorTagsResponse() {
+
+        return AllMentorTagsResponse.newBuilder()
+                                    .setRqUid(TestConstantHolder.REQUEST_ID)
+                                    .addAllAllMentorsTags(constructListMentorTag())
+                                    .build();
+    }
+
+    public static MentorTagsResponse constructMentorTagsResponse() {
+        return MentorTagsResponse.newBuilder()
+                                 .setRqUid(TestConstantHolder.REQUEST_ID)
+                                 .addAllMentorTags(constructListMentorTag())
+                                 .build();
+    }
+
+    public static AttachMentorTagsRequest constructAttachMentorTagsRequest() {
+        return AttachMentorTagsRequest.newBuilder()
+                                      .setHeader(TestConstantHolder.HEADER)
+                                      .setMentorId(TestConstantHolder.MENTOR_ID)
+                                      .addAllTagIds(TestConstantHolder.MENTOR_TAGS_IDS)
+                                      .build();
+    }
+
+    public static AttachMentorTagsRequest constructAttachMentorTagsRequest(Long mentorId) {
+        return AttachMentorTagsRequest.newBuilder()
+                                      .setHeader(TestConstantHolder.HEADER)
+                                      .setMentorId(mentorId)
+                                      .addAllTagIds(TestConstantHolder.MENTOR_TAGS_IDS)
+                                      .build();
+    }
+
+    public static AttachMentorTagsRequest constructAttachMentorTagsRequest(Long mentorId, List<Long> mentorTagsIds) {
+        return AttachMentorTagsRequest.newBuilder()
+                                      .setHeader(TestConstantHolder.HEADER)
+                                      .setMentorId(mentorId)
+                                      .addAllTagIds(mentorTagsIds)
+                                      .build();
+    }
+
+    public static CreateCustomMentorTagRequest constructCreateCustomMentorTagRequest() {
+        return CreateCustomMentorTagRequest.newBuilder()
+                                           .setHeader(TestConstantHolder.HEADER)
+                                           .setName(TestConstantHolder.MENTOR_TAG_NAME_BADGE)
+                                           .build();
+    }
+
+    public static DetachMentorTagRequest constructDetachMentorTagRequest() {
+        return DetachMentorTagRequest.newBuilder()
+                                     .setHeader(TestConstantHolder.HEADER)
+                                     .setMentorId(TestConstantHolder.MENTOR_ID)
+                                     .setTagId(TestConstantHolder.MENTOR_TAG_ID)
+                                     .build();
+    }
+
+    public static DetachMentorTagRequest constructDetachMentorTagRequest(Long mentorId, Long tagId) {
+        return DetachMentorTagRequest.newBuilder()
+                                     .setHeader(TestConstantHolder.HEADER)
+                                     .setMentorId(mentorId)
+                                     .setTagId(tagId)
+                                     .build();
+    }
+
+    public static AllMentorTagsRequset constructAllMentorTagsRequest() {
+        return AllMentorTagsRequset.newBuilder()
+                                   .setHeader(TestConstantHolder.HEADER)
+                                   .build();
+    }
+
+    public static GetCurrentMentorTagsRequest constructGetCurrentMentorTagsRequest() {
+        return GetCurrentMentorTagsRequest.newBuilder()
+                                          .setHeader(TestConstantHolder.HEADER)
+                                          .setMentorId(TestConstantHolder.MENTOR_ID)
+                                          .build();
+    }
 }
 

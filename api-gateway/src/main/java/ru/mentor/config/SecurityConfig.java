@@ -67,6 +67,7 @@ public class SecurityConfig {
                     .requestMatchers("/module/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .requestMatchers("/slot/**").hasAnyRole("ADMIN", "USER", "MENTOR")
+                    .requestMatchers("/mentor-tag/**").hasAnyRole("ADMIN", "MENTOR")
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .requestMatchers("/actuator/**").permitAll()
                     .anyRequest().authenticated()

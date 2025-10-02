@@ -1,4 +1,4 @@
-package ru.mentor.services;
+package ru.mentor.services.admin;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +23,7 @@ import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminModuleServiceGrpcClient;
 import ru.mentor.mapper.AdminModuleMapper;
 import ru.mentor.mapper.BaseMapper;
+import ru.mentor.services.UserService;
 import ru.mentor.services.impl.RedirectAdminModuleServiceImpl;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;

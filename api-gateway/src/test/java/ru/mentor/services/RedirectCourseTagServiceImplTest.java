@@ -1,4 +1,4 @@
-package ru.mentor.services.impl;
+package ru.mentor.services;
 
 import java.util.List;
 import org.assertj.core.api.Assertions;
@@ -22,7 +22,7 @@ import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.CourseTagsGrpcClient;
 import ru.mentor.mapper.CourseTagsMapper;
 import ru.mentor.mapper.TagGrpcMapper;
-import ru.mentor.services.UserService;
+import ru.mentor.services.impl.RedirectCourseTagServiceImpl;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
