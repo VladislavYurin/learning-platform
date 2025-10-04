@@ -44,6 +44,10 @@ http://localhost:8080/swagger-ui/index.html#/
 
 При добавлении новых ендпоинтов в api-gateway также добавить их сюда.
 
+## Kafka-UI
+
+http://localhost:8086
+
 ## Старт всей системы
 
 Запустить [full-deploy.sh](full-deploy.sh) для старта в докере

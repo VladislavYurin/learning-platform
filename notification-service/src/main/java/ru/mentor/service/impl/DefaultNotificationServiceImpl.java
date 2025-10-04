@@ -93,7 +93,7 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
 
         }  catch (Exception e) {
 
-            log.error("Не удалось отправить сообщение в Телеграм чат");
+            log.error("Не удалось отправить сообщение в Телеграм чат. Ошибка: {}", e.getMessage());
             saveNotificationWithError(notificationDto, NotificationDestination.TELEGRAM, e.getMessage());
 
         }

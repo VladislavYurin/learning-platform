@@ -6,6 +6,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.InnerCreateModuleRequest;
@@ -15,6 +16,7 @@ import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.CustomAccessDeniedException;
 import ru.mentor.exception.FileProcessingException;
+import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.ModuleRepository;
@@ -52,6 +54,8 @@ public class ModuleServiceImpl implements ModuleService {
 
     private final AccessChecker accessChecker;
 
+    private final KafkaFacade kafkaFacade;
+
     /**
      * Создает новый модуль в рамках указанного курса.
      *
@@ -73,9 +77,12 @@ public class ModuleServiceImpl implements ModuleService {
                                               .moduleOrderNumber(request.getModuleOrderNumber())
                                               .moduleContent(request.getModuleContent())
                                               .course(course)
+                                              .isActive(true)
                                               .build();
 
             ModuleEntity moduleEntity = moduleRepository.save(module);
+            UserEntity mentor = user;
+            kafkaFacade.sendModuleCreatedMessage(course, moduleEntity, mentor, user);
             return baseMapper.mapModule(moduleEntity, false);
         } else {
             // Если пользователь не имеет прав доступа, выбрасываем исключение
@@ -99,15 +106,18 @@ public class ModuleServiceImpl implements ModuleService {
      * @throws CustomAccessDeniedException Если у пользователя нет прав для удаления модуля.
      */
     @Override
+    @Transactional
     public void deleteModule(Long userId, Long courseId, Long moduleId) {
         UserEntity user = userRepository.findByIdOrThrow(userId);
         CourseEntity course = courseRepository.findByIdOrThrow(courseId);
+        ModuleEntity module = moduleRepository.findByIdOrThrow(moduleId);
 
         // Проверяем права пользователя на удаление модуля
         if (Role.checkIsAdmin(user) ||
                 (Role.checkIsMentor(user) && Role.checkMentorIsAuthorOfCourse(user, course))) {
             ModuleEntity moduleEntity = moduleRepository.findByIdOrThrow(moduleId);
             moduleRepository.delete(moduleEntity);
+            kafkaFacade.sendModuleDeletedMessage(course, module, user);
         } else {
             // Если пользователь не имеет прав доступа, выбрасываем исключение
             throw new CustomAccessDeniedException(

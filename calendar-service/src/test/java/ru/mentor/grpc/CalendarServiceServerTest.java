@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
@@ -21,6 +23,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.mentor.kafka.KafkaFacade;
+import ru.mentor.mapper.BaseMapper;
 import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CreateTimeSlotRequest;
 import ru.mentor.calendar.SlotMeetingType;
@@ -37,6 +41,7 @@ import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CalendarServiceServerTest {
 
     @Mock
@@ -44,6 +49,12 @@ class CalendarServiceServerTest {
 
     @Mock
     private MentorTimeSlotRepository mentorTimeSlotRepository;
+
+    @Mock
+    private BaseMapper baseMapper;
+
+    @Mock
+    private KafkaFacade kafkaFacade;
 
     @Spy
     private TimeSlotMapper timeSlotMapper;
@@ -242,9 +253,8 @@ class CalendarServiceServerTest {
                 ArgumentMatchers.any(LocalDateTime.class),
                 ArgumentMatchers.any(LocalDateTime.class)
         )).thenReturn(false);
-        Mockito.when(mentorTimeSlotRepository.save(ArgumentMatchers.any(MentorTimeSlotEntity.class)))
-               .thenReturn(
-                       savedTimeSlot);
+        Mockito.when(mentorTimeSlotRepository.saveAndFlush(ArgumentMatchers.any(MentorTimeSlotEntity.class)))
+               .thenReturn(savedTimeSlot);
 
         calendarServiceServer.bookTimeslot(request, responseObserver);
 
