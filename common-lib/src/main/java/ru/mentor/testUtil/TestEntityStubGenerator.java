@@ -1,7 +1,5 @@
 package ru.mentor.testUtil;
 
-import java.util.List;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +8,7 @@ import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
+import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.CourseEntity;
@@ -18,6 +17,9 @@ import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
+
+import java.util.List;
+import java.util.Set;
 
 public class TestEntityStubGenerator {
 
@@ -181,6 +183,13 @@ public class TestEntityStubGenerator {
                                           .meetingLink(TestConstantHolder.meetingLink)
                                           .description(TestConstantHolder.slotDescription)
                                           .build();
+    }
+
+    public static MentorTimeSlotInfoForUserDto constructMentorTimeSlotInfoForUserDto() {
+        return MentorTimeSlotInfoForUserDto.builder()
+                .mentorTimeSlotDto(constructMentorTimeSlotDto())
+                .isSlotFull(false)
+                .build();
     }
 
 }

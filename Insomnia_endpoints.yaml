@@ -10,7 +10,7 @@ collection:
     meta:
       id: fld_f5b5448b0b21452288bf6b115cbff86f
       created: 1753170814479
-      modified: 1757160494367
+      modified: 1759338503503
       sortKey: -1753170814479
       description: ""
     children:
@@ -188,7 +188,7 @@ collection:
         meta:
           id: req_4a9db7f216114bf68b97154f2da718fb
           created: 1753363533150
-          modified: 1753363967779
+          modified: 1758820614100
           isPrivate: false
           description: ""
           sortKey: -1752177030501
@@ -400,7 +400,7 @@ collection:
         meta:
           id: req_af05cec80e924117b7dfa5b57817f009
           created: 1754044919871
-          modified: 1757182149537
+          modified: 1758820644757
           isPrivate: false
           description: ""
           sortKey: -1753171506017.9375
@@ -425,7 +425,7 @@ collection:
         meta:
           id: req_86a1efc933eb467db4ff81b4c2ca91d9
           created: 1757160573124
-          modified: 1757488590322
+          modified: 1759338482721
           isPrivate: false
           description: ""
           sortKey: -1753171304523.25
@@ -433,7 +433,32 @@ collection:
         headers:
           - name: Authorization
             value: Bearer
-              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTc0MzUyNjIsImV4cCI6MTc1NzQzNjE2Mn0.68IC-xrCJz9pRdU-fOVFvMYpGvGXIb-w2oIr1T-NEFk
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTkzMTc5NzIsImV4cCI6MTc1OTMxODg3Mn0.JBiGdaYAeBb1KNkK5eJal1hzjIufAlfwXJGq5GKibZg
+            id: pair_618b5434ce0e494fa35bb1b074d73cc2
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/slot?mentorId=1
+        name: get mentor slots
+        meta:
+          id: req_2c6ea1edff1c4cb4a9075f03b3fab856
+          created: 1759317598791
+          modified: 1759338493241
+          isPrivate: false
+          description: ""
+          sortKey: -1753171223925.375
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjozLCJzdWIiOiJwaXBhQHBvcGEucnUiLCJpYXQiOjE3NTkzMzgwMTYsImV4cCI6MTc1OTMzODkxNn0.ITTpbEz21rDOHx5CUsQd7So8k6uTrBl3EMfh7wWBv0s
             id: pair_618b5434ce0e494fa35bb1b074d73cc2
         authentication:
           type: none
