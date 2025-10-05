@@ -33,11 +33,6 @@ public class ModuleCreatedMentorNotificationPayload implements NotificationPaylo
     private UserInfoDto moduleCreatedBy;
 
     /**
-     * Получатель уведомления (наставник).
-     */
-    private UserInfoDto recipientUser;
-
-    /**
      * Дата и время создания модуля.
      */
     private LocalDateTime createdAt;

@@ -28,11 +28,6 @@ public class CourseCreatedMentorNotificationPayload implements NotificationPaylo
     private UserInfoDto courseCreatedBy;
 
     /**
-     * Получатель уведомления (наставник).
-     */
-    private UserInfoDto recipientUser;
-
-    /**
      * Дата и время создания курса.
      */
     private LocalDateTime createdAt;

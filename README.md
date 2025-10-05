@@ -46,7 +46,7 @@ http://localhost:8080/swagger-ui/index.html#/
 
 ## Kafka-UI
 
-http://localhost:8085
+http://localhost:8086
 
 ## Старт всей системы
 

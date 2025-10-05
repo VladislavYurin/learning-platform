@@ -1,0 +1,25 @@
+{
+  "notificationType": "USER_REGISTRATION_USER",
+  "userInfo": {
+    "id": 3,
+    "username": "pipa@popa.ru",
+    "role": "USER",
+    "firstName": "Попов",
+    "lastName": "Пипа",
+    "tgNickname": "@vladislavyurin",
+    "tgChatId": null
+  },
+  "payload": {
+    "notificationType": "USER_REGISTRATION_USER",
+    "createdAt": "2025-09-30T15:00:00",
+    "userInfo": {
+      "id": 3,
+      "username": "pipa@popa.ru",
+      "role": "USER",
+      "firstName": "Попов",
+      "lastName": "Пипа",
+      "tgNickname": "@vladislavyurin",
+      "tgChatId": null
+    }
+  }
+}

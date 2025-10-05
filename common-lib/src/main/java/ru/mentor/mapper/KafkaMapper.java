@@ -118,19 +118,16 @@ public class KafkaMapper {
      * @param courseTitle название курса
      * @param createdAt дата и время создания курса
      * @param createdBy создатель курса
-     * @param recipientUser получатель уведомлления
      * @return payload уведомление о создании курса
      */
     public CourseCreatedMentorNotificationPayload courseCreatedMentorNotificationPayload(
             String courseTitle,
             LocalDateTime createdAt,
-            UserInfoDto createdBy,
-            UserInfoDto recipientUser) {
+            UserInfoDto createdBy) {
         return CourseCreatedMentorNotificationPayload.builder()
                 .courseTitle(courseTitle)
                 .courseCreatedBy(createdBy)
                 .createdAt(createdAt)
-                .recipientUser(recipientUser)
                 .build();
     }
 
@@ -140,21 +137,18 @@ public class KafkaMapper {
      * @param moduleTitle название модуля
      * @param createdAt дата и время создания модуля
      * @param createdBy создатель модуля
-     * @param recipientUser получатель уведомления
      * @return payload уведомление о создании модуля
      */
     public ModuleCreatedMentorNotificationPayload moduleCreatedMentorNotificationPayload(
             String courseTitle,
             String moduleTitle,
             LocalDateTime createdAt,
-            UserInfoDto createdBy,
-            UserInfoDto recipientUser) {
+            UserInfoDto createdBy) {
         return ModuleCreatedMentorNotificationPayload.builder()
                 .courseTitle(courseTitle)
                 .moduleTitle(moduleTitle)
                 .moduleCreatedBy(createdBy)
                 .createdAt(createdAt)
-                .recipientUser(recipientUser)
                 .build();
     }
 
@@ -214,15 +208,12 @@ public class KafkaMapper {
     /**
      * Создает payload уведомления о регистрации пользователя.
      *
-     * @param username имя пользователя
      * @param userInfo информация о пользователе
      * @return payload уведомления о регистрации
      */
     public UserRegistrationNotificationPayload userRegistrationNotificationPayload(
-            String username,
             UserInfoDto userInfo) {
         return UserRegistrationNotificationPayload.builder()
-                .userName(username)
                 .createdAt(LocalDateTime.now())
                 .userInfo(userInfo)
                 .build();
@@ -231,31 +222,31 @@ public class KafkaMapper {
 
     /**
      * Создает payload уведомления об удалении модуля.
+     * @param courseTitle название курса
      * @param moduleTitle название модуля
      * @return payload уведомление об удалении модуля
      */
     public ModuleDeletedMentorNotificationPayload moduleDeletedMentorNotificationPayload(
+            String courseTitle,
             String moduleTitle) {
         return ModuleDeletedMentorNotificationPayload.builder()
+                .courseTitle(courseTitle)
                 .moduleTitle(moduleTitle)
                 .build();
     }
 
     /**
      * Создает payload уведомления наставнику о том, что слот забронирован.
-     * @param mentor наставник
      * @param startAt время начала встречи
      * @param endAt время окончания встречи
      * @param mentee ученик
      * @return payload уведомления о забронированном слоте
      */
     public SlotBookedNotificationPayload slotBookedNotificationPayload(
-            UserInfoDto mentor,
             LocalDateTime startAt,
             LocalDateTime endAt,
             UserInfoDto mentee){
         return SlotBookedNotificationPayload.builder()
-                .mentor(mentor)
                 .startAt(startAt)
                 .endAt(endAt)
                 .mentee(mentee)

@@ -14,6 +14,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ModuleDeletedMentorNotificationPayload implements NotificationPayload{
+    /**
+     * Название курса.
+     */
+    private String courseTitle;
 
     /**
      * Название модуля.

@@ -1,0 +1,27 @@
+{
+  "notificationType": "MODULE_CREATED_MENTOR",
+  "userInfo": {
+    "id": 1,
+    "username": "vlad.yurin98@gmail.com",
+    "role": "MENTOR",
+    "firstName": "Владислав",
+    "lastName": "Юрин",
+    "tgNickname": "@vladislavyurin",
+    "tgChatId": null
+  },
+  "payload": {
+    "notificationType": "MODULE_CREATED_MENTOR",
+    "courseTitle": "Java",
+    "moduleTitle": "Java Basic",
+    "userInfo": {
+      "id": 1,
+      "username": "vlad.yurin98@gmail.com",
+      "role": "MENTOR",
+      "firstName": "Владислав",
+      "lastName": "Юрин",
+      "tgNickname": "@vladislavyurin",
+      "tgChatId": null
+    },
+    "createdAt": "2025-09-09T08:00:00"
+  }
+}

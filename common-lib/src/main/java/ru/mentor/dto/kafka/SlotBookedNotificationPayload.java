@@ -18,11 +18,6 @@ import java.time.LocalDateTime;
 public class SlotBookedNotificationPayload implements NotificationPayload{
 
     /**
-     * Получатель уведомления (наставник).
-     */
-    private UserInfoDto mentor;
-
-    /**
      * Дата и время начала встречи.
      */
     private LocalDateTime startAt;

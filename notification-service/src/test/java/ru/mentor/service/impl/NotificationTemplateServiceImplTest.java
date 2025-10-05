@@ -8,7 +8,17 @@ import ru.mentor.constant.NotificationTypeEnum;
 import ru.mentor.dto.UserInfoDto;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Assertions;
-import ru.mentor.dto.kafka.*;
+import ru.mentor.dto.kafka.KafkaNotificationDto;
+import ru.mentor.dto.kafka.CourseAccessGrantedNotificationPayload;
+import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
+import ru.mentor.dto.kafka.CourseCreatedMentorNotificationPayload;
+import ru.mentor.dto.kafka.ModuleCreatedMentorNotificationPayload;
+import ru.mentor.dto.kafka.CourseAccessRevokedNotificationPayload;
+import ru.mentor.dto.kafka.ModuleAccessRevokedNotificationPayload;
+import ru.mentor.dto.kafka.UserRegistrationNotificationPayload;
+import ru.mentor.dto.kafka.CourseDeletedMentorNotificationPayload;
+import ru.mentor.dto.kafka.ModuleDeletedMentorNotificationPayload;
+import ru.mentor.dto.kafka.SlotBookedNotificationPayload;
 import ru.mentor.exception.EntityNotFoundException;
 
 
@@ -119,7 +129,7 @@ class NotificationTemplateServiceImplTest {
 
     @Test
     void generateEmailContent_courseCreated_success(){
-        String template = "Уважаемый, %s! Создан новый курс \"%s\". Автор курса: %s %s. Получатель: %s %s. Дата создания: %s.";
+        String template = "Уважаемый, %s! Создан новый курс \"%s\". Автор курса: %s %s. Дата создания: %s.";
         Mockito.when(cacheProcessor.getTemplateCache(NotificationTypeEnum.COURSE_CREATED_MENTOR))
                 .thenReturn(template);
         UserInfoDto mentor = UserInfoDto.builder().id(1L).firstName("Макс").lastName("Админов").build();
@@ -131,7 +141,6 @@ class NotificationTemplateServiceImplTest {
                         .courseTitle("Java Basics")
                         .courseCreatedBy(mentor)
                         .createdAt(LocalDateTime.of(2025, 9, 4, 15, 0))
-                        .recipientUser(mentor)
                         .build())
 
                 .build();
@@ -139,7 +148,7 @@ class NotificationTemplateServiceImplTest {
         String content = service.generateEmailContent(dto);
 
         String expected = "Уважаемый, Макс! Создан новый курс \"Java Basics\". Автор курса: Макс Админов. " +
-                          "Получатель: Макс Админов. Дата создания: 04.09.2025 15:00.";
+                          "Дата создания: 04.09.2025 15:00.";
 
         Assertions.assertEquals(expected, content);
     }
@@ -147,7 +156,7 @@ class NotificationTemplateServiceImplTest {
     @Test
     void generateEmailContent_moduleCreated_success() {
     String template = "Уважаемый, %s! Создан новый модуль \"%s\" в курсе \"%s\". Автор модуля: %s %s." +
-                      " Получатель: %s %s. Дата создания: %s.";
+                      " Дата создания: %s.";
 
     Mockito.when(cacheProcessor.getTemplateCache(NotificationTypeEnum.MODULE_CREATED_MENTOR))
             .thenReturn(template);
@@ -162,13 +171,12 @@ class NotificationTemplateServiceImplTest {
                     .courseTitle("Java Basic")
                     .moduleCreatedBy(mentor)
                     .createdAt(LocalDateTime.of(2025, 9, 4, 15, 0))
-                    .recipientUser(mentor)
                     .build())
             .build();
     String content = service.generateEmailContent(dto);
 
     String expected = "Уважаемый, Макс! Создан новый модуль \"Generics\" в курсе \"Java Basic\". " +
-                      "Автор модуля: Макс Админов. Получатель: Макс Админов. Дата создания: 04.09.2025 15:00.";
+                      "Автор модуля: Макс Админов. Дата создания: 04.09.2025 15:00.";
 
     Assertions.assertEquals(expected, content);
 
@@ -201,7 +209,7 @@ class NotificationTemplateServiceImplTest {
 
     @Test
     void generateEmailContent_moduleDeleted_success() {
-        String template = "Уважаемый, %s! Модуль \"%s\" удален.";
+        String template = "Уважаемый, %s! В курсе \"%s\" удален модуль \"%s\".";
 
         Mockito.when(cacheProcessor.getTemplateCache(NotificationTypeEnum.MODULE_DELETED))
                 .thenReturn(template);
@@ -212,6 +220,7 @@ class NotificationTemplateServiceImplTest {
                 .notificationType(NotificationTypeEnum.MODULE_DELETED)
                 .userInfo(mentor)
                 .payload(ModuleDeletedMentorNotificationPayload.builder()
+                        .courseTitle("Java")
                         .moduleTitle("Collections")
                         .build()
                 )
@@ -219,7 +228,7 @@ class NotificationTemplateServiceImplTest {
 
         String content = service.generateEmailContent(dto);
 
-        String expected = "Уважаемый, Макс! Модуль \"Collections\" удален.";
+        String expected = "Уважаемый, Макс! В курсе \"Java\" удален модуль \"Collections\".";
 
         Assertions.assertEquals(expected, content);
     }
@@ -241,7 +250,6 @@ class NotificationTemplateServiceImplTest {
                         .lastName("Православов")
                         .build())
                 .payload(UserRegistrationNotificationPayload.builder()
-                        .userName("Русификат Православов")
                         .createdAt(createdAt)
                         .build())
                 .build();
@@ -338,7 +346,6 @@ class NotificationTemplateServiceImplTest {
                 .payload(SlotBookedNotificationPayload.builder()
                         .startAt(startAt)
                         .endAt(endAt)
-                        .mentor(mentor)
                         .mentee(mentee)
                         .build())
                 .build();

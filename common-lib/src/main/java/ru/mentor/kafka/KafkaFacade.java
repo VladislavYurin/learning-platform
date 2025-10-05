@@ -108,8 +108,7 @@ public class KafkaFacade {
                 kafkaMapper.courseCreatedMentorNotificationPayload(
                         course.getCourseTitle(),
                         course.getCreatedAt(),
-                        baseMapper.mapUserDto(creator),
-                        baseMapper.mapUserDto(recipient))
+                        baseMapper.mapUserDto(creator))
         ));
     }
 
@@ -132,8 +131,7 @@ public class KafkaFacade {
                         course.getCourseTitle(),
                         module.getModuleTitle(),
                         module.getCreatedAt(),
-                        baseMapper.mapUserDto(creator),
-                        baseMapper.mapUserDto(recipient))
+                        baseMapper.mapUserDto(creator))
         ));
     }
 
@@ -213,7 +211,6 @@ public class KafkaFacade {
                 NotificationTypeEnum.USER_REGISTRATION_USER,
                 baseMapper.mapUserDto(user),
                 kafkaMapper.userRegistrationNotificationPayload(
-                        user.getUsername(),
                         baseMapper.mapUserDto(user)
                 )
         ));
@@ -225,12 +222,14 @@ public class KafkaFacade {
      * @param recipient получатель сообщения (наставник)
      */
     public void sendModuleDeletedMessage(
+            CourseEntity course,
             ModuleEntity module,
             UserEntity recipient) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.MODULE_DELETED,
                 baseMapper.mapUserDto(recipient),
                 kafkaMapper.moduleDeletedMentorNotificationPayload(
+                        course.getCourseTitle(),
                         module.getModuleTitle())
         ));
     }
@@ -251,7 +250,6 @@ public class KafkaFacade {
                         NotificationTypeEnum.SLOT_BOOKED_MENTOR,
                         mentor,
                         kafkaMapper.slotBookedNotificationPayload(
-                                mentor,
                                 startAt,
                                 endAt,
                                 mentee)

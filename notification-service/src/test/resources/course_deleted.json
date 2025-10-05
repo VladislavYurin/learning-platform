@@ -1,0 +1,16 @@
+{
+  "notificationType": "COURSE_DELETED",
+  "userInfo": {
+    "id": 1,
+    "username": "vlad.yurin98@gmail.com",
+    "role": "MENTOR",
+    "firstName": "Владислав",
+    "lastName": "Юрин",
+    "tgNickname": "@vladislavyurin",
+    "tgChatId": null
+  },
+  "payload": {
+    "notificationType": "COURSE_DELETED",
+    "courseTitle": "Java"
+  }
+}

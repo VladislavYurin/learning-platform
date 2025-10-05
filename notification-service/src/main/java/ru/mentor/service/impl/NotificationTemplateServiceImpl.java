@@ -99,8 +99,6 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
                         payload.getCourseTitle(),
                         payload.getCourseCreatedBy().getFirstName(),
                         payload.getCourseCreatedBy().getLastName(),
-                        payload.getRecipientUser().getFirstName(),
-                        payload.getRecipientUser().getLastName(),
                         formatDateTime(payload.getCreatedAt())
                 );
             }
@@ -113,8 +111,6 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
                         payload.getCourseTitle(),
                         payload.getModuleCreatedBy().getFirstName(),
                         payload.getModuleCreatedBy().getLastName(),
-                        payload.getRecipientUser().getFirstName(),
-                        payload.getRecipientUser().getLastName(),
                         formatDateTime(payload.getCreatedAt())
                 );
             }
@@ -162,6 +158,7 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
                 yield String.format(
                         template,
                         dto.getUserInfo().getFirstName(),
+                        payload.getCourseTitle(),
                         payload.getModuleTitle()
                 );
             }

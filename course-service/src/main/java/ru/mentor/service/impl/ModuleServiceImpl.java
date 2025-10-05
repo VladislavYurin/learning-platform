@@ -114,7 +114,7 @@ public class ModuleServiceImpl implements ModuleService {
                 (Role.checkIsMentor(user) && Role.checkMentorIsAuthorOfCourse(user, course))) {
             ModuleEntity moduleEntity = moduleRepository.findByIdOrThrow(moduleId);
             moduleRepository.delete(moduleEntity);
-            kafkaFacade.sendModuleDeletedMessage(module, user);
+            kafkaFacade.sendModuleDeletedMessage(course, module, user);
         } else {
             // Если пользователь не имеет прав доступа, выбрасываем исключение
             throw new CustomAccessDeniedException(

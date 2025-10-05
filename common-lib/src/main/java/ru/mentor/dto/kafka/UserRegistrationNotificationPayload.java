@@ -18,15 +18,11 @@ import java.time.LocalDateTime;
 public class UserRegistrationNotificationPayload implements NotificationPayload{
 
     /**
-     * Имя нового зарегестрированного пользователя
-     */
-    private String userName;
-    /**
      * Дата и время регистрации пользователя
      */
     private LocalDateTime createdAt;
     /**
-     * Информация о новом зарегестрированном пользователя
+     * Информация о новом зарегистрированном пользователе
      */
     private UserInfoDto userInfo;
 }

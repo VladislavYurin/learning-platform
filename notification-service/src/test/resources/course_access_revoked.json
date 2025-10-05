@@ -1,0 +1,28 @@
+{
+  "notificationType": "COURSE_ACCESS_REVOKED",
+  "userInfo": {
+    "id": 3,
+    "username": "pipa@popa.ru",
+    "role": "USER",
+    "firstName": "Попов",
+    "lastName": "Пипа",
+    "tgNickname": "@vladislavyurin",
+    "tgChatId": null
+  },
+  "payload": {
+    "notificationType": "COURSE_ACCESS_REVOKED",
+    "courseTitle": "Java",
+    "accessRevokedAt": "2025-09-30T18:00:00",
+    "accessRevokedBy": {
+      "userInfo": {
+        "id": 1,
+        "username": "vlad.yurin98@gmail.com",
+        "role": "MENTOR",
+        "firstName": "Владислав",
+        "lastName": "Юрин",
+        "tgNickname": "@vladislavyurin",
+        "tgChatId": null
+      }
+    }
+  }
+}
