@@ -1,10 +1,12 @@
 package ru.mentor.repository;
 
-import java.util.List;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.exception.EntityNotFoundException;
+
+import java.util.List;
 
 /**
  * Репозиторий для работы с сущностями курсов.
@@ -19,6 +21,7 @@ public interface CourseRepository extends JpaRepository<CourseEntity, Long> {
      *
      * @return список активных курсов
      */
+    @EntityGraph(attributePaths = "courseTags")
     List<CourseEntity> findAllByIsActiveTrue();
 
     /**
@@ -27,6 +30,7 @@ public interface CourseRepository extends JpaRepository<CourseEntity, Long> {
      * @param userId идентификатор пользователя-автора
      * @return список активных курсов указанного автора
      */
+    @EntityGraph(attributePaths = "courseTags")
     List<CourseEntity> findAllByIsActiveTrueAndAuthorId(Long userId);
 
     /**
@@ -35,6 +39,7 @@ public interface CourseRepository extends JpaRepository<CourseEntity, Long> {
      * @param userId идентификатор пользователя-автора
      * @return список всех курсов указанного автора
      */
+    @EntityGraph(attributePaths = "courseTags")
     List<CourseEntity> findAllByAuthorId(Long userId);
 
     /**

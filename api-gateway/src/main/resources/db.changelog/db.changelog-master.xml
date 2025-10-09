@@ -6,12 +6,14 @@
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="1" author="vladislav yurin" runOnChange="false">
-    <sqlFile path="/sql/init_tables.sql" relativeToChangelogFile="true"/>
+  <changeSet id="1" author="vladislav_yurin" runOnChange="false">
+    <sqlFile path="sql/init_tables.sql"
+             relativeToChangelogFile="true"
+             endDelimiter=";"/>
   </changeSet>
-
-<!--  <changeSet id="2" author="vladislav yurin" runOnChange="false">-->
-<!--    <sqlFile path="/sql/insert_init_content.sql" relativeToChangelogFile="true"/>-->
-<!--  </changeSet>-->
-
+  <changeSet id="2" author="vladislav_yurin" runOnChange="false">
+    <sqlFile path="sql/lepl-16_create_course_tags_table.sql"
+             relativeToChangelogFile="true"
+             endDelimiter=";"/>
+  </changeSet>
 </databaseChangeLog>

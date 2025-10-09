@@ -2,6 +2,7 @@ package ru.mentor.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import java.util.List;
 
 /**
  * DTO для внутреннего запроса на создание курса.
@@ -25,5 +26,7 @@ public class InnerCreateCourseRequest {
      * Описание курса.
      */
     private String courseDescription;
+
+    private List<Long> tagIds;
 
 }

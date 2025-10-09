@@ -12,6 +12,7 @@ import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.CourseEntity;
+import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
@@ -108,6 +109,7 @@ public class TestEntityStubGenerator {
                            .createdAt(TestConstantHolder.createdAt)
                            .author(constructUserEntityWithRole(Role.MENTOR))
                            .modules(List.of())
+                           .courseTags(List.of())
                            .build();
     }
 
@@ -116,7 +118,8 @@ public class TestEntityStubGenerator {
                 constructCourseEntity(),
                 constructUserEntityWithRole(Role.MENTOR),
                 true,
-                true
+                true,
+                false
         );
     }
 
@@ -125,7 +128,8 @@ public class TestEntityStubGenerator {
                 constructCourseEntity(),
                 constructUserEntityWithRole(Role.MENTOR),
                 true,
-                true
+                true,
+                false
         );
         return new PageImpl<>(
                 List.of(courseDto),
@@ -190,6 +194,15 @@ public class TestEntityStubGenerator {
                 .mentorTimeSlotDto(constructMentorTimeSlotDto())
                 .isSlotFull(false)
                 .build();
+    }
+
+    public static CourseTagEntity constructCourseTagEntity() {
+        return CourseTagEntity.builder()
+                              .tagName(TestConstantHolder.courseTagName)
+                              .isActive(TestConstantHolder.isActive)
+                              .createdAt(TestConstantHolder.createdAt)
+                              .courseTags(List.of())
+                              .build();
     }
 
 }

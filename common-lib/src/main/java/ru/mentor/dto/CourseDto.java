@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import ru.mentor.dto.tag.CourseTagDto;
 
 /**
  * DTO для передачи информации о курсе.
@@ -57,4 +58,6 @@ public class CourseDto {
     @Schema(description = "Список модулей курса")
     private List<ModuleDto> modules;
 
+    @Schema(description = "Тэги курса")
+    private List<CourseTagDto> tags;
 }

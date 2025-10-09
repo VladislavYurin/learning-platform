@@ -470,6 +470,130 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: localhost:8080/course/create
+        name: create course with tags
+        meta:
+          id: req_507e261ec0b84a4884913dbb54b850a9
+          created: 1753172110502
+          modified: 1759939264054
+          isPrivate: false
+          description: ""
+          sortKey: -1753172110502
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "courseName": "Java-разработчик с 0 до оффера",
+              "courseDescription": "Теория и практика для новичков",
+              "tagIds": [1, 2, 3, 4, 5]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            id: pair_2df1200d7f6f49be9d05bd9533af7a51
+          - name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
+            id: pair_38c37c06f7bd4cbca8dbac0b991711c1
+        authentication:
+          type: bearer
+          token: ""
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/course-tag/all
+        name: get all course-tags
+        meta:
+          id: req_324f99c13c3c4ed59846bd8b8cfa5d02
+          created: 1759514947027
+          modified: 1759938202550
+          isPrivate: false
+          description: ""
+          sortKey: -1753172110602
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+            id: pair_e62af37ff5fa4f1fa5cd579b62121ae6
+          - id: pair_49272966a8d14cba8186a21f18d6d301
+            name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5MzgwOTIsImV4cCI6MTc1OTkzODk5Mn0.OaU02_9iItBt83ExtedVErznVW3EPOoq13T9whZf-Q0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: ""
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/course/49
+        name: delete course by id
+        meta:
+          id: req_a1385aa972fb491cbac15ea2a9d0907f
+          created: 1759733233824
+          modified: 1759938849280
+          isPrivate: false
+          description: ""
+          sortKey: -1753172110702
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+            id: pair_202a94a850a346a3b39179523a8fee61
+          - id: pair_e8a3191bd66b48e691b48a127b51aca7
+            name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/course/all/active
+        name: get all active courses
+        meta:
+          id: req_0b348f11b06849f1b5bfe0c6c50dec96
+          created: 1759733668448
+          modified: 1759938979022
+          isPrivate: false
+          description: ""
+          sortKey: -1753172110802
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+            id: pair_4e855db094d2478db8ce7b61195425a8
+          - id: pair_cda71ad99f084ac9b09618f19f906c2f
+            name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTk5Mzg5NjcsImV4cCI6MTc1OTkzOTg2N30.Wx0sFM2li5-bcJINIXB4hge8n9PVb2FcUs0HT6OjpyE
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
 cookieJar:
   name: Default Jar
   meta:

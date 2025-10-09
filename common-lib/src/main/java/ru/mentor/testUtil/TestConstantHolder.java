@@ -23,8 +23,11 @@ public class TestConstantHolder {
     public static long mentorId = 1L;
 
     public static long courseId = 1L;
+    public static long authorId = 100L;
     public static String courseTitle = "Course title";
     public static String courseDescription = "Course description";
+
+    public static String courseTagName = "Test courseTagName";
 
     public static long moduleId = 1L;
     public static String moduleTitle = "Module title";

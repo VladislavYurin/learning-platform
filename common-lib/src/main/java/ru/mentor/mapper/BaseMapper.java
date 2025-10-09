@@ -10,58 +10,44 @@ import ru.mentor.admin.PageDetails;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.UserInfoDto;
+import ru.mentor.dto.tag.CourseTagDto;
 import ru.mentor.entity.CourseEntity;
+import ru.mentor.entity.CourseTagEntity;
+import ru.mentor.entity.CourseTagLinkEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 
-/**
- * Базовый маппер для преобразования сущностей в DTO объекты.
- * Предоставляет методы для маппинга курсов, модулей и пользователей.
- */
 @Component
 @RequiredArgsConstructor
 public class BaseMapper {
 
-    /**
-     * Преобразует список сущностей курсов в список DTO курсов.
-     *
-     * @param entities список сущностей курсов для преобразования
-     * @param isNeedToFetchModules флаг, указывающий нужно ли загружать модули курсов
-     * @param isNeedToFetchSubmodules флаг, указывающий нужно ли загружать содержимое модулей
-     * @return список DTO курсов
-     */
     public List<CourseDto> mapCourses(
             List<CourseEntity> entities,
             Boolean isNeedToFetchModules,
-            Boolean isNeedToFetchSubmodules) {
+            Boolean isNeedToFetchSubmodules,
+            Boolean isNeedToFetchTags) {
         return entities.stream()
                        .map(entity -> mapCourse(
                                entity,
                                entity.getAuthor(),
                                isNeedToFetchModules,
-                               isNeedToFetchSubmodules
+                               isNeedToFetchSubmodules,
+                               isNeedToFetchTags
                        ))
                        .toList();
     }
 
-    /**
-     * Преобразует сущность курса в DTO курса.
-     *
-     * @param entity сущность курса для преобразования
-     * @param user сущность автора курса
-     * @param isNeedToFetchModules флаг, указывающий нужно ли загружать модули курса
-     * @param isNeedToFetchModuleContent флаг, указывающий нужно ли загружать содержимое модулей
-     * @return DTO курса
-     */
     public CourseDto mapCourse(
             CourseEntity entity,
             UserEntity user,
             Boolean isNeedToFetchModules,
-            Boolean isNeedToFetchModuleContent) {
+            Boolean isNeedToFetchModuleContent,
+            Boolean isNeedToFetchTags) {
         return CourseDto.builder()
                         .id(entity.getId())
                         .courseTitle(entity.getCourseTitle())
                         .courseDescription(entity.getDescription())
+                        .createdAt(entity.getCreatedAt())
                         .isActive(entity.getIsActive())
                         .author(user != null ? mapUserDto(user) : null)
                         .modules(
@@ -70,17 +56,10 @@ public class BaseMapper {
                                         isNeedToFetchModuleContent
                                 ) : null)
                         .createdAt(entity.getCreatedAt())
+                        .tags(isNeedToFetchTags ? mapTags(entity.getCourseTags()) : null)
                         .build();
     }
 
-    /**
-     * Преобразует список сущностей модулей в список DTO модулей.
-     * Модули сортируются по порядковому номеру.
-     *
-     * @param entities список сущностей модулей для преобразования
-     * @param isNeedToFetchModuleContent флаг, указывающий нужно ли загружать содержимое модулей
-     * @return список DTO модулей, отсортированный по порядковому номеру
-     */
     public List<ModuleDto> mapModules(
             List<ModuleEntity> entities,
             Boolean isNeedToFetchModuleContent) {
@@ -90,13 +69,6 @@ public class BaseMapper {
                        .toList();
     }
 
-    /**
-     * Преобразует сущность модуля в DTO модуля.
-     *
-     * @param entity сущность модуля для преобразования
-     * @param isNeedToFetchModuleContent флаг, указывающий нужно ли загружать содержимое модуля
-     * @return DTO модуля
-     */
     public ModuleDto mapModule(ModuleEntity entity, Boolean isNeedToFetchModuleContent) {
         return ModuleDto.builder()
                         .id(entity.getId())
@@ -110,12 +82,6 @@ public class BaseMapper {
                         .build();
     }
 
-    /**
-     * Преобразует сущность пользователя в DTO информации о пользователе.
-     *
-     * @param entity сущность пользователя для преобразования
-     * @return DTO информации о пользователе
-     */
     public UserInfoDto mapUserDto(UserEntity entity) {
         return UserInfoDto.builder()
                           .id(entity.getId())
@@ -131,19 +97,21 @@ public class BaseMapper {
     /**
      * Преобразует DTO информации о пользователе в сущность пользователя.
      *
-     * @param userInfoDto DTO информации о пользователе для преобразования
+     * @param userInfoDto
+     *         DTO информации о пользователе для преобразования
+     *
      * @return сущность пользователя
      */
     public UserEntity mapUserEntity(UserInfoDto userInfoDto) {
         return UserEntity.builder()
-                .id(userInfoDto.getId())
-                .username(userInfoDto.getUsername())
-                .role(userInfoDto.getRole())
-                .firstName(userInfoDto.getFirstName())
-                .lastName(userInfoDto.getLastName())
-                .tgNickname(userInfoDto.getTgNickname())
-                .tgChatId(userInfoDto.getTgChatId())
-                .build();
+                         .id(userInfoDto.getId())
+                         .username(userInfoDto.getUsername())
+                         .role(userInfoDto.getRole())
+                         .firstName(userInfoDto.getFirstName())
+                         .lastName(userInfoDto.getLastName())
+                         .tgNickname(userInfoDto.getTgNickname())
+                         .tgChatId(userInfoDto.getTgChatId())
+                         .build();
     }
 
     /**
@@ -151,16 +119,17 @@ public class BaseMapper {
      *
      * @param requestId
      *         сквозной UUID запроса
-     *
      * @param pageNumber
      *         номер страницы
-     *
      * @param pageSize
      *         размер страницы
      *
      * @return gRPC-объект {@link GrpcPageRequest}
      */
-    public GrpcPageRequest constructGrpcPageRequest(String requestId, int pageNumber, int pageSize) {
+    public GrpcPageRequest constructGrpcPageRequest(
+            String requestId,
+            int pageNumber,
+            int pageSize) {
         return GrpcPageRequest.newBuilder()
                               .setRequestId(requestId)
                               .setPageNumber(pageNumber)
@@ -190,6 +159,20 @@ public class BaseMapper {
      */
     public PageRequest mapGrpcPageRequestToPageRequest(GrpcPageRequest grpcPageRequest) {
         return PageRequest.of(grpcPageRequest.getPageNumber(), grpcPageRequest.getPageSize());
+    }
+
+    private List<CourseTagDto> mapTags(List<CourseTagLinkEntity> courseTags) {
+        return courseTags.stream()
+                         .map(ct -> {
+                             CourseTagEntity tag = ct.getTag();
+                             return CourseTagDto.builder()
+                                                .id(tag.getId())
+                                                .tagName(tag.getTagName())
+                                                .isActive(tag.getIsActive())
+                                                .createdAt(tag.getCreatedAt())
+                                                .build();
+                         })
+                         .toList();
     }
 
 }
