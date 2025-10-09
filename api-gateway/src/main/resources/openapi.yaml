@@ -1,0 +1,1560 @@
+openapi: 3.0.1
+info:
+  title: Learning Platform API
+  description: API для управления образовательной платформой
+  version: '1.0'
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+tags:
+  - name: Learning Progress Management
+    description: Получение процесса обучения учеников
+  - name: Course Management
+    description: Управление курсами и их содержимым
+  - name: User Management
+    description: Получение или изменение информации о пользователе
+  - name: Admin module management.
+    description: Управление модулями и их содержимым для админов.
+  - name: Slot Management
+    description: Управление слотами менторов
+  - name: Access Management
+    description: Управление доступами к курсам и модулям
+  - name: Slot Management.
+    description: Управление слотами менторов.
+  - name: Auth Management
+    description: Регистрация и авторизация
+  - name: Module Management
+    description: Управление модулями и их содержимым
+  - name: Admin course management
+    description: Управление курсами и их содержимым для админов.
+paths:
+  /user/mentor/register:
+    post:
+      tags:
+        - User Management
+      summary: Выдает пользователю роль МЕНТОР
+      description: Позволяет выдать пользователю роль МЕНТОР
+      operationId: assignMentorRole
+      responses:
+        '200':
+          description: Роль МЕНТОР выдана
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Пользователь не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /slot/create:
+    post:
+      tags:
+        - Slot Management
+      summary: Создать слот
+      description: Позволяет создать новый слот. Требуются права ADMIN или MENTOR
+      operationId: createSlot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MentorTimeSlotCreateRequest'
+        required: true
+      responses:
+        '200':
+          description: Слот успешно создан
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+  /slot/book:
+    post:
+      tags:
+        - Slot Management
+      summary: Забронировать слот
+      description: Позволяет забронировать слот. Требуются права USER
+      operationId: bookSlot
+      parameters:
+        - name: timeSlotId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Слот успешно забронирован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+  /module/import:
+    post:
+      tags:
+        - Module Management
+      summary: Импорт модуля из Markdown файла
+      description: Позволяет создать новый модуль из .md файла. Требуются права ADMIN или MENTOR
+      operationId: importModuleFromMarkdown
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                request:
+                  $ref: '#/components/schemas/CreateModuleRequest'
+        required: true
+      responses:
+        '200':
+          description: Информация о модуле
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                type: object
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: object
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: object
+  /module/create:
+    post:
+      tags:
+        - Module Management
+      summary: Создать модуль
+      description: Позволяет создать новый модуль. Требуются права ADMIN или MENTOR
+      operationId: createModule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateModuleRequest'
+        required: true
+      responses:
+        '200':
+          description: Модуль успешно создан
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                type: object
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: object
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: object
+  /course/create:
+    post:
+      tags:
+        - Course Management
+      summary: Создать курс
+      description: Позволяет создать новый курс. Требуются права ADMIN или MENTOR
+      operationId: createCourse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCourseRequest'
+        required: true
+      responses:
+        '200':
+          description: Курс успешно создан
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+  /auth/token/refresh:
+    post:
+      tags:
+        - Auth Management
+      summary: Обновление токена
+      operationId: refreshToken
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtAuthResponse'
+  /auth/reg:
+    post:
+      tags:
+        - Auth Management
+      summary: Регистрация пользователя
+      description: Позволяет зарегистрировать пользователя с ролью USER
+      operationId: registration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegRequest'
+        required: true
+      responses:
+        '200':
+          description: Регистрация успешна
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtAuthResponse'
+        '400':
+          description: Пользователь уже существует
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtAuthResponse'
+  /auth/login:
+    post:
+      tags:
+        - Auth Management
+      summary: Авторизация пользователя
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtAuthResponse'
+  /access/module/get-access:
+    post:
+      tags:
+        - Access Management
+      summary: Выдать доступ к модулю
+      description: Позволяет выдать доступ пользователю к указанному модулю курса
+      operationId: giveModuleAccess
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleAccessRequest'
+        required: true
+      responses:
+        '200':
+          description: Доступ успешно выдан
+          content:
+            '*/*':
+              schema:
+                type: object
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: object
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Модуль или пользователь не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /access/module/delete-access:
+    post:
+      tags:
+        - Access Management
+      summary: Отозвать доступ к модулю
+      description: Позволяет отозвать доступ пользователя к указанному модулю курса
+      operationId: revokeModuleAccess
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleAccessRequest'
+        required: true
+      responses:
+        '200':
+          description: Доступ успешно отозван
+          content:
+            '*/*':
+              schema:
+                type: object
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: object
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Доступ не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /access/course/get-access:
+    post:
+      tags:
+        - Access Management
+      summary: Выдать доступ к курсу
+      description: Позволяет выдать доступ пользователю к указанному курсу
+      operationId: giveCourseAccess
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseAccessRequest'
+        required: true
+      responses:
+        '200':
+          description: Доступ успешно выдан
+          content:
+            '*/*':
+              schema:
+                type: object
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: object
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Курс или пользователь не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /access/course/delete-access:
+    post:
+      tags:
+        - Access Management
+      summary: Отозвать доступ к курсу
+      description: Позволяет отозвать доступ пользователя к указанному курсу
+      operationId: revokeCourseAccess
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseAccessRequest'
+        required: true
+      responses:
+        '200':
+          description: Доступ успешно отозван
+          content:
+            '*/*':
+              schema:
+                type: object
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: object
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Доступ не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /user/{userId}:
+    get:
+      tags:
+        - User Management
+      summary: Получить информацию о другом пользователе
+      description: Позволяет получить пользовательскую информацию о другом пользователе
+      operationId: getOtherUserInfo
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Пользовательская информация выдана
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Пользователь не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /user/me:
+    get:
+      tags:
+        - User Management
+      summary: Получить свою информацию
+      description: Позволяет получить пользовательскую информацию от пользователя
+      operationId: getMyUserInfo
+      responses:
+        '200':
+          description: Пользовательская информация выдана
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Пользователь не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /slot:
+    get:
+      tags:
+        - Slot Management
+      summary: Выдать информацию обо всех слотах ментора
+      description: Выдать информацию о слотах. Требуются права USER
+      operationId: getMentorSlotsInfoForUser
+      parameters:
+        - name: mentorId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Выдан список слотов
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MentorTimeSlotInfoForUserDto'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MentorTimeSlotInfoForUserDto'
+  /slot/my:
+    get:
+      tags:
+        - Slot Management
+      summary: Выдать информацию обо всех слотах ментора
+      description: Выдать информацию о слотах и об участниках. Требуются права MENTOR
+      operationId: getMentorSlotsInfo
+      responses:
+        '200':
+          description: Выдан список слотов
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MentorSlotInfoDto'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MentorSlotInfoDto'
+  /progress/course/{courseId}/users:
+    get:
+      tags:
+        - Learning Progress Management
+      summary: Получить всех учеников в курсе
+      description: Позволяет получить информацию о всех учениках в курсе с текущим модулем. Требуются права ADMIN или MENTOR
+      operationId: getAllUsersAtCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Информацию о всех учениках в курсе
+          content:
+            '*/*':
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/MenteeProgressDto'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenteeProgressDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenteeProgressDto'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenteeProgressDto'
+  /progress/course/{courseId}/statistics:
+    get:
+      tags:
+        - Learning Progress Management
+      summary: Получить прогресс по курсу
+      description: Позволяет получить прогресс обучения в курсе автором этого курса. Требуются права ADMIN или MENTOR
+      operationId: getCourseProgressByMentor
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Информации о прогрессе учеников
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseProgressResponse'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseProgressResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseProgressResponse'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseProgressResponse'
+  /module/{courseId}/{moduleId}:
+    get:
+      tags:
+        - Module Management
+      summary: Получить модуль по ID
+      description: Возвращает информацию о модуле по его идентификатору
+      operationId: getModuleById
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: moduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Информация о модуле
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+    delete:
+      tags:
+        - Module Management
+      summary: Удалить модуль
+      description: Позволяет удалить модуль. Требуются права ADMIN или MENTOR
+      operationId: deleteModule
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: moduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Модуль успешно удален
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                type: object
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: object
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: object
+  /course/{courseId}:
+    get:
+      tags:
+        - Course Management
+      summary: Получить курс по ID
+      description: Возвращает информацию о курсе по его идентификатору
+      operationId: getCourseById
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Информация о курсе
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '404':
+          description: Курс не найден
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+    delete:
+      tags:
+        - Course Management
+      summary: Удалить курс
+      description: Позволяет удалить курс. Требуются права ADMIN или MENTOR
+      operationId: deleteCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Курс успешно удален
+          content:
+            '*/*':
+              schema:
+                type: object
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: object
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Курс не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /course/all:
+    get:
+      tags:
+        - Course Management
+      summary: Получить все курсы
+      description: Возвращает список всех курсов, включая неактивные
+      operationId: getAllCourses
+      responses:
+        '200':
+          description: Список всех курсов
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseDto'
+  /course/all/active:
+    get:
+      tags:
+        - Course Management
+      summary: Получить активные курсы
+      description: Возвращает список всех активных курсов
+      operationId: getAllActiveCourses
+      responses:
+        '200':
+          description: Список активных курсов
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseDto'
+  /admin/user/{userId}:
+    get:
+      tags:
+        - User Management
+      summary: Получить информацию о другом профиле.
+      description: Позволяет получить информацию о профиле другого пользователя.
+      operationId: getOtherUserInfo_1
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Пользовательская информация выдана
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Пользователь не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /admin/user/me:
+    get:
+      tags:
+        - User Management
+      summary: Получить информацию о своем профиле.
+      description: Позволяет получить информацию о своем профиле.
+      operationId: getMyUserInfo_1
+      responses:
+        '200':
+          description: Пользовательская информация выдана
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Пользователь не найден
+          content:
+            '*/*':
+              schema:
+                type: object
+  /admin/slot/all:
+    get:
+      tags:
+        - Slot Management.
+      summary: Получить информацию обо всех слотах ментора
+      description: Получить информацию о слотах и участниках. Требуются права администратора.
+      operationId: getMentorSlotsInfo_1
+      parameters:
+        - name: pageNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Выдан список слотов
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MentorTimeSlotDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageMentorSlotInfoDto'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageMentorSlotInfoDto'
+  /admin/module/get-one:
+    get:
+      tags:
+        - Admin module management.
+      summary: Получить модуль по ID.
+      description: Возвращает информацию о модуле по его идентификатору. Необходимы права администратора.
+      operationId: getModuleById_1
+      parameters:
+        - name: moduleId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Информация о модуле
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+        '400':
+          description: Невалидные входные данные
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+        '403':
+          description: Доступ запрещен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModuleDto'
+  /admin/course/{courseId}:
+    get:
+      tags:
+        - Admin course management
+      summary: Получить курс по ID
+      description: Возвращает информацию о курсе по его идентификатору
+      operationId: getCourseById_1
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Информация о курсе
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '404':
+          description: Курс не найден
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+  /admin/course/all:
+    get:
+      tags:
+        - Admin course management
+      summary: Получить все курсы
+      description: Возвращает список всех курсов, включая неактивные
+      operationId: getAllCourses_1
+      parameters:
+        - name: pageNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Список всех курсов
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseDto'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageCourseDto'
+components:
+  schemas:
+    MentorTimeSlotDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID слота
+          format: int64
+          example: 1
+        mentorId:
+          type: integer
+          description: ID ментора
+          format: int64
+          example: 1
+        rqUId:
+          type: string
+          description: UUID запроса
+          example: 6e8f4e02-c91c-465f-b22d-7f102fca381b
+        startTime:
+          type: string
+          description: Начало открытого слота
+          format: date-time
+        endTime:
+          type: string
+          description: Окончание открытого слота
+          format: date-time
+        slotType:
+          type: string
+          description: Тип слота
+          example: INDIVIDUAL
+          enum:
+            - INDIVIDUAL
+            - GROUP
+        slotMeetingType:
+          type: string
+          description: Тип планируемой встречи
+          example: COMMUNICATION
+          enum:
+            - ACQUAINTANCE
+            - COMMUNICATION
+            - ACCEPTING
+        maxParticipants:
+          type: integer
+          description: Максимальное число участников
+          format: int32
+          example: 10
+        meetingLink:
+          type: string
+          description: Ссылка на встречу
+          example: https://www.meet.ru/<uuid>
+        description:
+          type: string
+          description: Описание слота
+          example: Знакомство и обсуждение плана дальнейшего взаимодействия
+        createdAt:
+          type: string
+          description: Дата и время создания создания слота
+          format: date-time
+        isActive:
+          type: boolean
+          description: Признак активности слота
+          example: true
+      description: Информация о слоте
+    MentorTimeSlotCreateRequest:
+      required:
+        - meetingLink
+        - slotMeetingType
+        - slotType
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        slotType:
+          type: string
+          enum:
+            - INDIVIDUAL
+            - GROUP
+        slotMeetingType:
+          type: string
+          enum:
+            - ACQUAINTANCE
+            - COMMUNICATION
+            - ACCEPTING
+        maxParticipants:
+          maximum: 50
+          minimum: 1
+          type: integer
+          format: int32
+        meetingLink:
+          type: string
+        description:
+          type: string
+    ModuleDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        moduleTitle:
+          type: string
+        moduleOrderNumber:
+          type: integer
+          format: int32
+        moduleContent:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    CreateModuleRequest:
+      required:
+        - courseId
+        - moduleContentDescription
+        - moduleOrderNumber
+        - moduleTitle
+      type: object
+      properties:
+        courseId:
+          type: integer
+          description: ID курса
+          format: int64
+          example: 123
+        moduleTitle:
+          type: string
+          description: Название модуля
+          example: 'Модуль 1: Основы Spring Boot'
+        moduleOrderNumber:
+          type: integer
+          description: Порядковый номер модуля в курсе
+          format: int32
+          example: 1
+        moduleContentDescription:
+          type: string
+          description: Содержимое модуля в формате Markdown
+          example: |-
+            # Введение
+
+            Этот модуль содержит основы Spring Boot...
+      description: Запрос на создание модуля курса
+    CourseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID курса
+          format: int64
+          example: 1
+        courseTitle:
+          type: string
+          description: Название курса
+          example: Основы Spring Boot
+        courseDescription:
+          type: string
+          description: Описание курса
+          example: Курс по основам Spring Framework
+        isActive:
+          type: boolean
+          description: Флаг активности курса
+          example: true
+        createdAt:
+          type: string
+          description: Дата создания курса
+          format: date-time
+        author:
+          $ref: '#/components/schemas/UserInfoDto'
+        modules:
+          type: array
+          description: Список модулей курса
+          items:
+            $ref: '#/components/schemas/ModuleDto'
+      description: Информация о курсе
+    UserInfoDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        role:
+          type: string
+          enum:
+            - USER
+            - ADMIN
+            - MENTOR
+        firstName:
+          type: string
+        lastName:
+          type: string
+        tgNickname:
+          type: string
+        tgChatId:
+          type: integer
+          format: int64
+      description: ID автора курса
+      example: 5
+    CreateCourseRequest:
+      required:
+        - courseDescription
+        - courseName
+      type: object
+      properties:
+        courseName:
+          type: string
+          description: Название курса
+          example: Основы Spring Boot
+        courseDescription:
+          type: string
+          description: Описание курса
+          example: Курс по основам Spring Framework
+      description: Запрос на создание курса
+    JwtAuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT токен доступа
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          description: JWT токен обновления
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        role:
+          type: string
+          description: Роль пользователя в системе
+          example: USER
+          enum:
+            - USER
+            - ADMIN
+            - MENTOR
+            - USER
+            - MENTOR
+            - ADMIN
+      description: Ответ с токенами доступа и ролью пользователя
+    RegRequest:
+      required:
+        - firstName
+        - lastName
+      type: object
+      properties:
+        username:
+          maxLength: 50
+          minLength: 5
+          type: string
+          description: Email пользователя
+          example: pipa@popa.com
+        password:
+          maxLength: 255
+          minLength: 6
+          pattern: \S+
+          type: string
+          description: Пароль
+          example: my_1secret1_password
+        tgNickname:
+          maxLength: 32
+          minLength: 5
+          pattern: ^@[a-zA-Z0-9_]+
+          type: string
+          description: Никнейм в Telegram
+          example: '@john_doe'
+        firstName:
+          type: string
+          description: Имя пользователя
+          example: Иван
+        lastName:
+          type: string
+          description: Фамилия пользователя
+          example: Иванов
+        confirmPassword:
+          type: string
+          description: Подтверждение пароля
+          example: my_1secret1_password
+      description: Запрос на регистрацию нового пользователя
+    AuthRequest:
+      type: object
+      properties:
+        username:
+          maxLength: 50
+          minLength: 5
+          type: string
+          description: Email пользователя
+          example: pipa@popa.com
+        password:
+          maxLength: 255
+          minLength: 6
+          pattern: \S+
+          type: string
+          description: Пароль
+          example: my_1secret1_password
+      description: Запрос на авторизацию
+    ModuleAccessRequest:
+      required:
+        - courseId
+        - userId
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: ID пользователя
+          format: int64
+          example: 123
+        courseId:
+          type: integer
+          description: ID курса
+          format: int64
+          example: 456
+        moduleId:
+          type: integer
+          description: ID модуля
+          format: int64
+          example: 789
+      description: Запрос на управление доступом к модулю курса
+    CourseAccessRequest:
+      required:
+        - courseId
+        - userId
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: ID пользователя
+          format: int64
+          example: 123
+        courseId:
+          type: integer
+          description: ID курса
+          format: int64
+          example: 456
+      description: Запрос на управление доступом к курсу
+    MentorTimeSlotInfoForUserDto:
+      type: object
+      properties:
+        mentorTimeSlotDto:
+          $ref: '#/components/schemas/MentorTimeSlotDto'
+        slotFull:
+          type: boolean
+      description: Информация о слоте для ученика
+    MentorSlotInfoDto:
+      type: object
+      properties:
+        slotDto:
+          $ref: '#/components/schemas/MentorTimeSlotDto'
+        participants:
+          type: array
+          description: Информация об участниках слота
+          items:
+            $ref: '#/components/schemas/UserInfoDto'
+      description: Подробная информация о слоте ментора и об участниках в нем
+    MenteeProgressDto:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        firstName:
+          type: string
+        lastName:
+          type: string
+        currentModuleId:
+          type: integer
+          format: int64
+        tgNickname:
+          type: string
+    CourseProgressResponse:
+      type: object
+      properties:
+        courseId:
+          type: integer
+          format: int64
+        courseTitle:
+          type: string
+        mentee:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenteeProgressDto'
+        statistic:
+          $ref: '#/components/schemas/CourseProgressStatisticDto'
+    CourseProgressStatisticDto:
+      type: object
+      properties:
+        totalMenteeCount:
+          type: integer
+          format: int32
+        moduleDistribution:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+    PageMentorSlotInfoDto:
+      type: object
+      properties:
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/MentorSlotInfoDto'
+        number:
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortObject'
+        first:
+          type: boolean
+        last:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        empty:
+          type: boolean
+    PageableObject:
+      type: object
+      properties:
+        paged:
+          type: boolean
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        offset:
+          type: integer
+          format: int64
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortObject'
+        unpaged:
+          type: boolean
+    SortObject:
+      type: object
+      properties:
+        direction:
+          type: string
+        nullHandling:
+          type: string
+        ascending:
+          type: boolean
+        property:
+          type: string
+        ignoreCase:
+          type: boolean
+    PageCourseDto:
+      type: object
+      properties:
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseDto'
+        number:
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortObject'
+        first:
+          type: boolean
+        last:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        empty:
+          type: boolean
