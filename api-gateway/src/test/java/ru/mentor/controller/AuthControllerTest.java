@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -27,6 +28,9 @@ public class AuthControllerTest {
 
     @Autowired
     private AuthTestUtil testUtil;
+
+    @MockBean
+    private ru.mentor.kafka.KafkaFacade kafkaFacade;
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
@@ -51,6 +55,8 @@ public class AuthControllerTest {
         registry.add("spring.datasource.password", postgres::getPassword);
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
         registry.add("spring.liquibase.enabled", () -> "false");
+        registry.add("spring.kafka.bootstrap-servers", () -> "dummy:9092");
+        registry.add("spring.kafka.admin.auto-create", () -> "false");
     }
 
     @Test

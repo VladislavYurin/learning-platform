@@ -35,7 +35,7 @@ public interface MentorTimeSlotRepository
     boolean existsOverlappingSlots(Long userId, LocalDateTime start, LocalDateTime end);
 
     @Query(value = """
-                SELECT slot FROM MentorTimeSlotEntity slot JOIN FETCH slot.meetingParticipants
+                SELECT slot FROM MentorTimeSlotEntity slot LEFT JOIN FETCH slot.meetingParticipants
                 WHERE slot.mentor.id = :mentorId
                 ORDER BY slot.startTime
             """)

@@ -3,6 +3,7 @@ package ru.mentor.service.impl;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +18,21 @@ import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.entity.UserModuleAccessEntity;
 import ru.mentor.exception.CustomAccessDeniedException;
+import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.CourseTagRepository;
+import ru.mentor.repository.UserCourseAccessRepository;
 import ru.mentor.repository.UserModuleAccessRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.service.CourseService;
 import ru.mentor.util.AccessChecker;
 
+/**
+ * Реализация сервиса для управления курсами в системе управления онлайн-курсами.
+ * Cервис предоставляет методы для создания и удаления курсов,
+ * а также управляет доступом к ним в соответствии с ролями пользователей.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -38,20 +46,20 @@ public class CourseServiceImpl implements CourseService {
 
     private final AccessChecker accessChecker;
 
+    private final UserCourseAccessRepository userCourseAccessRepository;
+
     private final UserModuleAccessRepository userModuleAccessRepository;
+
+    private final KafkaFacade kafkaFacade;
 
     private final CourseTagRepository tagRepository;
 
     /**
-     * Создание курса
+     * Создает новый курс от имени пользователя (ментора или администратора).
      *
-     * @param request
-     *         GRPC запрос содержащий данные о курсе
-     *
-     * @return courseDto ДТО созданного курса
-     *
-     * @throws CustomAccessDeniedException
-     *         исключение если пользователю запрещен доступ к данной операции
+     * @param request Запрос на создание курса, содержащий данные о названии, описании и ID автора курса.
+     * @return DTO курса, созданного в результате операции, содержащий информацию о курсе.
+     * @throws CustomAccessDeniedException Если пользователь не обладает необходимыми правами для создания курса.
      */
     @Override
     @Transactional
@@ -99,12 +107,14 @@ public class CourseServiceImpl implements CourseService {
         // Админ может удалять любой курс
         if (Role.checkIsAdmin(deletedByUser)) {
             courseRepository.deleteById(courseId);
+            kafkaFacade.sendCourseDeletedMessage(course, deletedByUser);
             return;
         }
 
         // Ментор может удалять только свои курсы
         if (Role.checkIsMentor(deletedByUser) && course.getAuthor().equals(deletedByUser)) {
             courseRepository.delete(course);
+            kafkaFacade.sendCourseDeletedMessage(course, deletedByUser);
             return;
         }
 

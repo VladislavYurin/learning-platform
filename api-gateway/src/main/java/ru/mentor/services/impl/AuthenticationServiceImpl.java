@@ -12,6 +12,7 @@ import ru.mentor.dto.auth.AuthRequest;
 import ru.mentor.dto.auth.JwtAuthResponse;
 import ru.mentor.dto.auth.RegRequest;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.services.AuthenticationService;
 import ru.mentor.services.JwtService;
 import ru.mentor.services.UserService;
@@ -28,6 +29,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final KafkaFacade kafkaFacade;
 
     /**
      * Регистрация пользователя
@@ -40,16 +42,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public JwtAuthResponse registration(RegRequest request) {
 
-        var user = UserEntity.builder()
-                             .username(request.getUsername())
-                             .password(passwordEncoder.encode(request.getPassword()))
-                             .tgNickname(request.getTgNickname())
-                             .firstName(request.getFirstName())
-                             .lastName(request.getLastName())
-                             .role(Role.USER)
-                             .build();
+        UserEntity user = userService.create(UserEntity.builder()
+                                                       .username(request.getUsername())
+                                                       .password(passwordEncoder.encode(request.getPassword()))
+                                                       .tgNickname(request.getTgNickname())
+                                                       .firstName(request.getFirstName())
+                                                       .lastName(request.getLastName())
+                                                       .role(Role.USER)
+                                                       .build());
 
-        userService.create(user);
+        kafkaFacade.sendUserRegistrationMessage(user);
         return generateTokens(user);
 
     }

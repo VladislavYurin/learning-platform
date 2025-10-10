@@ -7,11 +7,19 @@ import ru.mentor.constant.NotificationStatus;
 import ru.mentor.constant.NotificationTypeEnum;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.dto.kafka.CourseAccessGrantedNotificationPayload;
+import ru.mentor.dto.kafka.CourseAccessRevokedNotificationPayload;
+import ru.mentor.dto.kafka.CourseCreatedMentorNotificationPayload;
+import ru.mentor.dto.kafka.CourseDeletedMentorNotificationPayload;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.MentorReminderNotificationPayload;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
+import ru.mentor.dto.kafka.ModuleAccessRevokedNotificationPayload;
+import ru.mentor.dto.kafka.ModuleCreatedMentorNotificationPayload;
+import ru.mentor.dto.kafka.ModuleDeletedMentorNotificationPayload;
 import ru.mentor.dto.kafka.NotificationPayload;
+import ru.mentor.dto.kafka.SlotBookedNotificationPayload;
 import ru.mentor.dto.kafka.StudentReminderNotificationPayload;
+import ru.mentor.dto.kafka.UserRegistrationNotificationPayload;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.NotificationEntity;
 import ru.mentor.entity.UserEntity;
@@ -62,6 +70,56 @@ public class KafkaMapper {
     }
 
     /**
+     * Создает payload уведомления об отзыве доступа к курсу.
+     *
+     * @param courseTitle название курса
+     * @param accessRevokedAt дата и время отзыва доступа
+     * @param accessRevokedBy информация о пользователе, отозвавшем доступ
+     * @return payload уведомления об отзыве доступа к курсу
+     */
+    public CourseAccessRevokedNotificationPayload createCourseAccessRevokedNotificationPayload(
+            String courseTitle,
+            LocalDateTime accessRevokedAt,
+            UserInfoDto accessRevokedBy) {
+        return CourseAccessRevokedNotificationPayload.builder()
+                .courseTitle(courseTitle)
+                .accessRevokedAt(accessRevokedAt)
+                .accessRevokedBy(accessRevokedBy)
+                .build();
+    }
+
+    /**
+     * Создает payload уведомления о создании курса.
+     *
+     * @param courseTitle название курса
+     * @param createdAt дата и время создания курса
+     * @param createdBy создатель курса
+     * @return payload уведомление о создании курса
+     */
+    public CourseCreatedMentorNotificationPayload courseCreatedMentorNotificationPayload(
+            String courseTitle,
+            LocalDateTime createdAt,
+            UserInfoDto createdBy) {
+        return CourseCreatedMentorNotificationPayload.builder()
+                .courseTitle(courseTitle)
+                .courseCreatedBy(createdBy)
+                .createdAt(createdAt)
+                .build();
+    }
+
+    /**
+     * Создает payload уведомления об удалении курса.
+     * @param courseTitle название курса
+     * @return payload уведомление об удалении курса
+     */
+    public CourseDeletedMentorNotificationPayload courseDeletedMentorNotificationPayload(
+            String courseTitle) {
+        return CourseDeletedMentorNotificationPayload.builder()
+                .courseTitle(courseTitle)
+                .build();
+    }
+
+    /**
      * Создает payload уведомления о предоставлении доступа к модулю.
      *
      * @param courseTitle название курса
@@ -81,6 +139,78 @@ public class KafkaMapper {
                                                      .accessGrantedAt(accessGrantedAt)
                                                      .accessGrantedBy(accessGrantedBy)
                                                      .build();
+    }
+
+    /**
+     * Создает payload уведомления об отзыве доступа к модулю.
+     *
+     * @param courseTitle название курса
+     * @param moduleTitle название модуля
+     * @param accessRevokedAt дата и время отзыва доступа
+     * @param accessRevokedBy информация о пользователе, отозвавшем доступ
+     * @return payload уведомления об отзыве доступа к модулю
+     */
+    public ModuleAccessRevokedNotificationPayload createModuleAccessRevokedNotificationPayload(
+            String courseTitle,
+            String moduleTitle,
+            LocalDateTime accessRevokedAt,
+            UserInfoDto accessRevokedBy) {
+        return ModuleAccessRevokedNotificationPayload.builder()
+                .courseTitle(courseTitle)
+                .moduleTitle(moduleTitle)
+                .accessRevokedAt(accessRevokedAt)
+                .accessRevokedBy(accessRevokedBy)
+                .build();
+    }
+
+    /**
+     * Создает payload уведомления о создании модуля в курсе.
+     * @param courseTitle название курса, к которому относится модуль
+     * @param moduleTitle название модуля
+     * @param createdAt дата и время создания модуля
+     * @param createdBy создатель модуля
+     * @return payload уведомление о создании модуля
+     */
+    public ModuleCreatedMentorNotificationPayload moduleCreatedMentorNotificationPayload(
+            String courseTitle,
+            String moduleTitle,
+            LocalDateTime createdAt,
+            UserInfoDto createdBy) {
+        return ModuleCreatedMentorNotificationPayload.builder()
+                .courseTitle(courseTitle)
+                .moduleTitle(moduleTitle)
+                .moduleCreatedBy(createdBy)
+                .createdAt(createdAt)
+                .build();
+    }
+
+    /**
+     * Создает payload уведомления об удалении модуля.
+     * @param courseTitle название курса
+     * @param moduleTitle название модуля
+     * @return payload уведомление об удалении модуля
+     */
+    public ModuleDeletedMentorNotificationPayload moduleDeletedMentorNotificationPayload(
+            String courseTitle,
+            String moduleTitle) {
+        return ModuleDeletedMentorNotificationPayload.builder()
+                                                     .courseTitle(courseTitle)
+                                                     .moduleTitle(moduleTitle)
+                                                     .build();
+    }
+
+    /**
+     * Создает payload уведомления о регистрации пользователя.
+     *
+     * @param userInfo информация о пользователе
+     * @return payload уведомления о регистрации
+     */
+    public UserRegistrationNotificationPayload userRegistrationNotificationPayload(
+            UserInfoDto userInfo) {
+        return UserRegistrationNotificationPayload.builder()
+                                                  .createdAt(LocalDateTime.now())
+                                                  .userInfo(userInfo)
+                                                  .build();
     }
 
     /**
@@ -105,6 +235,24 @@ public class KafkaMapper {
                                  .notificationDestination(notificationDestination)
                                  .notificationStatus(notificationStatus)
                                  .build();
+    }
+
+    /**
+     * Создает payload уведомления наставнику о том, что слот забронирован.
+     * @param startAt время начала встречи
+     * @param endAt время окончания встречи
+     * @param mentee ученик
+     * @return payload уведомления о забронированном слоте
+     */
+    public SlotBookedNotificationPayload slotBookedNotificationPayload(
+            LocalDateTime startAt,
+            LocalDateTime endAt,
+            UserInfoDto mentee){
+        return SlotBookedNotificationPayload.builder()
+                                            .startAt(startAt)
+                                            .endAt(endAt)
+                                            .mentee(mentee)
+                                            .build();
     }
 
     /**

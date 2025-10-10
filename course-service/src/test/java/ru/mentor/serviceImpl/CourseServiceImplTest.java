@@ -41,6 +41,18 @@ public class CourseServiceImplTest {
     CourseTagRepository tagRepository;
 
     @Mock
+    ru.mentor.kafka.KafkaFacade kafkaFacade;
+
+    @Mock
+    ru.mentor.util.AccessChecker accessChecker;
+
+    @Mock
+    ru.mentor.repository.UserCourseAccessRepository userCourseAccessRepository;
+
+    @Mock
+    ru.mentor.repository.UserModuleAccessRepository userModuleAccessRepository;
+
+    @Mock
     BaseMapper baseMapper;
 
     @InjectMocks

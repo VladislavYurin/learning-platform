@@ -5,10 +5,18 @@ import org.springframework.stereotype.Service;
 import ru.mentor.cache.NotificationCacheProcessor;
 import ru.mentor.constant.NotificationTypeEnum;
 import ru.mentor.dto.kafka.CourseAccessGrantedNotificationPayload;
+import ru.mentor.dto.kafka.CourseAccessRevokedNotificationPayload;
+import ru.mentor.dto.kafka.CourseCreatedMentorNotificationPayload;
+import ru.mentor.dto.kafka.CourseDeletedMentorNotificationPayload;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.MentorReminderNotificationPayload;
 import ru.mentor.dto.kafka.ModuleAccessGrantedNotificationPayload;
+import ru.mentor.dto.kafka.ModuleAccessRevokedNotificationPayload;
+import ru.mentor.dto.kafka.ModuleCreatedMentorNotificationPayload;
+import ru.mentor.dto.kafka.ModuleDeletedMentorNotificationPayload;
+import ru.mentor.dto.kafka.SlotBookedNotificationPayload;
 import ru.mentor.dto.kafka.StudentReminderNotificationPayload;
+import ru.mentor.dto.kafka.UserRegistrationNotificationPayload;
 import ru.mentor.service.NotificationTemplateService;
 
 import java.time.LocalDateTime;
@@ -71,6 +79,34 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
                         formatDateTime(payload.getAccessGrantedAt())
                 );
             }
+            case COURSE_ACCESS_REVOKED -> {
+                CourseAccessRevokedNotificationPayload payload = (CourseAccessRevokedNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        payload.getCourseTitle(),
+                        formatDateTime(payload.getAccessRevokedAt())
+                );
+            }
+            case COURSE_CREATED_MENTOR -> {
+                CourseCreatedMentorNotificationPayload payload = (CourseCreatedMentorNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        payload.getCourseTitle(),
+                        payload.getCourseCreatedBy().getFirstName(),
+                        payload.getCourseCreatedBy().getLastName(),
+                        formatDateTime(payload.getCreatedAt())
+                );
+            }
+            case COURSE_DELETED -> {
+                CourseDeletedMentorNotificationPayload payload = (CourseDeletedMentorNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        payload.getCourseTitle()
+                );
+            }
             case MODULE_ACCESS_GRANTED -> {
                 ModuleAccessGrantedNotificationPayload payload = (ModuleAccessGrantedNotificationPayload) dto.getPayload();
                 yield String.format(
@@ -81,6 +117,36 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
                         payload.getAccessGrantedBy().getFirstName(),
                         payload.getAccessGrantedBy().getLastName(),
                         formatDateTime(payload.getAccessGrantedAt())
+                );
+            }
+            case MODULE_ACCESS_REVOKED -> {
+                ModuleAccessRevokedNotificationPayload payload = (ModuleAccessRevokedNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        payload.getModuleTitle(),
+                        formatDateTime(payload.getAccessRevokedAt())
+                );
+            }
+            case MODULE_CREATED_MENTOR -> {
+                ModuleCreatedMentorNotificationPayload payload = (ModuleCreatedMentorNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        payload.getModuleTitle(),
+                        payload.getCourseTitle(),
+                        payload.getModuleCreatedBy().getFirstName(),
+                        payload.getModuleCreatedBy().getLastName(),
+                        formatDateTime(payload.getCreatedAt())
+                );
+            }
+            case MODULE_DELETED -> {
+                ModuleDeletedMentorNotificationPayload payload = (ModuleDeletedMentorNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        payload.getCourseTitle(),
+                        payload.getModuleTitle()
                 );
             }
             case MENTOR_CALENDAR_SLOT_REMINDER -> {
@@ -109,6 +175,25 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
                         payload.getMeetingLink()
                 );
             }
+            case SLOT_BOOKED_MENTOR -> {
+                SlotBookedNotificationPayload payload = (SlotBookedNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        formatDateTime(payload.getStartAt()),
+                        formatDateTime(payload.getEndAt()),
+                        payload.getMentee().getFirstName(),
+                        payload.getMentee().getLastName()
+                );
+            }
+            case USER_REGISTRATION_USER -> {
+                UserRegistrationNotificationPayload payload = (UserRegistrationNotificationPayload) dto.getPayload();
+                yield String.format(
+                        template,
+                        dto.getUserInfo().getFirstName(),
+                        formatDateTime(payload.getCreatedAt())
+                );
+            }
         };
     }
 
@@ -122,8 +207,16 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
     public String getEmailSubject(NotificationTypeEnum type) {
         return switch (type) {
             case COURSE_ACCESS_GRANTED -> "Доступ к курсу";
+            case COURSE_ACCESS_REVOKED -> "Отзыв доступа к курсу";
+            case COURSE_CREATED_MENTOR -> "Создан новый курс";
+            case COURSE_DELETED -> "Удален курс";
             case MODULE_ACCESS_GRANTED -> "Новый модуль доступен";
+            case MODULE_ACCESS_REVOKED -> "Отзыв доступа к модулю";
+            case MODULE_CREATED_MENTOR -> "Создан новый модуль";
+            case MODULE_DELETED -> "Модуль удален";
             case MENTOR_CALENDAR_SLOT_REMINDER, STUDENT_CALENDAR_SLOT_REMINDER -> "Напоминание о встрече";
+            case SLOT_BOOKED_MENTOR -> "Забронирован слот";
+            case USER_REGISTRATION_USER -> "Новый пользователь успешно зарегистрирован";
         };
     }
 

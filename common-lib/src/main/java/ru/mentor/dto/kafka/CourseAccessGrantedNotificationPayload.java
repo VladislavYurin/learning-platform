@@ -1,8 +1,11 @@
 package ru.mentor.dto.kafka;
 
 import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.mentor.dto.UserInfoDto;
 
 /**
@@ -11,6 +14,8 @@ import ru.mentor.dto.UserInfoDto;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CourseAccessGrantedNotificationPayload implements NotificationPayload {
 
     /**

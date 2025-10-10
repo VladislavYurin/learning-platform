@@ -74,12 +74,11 @@ public class NotificationCacheProcessor {
       * <p>
       * Интервал обновления задаётся в настройках:
       * <pre>
-      *     cache.notification.update.interval.min = N
+      *     cache.notification.template.update.interval.cron
       * </pre>
-      * где N – задержка в минутах между обновлениями.
       * </p>
       */
-    @Scheduled(fixedDelayString = "${cache.notification.template.update.interval.min}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(cron = "${cache.notification.template.update.interval.cron}")
     public void updateCache(){
         try {
             log.debug("Начинается обновление кеша шаблонов уведомлений...");
