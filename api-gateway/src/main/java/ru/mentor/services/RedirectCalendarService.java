@@ -4,7 +4,6 @@ import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
-
 import java.util.List;
 
 /**
@@ -37,4 +36,9 @@ public interface RedirectCalendarService {
      * Отправляет запрос для получения всех слотов ментора без информации об участниках и с признаком заполненности
      */
     List<MentorTimeSlotInfoForUserDto> getMentorSlotsInfoForUser(Long mentorId);
+
+    /**
+     * Отправляет запрос для отмены слота.
+     */
+    String cancelTimeSlot(long timeSlotId);
 }

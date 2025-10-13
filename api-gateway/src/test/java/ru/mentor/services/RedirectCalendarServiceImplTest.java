@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentor.common.BookTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotResponse;
 import ru.mentor.common.CreateTimeSlotRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.TimeSlotResponse;
@@ -170,6 +171,23 @@ class RedirectCalendarServiceImplTest {
                        ArgumentMatchers.eq(TestConstantHolder.mentorId),
                        ArgumentMatchers.any(Header.class)
                );
+    }
+
+    @Test
+    public void cancelTimeSlot_success(){
+        Mockito.when(userService.getCurrentUser())
+                .thenReturn(TestDataGenerator.getTestMentorUser());
+        Mockito.when(calendarServiceClient.cancelTimeSlot(ArgumentMatchers.any()))
+                .thenReturn(CancelTimeSlotResponse.newBuilder().build());
+
+        redirectCalendarService.cancelTimeSlot(TestConstantHolder.timeSlotId);
+
+        Mockito.verify(calendarServiceClient, Mockito.times(1))
+                .cancelTimeSlot(ArgumentMatchers.any());
+        Mockito.verify(timeSlotMapper, Mockito.times(1))
+                .toGrpcCancelTimeSlotRequest(ArgumentMatchers.any(Header.class), ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong());
+        Mockito.verify(userService, Mockito.times(1))
+                .getCurrentUser();
     }
 
 }

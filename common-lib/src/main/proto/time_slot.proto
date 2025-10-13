@@ -21,6 +21,18 @@ message MentorSlotsInfoRequest {
   int64 mentor_id = 2;
 }
 
+// Отмена брони слота
+message CancelTimeSlotRequest {
+  Header header = 1;                           // Уникальный идентификатор запроса
+  int64 slot_id = 2;                          // ID бронируемого слота
+  int64 user_id = 3;                          // ID пользователя
+}
+
+// Ответ на отмену слота с номером запроса
+message CancelTimeSlotResponse {
+  string rqUid = 1;
+}
+
 // Запрос на создание слота
 message CreateTimeSlotRequest {
   Header header = 1;                        // Универсальный заголовок gRPC-запроса

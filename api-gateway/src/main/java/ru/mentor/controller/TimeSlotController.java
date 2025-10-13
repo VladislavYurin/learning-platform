@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +53,7 @@ public class TimeSlotController {
     )
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
+    @SecurityRequirement(name = "BearerAuthentication")
     public ResponseEntity<MentorTimeSlotDto> createSlot(@RequestBody MentorTimeSlotCreateRequest request) {
         return ResponseEntity.ok(redirectCalendarService.createTimeSlot(request));
     }
@@ -76,8 +79,34 @@ public class TimeSlotController {
     )
     @PostMapping("/book")
     @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "BearerAuthentication")
     public ResponseEntity<MentorTimeSlotDto> bookSlot(@RequestParam long timeSlotId) {
         return ResponseEntity.ok(redirectCalendarService.bookTimeSlot(timeSlotId));
+    }
+
+    /**
+     * Отмена слота
+     *
+     * @param timeSlotId
+     *         ID слота
+     *
+     * @return ОК
+     */
+    @Operation(
+            summary = "Отменить бронь слота",
+            description = "Позволяет отменить бронь слота. Требуются права USER",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Слот успешно отменен"),
+                    @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
+            }
+    )
+    @PostMapping("/cancel")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "BearerAuthentication")
+    public ResponseEntity cancelSlot(@RequestParam long timeSlotId) {
+        return ResponseEntity.ok().body(redirectCalendarService.cancelTimeSlot(timeSlotId));
     }
 
     /**

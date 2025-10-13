@@ -17,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.BookTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotResponse;
 import ru.mentor.common.CreateTimeSlotRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.MentorSlotInfo;
@@ -217,6 +219,39 @@ public class TimeSlotMapper {
     }
 
     /**
+     * Маппит уникальный ID запроса, слота и пользователя в объект запроса на отмену слота для отправки по gRPC.
+     *
+     * @param rqUid UUID запроса на бронирование слота
+     * @param slotId ID слота, который бронируется
+     * @param userId ID пользователя, который бронирует
+     * @return {@link CancelTimeSlotRequest}
+     */
+    public CancelTimeSlotRequest toGrpcCancelTimeSlotRequest(Header header , Long slotId, Long userId) {
+        return CancelTimeSlotRequest.newBuilder()
+                .setHeader(header)
+                .setSlotId(slotId)
+                .setUserId(userId)
+                .build();
+    }
+
+    /**
+     * Маппит уникальный ID запроса, в gRPC-ответ.
+     *
+     * @param rqUid UUID запроса на отмену слота
+     * @return {@link CancelTimeSlotResponse}
+     */
+    public CancelTimeSlotResponse toGrpcCancelTimeSlotResponse(String rqUid) {
+        return CancelTimeSlotResponse.newBuilder()
+                .setRqUid(rqUid)
+                .build();
+    }
+
+
+    public String grpcCancelTimeSlotResponseToDto(CancelTimeSlotResponse cancelTimeSlotResponse) {
+        return cancelTimeSlotResponse.getRqUid();
+    }
+
+    /**
      * Маппит сущность пользователя {@link UserEntity} в DTO {@link UserInfo} для gRPC-ответа
      *
      * @param userEntity
@@ -330,14 +365,14 @@ public class TimeSlotMapper {
      */
     public UserInfoDto grpcToUserInfoDto(UserInfo userInfo) {
         return UserInfoDto.builder()
-                          .id(userInfo.getId())
-                          .username(userInfo.getUsername())
-                          .role(userInfoRoleToUserInfoDtoRole(userInfo))
-                          .firstName(userInfo.getFirstName())
-                          .lastName(userInfo.getLastName())
-                          .tgNickname(userInfo.getTgNickname())
-                          .tgChatId(userInfo.hasTgChatId() ? userInfo.getTgChatId() : null)
-                          .build();
+                .id(userInfo.getId())
+                .username(userInfo.getUsername())
+                .role(userInfoRoleToUserInfoDtoRole(userInfo))
+                .firstName(userInfo.getFirstName())
+                .lastName(userInfo.getLastName())
+                .tgNickname(userInfo.getTgNickname())
+                .tgChatId(userInfo.hasTgChatId() ? userInfo.getTgChatId() : null)
+                .build();
     }
 
     /**

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.mentor.common.BookTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotResponse;
 import ru.mentor.common.CreateTimeSlotRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.MentorSlotInfo;
@@ -96,6 +98,23 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
                 .bookTimeSlot(bookTimeSlotRequest);
 
         return timeSlotMapper.grpcResponseToDto(timeSlotGrpcResponse);
+    }
+
+    public String cancelTimeSlot(long timeSlotId) {
+
+        Long userId = userService.getCurrentUser().getId();
+        String rqUId = RqGenerator.generateRqId();
+        Header header = headerFactory.create(rqUId);
+        log.info("[ RqUId = {} ] Получен запрос на отмену бронирования слота [ ID = {}] учеником [ ID = {} ].",
+                rqUId,
+                timeSlotId,
+                userId);
+
+        CancelTimeSlotRequest cancelTimeSlotRequest =
+                timeSlotMapper.toGrpcCancelTimeSlotRequest(header, timeSlotId, userId);
+
+        CancelTimeSlotResponse cancelTimeSlotResponse = calendarServiceClient.cancelTimeSlot(cancelTimeSlotRequest);
+        return timeSlotMapper.grpcCancelTimeSlotResponseToDto(cancelTimeSlotResponse);
     }
 
     /**
