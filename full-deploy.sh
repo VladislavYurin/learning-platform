@@ -1,24 +1,70 @@
-# --- 1. Очистка старых образов и сборка новых ---
-./build.sh
-
-# --- 2. Запуск инфраструктуры ---
-echo "🛢️ Запуск PostgreSQL и Kafka..."
-./run-infra.sh &
-
-# Ждём, пока инфраструктура поднимется
-echo "⏳ Ожидание старта инфраструктуры (1 мин)..."
-sleep 60
-
-# --- 3. Запуск микросервисов ---
-echo "🚀 Запуск микросервисов..."
-docker-compose up -d \
-  api-gateway \
-  course-service \
-  mentor-service \
-  notification-service \
-  calendar-service \
-  admin-service
-
-# --- 4. Проверка статуса ---
-echo "✅ Готово! Статус контейнеров:"
-docker-compose ps
+set -e
+echo "--"
+echo "----"
+echo "------"
+echo "--------"
+echo "----------"
+echo "------------ НАЧАЛО СБОРКИ ОБРАЗА common-lib..."
+echo "----------"
+echo "--------"
+echo "------"
+echo "----"
+echo "--"
+docker compose build common-lib
+echo "--"
+echo "----"
+echo "------"
+echo "--------"
+echo "----------"
+echo "------------ СБОРКА ОБРАЗА common-lib ЗАВЕРШЕНА!"
+echo "----------"
+echo "--------"
+echo "------"
+echo "----"
+echo "--"
+echo "--"
+echo "----"
+echo "------"
+echo "--------"
+echo "----------"
+echo "------------ НАЧАЛО СБОРКИ ВСЕХ МИКРОСЕРВИСОВ..."
+echo "----------"
+echo "--------"
+echo "------"
+echo "----"
+echo "--"
+docker compose build
+echo "--"
+echo "----"
+echo "------"
+echo "--------"
+echo "----------"
+echo "------------ СБОРКА ОБРАЗОВ ВСЕХ МИКРОСЕРВИСОВ ЗАВЕРШЕНА!"
+echo "----------"
+echo "--------"
+echo "------"
+echo "----"
+echo "--"
+echo "--"
+echo "----"
+echo "------"
+echo "--------"
+echo "----------"
+echo "------------ ЗАПУСК ВСЕХ МИКРОСЕРВИСОВ И ИНФРАСТРУКТУРЫ В КОНТЕЙНЕРАХ..."
+echo "----------"
+echo "--------"
+echo "------"
+echo "----"
+echo "--"
+docker compose up -d
+echo "--"
+echo "----"
+echo "------"
+echo "--------"
+echo "----------"
+echo "------------ ВСЕ МИКРОСЕРВИСЫ И ИНФРАСТРУКТУРА ЗАПУЩЕНЫ!"
+echo "----------"
+echo "--------"
+echo "------"
+echo "----"
+echo "--"

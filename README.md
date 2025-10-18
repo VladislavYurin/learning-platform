@@ -49,5 +49,3 @@ http://localhost:8080/swagger-ui/index.html#/
 http://localhost:8086
 
 ## Старт всей системы
-
-Запустить [full-deploy.sh](full-deploy.sh) для старта в докере
