@@ -17,7 +17,8 @@
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <openapi.generator.maven.plugin.version>7.7.0</openapi.generator.maven.plugin.version>
+<!--        <openapi.generator.maven.plugin.version>7.7.0</openapi.generator.maven.plugin.version>-->
+        <openapi.generator.maven.plugin.version>7.16.0</openapi.generator.maven.plugin.version>
         <build.helper.maven.plugin.version>3.4.0</build.helper.maven.plugin.version>
         <jakarta.validation.api.version>3.0.2</jakarta.validation.api.version>
         <jakarta.annotation.api.version>2.1.1</jakarta.annotation.api.version>
@@ -55,18 +56,22 @@
                             <inputSpec>${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
-
+                            <typeMappings>DateTime=java.time.ZonedDateTime</typeMappings>
                             <output>${project.build.directory}/generated-sources/openapi</output>
                             <apiPackage>ru.mentor.gateway.api</apiPackage>
                             <modelPackage>ru.mentor.gateway.model</modelPackage>
 
                             <configOptions>
+                                <!-- Включаем использование тэгов для разделения методов интерфейсов -->
+                                <useTags>true</useTags>
+
+                                <!-- 🔹 Генерация только интерфейсов -->
+                                <interfaceOnly>true</interfaceOnly>
+
                                 <!-- ключевые флаги -->
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <useJakartaEe>true</useJakartaEe>
 
-                                <!-- опционально -->
-                                <interfaceOnly>true</interfaceOnly>
                                 <skipDefaultInterface>true</skipDefaultInterface>
                                 <dateLibrary>java8</dateLibrary>
                             </configOptions>

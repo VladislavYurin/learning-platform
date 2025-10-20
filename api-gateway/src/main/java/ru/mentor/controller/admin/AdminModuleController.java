@@ -21,7 +21,7 @@ import ru.mentor.services.RedirectAdminModuleService;
 @RestController
 @RequestMapping("/admin/module")
 @RequiredArgsConstructor
-@Tag(name = "Admin module management.", description = "Управление модулями и их содержимым для админов.")
+@Tag(name = "Admin Module Controller", description = "Управление модулями и их содержимым для админов.")
 public class AdminModuleController {
 
     private final RedirectAdminModuleService redirectAdminModuleService;

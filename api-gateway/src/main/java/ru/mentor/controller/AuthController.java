@@ -23,7 +23,7 @@ import ru.mentor.services.AuthenticationService;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth Management", description = "Регистрация и авторизация")
+@Tag(name = "Auth Controller", description = "Регистрация и авторизация")
 public class AuthController {
 
     private final AuthenticationService authenticationService;

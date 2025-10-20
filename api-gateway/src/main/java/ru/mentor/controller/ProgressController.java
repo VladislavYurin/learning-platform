@@ -26,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/progress")
 @RequiredArgsConstructor
-@Tag(name = "Learning Progress Management", description = "Получение процесса обучения учеников")
+@Tag(name = "Progress Controller", description = "Получение процесса обучения учеников")
 public class ProgressController {
 
     private final RedirectProgressService redirectProgressService;

@@ -31,7 +31,7 @@ import ru.mentor.validation.ValidMarkdownFile;
 @RestController
 @RequestMapping("/module")
 @RequiredArgsConstructor
-@Tag(name = "Module Management", description = "Управление модулями и их содержимым")
+@Tag(name = "Module Controller", description = "Управление модулями и их содержимым")
 public class ModuleController {
 
     private final RedirectModuleService redirectModuleService;

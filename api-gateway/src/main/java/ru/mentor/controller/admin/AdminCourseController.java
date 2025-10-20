@@ -23,7 +23,7 @@ import ru.mentor.services.RedirectAdminCourseService;
 @RestController
 @RequestMapping("/admin/course")
 @RequiredArgsConstructor
-@Tag(name = "Admin course management", description = "Управление курсами и их содержимым для админов.")
+@Tag(name = "Admin Course Controller", description = "Управление курсами и их содержимым для админов.")
 class AdminCourseController {
 
     private final RedirectAdminCourseService redirectAdminCourseService;

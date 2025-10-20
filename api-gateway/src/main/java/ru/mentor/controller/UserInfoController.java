@@ -22,7 +22,7 @@ import ru.mentor.services.UserInfoService;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-@Tag(name = "User Management", description = "Получение или изменение информации о пользователе")
+@Tag(name = "User Info Controller", description = "Получение или изменение информации о пользователе")
 public class UserInfoController {
 
     private final UserInfoService userInfoService;

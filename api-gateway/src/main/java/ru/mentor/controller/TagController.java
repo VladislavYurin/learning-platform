@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +18,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/course-tag")
 @RequiredArgsConstructor
+@Tag(name = "Tag Controller", description = "Получение всех тегов курсов")
 public class TagController {
 
     private final RedirectTagService redirectTagService;
-
 
     @Operation(
             summary = "Получить все теги курсов",

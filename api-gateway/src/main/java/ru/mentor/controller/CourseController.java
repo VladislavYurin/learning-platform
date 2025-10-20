@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/course")
 @RequiredArgsConstructor
-@Tag(name = "Course Management", description = "Управление курсами и их содержимым")
+@Tag(name = "Course Controller", description = "Управление курсами и их содержимым")
 public class CourseController {
 
     private final RedirectCourseService redirectCourseService;

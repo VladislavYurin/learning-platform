@@ -22,7 +22,7 @@ import ru.mentor.services.RedirectAdminCalendarService;
 @RestController
 @RequestMapping("/admin/slot")
 @RequiredArgsConstructor
-@Tag(name = "Slot Management.", description = "Управление слотами менторов.")
+@Tag(name = "Admin Mentor Time Slot Controller", description = "Управление слотами менторов.")
 public class AdminMentorTimeSlotController {
 
     private final RedirectAdminCalendarService redirectCalendarService;

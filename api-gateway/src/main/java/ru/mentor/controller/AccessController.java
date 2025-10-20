@@ -21,7 +21,7 @@ import ru.mentor.services.RedirectAccessService;
 @RestController
 @RequestMapping("/access")
 @RequiredArgsConstructor
-@Tag(name = "Access Management", description = "Управление доступами к курсам и модулям")
+@Tag(name = "Access Controller", description = "Управление доступами к курсам и модулям")
 public class AccessController {
 
     private final RedirectAccessService redirectAccessService;

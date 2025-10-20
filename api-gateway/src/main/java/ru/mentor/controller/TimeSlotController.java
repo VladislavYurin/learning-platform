@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/slot")
 @RequiredArgsConstructor
-@Tag(name = "Slot Management", description = "Управление слотами менторов")
+@Tag(name = "Time Slot Controller", description = "Управление слотами менторов")
 public class TimeSlotController {
 
     private final RedirectCalendarService redirectCalendarService;

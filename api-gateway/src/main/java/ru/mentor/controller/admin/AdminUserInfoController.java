@@ -18,7 +18,7 @@ import ru.mentor.services.UserInfoService;
 @RestController
 @RequestMapping("/admin/user")
 @RequiredArgsConstructor
-@Tag(name = "User Management", description = "Получение или изменение информации о пользователе")
+@Tag(name = "Admin User Info Controller", description = "Получение или изменение информации о пользователе")
 public class AdminUserInfoController {
 
     private final UserInfoService userInfoService;
