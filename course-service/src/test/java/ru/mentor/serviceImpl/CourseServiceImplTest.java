@@ -246,4 +246,68 @@ public class CourseServiceImplTest {
         Mockito.verify(courseRepository, Mockito.never()).deleteById(Mockito.anyLong());
     }
 
+    @Test
+    void getAllActiveCoursesPreview_success_returnsResponse(){
+        UserEntity mentorEntity = TestEntityStubGenerator.constructUserEntityWithRole(Role.MENTOR);
+        CourseDto courseDto = TestEntityStubGenerator.constructCourseDto();
+        CourseEntity courseEntity = TestEntityStubGenerator.constructCourseEntity();
+        courseEntity.setAuthor(mentorEntity);
+        courseEntity.setIsActive(true);
+
+        Mockito.when(courseRepository.findAllByIsActiveTrue())
+                .thenReturn(List.of(courseEntity));
+
+        Mockito.when(baseMapper.mapCourses(
+                            Mockito.anyList(),
+                            Mockito.eq(false),
+                            Mockito.eq(false),
+                            Mockito.eq(true)))
+                        .thenReturn(List.of(courseDto));
+
+        List<CourseDto> expectedResult = service.getAllActiveCoursesPreview();
+
+        Assertions.assertThat(expectedResult).hasSize(1).containsExactly(courseDto);
+
+        Mockito.verify(courseRepository).findAllByIsActiveTrue();
+        Mockito.verify(baseMapper).mapCourses(
+                Mockito.anyList(),
+                Mockito.eq(false),
+                Mockito.eq(false),
+                Mockito.eq(true));
+        Mockito.verifyNoMoreInteractions(courseRepository, baseMapper);
+    }
+
+    @Test
+    void getAllActiveCoursesPreview_noActiveCourses_returnsEmptyList() {
+        Mockito.when(courseRepository.findAllByIsActiveTrue())
+                .thenReturn(List.of());
+        Mockito.when(baseMapper.mapCourses(
+                        Mockito.anyList(),
+                        Mockito.eq(false),
+                        Mockito.eq(false),
+                        Mockito.eq(true)
+                ))
+                .thenReturn(List.of());
+
+        List<CourseDto> expectedResult = service.getAllActiveCoursesPreview();
+
+        Assertions.assertThat(expectedResult).isEmpty();
+
+        Mockito.verify(courseRepository).findAllByIsActiveTrue();
+        Mockito.verify(baseMapper).mapCourses(
+                Mockito.anyList(),
+                Mockito.eq(false),
+                Mockito.eq(false),
+                Mockito.eq(true));
+        Mockito.verifyNoMoreInteractions(courseRepository, baseMapper);
+    }
+
+    @Test
+    void getAllActiveCoursesPreview_courseRepositoryReturnsMull_throwsException() {
+        Mockito.when(courseRepository.findAllByIsActiveTrue()).thenReturn(null);
+        Assertions.assertThatThrownBy(() ->
+                service.getAllActiveCoursesPreview()).isInstanceOf(NullPointerException.class);
+        Mockito.verify(courseRepository).findAllByIsActiveTrue();
+        Mockito.verifyNoMoreInteractions(baseMapper);
+    }
 }
