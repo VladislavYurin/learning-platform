@@ -31,6 +31,8 @@ public class CourseFacadeImpl implements CourseFacade {
 
     private final UserRepository userRepository;
 
+    private final AdminCourseMapper courseMapper;
+
     private final BaseMapper baseMapper;
 
     /**

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.dto.CourseDtoWithoutModules;
 import ru.mentor.dto.front.CreateCourseRequest;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.feign.CourseClient;
@@ -116,4 +117,20 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         return courseClient.getAllCourses(rqUId, user.getId());
     }
 
+    /**
+     * Возвращает список всех активных курсов (без модулей) с информацией о наставнике.
+     * @return список DTO курсов
+     */
+    @Override
+    public List<CourseDtoWithoutModules> getAllActiveCoursesPreview() {
+        UserEntity userEntity = userService.getCurrentUser();
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на получение всех активных курсов " +
+                "с информацией о наставнике пользователем [ ID = %d ].",
+                rqUId,
+                userEntity.getId()
+        ));
+        return courseClient.getAllActiveCoursesPreview(rqUId);
+    }
 }

@@ -2,6 +2,7 @@ package ru.mentor.service;
 
 import java.util.List;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.dto.CourseDtoWithoutModules;
 import ru.mentor.dto.InnerCreateCourseRequest;
 
 /**
@@ -20,4 +21,5 @@ public interface CourseService {
 
     CourseDto getCourseById(Long userId, Long courseId);
 
+    List<CourseDtoWithoutModules> getAllActiveCoursesPreview();
 }

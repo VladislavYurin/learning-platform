@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.dto.CourseDtoWithoutModules;
 import ru.mentor.dto.InnerCreateCourseRequest;
 import ru.mentor.service.CourseService;
 
@@ -89,4 +90,8 @@ public class CourseController {
         return ResponseEntity.ok().body(courseService.getAllCourses(userId));
     }
 
+    @GetMapping("/all/active/preview")
+    public ResponseEntity<List<CourseDtoWithoutModules>> getAllActiveCoursesPreview(){
+        return ResponseEntity.ok().body(courseService.getAllActiveCoursesPreview());
+    }
 }
