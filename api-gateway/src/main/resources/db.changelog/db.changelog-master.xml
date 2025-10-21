@@ -17,10 +17,10 @@
              endDelimiter=";"/>
   </changeSet>
 
-  <changeSet id="3" author="maksim belotelov" runOnChange="false">
-    <sqlFile path="/sql/lepl-20_insert_notification_templates.sql"
-             relativeToChangelogFile="true"
-             endDelimiter=";"/>
-  </changeSet>
+<!--  <changeSet id="3" author="maksim belotelov" runOnChange="false">-->
+<!--    <sqlFile path="/sql/lepl-20_insert_notification_templates.sql"-->
+<!--             relativeToChangelogFile="true"-->
+<!--             endDelimiter=";"/>-->
+<!--  </changeSet>-->
 
 </databaseChangeLog>

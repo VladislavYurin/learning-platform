@@ -6,6 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.MentorSlotInfoDto;
+import ru.mentor.dto.tag.CourseTagDto;
+import ru.mentor.dto.CourseDtoWithoutModules;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
@@ -205,4 +207,24 @@ public class TestEntityStubGenerator {
                               .build();
     }
 
+    public static CourseDtoWithoutModules constructCourseDtoWithoutModules() {
+        return CourseDtoWithoutModules.builder()
+                                      .id(TestConstantHolder.courseId)
+                                      .courseTitle(TestConstantHolder.courseTitle)
+                                      .courseDescription(TestConstantHolder.courseDescription)
+                                      .isActive(TestConstantHolder.isActive)
+                                      .createdAt(TestConstantHolder.createdAt)
+                                      .author(TestEntityStubGenerator.constructUserInfoDtoWithRole(Role.MENTOR))
+                                      .tags(List.of(constructCourseTagDto()))
+                                      .build();
+    }
+
+    public static CourseTagDto constructCourseTagDto() {
+        return CourseTagDto.builder()
+                           .id(TestConstantHolder.tagId)
+                           .tagName(TestConstantHolder.courseTagName)
+                           .createdAt(TestConstantHolder.createdAt)
+                           .isActive(TestConstantHolder.isActive)
+                           .build();
+    }
 }
