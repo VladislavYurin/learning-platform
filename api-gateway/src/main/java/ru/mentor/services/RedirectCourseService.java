@@ -3,6 +3,7 @@ package ru.mentor.services;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.dto.CourseDtoWithoutModules;
 import ru.mentor.dto.front.CreateCourseRequest;
 
 /**
@@ -48,4 +49,9 @@ public interface RedirectCourseService {
      */
     List<CourseDto> getAllCourses();
 
+    /**
+     * Возращает список всех активных курсов без модулей с информацией о наставнике.
+     * @return список курсов
+     */
+    List<CourseDtoWithoutModules> getAllActiveCoursesPreview();
 }

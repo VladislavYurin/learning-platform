@@ -27,6 +27,7 @@ public class TestConstantHolder {
     public static String courseTitle = "Course title";
     public static String courseDescription = "Course description";
 
+    public static Long tagId = 1L;
     public static String courseTagName = "Test courseTagName";
 
     public static long moduleId = 1L;
