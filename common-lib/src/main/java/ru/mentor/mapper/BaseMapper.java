@@ -9,6 +9,7 @@ import ru.mentor.admin.GetAllModulesRequest;
 import ru.mentor.admin.GrpcPageRequest;
 import ru.mentor.admin.PageDetails;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.dto.CourseDtoWithoutModules;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.dto.tag.CourseTagDto;
@@ -183,4 +184,57 @@ public class BaseMapper {
                          .toList();
     }
 
+    /**
+     * Преобразует cущность курса в список DTO курса без модулей с информацией о наставнике.
+     *
+     * @param entities
+     *         сущность курса для преобразования
+     *
+     * @param isNeedToFetchTags
+     *         флаг проверки требуется ли загрузка тэгов
+     *
+     * @return список DTO
+     */
+    public List<CourseDtoWithoutModules> mapCoursesWithoutModules(
+            List<CourseEntity> entities,
+            Boolean isNeedToFetchTags) {
+        if (entities == null || entities.isEmpty()) return List.of();
+        return entities.stream()
+                .map(entity -> mapCourseWithoutModules(
+                        entity,
+                        entity.getAuthor(),
+                        isNeedToFetchTags
+                ))
+                .toList();
+    }
+
+    /**
+     * Преобразует cущность курса в DTO курса без модулей с информацией о наставнике.
+     *
+     * @param entity
+     *         сущность курса для преобразования
+     *
+     * @param user
+     *         сущность пользователя (автор курса)
+     *
+     * @param isNeedToFetchTags
+     *         флаг проверки требуется ли загрузка тэгов
+     *
+     * @return DTO модуля
+     */
+    public CourseDtoWithoutModules mapCourseWithoutModules(
+            CourseEntity entity,
+            UserEntity user,
+            Boolean isNeedToFetchTags) {
+        return CourseDtoWithoutModules.builder()
+                .id(entity.getId())
+                .courseTitle(entity.getCourseTitle())
+                .courseDescription(entity.getDescription())
+                .createdAt(entity.getCreatedAt())
+                .isActive(entity.getIsActive())
+                .author(user != null ? mapUserDto(user) : null)
+                .createdAt(entity.getCreatedAt())
+                .tags(isNeedToFetchTags ? mapTags(entity.getCourseTags()) : null)
+                .build();
+    }
 }

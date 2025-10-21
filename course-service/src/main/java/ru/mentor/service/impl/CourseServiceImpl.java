@@ -3,12 +3,12 @@ package ru.mentor.service.impl;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.dto.CourseDtoWithoutModules;
 import ru.mentor.dto.InnerCreateCourseRequest;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.entity.CourseEntity;
@@ -240,4 +240,17 @@ public class CourseServiceImpl implements CourseService {
                 : request.getTagIds().stream().distinct().toList();
     }
 
+    /**
+     * Получение списка всех активных курсов (без модулей) с информацией о наставнике
+     *
+     * @return список активных курсов (без модулей) с информацией о наставнике
+     */
+    @Override
+    public List<CourseDtoWithoutModules> getAllActiveCoursesPreview() {
+        List<CourseEntity> courseEntityList = courseRepository.findAllByIsActiveTrue()
+                .stream()
+                .filter(CourseEntity::getIsActive)
+                .toList();
+            return baseMapper.mapCoursesWithoutModules(courseEntityList, false);
+        }
 }
