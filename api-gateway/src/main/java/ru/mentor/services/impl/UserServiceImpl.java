@@ -83,6 +83,9 @@ public class UserServiceImpl implements UserService {
     public Long getCurrentUserId() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserEntity userEntity) {
+            if (userEntity.getId() == null) {
+                throw new IllegalStateException("У пользователя в контексте безопасности отсутствует ID");
+            }
             return userEntity.getId();
         }
         throw new IllegalStateException("Пользователь не найден в контексте безопасности");
