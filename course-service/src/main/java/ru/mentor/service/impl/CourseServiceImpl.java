@@ -249,7 +249,6 @@ public class CourseServiceImpl implements CourseService {
     public List<CourseDtoWithoutModules> getAllActiveCoursesPreview() {
         List<CourseEntity> courseEntityList = courseRepository.findAllByIsActiveTrue()
                 .stream()
-                .filter(CourseEntity::getIsActive)
                 .toList();
             return baseMapper.mapCoursesWithoutModules(courseEntityList, false);
         }
