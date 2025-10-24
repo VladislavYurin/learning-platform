@@ -9,11 +9,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
-import ru.mentor.common.AllCoursesResponse;
-import ru.mentor.common.CourseResponse;
-import ru.mentor.common.GetCourseRequest;
-import ru.mentor.common.GrpcPageRequest;
-import ru.mentor.dto.CourseDto;
+import ru.mentor.admin.AllCoursesResponse;
+import ru.mentor.admin.CourseResponse;
+import ru.mentor.admin.GetCourseRequest;
+import ru.mentor.admin.GrpcPageRequest;
+import ru.mentor.gateway.model.CourseDto;
 import ru.mentor.grpc.AdminCourseServiceGrpcClient;
 import ru.mentor.mapper.AdminCourseMapper;
 import ru.mentor.mapper.BaseMapper;
@@ -87,7 +87,7 @@ class RedirectAdminCourseServiceImplTest {
         GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
         AllCoursesResponse allCoursesResponse = TestGrpcStubGenerator.constructAllCoursesResponse();
 
-        Page<CourseDto> courseDtoPage = TestEntityStubGenerator.constructCourseDtoPage();
+        Page<ru.mentor.dto.CourseDto> courseDtoPage = TestEntityStubGenerator.constructCourseDtoPage();
 
         Mockito.when(baseMapper.constructGrpcPageRequest(
                        ArgumentMatchers.anyString(),
