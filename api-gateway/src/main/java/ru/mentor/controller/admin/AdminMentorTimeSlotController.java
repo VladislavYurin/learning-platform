@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotDto;
+import ru.mentor.gateway.api.AdminMentorTimeSlotControllerApi;
 import ru.mentor.services.RedirectAdminCalendarService;
 
 /**

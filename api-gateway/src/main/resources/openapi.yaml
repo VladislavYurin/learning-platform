@@ -964,19 +964,19 @@ paths:
         '200':
           description: Выдан список слотов
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/MentorTimeSlotDto'
+                $ref: '#/components/schemas/PageMentorSlotInfoDto'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/PageMentorSlotInfoDto'
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/PageMentorSlotInfoDto'
   /admin/module/get-one:
