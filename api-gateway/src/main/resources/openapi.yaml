@@ -1056,7 +1056,7 @@ paths:
       tags:
         - Admin Course Controller
       summary: Получить все курсы
-      description: Возвращает список всех курсов, включая неактивные
+      description: Возвращает страницу курсов (включая неактивные)
       operationId: adminGetAllCourses
       parameters:
         - name: pageNumber
@@ -1073,17 +1073,15 @@ paths:
             format: int32
       responses:
         '200':
-          description: Список всех курсов
+          description: Страница курсов
           content:
-            '*/*':
+            application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CourseDto'
+                $ref: '#/components/schemas/PageCourseDto'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/PageCourseDto'
 components:
@@ -1571,34 +1569,19 @@ components:
     PageCourseDto:
       type: object
       properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseDto'
         totalElements:
           type: integer
           format: int64
         totalPages:
           type: integer
           format: int32
-        pageable:
-          $ref: '#/components/schemas/PageableObject'
         size:
           type: integer
           format: int32
-        content:
-          type: array
-          items:
-            $ref: '#/components/schemas/CourseDto'
         number:
           type: integer
           format: int32
-        sort:
-          type: array
-          items:
-            $ref: '#/components/schemas/SortObject'
-        first:
-          type: boolean
-        last:
-          type: boolean
-        numberOfElements:
-          type: integer
-          format: int32
-        empty:
-          type: boolean
