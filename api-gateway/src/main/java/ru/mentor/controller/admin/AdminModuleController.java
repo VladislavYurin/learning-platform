@@ -24,6 +24,6 @@ public class AdminModuleController implements AdminModuleControllerApi {
     @Override
     public ResponseEntity<ModuleDto> adminGetModuleById(Long moduleId) {
         ru.mentor.dto.ModuleDto moduleDto = redirectAdminModuleService.getModuleById(moduleId);
-        return ResponseEntity.ok(moduleDtoMapper.toDto(moduleDto));
+        return ResponseEntity.ok(moduleDtoMapper.toApiDto(moduleDto));
     }
 }

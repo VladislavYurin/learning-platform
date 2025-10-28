@@ -26,6 +26,6 @@ public class AdminMentorTimeSlotController implements AdminMentorTimeSlotControl
     @Override
     public ResponseEntity<PageMentorSlotInfoDto> adminGetMentorSlotsInfo(Integer pageNumber, Integer pageSize) {
         Page<MentorSlotInfoDto> page = redirectCalendarService.getAllMentorTimeSlots(pageNumber, pageSize);
-        return ResponseEntity.ok(pageMentorSlotInfoDtoMapper.toDto(page));
+        return ResponseEntity.ok(pageMentorSlotInfoDtoMapper.toApiDto(page));
     }
 }

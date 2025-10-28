@@ -5,5 +5,5 @@ import ru.mentor.gateway.model.ModuleDto;
 
 @Mapper(componentModel = "spring")
 public interface ModuleDtoMapper {
-    ModuleDto toDto(ru.mentor.dto.ModuleDto moduleDto);
+    ModuleDto toApiDto(ru.mentor.dto.ModuleDto moduleDto);
 }

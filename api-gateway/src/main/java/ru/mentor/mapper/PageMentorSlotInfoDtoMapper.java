@@ -7,5 +7,5 @@ import ru.mentor.gateway.model.PageMentorSlotInfoDto;
 
 @Mapper(componentModel = "spring")
 public interface PageMentorSlotInfoDtoMapper {
-    PageMentorSlotInfoDto toDto(Page<MentorSlotInfoDto> page);
+    PageMentorSlotInfoDto toApiDto(Page<MentorSlotInfoDto> page);
 }
