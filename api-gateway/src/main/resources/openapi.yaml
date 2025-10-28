@@ -911,9 +911,9 @@ paths:
         '200':
           description: Пользовательская информация выдана
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/UserInfoDto'
         '404':
           description: Пользователь не найден
           content:
@@ -931,9 +931,9 @@ paths:
         '200':
           description: Пользовательская информация выдана
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/UserInfoDto'
         '404':
           description: Пользователь не найден
           content:
