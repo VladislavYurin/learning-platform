@@ -8,9 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.mentor.constant.Role;
-import ru.mentor.dto.auth.AuthRequest;
-import ru.mentor.dto.auth.JwtAuthResponse;
-import ru.mentor.dto.auth.RegRequest;
+import ru.mentor.gateway.model.AuthRequest;
+import ru.mentor.gateway.model.JwtAuthResponse;
+import ru.mentor.gateway.model.RegRequest;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.services.AuthenticationService;
@@ -97,10 +97,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new RuntimeException("Невалидный refresh-токен");
         }
 
-        return JwtAuthResponse.builder()
-                              .accessToken(jwtService.generateToken(user))
-                              .refreshToken(jwtService.generateRefreshToken(user))
-                              .build();
+        return new JwtAuthResponse()
+                .accessToken(jwtService.generateToken(user))
+                .refreshToken(jwtService.generateRefreshToken(user));
 
     }
 
@@ -110,11 +109,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * @return объект с парой токенов
      */
     private JwtAuthResponse generateTokens(UserEntity user) {
-        return JwtAuthResponse.builder()
-                              .accessToken(jwtService.generateToken(user))
-                              .refreshToken(jwtService.generateRefreshToken(user))
-                              .role(user.getRole())
-                              .build();
+        return new JwtAuthResponse()
+                .accessToken(jwtService.generateToken(user))
+                .refreshToken(jwtService.generateRefreshToken(user))
+                .role(JwtAuthResponse.RoleEnum.valueOf(user.getRole().name()));
     }
 
 }
