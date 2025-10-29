@@ -1,32 +1,29 @@
 package ru.mentor.grpc;
 
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
-import java.util.List;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import ru.mentor.admin.AllModulesResponse;
-import ru.mentor.admin.GetModuleRequest;
-import ru.mentor.admin.GrpcPageRequest;
-import ru.mentor.admin.ModuleResponse;
-import ru.mentor.entity.ModuleEntity;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import ru.mentor.common.AllModulesResponse;
+import ru.mentor.common.GetAllModulesRequest;
+import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.ModuleResponse;
 import ru.mentor.exception.EntityNotFoundException;
+import ru.mentor.grpc.error.GrpcErrorText;
 import ru.mentor.mapper.AdminModuleMapper;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.ModuleRepository;
+import ru.mentor.facade.ModuleFacade;
 import ru.mentor.testUtil.TestConstantHolder;
-import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,99 +34,124 @@ class AdminModuleServiceServerTest {
     @Mock
     private ModuleRepository moduleRepository;
     @Spy
-    private AdminModuleMapper moduleMapper = new AdminModuleMapper(baseMapper);
+    private AdminModuleMapper moduleMapper = new AdminModuleMapper();
     @Mock
-    private StreamObserver<ModuleResponse> moduleResponseObserver;
-    @Mock
-    private StreamObserver<AllModulesResponse> allModulesResponseObserver;
-    @Captor
-    private ArgumentCaptor<Throwable> entityNotFoundCaptor;
+    private ModuleFacade moduleFacade;
     @InjectMocks
     private AdminModuleServiceServer moduleServiceServer;
 
     @Test
-    void getModule_success() {
-        ModuleEntity moduleEntity = TestEntityStubGenerator.constructModuleEntity();
-        ModuleResponse moduleResponse = TestGrpcStubGenerator.constructModuleResponse();
-        GetModuleRequest request = TestGrpcStubGenerator.constructGetModuleRequest();
+    void getModule_successfulFlow_returnsResponse() {
+        ModuleResponse expectedModuleResponse = TestGrpcStubGenerator.constructModuleResponse();
+        GetModuleRequest moduleRequest = TestGrpcStubGenerator.constructGetModuleRequest();
 
-        Mockito.when(moduleRepository.findByIdOrThrow(TestConstantHolder.moduleId))
-               .thenReturn(moduleEntity);
+        Mockito.when(moduleFacade.findModuleResponseById(TestConstantHolder.MODULE_ID))
+                .thenReturn(Mono.just(expectedModuleResponse));
 
-        moduleServiceServer.getModule(request, moduleResponseObserver);
-
-        Mockito.verify(moduleResponseObserver).onNext(moduleResponse);
-        Mockito.verify(moduleResponseObserver).onCompleted();
-        Mockito.verify(
-                moduleResponseObserver,
-                Mockito.never()
-        ).onError(Mockito.any());
+        StepVerifier.create(moduleServiceServer.getModule(Mono.just(moduleRequest)))
+                .expectNext(expectedModuleResponse)
+                .verifyComplete();
     }
 
     @Test
-    void getModule_notFound() {
-        GetModuleRequest request = TestGrpcStubGenerator.constructGetModuleRequest();
+    void getModule_moduleNotFound_returnsNotFoundStatus() {
+        GetModuleRequest getModuleRequest = TestGrpcStubGenerator.constructGetModuleRequest();
 
-        Mockito.when(moduleRepository.findByIdOrThrow(TestConstantHolder.moduleId))
-               .thenThrow(new EntityNotFoundException(TestConstantHolder.notFoundExceptionText));
+        Mockito.when(moduleFacade.findModuleResponseById(TestConstantHolder.MODULE_ID))
+                .thenReturn(Mono.error(
+                        new EntityNotFoundException(TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT)));
 
-        moduleServiceServer.getModule(request, moduleResponseObserver);
-
-        Mockito.verify(moduleResponseObserver).onError(entityNotFoundCaptor.capture());
-        Mockito.verify(moduleResponseObserver, Mockito.never()).onNext(Mockito.any());
-        Mockito.verify(moduleResponseObserver, Mockito.never()).onCompleted();
-
-        Throwable entityNotFoundException = entityNotFoundCaptor.getValue();
-        Assertions.assertThat(entityNotFoundException)
-                  .isInstanceOf(StatusRuntimeException.class)
-                  .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
+        StepVerifier.create(moduleServiceServer.getModule(Mono.just(getModuleRequest)))
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+                    StatusRuntimeException exception = (StatusRuntimeException) error;
+                    Assertions.assertEquals(
+                            Status.NOT_FOUND.getCode(),
+                            exception.getStatus().getCode()
+                    );
+                    Assertions.assertEquals(
+                            TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT,
+                            exception.getStatus().getDescription()
+                    );
+                })
+                .verify();
     }
 
     @Test
-    void getAllModules_success() {
-        GrpcPageRequest grpcRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
-        PageRequest pageRequest = PageRequest.of(
-                TestConstantHolder.pageNumber,
-                TestConstantHolder.pageSize
-        );
-        Page<ModuleEntity> page = new PageImpl<>(
-                List.of(TestEntityStubGenerator.constructModuleEntity()));
+    void getModule_emptyRequest_returnsInvalidArgumentStatus() {
+        Mono<GetModuleRequest> getModuleRequestMono = Mono.empty();
 
-        AllModulesResponse grpcResponse = TestGrpcStubGenerator.constructAllModulesResponse();
+        StepVerifier.create(moduleServiceServer.getModule(getModuleRequestMono))
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(StatusRuntimeException.class, error);
 
-        Mockito.when(moduleRepository.findAll(pageRequest)).thenReturn(page);
+                    StatusRuntimeException statusRuntimeException = (StatusRuntimeException) error;
 
-        moduleServiceServer.getAllModules(grpcRequest, allModulesResponseObserver);
-
-        Mockito.verify(allModulesResponseObserver).onNext(grpcResponse);
-        Mockito.verify(allModulesResponseObserver).onCompleted();
-        Mockito.verify(
-                allModulesResponseObserver,
-                Mockito.never()
-        ).onError(Mockito.any());
+                    Assertions.assertEquals(
+                            Status.INVALID_ARGUMENT.getCode(),
+                            statusRuntimeException.getStatus().getCode()
+                    );
+                    Assertions.assertEquals(
+                            GrpcErrorText.EMPTY_REQUEST,
+                            statusRuntimeException.getStatus().getDescription()
+                    );
+                })
+                .verify();
     }
 
     @Test
-    void getAllModules_notFound() {
-        GrpcPageRequest grpcRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
-        PageRequest pageRequest = PageRequest.of(
-                TestConstantHolder.pageNumber,
-                TestConstantHolder.pageSize
-        );
+    void getAllModules_emptyRequest_returnsInvalidArgument() {
+        StepVerifier.create(moduleServiceServer.getAllModules(Mono.empty()))
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(StatusRuntimeException.class, error);
 
-        Mockito.when(moduleRepository.findAll(pageRequest))
-               .thenThrow(new EntityNotFoundException(TestConstantHolder.notFoundExceptionText));
+                    StatusRuntimeException statusRuntimeException = (StatusRuntimeException) error;
+                    Assertions.assertEquals(
+                            Status.Code.INVALID_ARGUMENT,
+                            statusRuntimeException.getStatus().getCode()
+                    );
 
-        moduleServiceServer.getAllModules(grpcRequest, allModulesResponseObserver);
-
-        Mockito.verify(allModulesResponseObserver).onError(entityNotFoundCaptor.capture());
-        Mockito.verify(allModulesResponseObserver, Mockito.never()).onNext(Mockito.any());
-        Mockito.verify(allModulesResponseObserver, Mockito.never()).onCompleted();
-
-        Throwable entityNotFoundException = entityNotFoundCaptor.getValue();
-        Assertions.assertThat(entityNotFoundException)
-                  .isInstanceOf(StatusRuntimeException.class)
-                  .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
+                    Assertions.assertEquals(
+                            GrpcErrorText.EMPTY_REQUEST,
+                            statusRuntimeException.getStatus().getDescription()
+                    );
+                })
+                .verify();
     }
 
+    @Test
+    void getAllModules_successfulFlow_returnsResponse() {
+        GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
+        AllModulesResponse expectedResponse = TestGrpcStubGenerator.constructAllModulesResponse();
+
+        Mockito.when(moduleFacade.findAllModulesResponse(TestConstantHolder.PAGE_REQUEST))
+                .thenReturn(Mono.just(expectedResponse));
+
+        StepVerifier.create(moduleServiceServer.getAllModules(Mono.just(grpcPageRequest)))
+                .expectNext(expectedResponse)
+                .verifyComplete();
+    }
+
+    @Test
+    void getAllModules_entitiesNotFound_returnsNotFoundStatus() {
+        GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
+
+        Mockito.when(moduleFacade.findAllModulesResponse(TestConstantHolder.PAGE_REQUEST))
+                .thenReturn(Mono.error(new EntityNotFoundException(TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT)));
+
+        StepVerifier.create(moduleServiceServer.getAllModules(Mono.just(grpcPageRequest)))
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+                    StatusRuntimeException statusRuntimeException = (StatusRuntimeException) error;
+                    Assertions.assertEquals(
+                            Status.Code.NOT_FOUND,
+                            statusRuntimeException.getStatus().getCode()
+                    );
+                    Assertions.assertEquals(
+                            TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT,
+                            statusRuntimeException.getStatus().getDescription()
+                    );
+                })
+                .verify();
+    }
 }

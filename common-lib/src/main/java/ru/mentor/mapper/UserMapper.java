@@ -1,7 +1,7 @@
 package ru.mentor.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.mentor.admin.AuthorResponse;
+import ru.mentor.common.AuthorResponse;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.UserEntity;

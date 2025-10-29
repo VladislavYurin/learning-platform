@@ -2,8 +2,8 @@ package ru.mentor.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.mentor.dto.tag.CreateTagRequest;
 import ru.mentor.dto.tag.CourseTagDto;
+import ru.mentor.dto.tag.CreateTagRequest;
 import ru.mentor.entity.CourseTagEntity;
 
 @Mapper(componentModel = "spring")

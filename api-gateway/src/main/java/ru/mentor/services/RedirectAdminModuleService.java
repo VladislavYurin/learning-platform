@@ -10,7 +10,9 @@ public interface RedirectAdminModuleService {
 
     /**
      * Возвращает модуль с указанным ID.
-     * @param moduleId ID модуля
+     *
+     * @param moduleId
+     *         ID модуля
      *
      * @return {@link ModuleDto}
      */
@@ -20,13 +22,12 @@ public interface RedirectAdminModuleService {
      * Возвращает страницу модулей.
      *
      * @param pageNumber
-     *         номер страницы
-     *
+     *         Номер страницы
      * @param pageSize
-     *         размер страницы
+     *         Размер страницы
      *
      * @return объект {@link Page}, содержащий объекты {@link ModuleDto}
      */
-    Page<ModuleDto> getAllModules(int pageNumber, int pageSize);
+    Page<ModuleDto> getAllModules(Integer pageNumber, Integer pageSize);
 
 }

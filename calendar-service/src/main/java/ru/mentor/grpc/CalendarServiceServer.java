@@ -3,18 +3,19 @@ package ru.mentor.grpc;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CalendarServiceGrpc;
-import ru.mentor.calendar.CreateTimeSlotRequest;
-import ru.mentor.calendar.MentorSlotsInfoRequest;
-import ru.mentor.calendar.MentorSlotsInfoResponse;
-import ru.mentor.calendar.TimeSlotResponse;
+import ru.mentor.common.BookTimeSlotRequest;
+import ru.mentor.common.CreateTimeSlotRequest;
+import ru.mentor.common.MentorSlotsInfoRequest;
+import ru.mentor.common.MentorSlotsInfoResponse;
+import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
@@ -25,7 +26,6 @@ import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
-import java.util.List;
 
 /**
  * Реализация сервиса календаря с использованием gRPC.

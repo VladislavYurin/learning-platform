@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
-import ru.mentor.admin.AllModulesResponse;
-import ru.mentor.admin.GetModuleRequest;
-import ru.mentor.admin.ModuleResponse;
-import ru.mentor.admin.PageDetails;
+import ru.mentor.common.AllModulesResponse;
+import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.ModuleResponse;
+import ru.mentor.common.PageDetails;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.entity.ModuleEntity;
 

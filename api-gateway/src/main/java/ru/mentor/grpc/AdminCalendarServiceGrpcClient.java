@@ -5,8 +5,8 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import ru.mentor.admin.AdminCalendarServiceGrpc.AdminCalendarServiceBlockingStub;
-import ru.mentor.admin.AllTimeSlotsResponse;
-import ru.mentor.admin.GrpcPageRequest;
+import ru.mentor.common.AllTimeSlotsResponse;
+import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.exception.GrpcRetryException;
 
 /**

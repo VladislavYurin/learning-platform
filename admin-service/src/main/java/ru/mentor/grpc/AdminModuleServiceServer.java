@@ -1,22 +1,21 @@
 package ru.mentor.grpc;
 
 import io.grpc.Status;
-import io.grpc.stub.StreamObserver;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import ru.mentor.admin.AdminModuleServiceGrpc.AdminModuleServiceImplBase;
-import ru.mentor.admin.AllModulesResponse;
-import ru.mentor.admin.GetModuleRequest;
-import ru.mentor.admin.GrpcPageRequest;
-import ru.mentor.admin.ModuleResponse;
-import ru.mentor.entity.ModuleEntity;
+import reactor.core.publisher.Mono;
+import ru.mentor.admin.ReactorAdminModuleServiceGrpc;
+import ru.mentor.common.AllModulesResponse;
+import ru.mentor.common.GetAllModulesRequest;
+import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.ModuleResponse;
 import ru.mentor.exception.EntityNotFoundException;
-import ru.mentor.mapper.AdminModuleMapper;
+import ru.mentor.facade.ModuleFacade;
+import ru.mentor.grpc.error.GrpcErrorText;
 import ru.mentor.mapper.BaseMapper;
-import ru.mentor.repository.ModuleRepository;
 
 /**
  * gRPC-сервис для работы с модулями для админов
@@ -24,11 +23,17 @@ import ru.mentor.repository.ModuleRepository;
 @Slf4j
 @GrpcService
 @RequiredArgsConstructor
-public class AdminModuleServiceServer extends AdminModuleServiceImplBase {
+public class AdminModuleServiceServer extends
+        ReactorAdminModuleServiceGrpc.AdminModuleServiceImplBase {
 
-    private final ModuleRepository moduleRepository;
+    public static final String GET_MODULE_REQUEST_LOG_TEXT =
+            "[ rqUID = {} ] Поступил запрос на получение модуля [ ID = {} ] от администратора [ ID = {} ]";
 
-    private final AdminModuleMapper moduleMapper;
+    public static final String GET_ALL_MODULES_REQUEST_LOG_TEXT = """
+            [ rqUID = {} ] Поступил запрос на получение страницы модулей \
+            [ страница={} ], [ размер={} ] от администратора [ ID = {} ]""";
+
+    private final ModuleFacade moduleFacade;
 
     private final BaseMapper baseMapper;
 
@@ -37,73 +42,66 @@ public class AdminModuleServiceServer extends AdminModuleServiceImplBase {
      *
      * @param request
      *         gRPC-объект {@link GetModuleRequest} запроса страницы
-     * @param responseObserver
-     *         объект для отправки ответа
      */
     @Override
-    public void getModule(
-            GetModuleRequest request,
-            StreamObserver<ModuleResponse> responseObserver) {
-
-        String requestId = request.getRequestId();
-        long moduleId = request.getModuleId();
-        log.info(
-                "[ rqUID = {} ] Поступил запрос на получение данных о модуле [ ID = {} ] от администратора",
-                requestId,
-                moduleId
-        );
-
-        try {
-            ModuleEntity courseEntity = moduleRepository.findByIdOrThrow(moduleId);
-            ModuleResponse moduleResponse =
-                    moduleMapper.mapModuleEntityToModuleResponse(courseEntity);
-
-            responseObserver.onNext(moduleResponse);
-            responseObserver.onCompleted();
-
-        } catch (EntityNotFoundException e) {
-            responseObserver.onError(Status.NOT_FOUND
-                                             .withDescription(e.getMessage())
-                                             .asRuntimeException());
-        }
-
+    public Mono<ModuleResponse> getModule(Mono<GetModuleRequest> request) {
+        return request
+                .switchIfEmpty(toInvalidArgumentError())
+                .doOnNext(this::recordGetModuleRequestToLog)
+                .flatMap(req -> moduleFacade.findModuleResponseById(req.getModuleId()))
+                .onErrorMap(
+                        EntityNotFoundException.class,
+                        convertToRuntimeException()
+                );
     }
 
     /**
      * Возвращает gRPC-объект, содержащий список модулей.
      *
-     * @param request
-     *         gRPC-объект {@link GetModuleRequest} запроса страницы
-     * @param responseObserver
-     *         объект для отправки ответа
+     * @param pageRequest
+     *         gRPC-объект {@link GetAllModulesRequest} запроса всех модулей курса
      */
     @Override
-    public void getAllModules(
-            GrpcPageRequest request,
-            StreamObserver<AllModulesResponse> responseObserver) {
+    public Mono<AllModulesResponse> getAllModules(Mono<GrpcPageRequest> pageRequest) {
+        return pageRequest.switchIfEmpty(toInvalidArgumentError())
+                      .doOnNext(this::recordGetAllModulesRequestToLog)
+                      .map(baseMapper::mapGrpcPageRequestToPageRequest)
+                      .flatMap(moduleFacade::findAllModulesResponse)
+                      .onErrorMap(
+                              EntityNotFoundException.class,
+                              convertToRuntimeException()
+                      );
+    }
 
-        String requestId = request.getRequestId();
+    private <T> Mono<T> toInvalidArgumentError() {
+        return Mono.error(Status.INVALID_ARGUMENT
+                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
+                                  .asRuntimeException());
+    }
+
+    private void recordGetModuleRequestToLog(GetModuleRequest getModuleRequest) {
         log.info(
-                "[ rqUID = {} ] Поступил запрос на получение данных обо всех модулях от администратора",
-                requestId
+                GET_MODULE_REQUEST_LOG_TEXT,
+                getModuleRequest.getRequestId(),
+                getModuleRequest.getModuleId(),
+                getModuleRequest.getSenderId()
         );
+    }
 
-        try {
-            PageRequest pageRequest = baseMapper.mapGrpcPageRequestToPageRequest(request);
-            Page<ModuleEntity> moduleEntityPage = moduleRepository.findAll(pageRequest);
+    private void recordGetAllModulesRequestToLog(GrpcPageRequest grpcPageRequest) {
+        log.info(
+                GET_ALL_MODULES_REQUEST_LOG_TEXT,
+                grpcPageRequest.getRequestId(),
+                grpcPageRequest.getPageNumber(),
+                grpcPageRequest.getPageSize(),
+                grpcPageRequest.getSenderId()
+                );
+    }
 
-            AllModulesResponse allCoursesResponse =
-                    moduleMapper.mapModuleEntityPageToGrpcAllModulesResponse(moduleEntityPage);
-
-            responseObserver.onNext(allCoursesResponse);
-            responseObserver.onCompleted();
-
-        } catch (EntityNotFoundException e) {
-            responseObserver.onError(Status.NOT_FOUND
-                                             .withDescription(e.getMessage())
-                                             .asRuntimeException());
-        }
-
+    private Function<EntityNotFoundException, Throwable> convertToRuntimeException() {
+        return e -> Status.NOT_FOUND
+                .withDescription(e.getMessage())
+                .asRuntimeException();
     }
 
 }

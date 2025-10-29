@@ -1,11 +1,11 @@
 package ru.mentor.mapper;
 
 import com.google.protobuf.Timestamp;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * Маппер для преобразования времени между {@link com.google.protobuf.Timestamp}

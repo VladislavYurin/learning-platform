@@ -1,14 +1,14 @@
 type: collection.insomnia.rest/5.0
 name: Scratch Pad
 meta:
-  id: wrk_435ffe18ea884140adc7c3b2c061e300
-  created: 1756878594931
-  modified: 1756878594931
+  id: wrk_bc48ab9f923a4eb8aa02549eff5f7b7c
+  created: 1761315325922
+  modified: 1761315325922
   description: ""
 collection:
   - name: mentor
     meta:
-      id: fld_f5b5448b0b21452288bf6b115cbff86f
+      id: fld_c50c5d587e9242629a21642fc48def21
       created: 1753170814479
       modified: 1759338503503
       sortKey: -1753170814479
@@ -17,12 +17,12 @@ collection:
       - url: localhost:8080/auth/login
         name: login ADMIN
         meta:
-          id: req_62b72a0f8b2449a1b5c4fc175538c05a
+          id: req_b7286dec44f74bf996615ae024e020fd
           created: 1753170820936
-          modified: 1756103770940
+          modified: 1761315418475
           isPrivate: false
           description: ""
-          sortKey: -1753170820936
+          sortKey: -1753171566466.3438
         method: POST
         body:
           mimeType: application/json
@@ -43,9 +43,44 @@ collection:
             store: true
           rebuildPath: true
       - url: localhost:8080/course/create
+        name: create course with tags
+        meta:
+          id: req_54c17daabd1f4b8c930f2cbc46a62929
+          created: 1753172110502
+          modified: 1759939264054
+          isPrivate: false
+          description: ""
+          sortKey: -1753172110502
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "courseName": "Java-разработчик с 0 до оффера",
+              "courseDescription": "Теория и практика для новичков",
+              "tagIds": [1, 2, 3, 4, 5]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
+        authentication:
+          type: bearer
+          token: ""
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/course/create
         name: create course
         meta:
-          id: req_75be3bd4c4754760acbb140bde13ad44
+          id: req_cd3746e1893e4be1a5a0ca11265449ec
           created: 1753172110502
           modified: 1754551568757
           isPrivate: false
@@ -78,12 +113,12 @@ collection:
       - url: localhost:8080/auth/reg
         name: registration USER
         meta:
-          id: req_903a60fa57534429927bad36e0115fbb
+          id: req_594e8da157cd45f7a16acbfd1945124c
           created: 1753175907628
-          modified: 1756885988792
+          modified: 1761315433490
           isPrivate: false
           description: ""
-          sortKey: -1751183239966
+          sortKey: -1753171556391.6094
         method: POST
         body:
           mimeType: application/json
@@ -112,12 +147,12 @@ collection:
       - url: localhost:8080/auth/login
         name: login USER
         meta:
-          id: req_ba65d2f60f6e4e39852f9ccd25654bc3
+          id: req_009d3f38e5d144318d72a44dc61faf12
           created: 1753177308609
-          modified: 1759766036097
+          modified: 1761315431821
           isPrivate: false
           description: ""
-          sortKey: -1751183240066
+          sortKey: -1753171521130.039
         method: POST
         body:
           mimeType: application/json
@@ -140,12 +175,12 @@ collection:
       - url: localhost:8080/course/all
         name: get all courses
         meta:
-          id: req_80c8477322cf487b9566b5882a40ba8a
+          id: req_5fe153a8b3114dada99b04ccf567a097
           created: 1753177692439
-          modified: 1754037093383
+          modified: 1761315504839
           isPrivate: false
           description: ""
-          sortKey: -1753171465719
+          sortKey: -1753172110714.5
         method: GET
         headers:
           - name: Authorization
@@ -164,12 +199,12 @@ collection:
       - url: localhost:8080/
         name: refresh token
         meta:
-          id: req_79860fee0df543ab9784ee9edfc0c334
+          id: req_ce81e5a575694826b7d48a77f14f6f42
           created: 1753347860377
-          modified: 1756060857308
+          modified: 1761315435980
           isPrivate: false
           description: ""
-          sortKey: -1751183239866
+          sortKey: -1753171536242.1406
         method: POST
         headers:
           - name: Authorization
@@ -186,12 +221,12 @@ collection:
       - url: localhost:8080/auth/login
         name: login mentor
         meta:
-          id: req_4a9db7f216114bf68b97154f2da718fb
+          id: req_8e9ba19fa94d424aa497577feed780ec
           created: 1753363533150
-          modified: 1759764474936
+          modified: 1761315430192
           isPrivate: false
           description: ""
-          sortKey: -1752177030501
+          sortKey: -1753171516092.6719
         method: POST
         body:
           mimeType: application/json
@@ -214,18 +249,17 @@ collection:
       - url: localhost:8080/course/1
         name: get course by id
         meta:
-          id: req_b19373acea8b4df986970277d3d902fc
+          id: req_82fd84aa62384e65bcf3c9d770f86b98
           created: 1753364051008
-          modified: 1759839914273
+          modified: 1761315514641
           isPrivate: false
           description: ""
-          sortKey: -1753171143327.5
+          sortKey: -1753172110661.7656
         method: GET
         headers:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4Mzk4NjAsImV4cCI6MTc1OTg0MDc2MH0.5N7bes6LyU3SWwFJteZDCC7QVydNcRNxHiiZKlvhjX4
-            id: pair_95155795d0e345ac97257c9401cd9b7d
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -237,12 +271,12 @@ collection:
       - url: localhost:8080/module/1/1
         name: get module by id
         meta:
-          id: req_b1a3a5b4e1664b35a3cb63a5121c0c4d
+          id: req_8fefaba80762408693e0eacf8f28a087
           created: 1753364113630
-          modified: 1754037792557
+          modified: 1761315508414
           isPrivate: false
           description: ""
-          sortKey: -1753171103028.5625
+          sortKey: -1753172110667.625
         method: GET
         headers:
           - name: Authorization
@@ -259,12 +293,12 @@ collection:
       - url: localhost:8080/user/me
         name: get my info
         meta:
-          id: req_63c90c8ecb764956a36566826477982d
+          id: req_591fa004ba794d3cb2f4e64ebe2934dc
           created: 1753448222803
-          modified: 1754037775401
+          modified: 1761315470299
           isPrivate: false
           description: ""
-          sortKey: -1753171062729.625
+          sortKey: -1753172110677
         method: GET
         headers:
           - name: Authorization
@@ -281,12 +315,12 @@ collection:
       - url: localhost:8080/users/2
         name: get user info by userId
         meta:
-          id: req_40b6dbc1db264b8fb3e254e7d6010a67
+          id: req_0760d0e8b6ba43c7bf7e51b607a9a87e
           created: 1753448250573
-          modified: 1756398073599
+          modified: 1761315513071
           isPrivate: false
           description: ""
-          sortKey: -1753171022430.6875
+          sortKey: -1753172110660.5938
         method: GET
         headers:
           - name: Authorization
@@ -303,7 +337,7 @@ collection:
       - url: localhost:8080/access/course/get-access
         name: give access to course by mentor
         meta:
-          id: req_1a29e2fdb359426499ed99621144193a
+          id: req_e43e7095c6d94a5b9b78bd6d1b63d0eb
           created: 1753448300097
           modified: 1759924299559
           isPrivate: false
@@ -321,11 +355,9 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_677143dcbcb345f190fed26b09ab00aa
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5MjQyMjgsImV4cCI6MTc1OTkyNTEyOH0.aVRuo33OUBweH2G_Y3wPOYhnOJXyCmMzzdf5Hp1JMAA
-            id: pair_e8584ae2734e4a658fe0dd9e788a1491
         authentication:
           type: none
         settings:
@@ -339,7 +371,7 @@ collection:
       - url: localhost:8080/access/module/get-access
         name: give access to module by mentor
         meta:
-          id: req_2fd6a3d99ce64bc6a9b4fce98a8ba129
+          id: req_68c80f984fd742b1b3af87817508acb8
           created: 1753448372276
           modified: 1759827691359
           isPrivate: false
@@ -357,11 +389,9 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_567a219364d441b8a4e1c8d7bfcf1a5b
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTAwODAsImV4cCI6MTc1OTc1MDk4MH0.wDTiDl6ltfYl-jnmk9AyuC7nJKQX-qAVFXSQzdbVyBo
-            id: pair_95fc61e6390945ae84657b5f0aea1b32
         authentication:
           type: none
         settings:
@@ -375,12 +405,12 @@ collection:
       - url: localhost:8080/progress/course/1/statistics
         name: get course progress by mentor
         meta:
-          id: req_c8e2ca2729ae43f58813c1c7b758bd05
+          id: req_79debad868ac4b6baa7928b85d33aa00
           created: 1753450655582
-          modified: 1754044947064
+          modified: 1761315506716
           isPrivate: false
           description: ""
-          sortKey: -1753171546316.875
+          sortKey: -1753172110658.25
         method: GET
         headers:
           - name: Authorization
@@ -399,18 +429,17 @@ collection:
       - url: localhost:8080/progress/course/1/users
         name: get all users at course by mentor
         meta:
-          id: req_af05cec80e924117b7dfa5b57817f009
+          id: req_85df04b3d853473ab34618016ac48574
           created: 1754044919871
-          modified: 1758820644757
+          modified: 1761315510099
           isPrivate: false
           description: ""
-          sortKey: -1753171506017.9375
+          sortKey: -1753172110672.3125
         method: GET
         headers:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTcxODIwODYsImV4cCI6MTc1NzE4Mjk4Nn0.4yN6_J5J_Gv8nTTQSkxT_0pSNdDeOyLD6oAPaGZ0_gw
-            id: pair_e524baf37d1340e3bb153c467f431e72
         authentication:
           type: none
         settings:
@@ -424,18 +453,17 @@ collection:
       - url: localhost:8080/slot/my
         name: get my slots
         meta:
-          id: req_86a1efc933eb467db4ff81b4c2ca91d9
+          id: req_7e4023dc41714d35b00ad4da4f8eabe0
           created: 1757160573124
-          modified: 1759767871427
+          modified: 1761315472642
           isPrivate: false
           description: ""
-          sortKey: -1753171304523.25
+          sortKey: -1753172110639.5
         method: GET
         headers:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3Njc4NTQsImV4cCI6MTc1OTc2ODc1NH0.zU3uGVnHKl1R5OcTCx2rW-vRfJRQu25xEZWo85uQQVw
-            id: pair_618b5434ce0e494fa35bb1b074d73cc2
         authentication:
           type: none
         settings:
@@ -449,20 +477,46 @@ collection:
       - url: localhost:8080/slot?mentorId=2
         name: get mentor slots
         meta:
-          id: req_2c6ea1edff1c4cb4a9075f03b3fab856
+          id: req_fceb6191059f44e795ec70a3d839eadb
           created: 1759317598791
-          modified: 1759768074241
+          modified: 1761315511766
           isPrivate: false
           description: ""
-          sortKey: -1753171223925.375
+          sortKey: -1753172110662.9375
         method: GET
         headers:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjozLCJzdWIiOiJwaXBhQHBvcGEucnUiLCJpYXQiOjE3NTk3NjgwNTIsImV4cCI6MTc1OTc2ODk1Mn0.6mJiX6sAHF_-tF4efP7E7Eo1VALQBOhn6hD7SKmCJFw
-            id: pair_618b5434ce0e494fa35bb1b074d73cc2
         authentication:
           type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/course-tag/all
+        name: get all course-tags
+        meta:
+          id: req_aeb2465a6b044b9a8fdb1c82f1d4c5c5
+          created: 1759514947027
+          modified: 1761315403406
+          isPrivate: false
+          description: ""
+          sortKey: -1753172110752
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+          - name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5MzgwOTIsImV4cCI6MTc1OTkzODk5Mn0.OaU02_9iItBt83ExtedVErznVW3EPOoq13T9whZf-Q0
+        authentication:
+          type: bearer
+          token: ""
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -474,7 +528,7 @@ collection:
       - url: localhost:8080/access/course/delete-access
         name: revoke access to course by mentor
         meta:
-          id: req_c4b61ceaaa03427888b02d098ffb326d
+          id: req_1ddc1418a74a4594bfbceb051430473c
           created: 1759686347634
           modified: 1759764496925
           isPrivate: false
@@ -492,13 +546,59 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_677143dcbcb345f190fed26b09ab00aa
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NjQ0NzUsImV4cCI6MTc1OTc2NTM3NX0.PIMdzoOPHze4MV0skUPJdbbPAihRdwPGPdwH49f_l5o
-            id: pair_e8584ae2734e4a658fe0dd9e788a1491
         authentication:
           type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/course/49
+        name: delete course by id
+        meta:
+          id: req_8232b84f70394e498ca695b396a03f41
+          created: 1759733233824
+          modified: 1761315481774
+          isPrivate: false
+          description: ""
+          sortKey: -1753171072804.3594
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+          - name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/course/all/active
+        name: get all active courses
+        meta:
+          id: req_982996a927374ff6b83cf9bc1b8f4e09
+          created: 1759733668448
+          modified: 1759938979022
+          isPrivate: false
+          description: ""
+          sortKey: -1753172110802
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.1
+          - name: Authorization
+            value: Bearer
+              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTk5Mzg5NjcsImV4cCI6MTc1OTkzOTg2N30.Wx0sFM2li5-bcJINIXB4hge8n9PVb2FcUs0HT6OjpyE
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -510,7 +610,7 @@ collection:
       - url: localhost:8080/access/module/delete-access
         name: revoke access to module by mentor
         meta:
-          id: req_68d910571de04baca12437c542e959b3
+          id: req_24b38051a46e4d6ca23f44decccc9b1a
           created: 1759748257581
           modified: 1759750089988
           isPrivate: false
@@ -528,11 +628,9 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_567a219364d441b8a4e1c8d7bfcf1a5b
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTAwODAsImV4cCI6MTc1OTc1MDk4MH0.wDTiDl6ltfYl-jnmk9AyuC7nJKQX-qAVFXSQzdbVyBo
-            id: pair_95fc61e6390945ae84657b5f0aea1b32
         authentication:
           type: none
         settings:
@@ -546,12 +644,12 @@ collection:
       - url: localhost:8080/course/create
         name: create course
         meta:
-          id: req_fd0dc989bfb948a1878c9f047ab8c65e
+          id: req_b9ffa3d34f98406d862d68479d6cea7c
           created: 1759827738011
-          modified: 1759924618812
+          modified: 1761315408423
           isPrivate: false
           description: ""
-          sortKey: -1753171949306.25
+          sortKey: -1753172110602
         method: POST
         body:
           mimeType: application/json
@@ -563,11 +661,9 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_e4366a78b9c14fa8a4c0baee8fb42ac5
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTM2NTksImV4cCI6MTc1OTc1NDU1OX0.QiR6lNOjhqkYMSFiGdUagVK2ksLKgKdT0-3RenCIIhc
-            id: pair_a07914e4bfec41959f2766e074935b31
         authentication:
           type: none
         settings:
@@ -581,7 +677,7 @@ collection:
       - url: localhost:8080/course/1
         name: delete course by id
         meta:
-          id: req_4d19380099974599be7ce909cbf395ec
+          id: req_6748c19a93324941951a546c51ba0fd0
           created: 1759838361357
           modified: 1759840219251
           isPrivate: false
@@ -592,7 +688,6 @@ collection:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4Mzk4NjAsImV4cCI6MTc1OTg0MDc2MH0.5N7bes6LyU3SWwFJteZDCC7QVydNcRNxHiiZKlvhjX4
-            id: pair_f502722fdf844e4c8e43af855fe86642
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -604,12 +699,12 @@ collection:
       - url: localhost:8080/module/2/4
         name: delete module
         meta:
-          id: req_91cdd4a0a6484b5b92b7e82742df1034
+          id: req_50e41ff72f9547a28d3bf3c49731df4e
           created: 1759852725618
-          modified: 1759852865232
+          modified: 1761315485173
           isPrivate: false
           description: ""
-          sortKey: -1753172029904.125
+          sortKey: -1753171319635.3516
         method: DELETE
         body:
           mimeType: application/json
@@ -623,11 +718,9 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
-            id: pair_e4366a78b9c14fa8a4c0baee8fb42ac5
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4NTI1MjEsImV4cCI6MTc1OTg1MzQyMX0.255fihe5nMyoc14YvycstCd0E5AHcfkB_aocuAPQZz4
-            id: pair_a07914e4bfec41959f2766e074935b31
         authentication:
           type: none
         settings:
@@ -641,7 +734,7 @@ collection:
       - url: localhost:8080/slot/book?timeSlotId=3
         name: book slot
         meta:
-          id: req_96c79a4c4da74fa4a7d4e06d9654df81
+          id: req_02be2b40e7364a6b94fbfcb6de20f6fd
           created: 1759854534426
           modified: 1759924431165
           isPrivate: false
@@ -652,7 +745,6 @@ collection:
           - name: Authorization
             value: Bearer
               eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjozLCJzdWIiOiJwaXBhQHBvcGEucnUiLCJpYXQiOjE3NTk5MjQ0MDIsImV4cCI6MTc1OTkyNTMwMn0.VxVKrZ40Ln-Rg2HZnS-HYIh_XCTnNgQn3CXNc1KfJHE
-            id: pair_e8584ae2734e4a658fe0dd9e788a1491
         authentication:
           type: none
         settings:
@@ -663,66 +755,19 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: localhost:8080/course/create
-        name: create course with tags
+      - url: localhost:8080/admin/course/1
+        name: get course by id for ADMIN
         meta:
-          id: req_507e261ec0b84a4884913dbb54b850a9
-          created: 1753172110502
-          modified: 1759939264054
+          id: req_4d7590f618a243e69008435e33470ead
+          created: 1761315360730
+          modified: 1761315400855
           isPrivate: false
           description: ""
-          sortKey: -1753172110502
-        method: POST
-        body:
-          mimeType: application/json
-          text: |-
-            {
-              "courseName": "Java-разработчик с 0 до оффера",
-              "courseDescription": "Теория и практика для новичков",
-              "tagIds": [1, 2, 3, 4, 5]
-            }
-        headers:
-          - name: Content-Type
-            value: application/json
-            id: pair_2df1200d7f6f49be9d05bd9533af7a51
-          - name: Authorization
-            value: Bearer
-              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
-            id: pair_38c37c06f7bd4cbca8dbac0b991711c1
-        authentication:
-          type: bearer
-          token: ""
-        settings:
-          renderRequestBody: true
-          encodeUrl: true
-          followRedirects: global
-          cookies:
-            send: true
-            store: true
-          rebuildPath: true
-      - url: http://localhost:8080/course-tag/all
-        name: get all course-tags
-        meta:
-          id: req_324f99c13c3c4ed59846bd8b8cfa5d02
-          created: 1759514947027
-          modified: 1759938202550
-          isPrivate: false
-          description: ""
-          sortKey: -1753172110602
+          sortKey: -1753172110902
         method: GET
         headers:
           - name: User-Agent
-            value: insomnia/11.6.1
-            id: pair_e62af37ff5fa4f1fa5cd579b62121ae6
-          - id: pair_49272966a8d14cba8186a21f18d6d301
-            name: Authorization
-            value: Bearer
-              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5MzgwOTIsImV4cCI6MTc1OTkzODk5Mn0.OaU02_9iItBt83ExtedVErznVW3EPOoq13T9whZf-Q0
-            description: ""
-            disabled: false
-        authentication:
-          type: bearer
-          token: ""
+            value: insomnia/11.6.2
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -731,54 +776,124 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: localhost:8080/course/49
-        name: delete course by id
+      - url: localhost:8080/admin/course/all?pageNumber=0&pageSize=10
+        name: get courses page for ADMIN
         meta:
-          id: req_a1385aa972fb491cbac15ea2a9d0907f
-          created: 1759733233824
-          modified: 1759938849280
+          id: req_1e8007151498465692eb562217f1fb87
+          created: 1761315565644
+          modified: 1761315584998
           isPrivate: false
           description: ""
-          sortKey: -1753172110702
-        method: DELETE
-        headers:
-          - name: User-Agent
-            value: insomnia/11.6.1
-            id: pair_202a94a850a346a3b39179523a8fee61
-          - id: pair_e8a3191bd66b48e691b48a127b51aca7
-            name: Authorization
-            value: Bearer
-              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
-            description: ""
-            disabled: false
-        settings:
-          renderRequestBody: true
-          encodeUrl: true
-          followRedirects: global
-          cookies:
-            send: true
-            store: true
-          rebuildPath: true
-      - url: localhost:8080/course/all/active
-        name: get all active courses
-        meta:
-          id: req_0b348f11b06849f1b5bfe0c6c50dec96
-          created: 1759733668448
-          modified: 1759938979022
-          isPrivate: false
-          description: ""
-          sortKey: -1753172110802
+          sortKey: -1761315565644
         method: GET
         headers:
           - name: User-Agent
-            value: insomnia/11.6.1
-            id: pair_4e855db094d2478db8ce7b61195425a8
-          - id: pair_cda71ad99f084ac9b09618f19f906c2f
-            name: Authorization
-            value: Bearer
-              eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTk5Mzg5NjcsImV4cCI6MTc1OTkzOTg2N30.Wx0sFM2li5-bcJINIXB4hge8n9PVb2FcUs0HT6OjpyE
-            description: ""
-            disabled: false
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/admin/slot/all?pageNumber=0&pageSize=10
+        name: get time slot page for ADMIN
+        meta:
+          id: req_604d5d870a874faeba3c237ad2b83a7c
+          created: 1761315604565
+          modified: 1761315619963
+          isPrivate: false
+          description: ""
+          sortKey: -1761315604565
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/admin/module/1
+        name: get module by id for ADMIN
+        meta:
+          id: req_c5aa28487ebb43b0b43e093a8bf915b7
+          created: 1761315634315
+          modified: 1761315652717
+          isPrivate: false
+          description: ""
+          sortKey: -1761315634315
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/admin/module/all-by-course-id/1
+        name: get all modules by course id for ADMIN
+        meta:
+          id: req_ae5a72e324b543739a7c6f38ca3ce736
+          created: 1761315673146
+          modified: 1761315718865
+          isPrivate: false
+          description: ""
+          sortKey: -1761315673146
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/admin/user/me
+        name: my user info for ADMIN
+        meta:
+          id: req_2082a529883941f6a7e04081294f20ca
+          created: 1761315731967
+          modified: 1761315741752
+          isPrivate: false
+          description: ""
+          sortKey: -1761315731967
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/admin/user/1
+        name: get user info by id for ADMIN
+        meta:
+          id: req_f36b344320224fb7a5a83254143ca741
+          created: 1761315750762
+          modified: 1761315763307
+          isPrivate: false
+          description: ""
+          sortKey: -1761315750762
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.2
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -790,7 +905,7 @@ collection:
 cookieJar:
   name: Default Jar
   meta:
-    id: jar_f484637005684749a7af0532a92e097f
+    id: jar_891bf5f4ed7a40b7902143d5f1ec4b31
     created: 1707982926593
     modified: 1747039962482
   cookies:
@@ -805,7 +920,7 @@ cookieJar:
 environments:
   name: Base Environment
   meta:
-    id: env_589e4f2826084944adcbc1f86924b993
+    id: env_12b9e5346ff542d4b9223fdf326e591b
     created: 1707982926589
     modified: 1707982926589
     isPrivate: false
