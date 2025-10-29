@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.mentor.dto.CourseDto;
-import ru.mentor.dto.front.CreateCourseRequest;
+import ru.mentor.gateway.model.CreateCourseRequest;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.feign.CourseClient;
 import ru.mentor.mapper.CourseMapper;

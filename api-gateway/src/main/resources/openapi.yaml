@@ -1292,6 +1292,11 @@ components:
         - courseName
       type: object
       properties:
+        authorId:
+          type: integer
+          format: int64
+          description: Идентификатор автора курса
+          example: 42
         courseName:
           type: string
           description: Название курса
@@ -1300,6 +1305,13 @@ components:
           type: string
           description: Описание курса
           example: Курс по основам Spring Framework
+        tagIds:
+          type: array
+          description: Список идентификаторов тегов
+          items:
+            type: integer
+            format: int64
+          example: [ 1, 2, 3 ]
       description: Запрос на создание курса
     JwtAuthResponse:
       type: object
