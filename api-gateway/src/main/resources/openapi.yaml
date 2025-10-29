@@ -602,8 +602,9 @@ paths:
           content:
             '*/*':
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/MenteeProgressDto'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenteeProgressDto'
         '400':
           description: Невалидные входные данные
           content:
