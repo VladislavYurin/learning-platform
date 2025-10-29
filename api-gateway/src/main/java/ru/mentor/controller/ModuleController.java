@@ -1,114 +1,62 @@
 package ru.mentor.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import ru.mentor.dto.ModuleDto;
-import ru.mentor.dto.front.CreateModuleRequest;
+import ru.mentor.gateway.api.ModuleControllerApi;
+import ru.mentor.gateway.model.CreateModuleRequest;
+import ru.mentor.gateway.model.ModuleDto;
+import ru.mentor.mapper.ModuleDtoMapper;
 import ru.mentor.services.RedirectModuleService;
-import ru.mentor.validation.ValidMarkdownFile;
 
 /**
  * Контроллер для управления модулями образовательной платформы.
  * Предоставляет endpoints для создания, получения и управления модулями.
  */
 @RestController
-@RequestMapping("/module")
 @RequiredArgsConstructor
-@Tag(name = "Module Controller", description = "Управление модулями и их содержимым")
-public class ModuleController {
+public class ModuleController implements ModuleControllerApi {
 
     private final RedirectModuleService redirectModuleService;
+    private final ModuleDtoMapper moduleDtoMapper;
 
-    @Operation(
-            summary = "Создать модуль",
-            description = "Позволяет создать новый модуль. Требуются права ADMIN или MENTOR",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Модуль успешно создан",
-                            content = @Content(schema = @Schema(implementation = ModuleDto.class))),
-                    @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
-                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
-                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
-            }
-    )
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
-    public ResponseEntity<?> createModule(@RequestBody CreateModuleRequest request) {
-        return ResponseEntity.ok().body(redirectModuleService.createModule(request));
+    /**
+     * Реализация ручки POST /module/create
+     */
+    @Override
+    public ResponseEntity<ModuleDto> createModule(CreateModuleRequest createModuleRequest) {
+        ru.mentor.dto.ModuleDto commonModuleDto = redirectModuleService.createModule(createModuleRequest);
+        ModuleDto apiModuleDto = moduleDtoMapper.toApiDto(commonModuleDto);
+        return ResponseEntity.ok(apiModuleDto);
     }
 
-    @Operation(
-            summary = "Удалить модуль",
-            description = "Позволяет удалить модуль. Требуются права ADMIN или MENTOR",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Модуль успешно удален",
-                            content = @Content(schema = @Schema(implementation = ModuleDto.class))),
-                    @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
-                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
-                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
-            }
-    )
-    @DeleteMapping("/{courseId}/{moduleId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
-    public ResponseEntity<?> deleteModule(
-            @PathVariable Long courseId,
-            @PathVariable Long moduleId) {
+    /**
+     * Реализация ручки DELETE /module/{courseId}/{moduleId}
+     */
+    @Override
+    public ResponseEntity<ModuleDto> deleteModule(Long courseId, Long moduleId) {
         redirectModuleService.deleteModule(courseId, moduleId);
         return ResponseEntity.ok().body(null);
     }
 
-    @Operation(
-            summary = "Получить модуль по ID",
-            description = "Возвращает информацию о модуле по его идентификатору",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Информация о модуле",
-                            content = @Content(schema = @Schema(implementation = ModuleDto.class))),
-                    @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
-                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
-                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
-            }
-    )
-    @GetMapping("/{courseId}/{moduleId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR') or hasRole('USER')")
-    public ModuleDto getModuleById(
-            @PathVariable Long courseId,
-            @PathVariable Long moduleId) {
-        return redirectModuleService.getModuleById(courseId, moduleId);
+    /**
+     * Реализация ручки GET /module/{courseId}/{moduleId}
+     */
+    @Override
+    public ResponseEntity<ModuleDto> getModuleById(Long courseId, Long moduleId) {
+        ru.mentor.dto.ModuleDto commonModuleDto = redirectModuleService.getModuleById(courseId, moduleId);
+        ModuleDto apiModuleDto = moduleDtoMapper.toApiDto(commonModuleDto);
+        return ResponseEntity.ok(apiModuleDto);
     }
 
-    @Operation(
-            summary = "Импорт модуля из Markdown файла",
-            description = "Позволяет создать новый модуль из .md файла. Требуются права ADMIN или MENTOR",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Информация о модуле",
-                            content = @Content(schema = @Schema(implementation = ModuleDto.class))),
-                    @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
-                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
-                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
-            }
-    )
-    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
-    public ResponseEntity<?> importModuleFromMarkdown(
-            @RequestPart("file") @Valid @ValidMarkdownFile MultipartFile file,
-            @RequestBody CreateModuleRequest request) {
-        return ResponseEntity.ok(redirectModuleService.importModuleFromFile(request, file));
+    /**
+     * Реализация ручки POST /module/import
+     */
+    @Override
+    public ResponseEntity<ModuleDto> importModuleFromMarkdown(MultipartFile file, CreateModuleRequest request) {
+        ru.mentor.dto.ModuleDto commonModuleDto = redirectModuleService.importModuleFromFile(request, file);
+        ModuleDto apiModuleDto = moduleDtoMapper.toApiDto(commonModuleDto);
+        return ResponseEntity.ok(apiModuleDto);
     }
-
 }
