@@ -535,7 +535,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/MentorTimeSlotDto'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MentorTimeSlotInfoForUserDto'
         '401':
           description: Не авторизован
           content:
@@ -565,7 +567,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/MentorTimeSlotDto'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MentorSlotInfoDto'
         '401':
           description: Не авторизован
           content:
