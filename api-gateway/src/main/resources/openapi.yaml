@@ -46,7 +46,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: object
+                $ref: '#/components/schemas/UserInfoDto'
         '404':
           description: Пользователь не найден
           content:
@@ -488,7 +488,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: object
+                $ref: '#/components/schemas/UserInfoDto'
         '404':
           description: Пользователь не найден
           content:
@@ -508,7 +508,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: object
+                $ref: '#/components/schemas/UserInfoDto'
         '404':
           description: Пользователь не найден
           content:

@@ -1,9 +1,7 @@
 package ru.mentor.controller;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.gateway.api.TimeSlotControllerApi;
 import ru.mentor.gateway.model.MentorSlotInfoDto;
@@ -18,9 +16,7 @@ import ru.mentor.services.RedirectCalendarService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/slot")
 @RequiredArgsConstructor
-@Tag(name = "Time Slot Controller", description = "Управление слотами менторов")
 public class TimeSlotController implements TimeSlotControllerApi {
 
     private final RedirectCalendarService redirectCalendarService;
