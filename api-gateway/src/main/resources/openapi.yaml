@@ -332,28 +332,12 @@ paths:
       responses:
         '200':
           description: Доступ успешно выдан
-          content:
-            '*/*':
-              schema:
-                type: object
         '401':
           description: Не авторизован
-          content:
-            '*/*':
-              schema:
-                type: object
         '403':
           description: Доступ запрещен
-          content:
-            '*/*':
-              schema:
-                type: object
         '404':
           description: Модуль или пользователь не найден
-          content:
-            '*/*':
-              schema:
-                type: object
   /access/module/delete-access:
     post:
       tags:
@@ -370,28 +354,12 @@ paths:
       responses:
         '200':
           description: Доступ успешно отозван
-          content:
-            '*/*':
-              schema:
-                type: object
         '401':
           description: Не авторизован
-          content:
-            '*/*':
-              schema:
-                type: object
         '403':
           description: Доступ запрещен
-          content:
-            '*/*':
-              schema:
-                type: object
         '404':
           description: Доступ не найден
-          content:
-            '*/*':
-              schema:
-                type: object
   /access/course/get-access:
     post:
       tags:
@@ -408,28 +376,12 @@ paths:
       responses:
         '200':
           description: Доступ успешно выдан
-          content:
-            '*/*':
-              schema:
-                type: object
         '401':
           description: Не авторизован
-          content:
-            '*/*':
-              schema:
-                type: object
         '403':
           description: Доступ запрещен
-          content:
-            '*/*':
-              schema:
-                type: object
         '404':
           description: Курс или пользователь не найден
-          content:
-            '*/*':
-              schema:
-                type: object
   /access/course/delete-access:
     post:
       tags:
@@ -446,28 +398,12 @@ paths:
       responses:
         '200':
           description: Доступ успешно отозван
-          content:
-            '*/*':
-              schema:
-                type: object
         '401':
           description: Не авторизован
-          content:
-            '*/*':
-              schema:
-                type: object
         '403':
           description: Доступ запрещен
-          content:
-            '*/*':
-              schema:
-                type: object
         '404':
           description: Доступ не найден
-          content:
-            '*/*':
-              schema:
-                type: object
   /user/{userId}:
     get:
       tags:

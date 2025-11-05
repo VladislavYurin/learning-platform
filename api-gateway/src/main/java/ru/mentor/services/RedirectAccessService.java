@@ -1,8 +1,8 @@
 package ru.mentor.services;
 
 import org.springframework.http.ResponseEntity;
-import ru.mentor.dto.front.CourseAccessRequest;
-import ru.mentor.dto.front.ModuleAccessRequest;
+import ru.mentor.gateway.model.CourseAccessRequest;
+import ru.mentor.gateway.model.ModuleAccessRequest;
 
 /**
  * Сервис редиректов/интеграции для операций выдачи/отзыва доступа к курсам и модулям.
@@ -18,27 +18,27 @@ public interface RedirectAccessService {
      * @param request параметры предоставления доступа (идентификаторы пользователя и курса)
      * @return ответ внешнего сервиса с кодом статуса операции
      */
-    ResponseEntity<?> giveCourseAccess(CourseAccessRequest request);
+    ResponseEntity<Void> giveCourseAccess(CourseAccessRequest request);
 
     /**
      * Закрывает доступ пользователя к курсу.
      * @param request параметры предоставления доступа (идентификаторы пользователя и курса)
      * @return ответ внешнего сервиса с кодом статуса операции
      */
-    ResponseEntity<?> revokeCourseAccess(CourseAccessRequest request);
+    ResponseEntity<Void> revokeCourseAccess(CourseAccessRequest request);
 
     /**
      * Предоставляет пользователю доступ к модулю.
      * @param request параметры предоставления доступа (идентификаторы пользователя, курса и модуля)
      * @return ответ внешнего сервиса с кодом статуса операции
      */
-    ResponseEntity<?> giveModuleAccess(ModuleAccessRequest request);
+    ResponseEntity<Void> giveModuleAccess(ModuleAccessRequest request);
 
     /**
      * Закрывает доступ пользователя к модулю.
      * @param request параметры предоставления доступа (идентификаторы пользователя, курса и модуля)
      * @return ответ внешнего сервиса с кодом статуса операции
      */
-    ResponseEntity<?> revokeModuleAccess(ModuleAccessRequest request);
+    ResponseEntity<Void> revokeModuleAccess(ModuleAccessRequest request);
 
 }

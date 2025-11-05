@@ -3,8 +3,8 @@ package ru.mentor.mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.mentor.dto.GetAccessRequest;
-import ru.mentor.dto.front.CourseAccessRequest;
-import ru.mentor.dto.front.ModuleAccessRequest;
+import ru.mentor.gateway.model.CourseAccessRequest;
+import ru.mentor.gateway.model.ModuleAccessRequest;
 import ru.mentor.entity.UserEntity;
 
 /**

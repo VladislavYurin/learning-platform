@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.mentor.dto.GetAccessRequest;
-import ru.mentor.dto.front.CourseAccessRequest;
-import ru.mentor.dto.front.ModuleAccessRequest;
+import ru.mentor.gateway.model.CourseAccessRequest;
+import ru.mentor.gateway.model.ModuleAccessRequest;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.feign.MentorClient;
 import ru.mentor.mapper.AccessMapper;
@@ -34,7 +34,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
-    public ResponseEntity<?> giveCourseAccess(CourseAccessRequest request) {
+    public ResponseEntity<Void> giveCourseAccess(CourseAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
         String rqUId = RqGenerator.generateRqId();
         log.info(String.format(
@@ -54,7 +54,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
-    public ResponseEntity<?> revokeCourseAccess(CourseAccessRequest request) {
+    public ResponseEntity<Void> revokeCourseAccess(CourseAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
         String rqUId = RqGenerator.generateRqId();
         log.info(String.format(
@@ -74,7 +74,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
-    public ResponseEntity<?> giveModuleAccess(ModuleAccessRequest request) {
+    public ResponseEntity<Void> giveModuleAccess(ModuleAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
         String rqUId = RqGenerator.generateRqId();
         log.info(String.format(
@@ -94,7 +94,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
-    public ResponseEntity<?> revokeModuleAccess(ModuleAccessRequest request) {
+    public ResponseEntity<Void> revokeModuleAccess(ModuleAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
         String rqUId = RqGenerator.generateRqId();
         log.info(String.format(
