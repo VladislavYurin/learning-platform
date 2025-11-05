@@ -12,12 +12,12 @@ import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.common.MentorSlotsInfoRequest;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.dto.MentorSlotInfoDto;
-//import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.gateway.model.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
+import ru.mentor.mapper.MentorTimeSlotCreateRequestMapper;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.services.RedirectCalendarService;
 import ru.mentor.services.UserService;
@@ -37,6 +37,8 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
 
     private final TimeSlotMapper timeSlotMapper;
 
+    private final MentorTimeSlotCreateRequestMapper mentorTimeSlotCreateRequestMapper;
+
     /**
      * Отправляет запрос на создание слота ментором.
      *
@@ -52,8 +54,11 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
                 rqUId,
                 user.getId());
 
+        ru.mentor.dto.MentorTimeSlotCreateRequest commonMentorTimeSlotCreateRequest =
+                mentorTimeSlotCreateRequestMapper.toCommon(createRequest);
+
         CreateTimeSlotRequest createTimeSlotGrpcRequest =
-                timeSlotMapper.requestCreateToGrpcDto(createRequest, rqUId, user);
+                timeSlotMapper.requestCreateToGrpcDto(commonMentorTimeSlotCreateRequest, rqUId, user);
 
         TimeSlotResponse timeSlotGrpcResponse = calendarServiceClient
                 .createMentorTimeSlot(createTimeSlotGrpcRequest);

@@ -17,6 +17,7 @@ import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
+import ru.mentor.mapper.MentorTimeSlotCreateRequestMapper;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.services.impl.RedirectCalendarServiceImpl;
 import ru.mentor.testUtil.TestConstantHolder;
@@ -36,6 +37,9 @@ class RedirectCalendarServiceImplTest {
     @Spy
     private TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
 
+    @Mock
+    private MentorTimeSlotCreateRequestMapper mentorTimeSlotCreateRequestMapper;
+
     @InjectMocks
     private RedirectCalendarServiceImpl redirectCalendarService;
 
@@ -51,7 +55,7 @@ class RedirectCalendarServiceImplTest {
                        CreateTimeSlotRequest.class)))
                .thenReturn(testGrpcResponse);
 
-        MentorTimeSlotDto result = redirectCalendarService.createTimeSlot(testCreateRequest);
+        MentorTimeSlotDto result = redirectCalendarService.createTimeSlot(mentorTimeSlotCreateRequestMapper.toApi(testCreateRequest));
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(TestConstantHolder.timeSlotId, result.getId());
