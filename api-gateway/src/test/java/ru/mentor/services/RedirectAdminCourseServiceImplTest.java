@@ -17,6 +17,7 @@ import ru.mentor.gateway.model.CourseDto;
 import ru.mentor.grpc.AdminCourseServiceGrpcClient;
 import ru.mentor.mapper.AdminCourseMapper;
 import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.CourseDtoMapper;
 import ru.mentor.services.impl.RedirectAdminCourseServiceImpl;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
@@ -31,6 +32,8 @@ class RedirectAdminCourseServiceImplTest {
     private AdminCourseMapper courseMapper;
     @Mock
     private BaseMapper baseMapper;
+    @Mock
+    private CourseDtoMapper courseDtoMapper;
 
     @InjectMocks
     private RedirectAdminCourseServiceImpl redirectService;
@@ -98,7 +101,7 @@ class RedirectAdminCourseServiceImplTest {
         Mockito.when(courseServiceClient.getAllCourses(grpcPageRequest))
                .thenReturn(allCoursesResponse);
         Mockito.when(courseMapper.mapGrpcCourseResponseToCourseDtoPage(allCoursesResponse))
-               .thenReturn(courseDtoPage);
+               .thenReturn(courseDtoMapper.toApiPage(courseDtoPage));
 
         Page<CourseDto> result = redirectService.getAllCourses(
                 TestConstantHolder.pageNumber,
