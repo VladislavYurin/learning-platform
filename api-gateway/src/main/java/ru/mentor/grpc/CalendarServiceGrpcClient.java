@@ -49,8 +49,8 @@ public class CalendarServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(String.format(
                     "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
-                    request.getRqUid()
-            ), request.getRqUid());
+                    request.getHeader().getRequestId()
+            ), request.getHeader().getRequestId());
         }
     }
 
@@ -72,8 +72,8 @@ public class CalendarServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(String.format(
                     "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
-                    bookTimeSlotRequest.getRqUid()
-            ), bookTimeSlotRequest.getRqUid());
+                    bookTimeSlotRequest.getHeader().getRequestId()
+            ), bookTimeSlotRequest.getHeader().getRequestId());
         }
     }
 
@@ -93,8 +93,8 @@ public class CalendarServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(String.format(
                     "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
-                    mentorSlotsInfoRequest.getRqUid()
-            ));
+                    mentorSlotsInfoRequest.getHeader().getRequestId()
+            ), mentorSlotsInfoRequest.getHeader().getRequestId());
         }
     }
 }

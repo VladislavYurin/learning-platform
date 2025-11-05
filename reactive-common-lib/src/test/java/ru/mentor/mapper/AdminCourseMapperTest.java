@@ -1,11 +1,13 @@
 package ru.mentor.mapper;
 
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.entity.CourseEntity;
+import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
@@ -14,17 +16,22 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 class AdminCourseMapperTest {
 
     private final UserMapper userMapper = new UserMapper();
-    private final AdminCourseMapper mapper = new AdminCourseMapper(userMapper);
+    private final TagMapper tagMapper = new TagMapper();
+    private final AdminCourseMapper mapper = new AdminCourseMapper(userMapper, tagMapper);
 
     @Test
     void mapCourseEntityToGrpcCourseResponse_returnsExpectedResponse() {
         CourseEntity courseEntity = TestEntityStubGenerator.constructCourseEntity();
         UserEntity courseAuthor = TestEntityStubGenerator.constructAuthorUserEntity();
+        List<CourseTagEntity> listOfTags =
+                TestEntityStubGenerator.constructCourseTagEntityList(4);
 
         CourseResponse response = mapper.mapCourseEntityToGrpcCourseResponse(
                 courseEntity,
-                courseAuthor
+                courseAuthor,
+                listOfTags
         );
+
 
         Assertions.assertEquals(TestConstantHolder.COURSE_ID, response.getCourseId());
         Assertions.assertEquals(TestConstantHolder.COURSE_TITLE, response.getTitle());
@@ -43,6 +50,9 @@ class AdminCourseMapperTest {
                 response.getAuthor().getTgNickname()
         );
         Assertions.assertEquals(TestConstantHolder.TG_CHAT_ID, response.getAuthor().getTgChatId());
+
+        Assertions.assertEquals(4, response.getTagsCount());
+        Assertions.assertEquals("test-tag-1", response.getTags(0).getName());
     }
 
     @Test

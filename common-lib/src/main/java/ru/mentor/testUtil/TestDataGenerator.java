@@ -109,7 +109,7 @@ public class TestDataGenerator {
     public static TimeSlotResponse createTestTimeSlotGrpcResponse(Timestamp start, Timestamp end,
                                                                   Timestamp createdAt) {
         return TimeSlotResponse.newBuilder()
-                .setRqUid(TestDataGenerator.TEST_UUID)
+                .setRequestId(TestDataGenerator.TEST_UUID)
                 .setSlotId(1L)
                 .setMentorId(1L)
                 .setStartTime(start)

@@ -25,7 +25,7 @@ class TimeSlotMapperTest {
                 TestConstantHolder.REQUEST_ID
         );
 
-        Assertions.assertEquals(TestConstantHolder.REQUEST_ID, response.getRqUid());
+        Assertions.assertEquals(TestConstantHolder.REQUEST_ID, response.getRequestId());
         Assertions.assertEquals(TestConstantHolder.SLOT_ID, response.getSlotId());
         Assertions.assertEquals(TestConstantHolder.MENTOR_ID, response.getMentorId());
         Assertions.assertEquals(

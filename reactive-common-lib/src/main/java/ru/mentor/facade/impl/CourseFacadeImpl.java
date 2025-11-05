@@ -10,11 +10,10 @@ import reactor.core.publisher.Mono;
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.GrpcPageRequest;
-import ru.mentor.entity.CourseEntity;
-import ru.mentor.entity.UserEntity;
 import ru.mentor.mapper.AdminCourseMapper;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.repository.CourseRepository;
+import ru.mentor.repository.CourseTagRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.facade.CourseFacade;
 
@@ -31,6 +30,10 @@ public class CourseFacadeImpl implements CourseFacade {
 
     private final UserRepository userRepository;
 
+    private final CourseTagRepository courseTagRepository;
+
+    private final AdminCourseMapper courseMapper;
+
     private final BaseMapper baseMapper;
 
     /**
@@ -40,24 +43,22 @@ public class CourseFacadeImpl implements CourseFacade {
      *
      * @return {@link Mono<CourseResponse>}
      */
-    public Mono<CourseResponse> findCourseWithAuthor(Long courseId) {
+    public Mono<CourseResponse> findCourseById(Long courseId) {
         return courseRepository
                 .findByIdOrThrow(courseId)
-                .flatMap(this::mapToCourseResponseWithAuthor);
-    }
-
-    /**
-     * Вспомогательный метод для маппинга сущности курса в gRPC - ответ
-     *
-     * @param courseEntity
-     */
-    private Mono<CourseResponse> mapToCourseResponseWithAuthor(CourseEntity courseEntity) {
-        return userRepository.findByIdOrThrow(courseEntity.getAuthorId())
-                             .map(author ->
-                                          courseMapper.mapCourseEntityToGrpcCourseResponse(
-                                                  courseEntity,
-                                                  author
-                                          ));
+                .flatMap(course ->
+                                 Mono.zip(
+                                         userRepository.findByIdOrThrow(course.getAuthorId()),
+                                         courseTagRepository.findAllByCourseId(courseId)
+                                                            .collectList(),
+                                         (author, tags) ->
+                                                 courseMapper.mapCourseEntityToGrpcCourseResponse(
+                                                         course,
+                                                         author,
+                                                         tags
+                                                 )
+                                 )
+                );
     }
 
     /**
@@ -72,34 +73,30 @@ public class CourseFacadeImpl implements CourseFacade {
         PageRequest pageRequest =
                 baseMapper.mapGrpcPageRequestToPageRequest(request);
 
-        Mono<List<CourseResponse>> courseResponseMonoList =
-                courseRepository.findAllBy(pageRequest)
-                                .flatMap(this::toCourseResponse)
-                                .collectList();
+        Mono<List<CourseResponse>> listOfCourses =
+                courseRepository
+                        .findAllBy(pageRequest)
+                        .flatMap(course ->
+                                         Mono.zip(
+                                                 userRepository.findByIdOrThrow(course.getAuthorId()),
+                                                 courseTagRepository.findAllByCourseId(course.getId())
+                                                                    .collectList(),
+                                                 (author, tags) ->
+                                                         courseMapper.mapCourseEntityToGrpcCourseResponse(
+                                                                 course,
+                                                                 author,
+                                                                 tags
+                                                         )
+                                         )
+                        ).collectList();
 
-        return courseResponseMonoList
+        return listOfCourses
                 .zipWith(
                         courseRepository.count(),
                         (courses, numberOfCourses) ->
                                 new PageImpl<>(courses, pageRequest, numberOfCourses)
                 )
                 .map(courseMapper::mapCourseResponsePageToGrpcAllCoursesResponse);
-    }
-
-    /**
-     * Маппер для преобразования сущности курса и автора в gRPC ответ
-     *
-     * @param courseEntity
-     */
-    private Mono<CourseResponse> toCourseResponse(CourseEntity courseEntity) {
-        Mono<UserEntity> authorUserEntityMono =
-                userRepository.findById(courseEntity.getAuthorId());
-        return authorUserEntityMono
-                .zipWith(
-                        Mono.just(courseEntity),
-                        (author, course) ->
-                                courseMapper.mapCourseEntityToGrpcCourseResponse(course, author)
-                );
     }
 
 }

@@ -16,16 +16,17 @@ import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.grpc.HeaderFactory;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
-
 import java.util.List;
 import java.util.Set;
 
 public class TestEntityStubGenerator {
 
-    private static final TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
-    private static final BaseMapper baseMapper = new BaseMapper();
+    private static final HeaderFactory headerFactory = new HeaderFactory(TestConstantHolder.nodeId, TestConstantHolder.apiKey);
+    private static final TimeSlotMapper timeSlotMapper = new TimeSlotMapper(headerFactory);
+    private static final BaseMapper baseMapper = new BaseMapper(headerFactory);
 
     public static Page<ModuleEntity> constructModuleEntityPage(ModuleEntity moduleEntity) {
         return new PageImpl<>(

@@ -25,6 +25,8 @@ import ru.mentor.testUtil.TestEntityStubGenerator;
 @AutoConfigureMockMvc(addFilters = false)
 class AdminModuleControllerTest {
 
+    public static final String PAGE_NUMBER_REQUEST_PARAMETER = "pageNumber";
+    public static final String PAGE_SIZE_REQUEST_PARAMETER = "pageSize";
     @Autowired
     private MockMvc mockMvc;
 
@@ -57,7 +59,10 @@ class AdminModuleControllerTest {
     void getAllModules_success() {
         ModuleDto moduleDto = TestEntityStubGenerator.constructModuleDto();
 
-        Mockito.when(redirectAdminModuleService.getAllModules(ArgumentMatchers.anyLong()))
+        Mockito.when(redirectAdminModuleService.getAllModules(
+                       ArgumentMatchers.anyInt(),
+                       ArgumentMatchers.anyInt()
+               ))
                .thenReturn(new PageImpl<>(
                        List.of(moduleDto),
                        PageRequest.of(0, 10),
@@ -65,9 +70,16 @@ class AdminModuleControllerTest {
                ));
 
         mockMvc.perform(MockMvcRequestBuilders.get(
-                       "/admin/module/by-course-id/{courseId}",
-                       TestConstantHolder.courseId
-               ))
+                                                      "/admin/module/all"
+                                              )
+                                              .param(
+                                                      PAGE_NUMBER_REQUEST_PARAMETER,
+                                                      String.valueOf(TestConstantHolder.pageNumber)
+                                              )
+                                              .param(
+                                                      PAGE_SIZE_REQUEST_PARAMETER,
+                                                      String.valueOf(TestConstantHolder.pageSize)
+                                              ))
                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 

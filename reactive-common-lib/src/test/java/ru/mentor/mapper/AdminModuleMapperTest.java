@@ -34,10 +34,10 @@ class AdminModuleMapperTest {
     }
 
     @Test
-    void mapModuleResponsePageToGrpcAllModulesResponse_returnsExpectedAggregation() {
+    void mapModuleResponsePageToAllModulesResponse_returnsExpectedAggregation() {
         Page<ModuleResponse> page = TestGrpcStubGenerator.constructModuleResponsePage();
 
-        AllModulesResponse aggregated = mapper.mapModuleResponsePageToGrpcAllModulesResponse(page);
+        AllModulesResponse aggregated = mapper.mapModuleResponsePageToAllModulesResponse(page);
         ModuleResponse expectedModule = page.getContent().get(TestConstantHolder.PAGE_NUMBER);
 
         Assertions.assertEquals(page.getContent().size(), aggregated.getModulesCount());

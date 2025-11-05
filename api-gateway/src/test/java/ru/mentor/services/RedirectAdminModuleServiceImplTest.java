@@ -1,21 +1,23 @@
 package ru.mentor.services;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllModulesResponse;
-import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.exception.GrpcRetryException;
 import ru.mentor.grpc.AdminModuleServiceGrpcClient;
+import ru.mentor.grpc.HeaderFactory;
 import ru.mentor.mapper.AdminModuleMapper;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.services.impl.RedirectAdminModuleServiceImpl;
@@ -27,106 +29,132 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 class RedirectAdminModuleServiceImplTest {
 
     @Mock
-    private AdminModuleServiceGrpcClient moduleGrpcClient;
+    private HeaderFactory headerFactory;
 
     @Mock
-    private AdminModuleMapper moduleMapper;
+    private AdminModuleServiceGrpcClient moduleGrpcClient;
 
     @Mock
     private UserService userService;
 
-    @Mock
     private BaseMapper baseMapper;
-
-    @InjectMocks
+    private AdminModuleMapper moduleMapper;
     private RedirectAdminModuleServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        Mockito.lenient()
+                .when(headerFactory.create(Mockito.anyString()))
+                .thenAnswer(inv -> ru.mentor.common.Header.newBuilder()
+                        .setRequestId(inv.getArgument(0, String.class))
+                        .setNodeId("test-node")
+                        .setApiKey("test-api")
+                        .build());
+        baseMapper = Mockito.spy(new BaseMapper(headerFactory));
+        moduleMapper = Mockito.spy(new AdminModuleMapper(baseMapper, headerFactory));
+        service = new RedirectAdminModuleServiceImpl(
+                moduleGrpcClient,
+                userService,
+                moduleMapper,
+                baseMapper
+        );
+    }
 
     @Test
     void getModuleById_success() {
-        GetModuleRequest grpcRequest = TestGrpcStubGenerator.constructGetModuleRequest();
         ModuleResponse grpcResponse = TestGrpcStubGenerator.constructModuleResponse();
         ModuleDto expectedDto = TestEntityStubGenerator.constructModuleDto();
 
-        Mockito.when(moduleMapper.constructGetModuleRequest(
-                       ArgumentMatchers.any(),
-                       ArgumentMatchers.eq(TestConstantHolder.moduleId)
-               ))
-               .thenReturn(grpcRequest);
-        Mockito.when(moduleGrpcClient.getModule(grpcRequest))
+        Mockito.when(userService.getCurrentUserId()).thenReturn(TestConstantHolder.userId);
+        Mockito.when(moduleGrpcClient.getModule(ArgumentMatchers.any(GetModuleRequest.class)))
                .thenReturn(grpcResponse);
-        Mockito.when(moduleMapper.mapGrpcModuleResponseToModuleDto(grpcResponse))
-               .thenReturn(expectedDto);
 
         ModuleDto result = service.getModuleById(TestConstantHolder.moduleId);
 
         Assertions.assertThat(result).isEqualTo(expectedDto);
-        Mockito.verify(moduleGrpcClient).getModule(grpcRequest);
+
+        ArgumentCaptor<GetModuleRequest> captor = ArgumentCaptor.forClass(GetModuleRequest.class);
+        Mockito.verify(moduleGrpcClient).getModule(captor.capture());
+
+        GetModuleRequest actualRequest = captor.getValue();
+        Assertions.assertThat(actualRequest.getModuleId()).isEqualTo(TestConstantHolder.moduleId);
+        Assertions.assertThat(actualRequest.getHeader().getRequestId()).isNotBlank();
     }
 
     @Test
     void getModuleById_failure() {
-        GetModuleRequest grpcRequest = TestGrpcStubGenerator.constructGetModuleRequest();
-
-        Mockito.when(moduleMapper.constructGetModuleRequest(
-                       ArgumentMatchers.any(),
-                       ArgumentMatchers.eq(TestConstantHolder.moduleId)
-               ))
-               .thenReturn(grpcRequest);
-        Mockito.when(moduleGrpcClient.getModule(grpcRequest))
-               .thenThrow(new GrpcRetryException(
-                       TestConstantHolder.grpcExceptionText,
-                       grpcRequest.getRequestId()
-               ));
+        Mockito.when(userService.getCurrentUserId()).thenReturn(TestConstantHolder.userId);
+        Mockito.when(moduleGrpcClient.getModule(ArgumentMatchers.any(GetModuleRequest.class)))
+               .thenAnswer(invocation -> {
+                   GetModuleRequest request = invocation.getArgument(0, GetModuleRequest.class);
+                   throw new GrpcRetryException(TestConstantHolder.grpcExceptionText, request.getHeader().getRequestId());
+               });
 
         Assertions.assertThatThrownBy(() -> service.getModuleById(TestConstantHolder.moduleId))
                   .isInstanceOf(GrpcRetryException.class)
                   .hasMessageContaining(TestConstantHolder.grpcExceptionText);
 
-        Mockito.verify(moduleGrpcClient).getModule(grpcRequest);
+        ArgumentCaptor<GetModuleRequest> captor = ArgumentCaptor.forClass(GetModuleRequest.class);
+        Mockito.verify(moduleGrpcClient).getModule(captor.capture());
+
+        GetModuleRequest actualRequest = captor.getValue();
+        Assertions.assertThat(actualRequest.getModuleId()).isEqualTo(TestConstantHolder.moduleId);
+        Assertions.assertThat(actualRequest.getHeader().getRequestId()).isNotBlank();
     }
 
     @Test
     void getAllModules_success() {
-        GetAllModulesRequest getAllModulesRequest = TestGrpcStubGenerator.constructGetAllModulesRequest();
         AllModulesResponse grpcResponse = TestGrpcStubGenerator.constructAllModulesResponse();
         Page<ModuleDto> expectedPage = TestEntityStubGenerator.constructModuleDtoPage();
 
-        Mockito.when(baseMapper.constructGetAllModulesRequest(
-                       ArgumentMatchers.any(),
-                       ArgumentMatchers.eq(TestConstantHolder.courseId)
-               ))
-               .thenReturn(getAllModulesRequest);
-        Mockito.when(moduleGrpcClient.getAllModules(getAllModulesRequest))
+        Mockito.when(userService.getCurrentUserId()).thenReturn(TestConstantHolder.userId);
+        Mockito.when(moduleGrpcClient.getAllModules(ArgumentMatchers.any(GrpcPageRequest.class)))
                .thenReturn(grpcResponse);
-        Mockito.when(moduleMapper.mapGrpcAllModulesResponseToModuleDtoPage(grpcResponse))
-               .thenReturn(expectedPage);
 
-        Page<ModuleDto> result = service.getAllModules(TestConstantHolder.courseId);
+        Page<ModuleDto> result = service.getAllModules(
+                TestConstantHolder.pageNumber,
+                TestConstantHolder.pageSize
+        );
 
-        Assertions.assertThat(result).isEqualTo(expectedPage);
-        Mockito.verify(moduleGrpcClient).getAllModules(getAllModulesRequest);
+        Assertions.assertThat(result.getContent()).isEqualTo(expectedPage.getContent());
+        Assertions.assertThat(result.getTotalElements()).isEqualTo(expectedPage.getTotalElements());
+        Assertions.assertThat(result.getPageable()).isEqualTo(expectedPage.getPageable());
+
+        ArgumentCaptor<GrpcPageRequest> captor = ArgumentCaptor.forClass(GrpcPageRequest.class);
+        Mockito.verify(moduleGrpcClient).getAllModules(captor.capture());
+
+        GrpcPageRequest actualRequest = captor.getValue();
+        Assertions.assertThat(actualRequest.getPageNumber()).isEqualTo(TestConstantHolder.pageNumber);
+        Assertions.assertThat(actualRequest.getPageSize()).isEqualTo(TestConstantHolder.pageSize);
+        Assertions.assertThat(actualRequest.getHeader().getRequestId()).isNotBlank();
     }
 
     @Test
     void getAllModules_failure() {
-        GetAllModulesRequest getAllModulesRequest = TestGrpcStubGenerator.constructGetAllModulesRequest();
+        GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
 
-        Mockito.when(baseMapper.constructGetAllModulesRequest(
-                       ArgumentMatchers.any(),
-                       ArgumentMatchers.eq(TestConstantHolder.courseId)
-               ))
-               .thenReturn(getAllModulesRequest);
-        Mockito.when(moduleGrpcClient.getAllModules(getAllModulesRequest))
-               .thenThrow(new GrpcRetryException(
-                       TestConstantHolder.grpcExceptionText,
-                       getAllModulesRequest.getRequestId()
-               ));
+        Mockito.when(userService.getCurrentUserId()).thenReturn(TestConstantHolder.userId);
 
-        Assertions.assertThatThrownBy(() -> service.getAllModules(TestConstantHolder.courseId))
+        Mockito.when(moduleGrpcClient.getAllModules(ArgumentMatchers.any(GrpcPageRequest.class)))
+               .thenAnswer(invocation -> {
+                   GrpcPageRequest request = invocation.getArgument(0, GrpcPageRequest.class);
+                   throw new GrpcRetryException(TestConstantHolder.grpcExceptionText, request.getHeader().getRequestId());
+               });
+
+        Assertions.assertThatThrownBy(() -> service.getAllModules(
+                          TestConstantHolder.pageNumber,
+                          TestConstantHolder.pageSize
+                  ))
                   .isInstanceOf(GrpcRetryException.class)
                   .hasMessageContaining(TestConstantHolder.grpcExceptionText);
 
-        Mockito.verify(moduleGrpcClient).getAllModules(getAllModulesRequest);
+        ArgumentCaptor<GrpcPageRequest> captor = ArgumentCaptor.forClass(GrpcPageRequest.class);
+        Mockito.verify(moduleGrpcClient).getAllModules(captor.capture());
+
+        GrpcPageRequest actualRequest = captor.getValue();
+        Assertions.assertThat(actualRequest.getPageNumber()).isEqualTo(grpcPageRequest.getPageNumber());
+        Assertions.assertThat(actualRequest.getPageSize()).isEqualTo(grpcPageRequest.getPageSize());
+        Assertions.assertThat(actualRequest.getHeader().getRequestId()).isNotBlank();
     }
 
 }

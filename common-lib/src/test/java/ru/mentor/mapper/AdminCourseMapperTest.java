@@ -4,6 +4,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -15,12 +17,16 @@ import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.CourseEntity;
+import ru.mentor.grpc.HeaderFactory;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 
 @ExtendWith(MockitoExtension.class)
 class AdminCourseMapperTest {
+
+    @Mock
+    private HeaderFactory headerFactory;
 
     @Spy
     private UserMapper userMapper;
@@ -83,10 +89,17 @@ class AdminCourseMapperTest {
 
     @Test
     void constructGetCourseRequest_success() {
+        Mockito.when(headerFactory.create(Mockito.anyString()))
+                .thenAnswer(inv -> ru.mentor.common.Header.newBuilder()
+                        .setRequestId(inv.getArgument(0, String.class))
+                        .setNodeId("test-node")
+                        .setApiKey("test-api")
+                        .build());
+
         GetCourseRequest request = adminCourseMapper.constructGetCourseRequest(
                 TestConstantHolder.requestId, TestConstantHolder.courseId);
 
-        Assertions.assertThat(request.getRequestId()).isEqualTo(TestConstantHolder.requestId);
+        Assertions.assertThat(request.getHeader().getRequestId()).isEqualTo(TestConstantHolder.requestId);
         Assertions.assertThat(request.getCourseId()).isEqualTo(TestConstantHolder.courseId);
     }
 

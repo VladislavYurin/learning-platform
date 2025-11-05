@@ -13,6 +13,7 @@ import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.error.GrpcErrorText;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.facade.CourseFacade;
+import java.util.function.Function;
 
 /**
  * gRPC-сервис для работы с курсами для админов
@@ -22,6 +23,14 @@ import ru.mentor.facade.CourseFacade;
 @RequiredArgsConstructor
 public class AdminCourseServiceServer extends
         ReactorAdminCourseServiceGrpc.AdminCourseServiceImplBase {
+
+    public static final String GET_COURSE_REQUEST_LOG_TEXT =
+            "[ rqUID = {} ] Поступил запрос на получение данных о курсе"
+                    + " [ ID = {} ] от администратора [ ID = {} ]";
+    public static final String GET_ALL_COURSES_REQUEST_LOG_TEXT =
+            "[ rqUID = {} ] Поступил запрос  на получение данных обо всех курсах"
+                    + " от администратора [ ID = {} ]";
+
 
     private final CourseFacade courseFacade;
 
@@ -33,35 +42,12 @@ public class AdminCourseServiceServer extends
      */
     @Override
     public Mono<CourseResponse> getCourse(Mono<GetCourseRequest> request) {
-
         return request
-                .switchIfEmpty(emptyRequestCheck())
-                .doOnNext(this::logRequest)
+                .switchIfEmpty(toInvalidArgumentError())
+                .doOnNext(this::logGetCourseRequest)
                 .map(GetCourseRequest::getCourseId)
-                .flatMap(courseFacade::findCourseWithAuthor)
-                .onErrorMap(
-                        EntityNotFoundException.class, e ->
-                                Status.NOT_FOUND
-                                        .withDescription(e.getMessage())
-                                        .asRuntimeException()
-                );
-    }
-
-    private Mono<? extends GetCourseRequest> emptyRequestCheck() {
-        return Mono.error(Status.INVALID_ARGUMENT
-                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
-                                  .asRuntimeException());
-
-    }
-
-    private void logRequest(GetCourseRequest request) {
-        log.info(
-                "[ rqUID = {} ] Поступил запрос на получение данных о курсе"
-                        + " [ ID = {} ] от администратора [ ID = {} ]",
-                request.getRequestId(),
-                request.getCourseId(),
-                request.getSenderId()
-        );
+                .flatMap(courseFacade::findCourseById)
+                .onErrorMap(EntityNotFoundException.class, convertToRuntimeException());
     }
 
     /**
@@ -77,12 +63,13 @@ public class AdminCourseServiceServer extends
                 .switchIfEmpty(emptyGrpcPageRequestCheck())
                 .doOnNext(this::logAllCoursesGrpcPageRequest)
                 .flatMap(courseFacade::findAllCourses)
-                .onErrorMap(
-                        EntityNotFoundException.class, e ->
-                                Status.NOT_FOUND
-                                        .withDescription(e.getMessage())
-                                        .asRuntimeException()
-                );
+                .onErrorMap(EntityNotFoundException.class, convertToRuntimeException());
+    }
+
+    private Function<EntityNotFoundException, Throwable> convertToRuntimeException() {
+        return e -> Status.NOT_FOUND
+                .withDescription(e.getMessage())
+                .asRuntimeException();
     }
 
     private Mono<? extends GrpcPageRequest> emptyGrpcPageRequestCheck() {
@@ -92,12 +79,25 @@ public class AdminCourseServiceServer extends
     }
 
     private void logAllCoursesGrpcPageRequest(GrpcPageRequest request) {
-        log.info(
-                "[ rqUID = {} ] Поступил запрос  на получение данных обо всех курсах"
-                        + " от администратора [ ID = {} ]",
-                request.getRequestId(),
+        log.info(GET_ALL_COURSES_REQUEST_LOG_TEXT,
+                request.getHeader().getRequestId(),
                 request.getSenderId()
         );
+    }
+
+    private void logGetCourseRequest(GetCourseRequest request) {
+        log.info(GET_COURSE_REQUEST_LOG_TEXT,
+                request.getHeader().getRequestId(),
+                request.getCourseId(),
+                request.getSenderId()
+        );
+    }
+
+    private Mono<? extends GetCourseRequest> toInvalidArgumentError() {
+        return Mono.error(Status.INVALID_ARGUMENT
+                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
+                                  .asRuntimeException());
+
     }
 
 }

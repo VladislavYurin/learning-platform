@@ -2,8 +2,6 @@ package ru.mentor.grpc;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -26,6 +24,8 @@ import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Реализация сервиса календаря с использованием gRPC.
@@ -62,7 +62,7 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             CreateTimeSlotRequest request,
             StreamObserver<TimeSlotResponse> responseObserver) {
 
-        String rqUId = request.getRqUid();
+        String rqUId = request.getHeader().getRequestId();
         long mentorId = request.getMentorId();
 
         log.info(
@@ -109,7 +109,7 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             BookTimeSlotRequest request,
             StreamObserver<TimeSlotResponse> responseObserver
     ) {
-        String rqUId = request.getRqUid();
+        String rqUId = request.getHeader().getRequestId();
         Long userId = request.getUserId();
         Long slotId = request.getSlotId();
 
@@ -233,7 +233,7 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             MentorSlotsInfoRequest request,
             StreamObserver<MentorSlotsInfoResponse> responseObserver) {
 
-        String rqUId = request.getRqUid();
+        String rqUId = request.getHeader().getRequestId();
         long mentorId = request.getMentorId();
 
         log.info(

@@ -1,13 +1,14 @@
 package ru.mentor.testUtil;
 
 import com.google.protobuf.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.UUID;
+import org.springframework.data.domain.PageRequest;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.UUID;
 
 public final class TestConstantHolder {
 
@@ -15,6 +16,8 @@ public final class TestConstantHolder {
     public static final String EMPTY_REQUEST_TEXT = "Empty request";
 
     public static final String REQUEST_ID = UUID.randomUUID().toString();
+    public static String NODE_ID = "test-node";
+    public static String API_KEY = "test-api-key";
     public static final LocalDateTime CREATED_AT = LocalDateTime.of(2025, 1, 1, 12, 0);
     public static final int PAGE_NUMBER = 0;
     public static final int PAGE_SIZE = 1;
@@ -22,6 +25,7 @@ public final class TestConstantHolder {
     public static final int TOTAL_PAGES_COUNT = 1;
     public static final long MENTOR_ID = 10L;
     public static final long ADMIN_ID = 15L;
+    public static final PageRequest PAGE_REQUEST = PageRequest.of(PAGE_NUMBER, PAGE_SIZE);
 
     public static final ZoneOffset ZONE_OFFSET = ZoneOffset.UTC;
     public static final long CREATED_AT_EPOCH_SECONDS = CREATED_AT.toEpochSecond(ZONE_OFFSET);
@@ -68,6 +72,9 @@ public final class TestConstantHolder {
     public static final String COURSE_DESCRIPTION = "test-course-description";
     public static final Boolean IS_ACTIVE_COURSE = true;
     public static final Long COURSE_AUTHOR_ID = MENTOR_ID;
+
+    public static final long COURSE_TAG_ID = 1L;
+    public static final String COURSE_TAG_NAME = "test-tag-name";
 
     public static final long MODULE_ID = 2L;
     public static final String MODULE_TITLE = "test-module-title";

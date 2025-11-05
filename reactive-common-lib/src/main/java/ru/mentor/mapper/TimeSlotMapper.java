@@ -1,17 +1,17 @@
 package ru.mentor.mapper;
 
 import com.google.protobuf.Timestamp;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.AllTimeSlotsResponse;
-import ru.mentor.common.PageDetails;
 import ru.mentor.common.MentorSlotInfo;
+import ru.mentor.common.PageDetails;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.common.UserInfo;
 import ru.mentor.entity.MentorTimeSlotEntity;
+import java.util.List;
 
 /**
  * Mapping helpers for mentor time slot entities and their gRPC models.
@@ -31,7 +31,7 @@ public class TimeSlotMapper {
         Timestamp createdAt = UtilMapper.buildTimestamp(timeSlotEntity.getCreatedAt());
 
         return TimeSlotResponse.newBuilder()
-                               .setRqUid(rqUId)
+                               .setRequestId(rqUId)
                                .setSlotId(timeSlotEntity.getId())
                                .setMentorId(timeSlotEntity.getMentorId())
                                .setStartTime(startTime)

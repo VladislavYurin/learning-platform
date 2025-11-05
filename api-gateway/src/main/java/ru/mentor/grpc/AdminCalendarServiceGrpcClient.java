@@ -36,9 +36,9 @@ public class AdminCalendarServiceGrpcClient {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            pageRequest.getRequestId()
+                            pageRequest.getHeader().getRequestId()
                     ),
-                    pageRequest.getRequestId()
+                    pageRequest.getHeader().getRequestId()
             );
         }
     }

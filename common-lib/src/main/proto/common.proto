@@ -14,10 +14,17 @@ message PageDetails {
 
 // Запрос страницы сущностей
 message GrpcPageRequest {
-  string request_id = 1;
+  Header header = 1;
   uint64 sender_id = 2;
   uint32 page_number = 3;
   uint32 page_size = 4;
+}
+
+// Универсальный заголовок gRPC-запроса
+message Header {
+  string requestId = 1;
+  string nodeId = 2;
+  string apiKey = 3;
 }
 
 // Типы слотов

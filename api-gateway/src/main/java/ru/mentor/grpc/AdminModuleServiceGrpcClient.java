@@ -6,8 +6,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import ru.mentor.admin.AdminModuleServiceGrpc.AdminModuleServiceBlockingStub;
 import ru.mentor.common.AllModulesResponse;
-import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.exception.GrpcRetryException;
 
@@ -40,9 +40,9 @@ public class AdminModuleServiceGrpcClient {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getRequestId()
+                            request.getHeader().getRequestId()
                     ),
-                    request.getRequestId()
+                    request.getHeader().getRequestId()
             );
         }
     }
@@ -59,16 +59,16 @@ public class AdminModuleServiceGrpcClient {
             maxAttemptsExpression = "${grpc.retry.max-attempts}",
             backoff = @Backoff(delayExpression = "${grpc.retry.delay}")
     )
-    public AllModulesResponse getAllModules(GetAllModulesRequest request) {
+    public AllModulesResponse getAllModules(GrpcPageRequest request) {
         try {
             return blockingStub.getAllModules(request);
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getRequestId()
+                            request.getHeader().getRequestId()
                     ),
-                    request.getRequestId()
+                    request.getHeader().getRequestId()
             );
         }
     }

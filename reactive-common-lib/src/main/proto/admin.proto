@@ -35,6 +35,6 @@ service AdminModuleService {
   rpc GetModule (GetModuleRequest) returns (ModuleResponse);
 
   // Получить все модули курса
-  rpc GetAllModules (GetAllModulesRequest) returns (AllModulesResponse);
+  rpc GetAllModules (GrpcPageRequest) returns (AllModulesResponse);
 
 }

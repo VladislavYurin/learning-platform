@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.mentor.common.AllModulesResponse;
-import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.grpc.AdminModuleServiceGrpcClient;
@@ -34,7 +34,9 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
 
     /**
      * Возвращает модуль с указанным ID.
-     * @param moduleId ID модуля
+     *
+     * @param moduleId
+     *         ID модуля
      *
      * @return {@link ModuleDto}
      */
@@ -58,12 +60,15 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
     /**
      * Возвращает страницу модулей.
      *
-     * @param courseId ID курса.
+     * @param pageNumber
+     *         Номер страницы
+     * @param pageSize
+     *         Размер страницы
      *
      * @return объект {@link Page}, содержащий объекты {@link ModuleDto}
      */
     @Override
-    public Page<ModuleDto> getAllModules(long courseId) {
+    public Page<ModuleDto> getAllModules(Integer pageNumber, Integer pageSize) {
 
         String requestId = UUID.randomUUID().toString();
         Long adminId = userService.getCurrentUserId();
@@ -73,8 +78,12 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
                 adminId
         );
 
-        GetAllModulesRequest getAllModulesRequest = baseMapper.constructGetAllModulesRequest(requestId, courseId);
-        AllModulesResponse allModules = moduleGrpcClient.getAllModules(getAllModulesRequest);
+        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
+                requestId,
+                pageNumber,
+                pageSize
+        );
+        AllModulesResponse allModules = moduleGrpcClient.getAllModules(pageRequest);
         return moduleMapper.mapGrpcAllModulesResponseToModuleDtoPage(allModules);
     }
 

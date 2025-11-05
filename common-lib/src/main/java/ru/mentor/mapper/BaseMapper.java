@@ -17,10 +17,14 @@ import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.entity.CourseTagLinkEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.grpc.HeaderFactory;
+
 
 @Component
 @RequiredArgsConstructor
 public class BaseMapper {
+
+    private final HeaderFactory headerFactory;
 
     public List<CourseDto> mapCourses(
             List<CourseEntity> entities,
@@ -132,7 +136,7 @@ public class BaseMapper {
             int pageNumber,
             int pageSize) {
         return GrpcPageRequest.newBuilder()
-                              .setRequestId(requestId)
+                              .setHeader(headerFactory.create(requestId))
                               .setPageNumber(pageNumber)
                               .setPageSize(pageSize)
                               .build();
@@ -164,7 +168,7 @@ public class BaseMapper {
 
     public GetAllModulesRequest constructGetAllModulesRequest(String requestId, long courseId) {
         return GetAllModulesRequest.newBuilder()
-                                   .setRequestId(requestId)
+                                   .setHeader(headerFactory.create(requestId))
                                    .setCourseId(courseId)
                                    .build();
     }

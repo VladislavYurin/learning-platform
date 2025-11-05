@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentor.common.CreateTimeSlotRequest;
 import ru.mentor.common.MentorSlotsInfoResponse;
@@ -17,8 +19,8 @@ import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.grpc.HeaderFactory;
 import ru.mentor.testUtil.TestDataGenerator;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -29,6 +31,9 @@ import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class TimeSlotMapperTest {
+
+    @Mock
+    private HeaderFactory headerFactory;
 
     @InjectMocks
     TimeSlotMapper timeSlotMapper;
@@ -63,6 +68,12 @@ class TimeSlotMapperTest {
 
     @Test
     void requestCreateToGrpcDto() {
+        Mockito.when(headerFactory.create(Mockito.anyString()))
+                .thenAnswer(inv -> ru.mentor.common.Header.newBuilder()
+                        .setRequestId(inv.getArgument(0, String.class))
+                        .setNodeId("test-node")
+                        .setApiKey("test-api")
+                        .build());
 
         LocalDateTime startTime = LocalDateTime.of(2025, 1, 15, 13, 0);
         LocalDateTime endTime = LocalDateTime.of(2025, 1, 15, 14, 0);
@@ -74,7 +85,7 @@ class TimeSlotMapperTest {
         CreateTimeSlotRequest result = timeSlotMapper.requestCreateToGrpcDto(createRequest, TestDataGenerator.TEST_UUID, testMentorUser);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getRqUid());
+        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getHeader().getRequestId());
         Assertions.assertEquals(1L, result.getMentorId());
         Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0)
                         .toEpochSecond(ZoneOffset.UTC),
@@ -122,7 +133,7 @@ class TimeSlotMapperTest {
         TimeSlotResponse result = timeSlotMapper.entityToGrpcResponse(timeSlotEntity, TestDataGenerator.TEST_UUID);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getRqUid());
+        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getRequestId());
         Assertions.assertEquals(1L, result.getSlotId());
         Assertions.assertEquals(1L, result.getMentorId());
         Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0)

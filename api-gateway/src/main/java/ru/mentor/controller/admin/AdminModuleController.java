@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.services.RedirectAdminModuleService;
@@ -58,19 +59,22 @@ public class AdminModuleController {
      * @return {@link ModuleDto}
      */
     @Operation(
-            summary = "Получить модуль по ID.",
-            description = "Возвращает информацию о модуле по его идентификатору. Необходимы права администратора.",
+            summary = "Получить все модули",
+            description = "Возвращает все модули с постраничностью.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Информация о модуле",
+                    @ApiResponse(responseCode = "200", description = "Страница модулей",
                             content = @Content(schema = @Schema(implementation = ModuleDto.class))),
                     @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
                     @ApiResponse(responseCode = "401", description = "Не авторизован"),
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен")
             }
     )
-    @GetMapping("/all-by-course-id/{courseId}")
-    public Page<ModuleDto> getAllModules(@PathVariable Long courseId) {
-        return redirectAdminModuleService.getAllModules(courseId);
+    @GetMapping("/all")
+    public Page<ModuleDto> getAllModules(
+            @RequestParam int pageNumber,
+            @RequestParam int pageSize
+    ) {
+        return redirectAdminModuleService.getAllModules(pageNumber, pageSize);
     }
 
 }

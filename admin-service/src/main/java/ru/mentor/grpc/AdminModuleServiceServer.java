@@ -1,7 +1,6 @@
 package ru.mentor.grpc;
 
 import io.grpc.Status;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -10,10 +9,13 @@ import ru.mentor.admin.ReactorAdminModuleServiceGrpc;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.exception.EntityNotFoundException;
-import ru.mentor.grpc.error.GrpcErrorText;
 import ru.mentor.facade.ModuleFacade;
+import ru.mentor.grpc.error.GrpcErrorText;
+import ru.mentor.mapper.BaseMapper;
+import java.util.function.Function;
 
 /**
  * gRPC-сервис для работы с модулями для админов
@@ -24,7 +26,16 @@ import ru.mentor.facade.ModuleFacade;
 public class AdminModuleServiceServer extends
         ReactorAdminModuleServiceGrpc.AdminModuleServiceImplBase {
 
+    public static final String GET_MODULE_REQUEST_LOG_TEXT =
+            "[ rqUID = {} ] Поступил запрос на получение модуля [ ID = {} ] от администратора [ ID = {} ]";
+
+    public static final String GET_ALL_MODULES_REQUEST_LOG_TEXT = """
+            [ rqUID = {} ] Поступил запрос на получение страницы модулей \
+            [ страница={} ], [ размер={} ] от администратора [ ID = {} ]""";
+
     private final ModuleFacade moduleFacade;
+
+    private final BaseMapper baseMapper;
 
     /**
      * Возвращает модуль по ID
@@ -35,62 +46,62 @@ public class AdminModuleServiceServer extends
     @Override
     public Mono<ModuleResponse> getModule(Mono<GetModuleRequest> request) {
         return request
-                .switchIfEmpty(Mono.error(Status.INVALID_ARGUMENT
-                        .withDescription(GrpcErrorText.EMPTY_REQUEST)
-                        .asRuntimeException()))
-                .doOnNext(getModuleRequest ->
-                        log.info(
-                                "[ rqUID = {} ] Поступил запрос на получение модуля [ ID = {} ] от администратора [ ID = {} ]",
-                                getModuleRequest.getRequestId(),
-                                getModuleRequest.getModuleId(),
-                                getModuleRequest.getSenderId()
-                        ))
-                .flatMap(req -> moduleFacade.findModuleResponseByCourseId(req.getModuleId()))
+                .switchIfEmpty(toInvalidArgumentError())
+                .doOnNext(this::recordGetModuleRequestToLog)
+                .flatMap(req -> moduleFacade.findModuleResponseById(req.getModuleId()))
                 .onErrorMap(
                         EntityNotFoundException.class,
-                        e -> Status.NOT_FOUND
-                                .withDescription(e.getMessage())
-                                .asRuntimeException()
+                        convertToRuntimeException()
                 );
     }
 
     /**
      * Возвращает gRPC-объект, содержащий список модулей.
      *
-     * @param request
+     * @param pageRequest
      *         gRPC-объект {@link GetAllModulesRequest} запроса всех модулей курса
      */
     @Override
-    public Mono<AllModulesResponse> getAllModules(Mono<GetAllModulesRequest> request) {
-        return request.switchIfEmpty(toInvalidArgumentError())
-                       .doOnNext(AdminModuleServiceServer::recordToLogGetAllModulesRequest)
-                       .flatMap(req -> moduleFacade.findAllModulesAndMapToAllModulesResponse(req.getCourseId()))
-                       .onErrorMap(
-                               EntityNotFoundException.class,
-                               convertToRuntimeException()
-                       );
+    public Mono<AllModulesResponse> getAllModules(Mono<GrpcPageRequest> pageRequest) {
+        return pageRequest.switchIfEmpty(toInvalidArgumentError())
+                      .doOnNext(this::recordGetAllModulesRequestToLog)
+                      .map(baseMapper::mapGrpcPageRequestToPageRequest)
+                      .flatMap(moduleFacade::findAllModulesResponse)
+                      .onErrorMap(
+                              EntityNotFoundException.class,
+                              convertToRuntimeException()
+                      );
+    }
+
+    private <T> Mono<T> toInvalidArgumentError() {
+        return Mono.error(Status.INVALID_ARGUMENT
+                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
+                                  .asRuntimeException());
+    }
+
+    private void recordGetModuleRequestToLog(GetModuleRequest getModuleRequest) {
+        log.info(
+                GET_MODULE_REQUEST_LOG_TEXT,
+                getModuleRequest.getHeader().getRequestId(),
+                getModuleRequest.getModuleId(),
+                getModuleRequest.getSenderId()
+        );
+    }
+
+    private void recordGetAllModulesRequestToLog(GrpcPageRequest grpcPageRequest) {
+        log.info(
+                GET_ALL_MODULES_REQUEST_LOG_TEXT,
+                grpcPageRequest.getHeader().getRequestId(),
+                grpcPageRequest.getPageNumber(),
+                grpcPageRequest.getPageSize(),
+                grpcPageRequest.getSenderId()
+                );
     }
 
     private Function<EntityNotFoundException, Throwable> convertToRuntimeException() {
         return e -> Status.NOT_FOUND
                 .withDescription(e.getMessage())
                 .asRuntimeException();
-    }
-
-    private static void recordToLogGetAllModulesRequest(GetAllModulesRequest getAllModulesRequest) {
-        log.info(
-                "[ rqUID = {} ] Поступил запрос на получение списка всех модулей курса "
-                        + "[ ID = {} ] от администратора [ ID = {} ]",
-                getAllModulesRequest.getRequestId(),
-                getAllModulesRequest.getCourseId(),
-                getAllModulesRequest.getSenderId()
-        );
-    }
-
-    private Mono<GetAllModulesRequest> toInvalidArgumentError() {
-        return Mono.error(Status.INVALID_ARGUMENT
-                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
-                                  .asRuntimeException());
     }
 
 }

@@ -1,17 +1,19 @@
 package ru.mentor.testUtil;
 
 import com.google.protobuf.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.UUID;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.UUID;
 
 public class TestConstantHolder {
 
     public static String requestId = UUID.randomUUID().toString();
+    public static String nodeId = "test-node";
+    public static String apiKey = "test-api-key";
     public static LocalDateTime createdAt = LocalDateTime.now(ZoneOffset.UTC).withNano(0);
     public static String notFoundExceptionText = "not found";
     public static String grpcExceptionText = "Ошибка gRPC";

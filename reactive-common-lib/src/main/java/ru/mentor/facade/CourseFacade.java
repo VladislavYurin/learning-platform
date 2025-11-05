@@ -7,7 +7,7 @@ import ru.mentor.common.GrpcPageRequest;
 
 public interface CourseFacade {
 
-    Mono<CourseResponse> findCourseWithAuthor(Long courseId);
+    Mono<CourseResponse> findCourseById(Long courseId);
 
     Mono<AllCoursesResponse> findAllCourses(GrpcPageRequest request);
 

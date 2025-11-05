@@ -42,7 +42,7 @@ public class AdminCalendarServiceServer extends
                                   log.info(
                                           "[RqUid={}] Поступил запрос на получение страницы слотов:"
                                                   + " pageNumber={}, pageSize={} от администратора [ ID = {} ]",
-                                          grpcPageRequest.getRequestId(),
+                                          grpcPageRequest.getHeader().getRequestId(),
                                           grpcPageRequest.getPageNumber(),
                                           grpcPageRequest.getPageSize(),
                                           grpcPageRequest.getSenderId()

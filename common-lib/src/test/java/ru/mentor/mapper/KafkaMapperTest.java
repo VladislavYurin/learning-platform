@@ -3,6 +3,7 @@ package ru.mentor.mapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.constant.NotificationTypeEnum;
@@ -12,19 +13,20 @@ import ru.mentor.dto.kafka.NotificationPayload;
 import ru.mentor.dto.kafka.StudentReminderNotificationPayload;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.grpc.HeaderFactory;
 import ru.mentor.testUtil.TestDataGenerator;
-
 import java.util.Set;
 
 class KafkaMapperTest {
-
+    @Mock
+    private HeaderFactory headerFactory;
     private KafkaMapper kafkaMapper;
     private BaseMapper baseMapper;
 
     @BeforeEach
     void setUp() {
         kafkaMapper = new KafkaMapper();
-        baseMapper = new BaseMapper();
+        baseMapper = new BaseMapper(headerFactory);
     }
 
     @Test

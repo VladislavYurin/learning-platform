@@ -149,6 +149,10 @@
       <version>0.2.0</version>
       <scope>provided</scope>
     </dependency>
+      <dependency>
+          <groupId>net.devh</groupId>
+          <artifactId>grpc-server-spring-boot-starter</artifactId>
+      </dependency>
   </dependencies>
 
   <build>

@@ -12,6 +12,7 @@ import static ru.mentor.mapper.UtilMapper.userInfoRoleToUserInfoDtoRole;
 import com.google.protobuf.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.AllTimeSlotsResponse;
@@ -34,12 +35,16 @@ import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.grpc.HeaderFactory;
 
 /**
  * Маппер для {@link MentorTimeSlotEntity}
  */
 @Component
+@RequiredArgsConstructor
 public class TimeSlotMapper {
+
+    private final HeaderFactory headerFactory;
 
     /**
      * Преобразовывает объект, полученный через gRPC в DTO для отправки клиенту.
@@ -62,7 +67,7 @@ public class TimeSlotMapper {
         LocalDateTime createdAt = timestampToLocalDateTime(grpcCreatedAt);
 
         return MentorTimeSlotDto.builder()
-                .rqUId(grpcResponse.getRqUid())
+                .rqUId(grpcResponse.getRequestId())
                 .id(grpcResponse.getSlotId())
                 .mentorId(grpcResponse.getMentorId())
                 .startTime(startTime)
@@ -96,7 +101,7 @@ public class TimeSlotMapper {
         SlotMeetingType slotMeetingType = calendarSlotMeetingTypeToSlotMeetingType(createRequest.getSlotMeetingType());
 
         return CreateTimeSlotRequest.newBuilder()
-                .setRqUid(rqUId)
+                .setHeader(headerFactory.create(rqUId))
                 .setMentorId(user.getId())
                 .setStartTime(startTime)
                 .setEndTime(endTime)
@@ -160,7 +165,7 @@ public class TimeSlotMapper {
         Timestamp createdAt = buildTimestamp(timeSlotEntity.getCreatedAt());
 
         return TimeSlotResponse.newBuilder()
-                .setRqUid(rqUId)
+                .setRequestId(rqUId)
                 .setSlotId(timeSlotEntity.getId())
                 .setMentorId(timeSlotEntity.getMentor().getId())
                 .setStartTime(startTime)
@@ -184,7 +189,7 @@ public class TimeSlotMapper {
      */
     public BookTimeSlotRequest toGrpcBookTimeSlotRequest(String rqUid, long slotId, long userId) {
         return BookTimeSlotRequest.newBuilder()
-                .setRqUid(rqUid)
+                .setHeader(headerFactory.create(rqUid))
                 .setSlotId(slotId)
                 .setUserId(userId)
                 .build();
@@ -257,7 +262,7 @@ public class TimeSlotMapper {
      */
     public MentorSlotsInfoRequest toMentorSlotsInfoGrpcRequest(Long mentorId, String rqUid) {
         return MentorSlotsInfoRequest.newBuilder()
-                .setRqUid(rqUid)
+                .setHeader(headerFactory.create(rqUid))
                 .setMentorId(mentorId)
                 .build();
     }

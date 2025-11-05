@@ -13,6 +13,7 @@ import ru.mentor.dto.UserInfoDto;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.entity.NotificationEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.grpc.HeaderFactory;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.KafkaMapper;
 import ru.mentor.repository.NotificationRepository;
@@ -45,11 +46,13 @@ class DefaultNotificationServiceImplTest {
     @Mock
     NotificationRepository notificationRepository;
 
-    @Spy
-    BaseMapper baseMapper;
+    @Mock
+    HeaderFactory headerFactory;
 
     @Spy
     KafkaMapper kafkaMapper;
+
+    BaseMapper baseMapper;
 
     @BeforeEach
     void setUp() {
@@ -65,6 +68,7 @@ class DefaultNotificationServiceImplTest {
                 .build();
 
         notificationEntity = new NotificationEntity();
+        baseMapper = new BaseMapper(headerFactory);
     }
 
     /**

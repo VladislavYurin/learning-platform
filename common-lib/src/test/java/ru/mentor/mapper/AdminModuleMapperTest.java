@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,6 +15,7 @@ import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.PageDetails;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.entity.ModuleEntity;
+import ru.mentor.grpc.HeaderFactory;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
@@ -21,18 +23,28 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 @ExtendWith(MockitoExtension.class)
 class AdminModuleMapperTest {
 
+    @Mock
+    private HeaderFactory headerFactory;
+
     @Spy
-    private BaseMapper baseMapper = new BaseMapper();
+    private BaseMapper baseMapper = new BaseMapper(headerFactory);
 
     @InjectMocks
     private AdminModuleMapper adminModuleMapper;
 
     @Test
     void constructGetModuleRequest_success() {
+        Mockito.when(headerFactory.create(Mockito.anyString()))
+                .thenAnswer(inv -> ru.mentor.common.Header.newBuilder()
+                        .setRequestId(inv.getArgument(0, String.class))
+                        .setNodeId("test-node")
+                        .setApiKey("test-api")
+                        .build());
+
         GetModuleRequest request = adminModuleMapper.constructGetModuleRequest(
                 TestConstantHolder.requestId, TestConstantHolder.moduleId);
 
-        Assertions.assertThat(request.getRequestId()).isEqualTo(TestConstantHolder.requestId);
+        Assertions.assertThat(request.getHeader().getRequestId()).isEqualTo(TestConstantHolder.requestId);
         Assertions.assertThat(request.getModuleId()).isEqualTo(TestConstantHolder.moduleId);
     }
 

@@ -9,12 +9,16 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.ModuleResponse;
-import ru.mentor.entity.CourseEntity;
+import ru.mentor.entity.ModuleEntity;
 import ru.mentor.facade.ModuleFacade;
 import ru.mentor.mapper.AdminModuleMapper;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.ModuleRepository;
 
+/**
+ * Фасад для работы с модулями.
+ * Абстракция для работы со связанными таблицами в реактивных репозиториях и для маппинга.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,69 +31,78 @@ public class ModuleFacadeImpl implements ModuleFacade {
     private final AdminModuleMapper moduleMapper;
 
     /**
-     * Получает модуль по ID курса
+     * Получает модуль по ID
      *
-     * @param id
-     *         - ID курса
+     * @param moduleId
+     *         - ID модуля
      *
      * @return - gRPC-объект {@link ModuleResponse} модуля
      */
     @Override
-    public Mono<ModuleResponse> findModuleResponseByCourseId(Long id) {
-        return Mono.just(id)
-                .flatMap(moduleId ->
-                        moduleRepository.findByIdOrThrow(moduleId)
-                                .flatMap(module ->
-                                        courseRepository.findByIdOrThrow(module.getCourseId())
-                                                .map(course -> moduleMapper.mapModuleEntityToGrpcModuleResponse(course, module))
-                                )
+    public Mono<ModuleResponse> findModuleResponseById(Long moduleId) {
+        return moduleRepository.findByIdOrThrow(moduleId)
+                               .map(moduleMapper::mapModuleEntityToModuleResponse);
+    }
+
+    /**
+     * Получает страницу с модулями
+     *
+     * @param pageRequest
+     *         - параметры пагинации
+     *
+     * @return - gRPC-объект {@link AllModulesResponse} со списком модулей и информацией о пагинации
+     */
+    @Override
+    public Mono<AllModulesResponse> findAllModulesResponse(PageRequest pageRequest) {
+        return Mono.just(pageRequest)
+                   .flatMap(this::findModuleEntitiesByPageRequest)
+                   .map(moduleMapper::mapModuleEntityListToModuleResponseList)
+                   .flatMap(moduleResponseList -> constructModuleResponsePage(
+                                    pageRequest,
+                                    moduleResponseList
+                            )
+                   ).map(moduleMapper::mapModuleResponsePageToAllModulesResponse);
+
+    }
+
+    /**
+     * Находит список сущностей модулей по параметрам пагинации
+     *
+     * @param pageRequest
+     *         - параметры пагинации
+     *
+     * @return - {@link Mono} со списком сущностей модулей
+     */
+    private Mono<List<ModuleEntity>> findModuleEntitiesByPageRequest(
+            PageRequest pageRequest) {
+        return moduleRepository
+                .findAllBy(pageRequest)
+                .collectList();
+    }
+
+    /**
+     * Создает страницу с ответами по модулям
+     *
+     * @param pageRequest
+     *         - параметры пагинации
+     * @param moduleResponseList
+     *         - список ответов по модулям
+     *
+     * @return - {@link Mono} с объектом {@link PageImpl} содержащим ответы по модулям
+     */
+    private Mono<PageImpl<ModuleResponse>> constructModuleResponsePage(
+            PageRequest pageRequest,
+            List<ModuleResponse> moduleResponseList) {
+        return moduleTotalCount()
+                .zipWith(
+                        Mono.just(moduleResponseList),
+                        (moduleTotalCount, moduleResponses) -> new PageImpl<>(
+                                moduleResponses, pageRequest, moduleTotalCount)
                 );
     }
 
-    @Override
-    public Mono<AllModulesResponse> findAllModulesAndMapToAllModulesResponse(Long id) {
-        return Mono.just(id)
-                   .flatMap(courseId -> {
-                                Mono<CourseEntity> courseEntityMono =
-                                        courseRepository.findByIdOrThrow(courseId)
-                                                        .cache();
-                                Mono<List<ModuleResponse>> moduleResponseItemsMono =
-                                        getModuleResponseItemsMono(courseId, courseEntityMono);
-                                Mono<Long> totalMono = moduleRepository.countByCourseId(courseId);
-                                return Mono.zip(moduleResponseItemsMono, totalMono)
-                                           .map(tuple -> {
-                                                    List<ModuleResponse> moduleResponseList = tuple.getT1();
-                                                    long total = tuple.getT2();
-                                                    PageRequest pageable = PageRequest.of(
-                                                            0, Math.max(1, moduleResponseList.size()));
-                                                    PageImpl<ModuleResponse> page =
-                                                            new PageImpl<>(
-                                                                    moduleResponseList,
-                                                                    pageable,
-                                                                    total
-                                                            );
-                                                    return moduleMapper.mapModuleResponsePageToGrpcAllModulesResponse(
-                                                            page);
-                                                }
-                                           );
-                            }
-                   );
-
-    }
-
-    private Mono<List<ModuleResponse>> getModuleResponseItemsMono(
-            long courseId,
-            Mono<CourseEntity> courseEntityMono) {
-        return moduleRepository
-                .findAllByCourseIdOrderByModuleOrderNumberAsc(courseId)
-                .flatMap(module -> courseEntityMono.map(
-                                 course -> moduleMapper.mapModuleEntityToGrpcModuleResponse(
-                                         course,
-                                         module
-                                 )
-                         )
-                )
-                .collectList();
+    private Mono<Long> moduleTotalCount() {
+        return moduleRepository.count();
     }
 
 }

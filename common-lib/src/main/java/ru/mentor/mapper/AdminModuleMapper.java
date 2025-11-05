@@ -15,6 +15,7 @@ import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.PageDetails;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.entity.ModuleEntity;
+import ru.mentor.grpc.HeaderFactory;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ import ru.mentor.entity.ModuleEntity;
 public class AdminModuleMapper {
 
     private final BaseMapper baseMapper;
+    private final HeaderFactory headerFactory;
 
     /**
      * Создает gRPC-объект.
@@ -35,7 +37,7 @@ public class AdminModuleMapper {
      */
     public GetModuleRequest constructGetModuleRequest(String requestId, long moduleId) {
         return GetModuleRequest.newBuilder()
-                               .setRequestId(requestId)
+                               .setHeader(headerFactory.create(requestId))
                                .setModuleId(moduleId)
                                .build();
     }

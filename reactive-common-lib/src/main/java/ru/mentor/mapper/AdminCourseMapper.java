@@ -2,12 +2,14 @@ package ru.mentor.mapper;
 
 import com.google.protobuf.Timestamp;
 import java.time.ZoneOffset;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.PageDetails;
 import ru.mentor.entity.CourseEntity;
+import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.entity.UserEntity;
 
 /**
@@ -18,13 +20,17 @@ public class AdminCourseMapper {
 
     private final UserMapper userMapper;
 
-    public AdminCourseMapper(UserMapper userMapper) {
+    private final TagMapper tagMapper;
+
+    public AdminCourseMapper(UserMapper userMapper, TagMapper tagMapper) {
+        this.tagMapper = tagMapper;
         this.userMapper = userMapper;
     }
 
     public CourseResponse mapCourseEntityToGrpcCourseResponse(
             CourseEntity courseEntity,
-            UserEntity courseAuthor) {
+            UserEntity courseAuthor,
+            List<CourseTagEntity> tagsList) {
         Timestamp createdAtTimestamp = Timestamp.newBuilder()
                                                 .setSeconds(courseEntity.getCreatedAt()
                                                                         .toEpochSecond(ZoneOffset.UTC))
@@ -36,6 +42,7 @@ public class AdminCourseMapper {
                              .setIsActive(courseEntity.getIsActive())
                              .setCreatedAt(createdAtTimestamp)
                              .setAuthor(userMapper.mapUserEntityToCourseAuthorResponse(courseAuthor))
+                             .addAllTags(tagsList.stream().map(tagMapper::toGrpcTagResponse).toList())
                              .build();
     }
 

@@ -1,6 +1,5 @@
 package ru.mentor.facade.impl;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
@@ -17,7 +16,12 @@ import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.mapper.UserMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
+import java.util.List;
 
+/**
+ * Фасад для работы со слотами для админов
+ * Абстракция для работы со связанными таблицами в реактивных репозиториях и для маппинга.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -52,7 +56,7 @@ public class CalendarFacadeImpl implements CalendarFacade {
                        PageRequest pageRequest =
                                baseMapper.mapGrpcPageRequestToPageRequest(request);
                        Mono<List<MentorSlotInfo>> mentorSlotInfoListMono =
-                               findMentorSlotInfoList(pageRequest, request.getRequestId());
+                               findMentorSlotInfoList(pageRequest, request.getHeader().getRequestId());
                        return mentorSlotInfoListMono
                                .zipWith(
                                        timeSlotRepository.count(),

@@ -1,13 +1,14 @@
 package ru.mentor.facade;
 
+import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Mono;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.ModuleResponse;
 
 public interface ModuleFacade {
 
-    Mono<ModuleResponse> findModuleResponseByCourseId(Long id);
+    Mono<ModuleResponse> findModuleResponseById(Long id);
 
-    Mono<AllModulesResponse> findAllModulesAndMapToAllModulesResponse(Long id);
+    Mono<AllModulesResponse> findAllModulesResponse(PageRequest pageRequest);
 
 }

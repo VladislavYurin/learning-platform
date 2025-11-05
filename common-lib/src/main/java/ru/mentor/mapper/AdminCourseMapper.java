@@ -17,12 +17,14 @@ import ru.mentor.common.PageDetails;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.CourseEntity;
+import ru.mentor.grpc.HeaderFactory;
 
 @Component
 @RequiredArgsConstructor
 public class AdminCourseMapper {
 
     private final UserMapper userMapper;
+    private final HeaderFactory headerFactory;
 
     /**
      * Преобразует gRPC-объект в DTO для отправки пользователю.
@@ -127,7 +129,7 @@ public class AdminCourseMapper {
      */
     public GetCourseRequest constructGetCourseRequest(String requestId, long courseId) {
         return GetCourseRequest.newBuilder()
-                               .setRequestId(requestId)
+                               .setHeader(headerFactory.create(requestId))
                                .setCourseId(courseId)
                                .build();
     }

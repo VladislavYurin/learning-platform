@@ -1,7 +1,6 @@
 package ru.mentor.testUtil;
 
 import com.google.protobuf.Timestamp;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -14,21 +13,36 @@ import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.Header;
+import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.PageDetails;
-import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.common.Role;
+import ru.mentor.common.Tag;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.common.UserInfo;
+import ru.mentor.grpc.HeaderFactory;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public final class TestGrpcStubGenerator {
+
+    private static final HeaderFactory headerFactory = new HeaderFactory(TestConstantHolder.NODE_ID, TestConstantHolder.API_KEY);
 
     private TestGrpcStubGenerator() {
     }
 
+    private static Header testHeader() {
+        return headerFactory.create(
+                TestConstantHolder.REQUEST_ID,
+                TestConstantHolder.NODE_ID,
+                TestConstantHolder.API_KEY
+        );
+    }
     public static GrpcPageRequest constructGrpcPageRequest() {
         return GrpcPageRequest.newBuilder()
-                              .setRequestId(TestConstantHolder.REQUEST_ID)
+                              .setHeader(testHeader())
                               .setPageNumber(TestConstantHolder.PAGE_NUMBER)
                               .setPageSize(TestConstantHolder.PAGE_SIZE)
                               .build();
@@ -45,7 +59,7 @@ public final class TestGrpcStubGenerator {
 
     public static TimeSlotResponse constructTimeSlotResponse() {
         return TimeSlotResponse.newBuilder()
-                               .setRqUid(TestConstantHolder.REQUEST_ID)
+                               .setRequestId(TestConstantHolder.REQUEST_ID)
                                .setSlotId(TestConstantHolder.SLOT_ID)
                                .setMentorId(TestConstantHolder.MENTOR_ID)
                                .setStartTime(TestConstantHolder.SLOT_START_TIMESTAMP)
@@ -94,6 +108,7 @@ public final class TestGrpcStubGenerator {
                              .setCreatedAt(Timestamp.newBuilder()
                                                     .setSeconds(TestConstantHolder.CREATED_AT_EPOCH_SECONDS)
                                                     .build())
+                             .addAllTags(constructCourseTagsListResponse())
                              .setAuthor(constructCourseAuthorResponse())
                              .build();
     }
@@ -111,7 +126,8 @@ public final class TestGrpcStubGenerator {
 
     public static GetCourseRequest constructGetCourseRequest() {
         return GetCourseRequest.newBuilder()
-                               .setRequestId(TestConstantHolder.REQUEST_ID)
+                               .setHeader(testHeader())
+                               .setSenderId(TestConstantHolder.ADMIN_ID)
                                .setCourseId(TestConstantHolder.COURSE_ID)
                                .build();
     }
@@ -125,7 +141,7 @@ public final class TestGrpcStubGenerator {
 
     public static GetModuleRequest constructGetModuleRequest() {
         return GetModuleRequest.newBuilder()
-                               .setRequestId(TestConstantHolder.REQUEST_ID)
+                               .setHeader(testHeader())
                                .setModuleId(TestConstantHolder.MODULE_ID)
                                .build();
     }
@@ -144,7 +160,7 @@ public final class TestGrpcStubGenerator {
 
     public static GetAllModulesRequest constructGetAllModulesRequest() {
         return GetAllModulesRequest.newBuilder()
-                                   .setRequestId(TestConstantHolder.REQUEST_ID)
+                                   .setHeader(testHeader())
                                    .setCourseId(TestConstantHolder.COURSE_ID)
                                    .build();
     }
@@ -189,5 +205,21 @@ public final class TestGrpcStubGenerator {
         );
     }
 
-}
+    public static List<Tag> constructCourseTagsListResponse() {
+        List<Tag> listOfTags = new ArrayList<>();
 
+        for (long i = 1; i <= 4; i++) {
+            listOfTags.add(Tag.newBuilder()
+                              .setId(i)
+                              .setName("test-tag-" + i)
+                              .setCreatedAt(Timestamp.newBuilder()
+                                                     .setSeconds(TestConstantHolder.CREATED_AT_EPOCH_SECONDS)
+                                                     .build())
+                              .setIsActive(true)
+                              .build());
+        }
+
+        return listOfTags;
+    }
+
+}

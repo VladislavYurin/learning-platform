@@ -38,9 +38,9 @@ public class AdminCourseServiceGrpcClient {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getRequestId()
+                            request.getHeader().getRequestId()
                     ),
-                    request.getRequestId()
+                    request.getHeader().getRequestId()
             );
         }
     }
@@ -57,9 +57,9 @@ public class AdminCourseServiceGrpcClient {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getRequestId()
+                            request.getHeader().getRequestId()
                     ),
-                    request.getRequestId()
+                    request.getHeader().getRequestId()
             );
         }
     }

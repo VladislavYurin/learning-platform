@@ -1,6 +1,8 @@
 package ru.mentor.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.data.repository.reactive.ReactiveSortingRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,7 +15,8 @@ import ru.mentor.exception.EntityNotFoundException;
  * для поиска модулей по различным критериям.
  */
 @Repository
-public interface ModuleRepository extends ReactiveCrudRepository<ModuleEntity, Long> {
+public interface ModuleRepository extends ReactiveCrudRepository<ModuleEntity, Long>,
+        ReactiveSortingRepository<ModuleEntity, Long> {
 
     /**
      * Находит модуль по его идентификатору или выбрасывает исключение, если модуль не найден.
@@ -36,24 +39,6 @@ public interface ModuleRepository extends ReactiveCrudRepository<ModuleEntity, L
                    )));
     }
 
-    /**
-     * Находит все модули указанного курса, отсортированные по порядковому номеру.
-     *
-     * @param courseId
-     *         идентификатор курса
-     *
-     * @return список модулей курса, отсортированный по порядковому номеру
-     */
-    Flux<ModuleEntity> findAllByCourseIdOrderByModuleOrderNumberAsc(Long courseId);
-
-    /**
-     * Возвращает количество модулей курса.
-     *
-     * @param courseId
-     *         идентификатор курса
-     *
-     * @return {@link Mono}, содержащий количество модулей курса
-     */
-    Mono<Long> countByCourseId(Long courseId);
+    Flux<ModuleEntity> findAllBy(Pageable pageable);
 
 }

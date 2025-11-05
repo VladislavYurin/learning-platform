@@ -2,6 +2,7 @@ package ru.mentor.mapper;
 
 import com.google.protobuf.Timestamp;
 import java.time.ZoneOffset;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.AllModulesResponse;
@@ -32,13 +33,17 @@ public class AdminModuleMapper {
                              .build();
     }
 
-    public AllModulesResponse mapModuleResponsePageToGrpcAllModulesResponse(
-            Page<ModuleResponse> modulesPage) {
+    public List<ModuleResponse> mapModuleEntityListToModuleResponseList(List<ModuleEntity> moduleEntityList) {
+        return moduleEntityList.stream()
+                               .map(this::mapModuleEntityToModuleResponse)
+                               .toList();
+    }
 
+    public AllModulesResponse mapModuleResponsePageToAllModulesResponse(Page<ModuleResponse> moduleResponsesPage) {
         return AllModulesResponse.newBuilder()
                                  .setPageDetails(extractPageDetailsFromModuleResponsePage(
-                                         modulesPage))
-                                 .addAllModules(modulesPage)
+                                         moduleResponsesPage))
+                                 .addAllModules(moduleResponsesPage)
                                  .build();
     }
 
@@ -51,6 +56,7 @@ public class AdminModuleMapper {
                           .build();
     }
 
+    // TODO: Дублирует логику метода из этого класса, но неправильно
     public ModuleResponse mapModuleEntityToGrpcModuleResponse(
             CourseEntity courseEntity,
             ModuleEntity moduleEntity) {

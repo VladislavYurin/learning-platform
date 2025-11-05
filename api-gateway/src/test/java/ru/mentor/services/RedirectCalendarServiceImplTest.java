@@ -1,13 +1,12 @@
 package ru.mentor.services;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentor.common.BookTimeSlotRequest;
 import ru.mentor.common.CreateTimeSlotRequest;
@@ -17,6 +16,7 @@ import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
+import ru.mentor.grpc.HeaderFactory;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.services.impl.RedirectCalendarServiceImpl;
 import ru.mentor.testUtil.TestConstantHolder;
@@ -28,16 +28,33 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 class RedirectCalendarServiceImplTest {
 
     @Mock
+    private HeaderFactory headerFactory;
+
+    @Mock
     private UserService userService;
 
     @Mock
     private CalendarServiceGrpcClient calendarServiceClient;
 
-    @Spy
-    private TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
-
-    @InjectMocks
+    private TimeSlotMapper timeSlotMapper;
     private RedirectCalendarServiceImpl redirectCalendarService;
+
+    @BeforeEach
+    void setUp() {
+        Mockito.lenient()
+                .when(headerFactory.create(Mockito.anyString()))
+                .thenAnswer(inv -> ru.mentor.common.Header.newBuilder()
+                        .setRequestId(inv.getArgument(0, String.class))
+                        .setNodeId("test-node")
+                        .setApiKey("test-api")
+                        .build());
+        timeSlotMapper = Mockito.spy(new TimeSlotMapper(headerFactory));
+        redirectCalendarService = new RedirectCalendarServiceImpl(
+                userService,
+                calendarServiceClient,
+                timeSlotMapper
+        );
+    }
 
     @Test
     public void createTimeSlot_Success() {
@@ -152,6 +169,5 @@ class RedirectCalendarServiceImplTest {
                 .toMentorSlotsInfoGrpcRequest(ArgumentMatchers.eq(TestConstantHolder.mentorId),
                                               ArgumentMatchers.anyString());
     }
-
 
 }
