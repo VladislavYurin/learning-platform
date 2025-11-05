@@ -1,17 +1,16 @@
 package ru.mentor.mapper;
 
 import com.google.protobuf.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.springframework.stereotype.Component;
-import ru.mentor.calendar.Role;
-import ru.mentor.calendar.SlotMeetingType;
-import ru.mentor.calendar.SlotType;
-import ru.mentor.calendar.UserInfo;
+import ru.mentor.common.Role;
+import ru.mentor.common.SlotMeetingType;
+import ru.mentor.common.SlotType;
+import ru.mentor.common.UserInfo;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.entity.UserEntity;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @Component
 public class UtilMapper {

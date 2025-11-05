@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -17,6 +17,7 @@
 
   <modules>
     <module>common-lib</module>
+    <module>reactive-common-lib</module>
     <module>api-gateway</module>
     <module>course-service</module>
     <module>mentor-service</module>
@@ -31,7 +32,9 @@
     <lombok.version>1.18.32</lombok.version>
     <grpc.spring.starter.version>3.1.0.RELEASE</grpc.spring.starter.version>
     <grpc.version>1.63.2</grpc.version>
+    <reactor.grpc.version>1.2.4</reactor.grpc.version>
     <protobuf.java.version>4.28.3</protobuf.java.version>
+    <protobuf.util.version>3.22.0</protobuf.util.version>
     <openfeign.version>4.1.1</openfeign.version>
     <jjwt.version>0.12.6</jjwt.version>
     <jwks.rsa.version>0.22.1</jwks.rsa.version>
@@ -43,6 +46,7 @@
     <commonmark.version>0.21.0</commonmark.version>
     <kafka.spring.version>4.0.0-M3</kafka.spring.version>
     <liquibase.maven.version>4.4.2</liquibase.maven.version>
+    <project.reactor.version>3.7.11</project.reactor.version>
 
     <docker.tag>local</docker.tag>
     <docker.java-image>openjdk:21</docker.java-image>
@@ -103,6 +107,11 @@
         <artifactId>commonmark</artifactId>
         <version>${commonmark.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.projectreactor</groupId>
+        <artifactId>reactor-core</artifactId>
+        <version>${project.reactor.version}</version>
+      </dependency>
 
       <!-- gRPC -->
       <dependency>
@@ -127,6 +136,11 @@
         <version>${protobuf.java.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java-util</artifactId>
+        <version>${protobuf.util.version}</version>
+      </dependency>
+      <dependency>
         <groupId>net.devh</groupId>
         <artifactId>grpc-client-spring-boot-starter</artifactId>
         <version>${grpc.spring.starter.version}</version>
@@ -135,6 +149,11 @@
         <groupId>net.devh</groupId>
         <artifactId>grpc-server-spring-boot-starter</artifactId>
         <version>${grpc.spring.starter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.salesforce.servicelibs</groupId>
+        <artifactId>reactor-grpc-stub</artifactId>
+        <version>${reactor.grpc.version}</version>
       </dependency>
 
       <!-- OpenFeign -->
@@ -259,6 +278,12 @@
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+      <version>2.6.0</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>

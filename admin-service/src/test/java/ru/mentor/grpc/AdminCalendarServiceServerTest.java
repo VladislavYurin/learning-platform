@@ -1,89 +1,103 @@
 package ru.mentor.grpc;
 
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
-import java.util.List;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import ru.mentor.admin.AllTimeSlotsResponse;
-import ru.mentor.admin.GrpcPageRequest;
-import ru.mentor.entity.MentorTimeSlotEntity;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import ru.mentor.common.AllTimeSlotsResponse;
+import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.exception.EntityNotFoundException;
-import ru.mentor.mapper.BaseMapper;
-import ru.mentor.mapper.TimeSlotMapper;
-import ru.mentor.repository.MentorTimeSlotRepository;
+import ru.mentor.facade.CalendarFacade;
+import ru.mentor.grpc.error.GrpcErrorText;
 import ru.mentor.testUtil.TestConstantHolder;
-import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 
-
 @ExtendWith(MockitoExtension.class)
-public class AdminCalendarServiceServerTest {
+class AdminCalendarServiceServerTest {
 
-    @Spy
-    private BaseMapper baseMapper;
     @Mock
-    private MentorTimeSlotRepository repository;
-    @Spy
-    private TimeSlotMapper timeSlotMapper;
-    @Mock
-    private StreamObserver<AllTimeSlotsResponse> responseObserver;
-    @Captor
-    private ArgumentCaptor<Throwable> entityNotFoundCaptor;
+    private CalendarFacade calendarFacade;
+
     @InjectMocks
-    private AdminCalendarServiceServer service;
+    private AdminCalendarServiceServer adminCalendarServiceServer;
 
-    @Test
-    public void getAllTimeSlots_success() {
-        GrpcPageRequest grpcRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
-        PageRequest pageRequest = PageRequest.of(
-                TestConstantHolder.pageNumber,
-                TestConstantHolder.pageSize
-        );
-        Page<MentorTimeSlotEntity> page = new PageImpl<>(
-                List.of(TestEntityStubGenerator.constructMentorTimeSlotEntity()));
+    private GrpcPageRequest grpcPageRequestStub;
+    private AllTimeSlotsResponse allTimeSlotsResponse;
 
-        AllTimeSlotsResponse expectedResponse = TestGrpcStubGenerator.constructAllTimeSlotsResponse();
-
-        Mockito.when(repository.findAll(pageRequest)).thenReturn(page);
-
-        service.getAllTimeSlots(grpcRequest, responseObserver);
-
-        Mockito.verify(responseObserver).onNext(expectedResponse);
-        Mockito.verify(responseObserver).onCompleted();
+    @BeforeEach
+    void setUp() {
+        grpcPageRequestStub = TestGrpcStubGenerator.constructGrpcPageRequest();
+        allTimeSlotsResponse = TestGrpcStubGenerator.constructAllTimeSlotsResponse();
     }
 
     @Test
-    void getAllTimeSlots_notFound() {
-        GrpcPageRequest grpcRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
-        PageRequest pageRequest = PageRequest.of(
-                TestConstantHolder.pageNumber,
-                TestConstantHolder.pageSize
-        );
+    void getAllTimeSlots_emptyRequest_returnsInvalidArgument() {
+        StepVerifier.create(adminCalendarServiceServer.getAllTimeSlots(Mono.empty()))
+                    .expectErrorSatisfies(error -> {
+                        Assertions.assertInstanceOf(StatusRuntimeException.class, error);
 
-        Mockito.when(repository.findAll(pageRequest)).thenThrow(new EntityNotFoundException(
-                TestConstantHolder.notFoundExceptionText));
+                        StatusRuntimeException statusRuntimeException =
+                                (StatusRuntimeException) error;
 
-        service.getAllTimeSlots(grpcRequest, responseObserver);
+                        Assertions.assertEquals(
+                                statusRuntimeException.getStatus().getCode(),
+                                Status.INVALID_ARGUMENT.getCode()
+                        );
 
-        Mockito.verify(responseObserver).onError(entityNotFoundCaptor.capture());
-        Mockito.verify(responseObserver, Mockito.never()).onNext(Mockito.any());
+                        Assertions.assertEquals(
+                                GrpcErrorText.EMPTY_REQUEST,
+                                statusRuntimeException.getStatus().getDescription()
+                        );
+                    })
+                    .verify();
 
-        Throwable entityNotFoundException = entityNotFoundCaptor.getValue();
-        Assertions.assertThat(entityNotFoundException)
-                  .isInstanceOf(StatusRuntimeException.class)
-                  .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
+        Mockito.verifyNoInteractions(calendarFacade);
     }
 
+    @Test
+    void getAllTimeSlots_validRequest_returnsSuccessResponse() {
+        Mockito.when(calendarFacade.findAllTimeSlotsResponseByGrpcPageRequest(grpcPageRequestStub))
+                .thenReturn(Mono.just(allTimeSlotsResponse));
+
+        StepVerifier.create(adminCalendarServiceServer.getAllTimeSlots(Mono.just(grpcPageRequestStub)))
+                .expectNext(allTimeSlotsResponse)
+                .verifyComplete();
+
+        Mockito.verify(calendarFacade, Mockito.times(1))
+               .findAllTimeSlotsResponseByGrpcPageRequest(grpcPageRequestStub);
+    }
+
+    @Test
+    void getAllTimeSlots_entityNotFoundException_returnsNotFoundStatus() {
+        Mockito.when(calendarFacade.findAllTimeSlotsResponseByGrpcPageRequest(grpcPageRequestStub))
+                .thenReturn(
+                        Mono.error(new EntityNotFoundException(
+                                TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT)));
+
+        StepVerifier.create(adminCalendarServiceServer.getAllTimeSlots(Mono.just(grpcPageRequestStub)))
+                    .expectErrorSatisfies(error -> {
+                        Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+                        StatusRuntimeException statusRuntimeException = (StatusRuntimeException) error;
+                        Assertions.assertEquals(
+                                statusRuntimeException.getStatus().getCode(),
+                                Status.NOT_FOUND.getCode()
+                        );
+                        Assertions.assertEquals(
+                                TestConstantHolder.NOT_FOUND_EXCEPTION_TEXT,
+                                statusRuntimeException.getStatus().getDescription()
+                        );
+                    })
+                .verify();
+
+        Mockito.verify(calendarFacade, Mockito.times(1))
+                .findAllTimeSlotsResponseByGrpcPageRequest(grpcPageRequestStub);
+    }
 }

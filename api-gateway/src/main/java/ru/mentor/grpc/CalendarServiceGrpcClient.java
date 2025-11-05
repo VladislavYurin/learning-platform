@@ -6,12 +6,12 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CalendarServiceGrpc.CalendarServiceBlockingStub;
-import ru.mentor.calendar.CreateTimeSlotRequest;
-import ru.mentor.calendar.MentorSlotsInfoRequest;
-import ru.mentor.calendar.MentorSlotsInfoResponse;
-import ru.mentor.calendar.TimeSlotResponse;
+import ru.mentor.common.BookTimeSlotRequest;
+import ru.mentor.common.CreateTimeSlotRequest;
+import ru.mentor.common.MentorSlotsInfoRequest;
+import ru.mentor.common.MentorSlotsInfoResponse;
+import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.exception.GrpcRetryException;
 
 /**

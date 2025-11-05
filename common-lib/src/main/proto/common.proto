@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.common";
+option java_outer_classname = "CommonProto";
+
+// Детали страницы. gRPC-клиенты собирает с его помощью Page для отправки пользователю.
+message PageDetails {
+  uint32 page = 1;
+  uint32 size = 2;
+  uint64 total_elements = 3;
+  uint32 total_pages = 4;
+}
+
+// Запрос страницы сущностей
+message GrpcPageRequest {
+  string request_id = 1;
+  uint64 sender_id = 2;
+  uint32 page_number = 3;
+  uint32 page_size = 4;
+}
+
+message Header {
+  string requestId = 1;
+  string nodeId = 2;
+  string apiKey = 3;
+}
+
+// Типы слотов
+enum SlotType {
+  INDIVIDUAL = 0;
+  GROUP = 1;
+}
+
+// Статусы слотов
+enum SlotMeetingType {
+  ACQUAINTANCE = 0;
+  COMMUNICATION = 1;
+  ACCEPTING = 2;
+}
+
+enum Role {
+  USER = 0;
+  ADMIN = 1;
+  MENTOR = 2;
+}

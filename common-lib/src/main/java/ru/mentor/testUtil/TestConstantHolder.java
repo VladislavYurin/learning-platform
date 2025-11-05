@@ -4,8 +4,8 @@ import com.google.protobuf.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
-import ru.mentor.calendar.SlotMeetingType;
-import ru.mentor.calendar.SlotType;
+import ru.mentor.common.SlotMeetingType;
+import ru.mentor.common.SlotType;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 
