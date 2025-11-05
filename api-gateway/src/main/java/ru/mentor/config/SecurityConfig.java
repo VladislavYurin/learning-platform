@@ -62,6 +62,7 @@ public class SecurityConfig {
                     .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .requestMatchers("/slot/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/actuator/**").permitAll()
                     .anyRequest().authenticated()
             )
             .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
