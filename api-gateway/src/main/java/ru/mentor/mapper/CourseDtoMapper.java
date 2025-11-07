@@ -7,7 +7,7 @@ import ru.mentor.dto.CourseDto;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = DateTimeMapper.class)
 public interface CourseDtoMapper {
 
     ru.mentor.dto.CourseDto toCommon(ru.mentor.gateway.model.CourseDto apiDto);

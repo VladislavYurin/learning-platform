@@ -5,7 +5,7 @@ import ru.mentor.gateway.model.MentorSlotInfoDto;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = DateTimeMapper.class)
 public interface MentorSlotInfoDtoMapper {
     MentorSlotInfoDto toApiDto(ru.mentor.dto.MentorSlotInfoDto commonMentorSlotInfoDto);
     List<MentorSlotInfoDto> toListApiDto(List<ru.mentor.dto.MentorSlotInfoDto> listCommonMentorSlotInfoDto);
