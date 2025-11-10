@@ -1,27 +1,29 @@
 package ru.mentor.services;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.gateway.model.CourseDto;
 import ru.mentor.grpc.AdminCourseServiceGrpcClient;
 import ru.mentor.mapper.AdminCourseMapper;
 import ru.mentor.mapper.BaseMapper;
-import ru.mentor.mapper.CourseDtoMapper;
 import ru.mentor.services.impl.RedirectAdminCourseServiceImpl;
-import ru.mentor.testUtil.TestConstantHolder;
-import ru.mentor.testUtil.TestEntityStubGenerator;
-import ru.mentor.testUtil.TestGrpcStubGenerator;
+
+import java.util.Collections;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RedirectAdminCourseServiceImplTest {
@@ -32,119 +34,84 @@ class RedirectAdminCourseServiceImplTest {
     private AdminCourseMapper courseMapper;
     @Mock
     private BaseMapper baseMapper;
-    @Mock
-    private CourseDtoMapper courseDtoMapper;
 
     @InjectMocks
     private RedirectAdminCourseServiceImpl redirectService;
 
     @Test
     void getCourseById_success() {
-        CourseResponse grpcResponse = TestGrpcStubGenerator.constructCourseResponse();
-        CourseDto dto = Mockito.mock(CourseDto.class);
+        Long courseId = 1L;
 
-        Mockito.when(courseMapper.constructGetCourseRequest(
-                       ArgumentMatchers.anyString(),
-                       ArgumentMatchers.eq(TestConstantHolder.courseId)
-               ))
-               .thenReturn(TestGrpcStubGenerator.constructGetCourseRequest());
-        Mockito.when(courseServiceClient.getCourse(ArgumentMatchers.any(GetCourseRequest.class)))
-               .thenReturn(grpcResponse);
-        Mockito.when(courseMapper.mapGrpcCourseResponseToCourseDto(grpcResponse))
-               .thenReturn(dto);
+        GetCourseRequest getReq = mock(GetCourseRequest.class);
+        CourseResponse grpcResp = mock(CourseResponse.class);
+        CourseDto expected = new CourseDto().id(courseId).courseTitle("T").courseDescription("D");
 
-        CourseDto result = redirectService.getCourseById(TestConstantHolder.courseId);
+        when(courseMapper.constructGetCourseRequest(anyString(), eq(courseId))).thenReturn(getReq);
+        when(courseServiceClient.getCourse(getReq)).thenReturn(grpcResp);
+        when(courseMapper.mapGrpcCourseResponseToCourseDto(grpcResp)).thenReturn(expected);
 
-        Assertions.assertThat(result).isEqualTo(dto);
-        Mockito.verify(courseMapper).constructGetCourseRequest(
-                ArgumentMatchers.anyString(),
-                ArgumentMatchers.eq(TestConstantHolder.courseId)
-        );
-        Mockito.verify(courseServiceClient).getCourse(ArgumentMatchers.any(GetCourseRequest.class));
-        Mockito.verify(courseMapper).mapGrpcCourseResponseToCourseDto(grpcResponse);
+        CourseDto actual = redirectService.getCourseById(courseId);
+
+        assertThat(actual).isEqualTo(expected);
+        verify(courseMapper).constructGetCourseRequest(anyString(), eq(courseId));
+        verify(courseServiceClient).getCourse(getReq);
+        verify(courseMapper).mapGrpcCourseResponseToCourseDto(grpcResp);
+        verifyNoMoreInteractions(courseMapper, courseServiceClient, baseMapper);
     }
 
     @Test
     void getCourseById_failure() {
-        Mockito.when(courseMapper.constructGetCourseRequest(
-                       ArgumentMatchers.anyString(),
-                       ArgumentMatchers.eq(TestConstantHolder.courseId)
-               ))
-               .thenReturn(TestGrpcStubGenerator.constructGetCourseRequest());
-        Mockito.when(courseServiceClient.getCourse(ArgumentMatchers.any(GetCourseRequest.class)))
-               .thenThrow(new RuntimeException(TestConstantHolder.notFoundExceptionText));
+        Long courseId = 42L;
 
-        Assertions.assertThatThrownBy(() -> redirectService.getCourseById(TestConstantHolder.courseId))
-                  .isInstanceOf(RuntimeException.class)
-                  .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
+        GetCourseRequest getReq = mock(GetCourseRequest.class);
+        when(courseMapper.constructGetCourseRequest(anyString(), eq(courseId))).thenReturn(getReq);
+        when(courseServiceClient.getCourse(getReq))
+                .thenThrow(new EntityNotFoundException("not found"));
 
-        Mockito.verify(courseMapper).constructGetCourseRequest(
-                ArgumentMatchers.anyString(),
-                ArgumentMatchers.eq(TestConstantHolder.courseId)
-        );
-        Mockito.verify(courseServiceClient).getCourse(ArgumentMatchers.any(GetCourseRequest.class));
+        assertThrows(EntityNotFoundException.class, () -> redirectService.getCourseById(courseId));
+
+        verify(courseMapper).constructGetCourseRequest(anyString(), eq(courseId));
+        verify(courseServiceClient).getCourse(getReq);
+        verify(courseMapper, never()).mapGrpcCourseResponseToCourseDto(any());
+        verifyNoMoreInteractions(courseMapper, courseServiceClient, baseMapper);
     }
 
     @Test
     void getAllCourses_success() {
-        GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
-        AllCoursesResponse allCoursesResponse = TestGrpcStubGenerator.constructAllCoursesResponse();
+        int pageNumber = 0, pageSize = 10;
 
-        Page<ru.mentor.dto.CourseDto> courseDtoPage = TestEntityStubGenerator.constructCourseDtoPage();
+        GrpcPageRequest pageReq = mock(GrpcPageRequest.class);
+        AllCoursesResponse grpcResp = mock(AllCoursesResponse.class);
+        Page<CourseDto> expected = new PageImpl<>(Collections.singletonList(new CourseDto().id(1L)));
 
-        Mockito.when(baseMapper.constructGrpcPageRequest(
-                       ArgumentMatchers.anyString(),
-                       ArgumentMatchers.anyInt(),
-                       ArgumentMatchers.anyInt()
-               ))
-               .thenReturn(grpcPageRequest);
-        Mockito.when(courseServiceClient.getAllCourses(grpcPageRequest))
-               .thenReturn(allCoursesResponse);
-        Mockito.when(courseMapper.mapGrpcCourseResponseToCourseDtoPage(allCoursesResponse))
-               .thenReturn(courseDtoMapper.toApiPage(courseDtoPage));
+        when(baseMapper.constructGrpcPageRequest(anyString(), eq(pageNumber), eq(pageSize))).thenReturn(pageReq);
+        when(courseServiceClient.getAllCourses(pageReq)).thenReturn(grpcResp);
+        when(courseMapper.mapGrpcCourseResponseToCourseDtoPage(grpcResp)).thenReturn(expected);
 
-        Page<CourseDto> result = redirectService.getAllCourses(
-                TestConstantHolder.pageNumber,
-                TestConstantHolder.pageSize
-        );
+        Page<CourseDto> actual = redirectService.getAllCourses(pageNumber, pageSize);
 
-        Assertions.assertThat(result).isEqualTo(courseDtoPage);
-        Mockito.verify(baseMapper).constructGrpcPageRequest(
-                ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.anyInt()
-        );
-        Mockito.verify(courseServiceClient).getAllCourses(grpcPageRequest);
-        Mockito.verify(courseMapper).mapGrpcCourseResponseToCourseDtoPage(allCoursesResponse);
+        assertThat(actual).isEqualTo(expected);
+        verify(baseMapper).constructGrpcPageRequest(anyString(), eq(pageNumber), eq(pageSize));
+        verify(courseServiceClient).getAllCourses(pageReq);
+        verify(courseMapper).mapGrpcCourseResponseToCourseDtoPage(grpcResp);
+        verifyNoMoreInteractions(courseMapper, courseServiceClient, baseMapper);
     }
 
     @Test
     void getAllCourses_failure() {
+        int pageNumber = 1, pageSize = 5;
 
-        GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
+        GrpcPageRequest pageReq = mock(GrpcPageRequest.class);
+        when(baseMapper.constructGrpcPageRequest(anyString(), eq(pageNumber), eq(pageSize))).thenReturn(pageReq);
+        when(courseServiceClient.getAllCourses(pageReq))
+                .thenThrow(new EntityNotFoundException("not found"));
 
-        Mockito.when(baseMapper.constructGrpcPageRequest(
-                       ArgumentMatchers.anyString(),
-                       ArgumentMatchers.anyInt(),
-                       ArgumentMatchers.anyInt()
-               ))
-               .thenReturn(grpcPageRequest);
-        Mockito.when(courseServiceClient.getAllCourses(grpcPageRequest))
-               .thenThrow(new RuntimeException(TestConstantHolder.notFoundExceptionText));
+        assertThrows(EntityNotFoundException.class,
+                () -> redirectService.getAllCourses(pageNumber, pageSize));
 
-        Assertions.assertThatThrownBy(() -> redirectService.getAllCourses(
-                          TestConstantHolder.pageNumber,
-                          TestConstantHolder.pageSize
-                  ))
-                  .isInstanceOf(RuntimeException.class)
-                  .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
-
-        Mockito.verify(baseMapper).constructGrpcPageRequest(
-                ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.anyInt()
-        );
-        Mockito.verify(courseServiceClient).getAllCourses(grpcPageRequest);
+        verify(baseMapper).constructGrpcPageRequest(anyString(), eq(pageNumber), eq(pageSize));
+        verify(courseServiceClient).getAllCourses(pageReq);
+        verify(courseMapper, never()).mapGrpcCourseResponseToCourseDtoPage(any());
+        verifyNoMoreInteractions(courseMapper, courseServiceClient, baseMapper);
     }
-
 }
