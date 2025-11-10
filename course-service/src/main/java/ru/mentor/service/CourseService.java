@@ -1,25 +1,30 @@
 package ru.mentor.service;
 
 import java.util.List;
-import ru.mentor.dto.CourseDto;
-import ru.mentor.dto.CourseDtoWithoutModules;
-import ru.mentor.dto.InnerCreateCourseRequest;
+import reactor.core.publisher.Mono;
+import ru.mentor.common.AllActiveCoursesResponse;
+import ru.mentor.common.AllCoursesResponse;
+import ru.mentor.common.CourseResponse;
+import ru.mentor.common.CreateCourseGrpcRequest;
+import ru.mentor.common.DeleteCourseRequest;
+import ru.mentor.common.DeleteCourseResponse;
+import ru.mentor.common.GetAllActiveCoursesPreviewRequest;
+import ru.mentor.common.GetCourseRequest;
+import ru.mentor.common.GrpcPageRequest;
 
 /**
- * Сервис для управления курсами в системе управления онлайн-курсами.
+ * Сервис для управления курсами
  * Интерфейс предоставляет методы для создания, удаления и получения информации о курсах.
  */
 public interface CourseService {
 
-    CourseDto createCourse(InnerCreateCourseRequest request);
+    Mono<CourseResponse> createCourse(CreateCourseGrpcRequest request);
 
-    void deleteCourse(Long userId, Long courseId);
+    Mono<DeleteCourseResponse> deleteCourse(DeleteCourseRequest request);
 
-    List<CourseDto> getAllActiveCourses(Long userId);
+    Mono<AllCoursesResponse> getAllCourses(GrpcPageRequest request);
 
-    List<CourseDto> getAllCourses(Long userId);
+    Mono<CourseResponse> getCourseById(GetCourseRequest request);
 
-    CourseDto getCourseById(Long userId, Long courseId);
-
-    List<CourseDto> getAllActiveCoursesPreview();
+    Mono<AllActiveCoursesResponse> getAllActiveCoursesPreview(GetAllActiveCoursesPreviewRequest request);
 }

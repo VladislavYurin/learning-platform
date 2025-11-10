@@ -46,7 +46,7 @@ public class CourseEntity {
      * Флаг активности курса.
      */
     @Column("is_active")
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     /**
      * Дата и время создания курса.

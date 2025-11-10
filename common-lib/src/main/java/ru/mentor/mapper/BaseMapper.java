@@ -140,6 +140,33 @@ public class BaseMapper {
     }
 
     /**
+     * Создать gRPC-объект для запроса страницы любых объектов (аналог {@link PageRequest})
+     *
+     * @param header
+     *         заголовок gRPC-запроса (requestId/nodeId/apiKey)
+     * @param pageNumber
+     *         номер страницы
+     * @param pageSize
+     *         размер страницы
+     * @param senderId
+     *         id отправителя запроса
+     *
+     * @return gRPC-объект {@link GrpcPageRequest}
+     */
+    public GrpcPageRequest constructGrpcPageRequest(
+            Header header,
+            int pageNumber,
+            int pageSize,
+            long senderId) {
+        return GrpcPageRequest.newBuilder()
+                .setHeader(header)
+                .setPageNumber(pageNumber)
+                .setPageSize(pageSize)
+                .setSenderId(senderId)
+                .build();
+    }
+
+    /**
      * Преобразовать gRPC-объект в {@link PageRequest}
      *
      * @param pageDetails

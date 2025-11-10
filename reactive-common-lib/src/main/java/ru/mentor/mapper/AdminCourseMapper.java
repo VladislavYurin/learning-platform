@@ -3,47 +3,64 @@ package ru.mentor.mapper;
 import com.google.protobuf.Timestamp;
 import java.time.ZoneOffset;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import ru.mentor.common.AllActiveCoursesResponse;
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.PageDetails;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.CourseTagEntity;
+import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 
 /**
  * Converters between course entities and gRPC responses used by admin flows.
  */
 @Component
+@RequiredArgsConstructor
 public class AdminCourseMapper {
 
     private final UserMapper userMapper;
 
     private final TagMapper tagMapper;
 
-    public AdminCourseMapper(UserMapper userMapper, TagMapper tagMapper) {
-        this.tagMapper = tagMapper;
-        this.userMapper = userMapper;
-    }
+    private final AdminModuleMapper moduleMapper;
 
     public CourseResponse mapCourseEntityToGrpcCourseResponse(
             CourseEntity courseEntity,
-            UserEntity courseAuthor,
-            List<CourseTagEntity> tagsList) {
+            @Nullable UserEntity courseAuthor,
+            @Nullable List<CourseTagEntity> tagsList,
+            @Nullable List<ModuleEntity> modulesList) {
         Timestamp createdAtTimestamp = Timestamp.newBuilder()
                                                 .setSeconds(courseEntity.getCreatedAt()
                                                                         .toEpochSecond(ZoneOffset.UTC))
                                                 .build();
-        return CourseResponse.newBuilder()
-                             .setCourseId(courseEntity.getId())
-                             .setTitle(courseEntity.getCourseTitle())
-                             .setDescription(courseEntity.getDescription())
-                             .setIsActive(courseEntity.getIsActive())
-                             .setCreatedAt(createdAtTimestamp)
-                             .setAuthor(userMapper.mapUserEntityToCourseAuthorResponse(courseAuthor))
-                             .addAllTags(tagsList.stream().map(tagMapper::toGrpcTagResponse).toList())
-                             .build();
+        CourseResponse.Builder builder = CourseResponse.newBuilder()
+                                                       .setCourseId(courseEntity.getId())
+                                                       .setTitle(courseEntity.getCourseTitle())
+                                                       .setDescription(courseEntity.getDescription())
+                                                       .setIsActive(courseEntity.getIsActive())
+                                                       .setCreatedAt(createdAtTimestamp);
+
+        if (courseAuthor != null) {
+            builder.setAuthor(userMapper.mapUserEntityToCourseAuthorResponse(
+                    courseAuthor));
+        }
+        if (tagsList != null) {
+            builder.addAllTags(tagsList.stream()
+                                       .map(tagMapper::toGrpcTagResponse)
+                                       .toList());
+        }
+        if (modulesList != null) {
+            builder.addAllModules(modulesList.stream()
+                                             .map(moduleMapper::mapModuleEntityToModuleResponse)
+                                             .toList());
+        }
+
+        return builder.build();
     }
 
     public AllCoursesResponse mapCourseResponsePageToGrpcAllCoursesResponse(

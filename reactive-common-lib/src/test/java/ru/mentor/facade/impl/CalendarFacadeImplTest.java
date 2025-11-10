@@ -91,12 +91,9 @@ class CalendarFacadeImplTest {
 
         StepVerifier.create(calendarFacade.findAllTimeSlotsResponseByGrpcPageRequest(
                             grpcPageRequestStub))
-                    .expectNextMatches(response ->
-                                               response.getTimeSlotsList().isEmpty() &&
-                                                       response.getPageDetails().getTotalElements()
-                                                               == 0L &&
-                                                       response.getPageDetails().getTotalPages()
-                                                               == 0)
+                    .expectNextMatches(response -> response.getTimeSlotsList().isEmpty() &&
+                            response.getPageDetails().getTotalElements() == 0L &&
+                            response.getPageDetails().getTotalPages() == 0)
                     .verifyComplete();
     }
 

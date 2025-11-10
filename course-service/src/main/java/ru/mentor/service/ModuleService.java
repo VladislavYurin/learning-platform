@@ -1,8 +1,12 @@
 package ru.mentor.service;
 
-import org.springframework.web.multipart.MultipartFile;
-import ru.mentor.dto.InnerCreateModuleRequest;
-import ru.mentor.dto.ModuleDto;
+import reactor.core.publisher.Mono;
+import ru.mentor.common.CreateModuleGrpcRequest;
+import ru.mentor.common.DeleteModuleRequest;
+import ru.mentor.common.DeleteModuleResponse;
+import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.ImportModuleFromFileRequest;
+import ru.mentor.common.ModuleResponse;
 
 /**
  * Сервис для работы с модулями.
@@ -10,12 +14,11 @@ import ru.mentor.dto.ModuleDto;
  */
 public interface ModuleService {
 
-    ModuleDto createModule(InnerCreateModuleRequest request);
+    Mono<ModuleResponse> createModule(CreateModuleGrpcRequest request);
 
-    void deleteModule(Long userId, Long courseId, Long moduleId);
+    Mono<DeleteModuleResponse> deleteModule(DeleteModuleRequest request);
 
-    ModuleDto getModuleById(Long userId, Long courseId, Long moduleId);
+    Mono<ModuleResponse> getModule(GetModuleRequest request);
 
-    ModuleDto importModuleFromFile(InnerCreateModuleRequest request, MultipartFile file);
-
+    Mono<ModuleResponse> importModuleFromFile(ImportModuleFromFileRequest request);
 }

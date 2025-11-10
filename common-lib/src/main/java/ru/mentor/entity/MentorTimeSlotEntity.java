@@ -83,13 +83,13 @@ public class MentorTimeSlotEntity {
      * Максимальное количество участников слота.
      */
     @Column(name = "max_participants", nullable = false)
-    private Integer maxParticipants = 1;
+    private Integer maxParticipants;
 
     /**
      * Флаг активности слота.
      */
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     /**
      * Ссылка на встречу.
@@ -117,7 +117,7 @@ public class MentorTimeSlotEntity {
      */
     @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
     @ManyToMany
     @JoinTable(name = "mentor_time_slot__users",

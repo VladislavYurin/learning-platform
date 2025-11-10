@@ -5,7 +5,6 @@ import java.util.List;
 import ru.mentor.constant.Role;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.CourseTagEntity;
-import ru.mentor.entity.CourseTagLinkEntity;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
@@ -58,6 +57,7 @@ public final class TestEntityStubGenerator {
         return UserEntity.builder()
                          .id(TestConstantHolder.MENTOR_ID)
                          .username(TestConstantHolder.USERNAME)
+                         .password(TestConstantHolder.PASSWORD)
                          .role(Role.MENTOR)
                          .firstName(TestConstantHolder.FIRST_NAME)
                          .lastName(TestConstantHolder.LAST_NAME)
@@ -79,7 +79,6 @@ public final class TestEntityStubGenerator {
 
     public static CourseEntity constructCourseEntity() {
         return CourseEntity.builder()
-                           .id(TestConstantHolder.COURSE_ID)
                            .courseTitle(TestConstantHolder.COURSE_TITLE)
                            .description(TestConstantHolder.COURSE_DESCRIPTION)
                            .isActive(TestConstantHolder.IS_ACTIVE_COURSE)
@@ -90,8 +89,8 @@ public final class TestEntityStubGenerator {
 
     public static UserEntity constructAuthorUserEntity() {
         return UserEntity.builder()
-                         .id(TestConstantHolder.MENTOR_ID)
                          .username(TestConstantHolder.USERNAME)
+                         .password(TestConstantHolder.PASSWORD)
                          .role(Role.MENTOR)
                          .firstName(TestConstantHolder.FIRST_NAME)
                          .lastName(TestConstantHolder.LAST_NAME)
@@ -102,7 +101,6 @@ public final class TestEntityStubGenerator {
 
     public static ModuleEntity constructModuleEntity() {
         return ModuleEntity.builder()
-                           .id(TestConstantHolder.MODULE_ID)
                            .moduleTitle(TestConstantHolder.MODULE_TITLE)
                            .moduleOrderNumber(TestConstantHolder.MODULE_ORDER_NUMBER)
                            .moduleContent(TestConstantHolder.MODULE_CONTENT)

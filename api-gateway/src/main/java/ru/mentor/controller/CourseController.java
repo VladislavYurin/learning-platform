@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,13 +17,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.CourseDtoWithoutModules;
 import ru.mentor.dto.front.CreateCourseRequest;
 import ru.mentor.services.RedirectCourseService;
-
-import java.util.List;
 
 /**
  * Контроллер для управления курсами и их содержимым.
@@ -64,8 +65,9 @@ public class CourseController {
     )
     @DeleteMapping("/{courseId}")
     @PreAuthorize("hasRole('MENTOR')")
-    public ResponseEntity<?> deleteCourse(@PathVariable Long courseId) {
-        return redirectCourseService.deleteCourse(courseId);
+    public ResponseEntity<Void> deleteCourse(@PathVariable Long courseId) {
+        redirectCourseService.deleteCourse(courseId);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(
@@ -93,8 +95,9 @@ public class CourseController {
             }
     )
     @GetMapping("/all/active")
-    public ResponseEntity<List<CourseDto>> getAllActiveCourses() {
-        return ResponseEntity.ok().body(redirectCourseService.getAllActiveCourses());
+    public ResponseEntity<Page<CourseDto>> getAllActiveCourses(@RequestParam int pageNumber,
+                                                               @RequestParam int pageSize) {
+        return ResponseEntity.ok().body(redirectCourseService.getAllActiveCourses(pageNumber, pageSize));
     }
 
     @Operation(
@@ -107,8 +110,9 @@ public class CourseController {
             }
     )
     @GetMapping("/all")
-    public ResponseEntity<List<CourseDto>> getAllCourses() {
-        return ResponseEntity.ok().body(redirectCourseService.getAllCourses());
+    public ResponseEntity<Page<CourseDto>> getAllCourses(@RequestParam int pageNumber,
+                                                         @RequestParam int pageSize) {
+        return ResponseEntity.ok().body(redirectCourseService.getAllCourses(pageNumber, pageSize));
     }
 
     @Operation(

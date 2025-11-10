@@ -1,18 +1,27 @@
 package ru.mentor.services.impl;
 
+import io.grpc.StatusRuntimeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.mentor.dto.InnerCreateModuleRequest;
+import ru.mentor.common.CreateModuleGrpcRequest;
+import ru.mentor.common.DeleteModuleRequest;
+import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.Header;
+import ru.mentor.common.ImportModuleFromFileRequest;
+import ru.mentor.common.ModuleResponse;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.front.CreateModuleRequest;
-import ru.mentor.entity.UserEntity;
-import ru.mentor.feign.CourseClient;
-import ru.mentor.mapper.CourseMapper;
+import ru.mentor.exception.GrpcExceptionMapper;
+import ru.mentor.factory.HeaderFactory;
+import ru.mentor.grpc.CourseServiceModuleGrpcClient;
+import ru.mentor.mapper.ModuleMapper;
 import ru.mentor.services.RedirectModuleService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
+
+import java.io.IOException;
 
 /**
  * Реализация сервиса редиректов/интеграции для операций с модулями курса.
@@ -24,64 +33,83 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
 
     private final UserService userService;
 
-    private final CourseClient courseClient;
+    private final CourseServiceModuleGrpcClient moduleGrpcClient;
 
-    private final CourseMapper courseMapper;
+    private final ModuleMapper moduleMapper;
+
+    private final HeaderFactory headerFactory;
+
+    private final GrpcExceptionMapper exceptionMapper;
 
     /**
-     * Создаёт новый модуль в составе курса.
+     * Создаёт gRPC-запрос для создания нового модуля в составе курса и передает gRPC-клиенту
+     * для передачи серверу.
      *
      * @param request
-     *         данные для создания модуля
+     *         ДТО запроса для создания модуля
      *
-     * @return созданный модуль
+     * @return ДТО созданного модуля
      */
     @Override
     public ModuleDto createModule(CreateModuleRequest request) {
-        UserEntity user = userService.getCurrentUser();
+        Long userId = userService.getCurrentUserId();
         String requestId = RqGenerator.generateRqId();
-        log.info(String.format(
-                "[ requestId = %s ] Получен запрос на создание модуля в курсе [ ID = %d ] юзером [ ID = %d ].",
-                requestId,
-                request.getCourseId(),
-                user.getId()
-        ));
-        InnerCreateModuleRequest innerCreateModuleRequest = courseMapper.mapToInnerCreateModuleRequest(
-                user.getId(),
-                request
+        Header header = headerFactory.create(requestId);
+        log.info(
+                "[ requestId = {} ] Получен запрос на создание модуля в курсе [ ID = {} ]"
+                        + " юзером [ ID = {} ].", requestId, request.getCourseId(), userId
         );
-        return courseClient.createModule(requestId, innerCreateModuleRequest);
+        CreateModuleGrpcRequest createModuleRequest = moduleMapper.constructGrpcCreateRequest(
+                header, userId, request);
+        try {
+            ModuleResponse moduleResponse = moduleGrpcClient.createModule(createModuleRequest);
+            return moduleMapper.mapGrpcModuleResponseToModuleDto(moduleResponse);
+        } catch (StatusRuntimeException e) {
+            throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
+        }
     }
 
     /**
-     * Возвращает модуль по идентификатору курса и модуля.
+     * Создаёт gRPC-запрос для получения модуля курса по порядковому номеру модуля и
+     * передает gRPC-клиенту для передачи серверу
      *
      * @param courseId
      *         идентификатор курса
-     * @param moduleId
-     *         идентификатор модуля внутри курса
+     * @param moduleOrderNum
+     *         порядковый номер модуля курса
      *
      * @return найденный модуль
      */
     @Override
-    public ModuleDto getModuleById(Long courseId, Long moduleId) {
-        UserEntity user = userService.getCurrentUser();
+    public ModuleDto getModuleByOrderNum(Long courseId, Integer moduleOrderNum) {
+        Long userId = userService.getCurrentUserId();
         String requestId = RqGenerator.generateRqId();
-        log.info(String.format(
-                "[ requestId = %s ] Получен запрос на получение модуля [ ID = %d ] из курса [ ID = %d ] юзером [ ID = %d ].",
-                requestId,
-                moduleId,
+        Header header = headerFactory.create(requestId);
+        log.info(
+                "[ requestId = {} ] Получен запрос на получение модуля [ ID = {} ] из курса "
+                        + "[ ID = {} ] юзером [ ID = {} ].", requestId, moduleOrderNum,
+                courseId, userId
+        );
+
+        GetModuleRequest request = moduleMapper.constructGrpcGetRequest(
+                header,
+                userId,
                 courseId,
-                user.getId()
-        ));
-        return courseClient.getModuleById(requestId, user.getId(), courseId, moduleId);
+                moduleOrderNum
+        );
+        try {
+            ModuleResponse moduleResponse = moduleGrpcClient.getModule(request);
+            return moduleMapper.mapGrpcModuleResponseToModuleDto(moduleResponse);
+        } catch (StatusRuntimeException e) {
+            throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
+        }
     }
 
     /**
-     * Импортирует модуль из загруженного файла (например, Markdown).
+     * Создает gRPC-запрос для импорта модуля из загруженного файла (например, Markdown).
      *
      * @param request
-     *         параметры создаваемого модуля
+     *         ДТО запроса с параметрами создаваемого модуля
      * @param file
      *         файл с содержимым модуля
      *
@@ -89,41 +117,60 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
      */
     @Override
     public ModuleDto importModuleFromFile(CreateModuleRequest request, MultipartFile file) {
-        UserEntity user = userService.getCurrentUser();
+        Long userId = userService.getCurrentUserId();
         String requestId = RqGenerator.generateRqId();
-        log.info(String.format(
-                "[ requestId = %s ] Получен запрос на импорт файлом модуля в курсе [ ID = %d ] юзером [ ID = %d ].",
-                requestId,
-                request.getCourseId(),
-                user.getId()
-        ));
-        InnerCreateModuleRequest innerCreateModuleRequest = courseMapper.mapToInnerCreateModuleRequest(
-                user.getId(),
-                request
+        Header header = headerFactory.create(requestId);
+        log.info(
+                "[ requestId = {} ] Получен запрос на импорт файлом модуля в курсе [ ID = {} ] "
+                        + "юзером [ ID = {} ].", requestId, request.getCourseId(), userId
         );
-        return courseClient.importModuleFromMarkdown(requestId, innerCreateModuleRequest, file);
+        try {
+            ImportModuleFromFileRequest importModuleFromFileRequest = moduleMapper.constructGrpcImportFromFileRequest(
+                    header,
+                    userId,
+                    request,
+                    file
+            );
+
+            ModuleResponse moduleResponse = moduleGrpcClient.importModuleFromMarkdown(
+                    importModuleFromFileRequest);
+            return moduleMapper.mapGrpcModuleResponseToModuleDto(moduleResponse);
+        } catch (StatusRuntimeException e) {
+            throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
-     * Удаляет модуль из курса.
+     * Создает gRPC-запрос для удаления модуля из курса и передает его gRPC-клиенту для отправки
+     * серверу.
      *
      * @param courseId
-     *         идентификатор курса
-     * @param moduleId
-     *         идентификатор модуля внутри курса
+     *         идентификатор курса, из которого нужно удалить модуль
+     * @param moduleOrderNum
+     *         порядковый номер модуля в курсе
      */
     @Override
-    public void deleteModule(Long courseId, Long moduleId) {
-        UserEntity user = userService.getCurrentUser();
+    public void deleteModule(Long courseId, Integer moduleOrderNum) {
+        Long userId = userService.getCurrentUserId();
         String requestId = RqGenerator.generateRqId();
-        log.info(String.format(
-                "[ requestId = %s ] Получен запрос на удаление модуля [ ID = %d ] в курсе [ ID = %d ] юзером [ ID = %d ].",
+        Header header = headerFactory.create(requestId);
+        log.info(
+                "[ RqUId = {} ] Получен запрос на удаление модуля [ num = {} ] в курсе [ ID = {} ] "
+                        + "от юзера [ ID = {} ].",
                 requestId,
-                moduleId,
+                moduleOrderNum,
                 courseId,
-                user.getId()
-        ));
-        courseClient.deleteModule(requestId, user.getId(), courseId, moduleId);
+                userId
+        );
+        DeleteModuleRequest request = moduleMapper.constructGrpcDeleteRequest(
+                header, userId, courseId, moduleOrderNum);
+        try {
+            moduleGrpcClient.deleteModule(request);
+        } catch (StatusRuntimeException e) {
+            throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
+        }
     }
 
 }

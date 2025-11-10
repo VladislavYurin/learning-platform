@@ -17,11 +17,12 @@ import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GrpcPageRequest;
-import ru.mentor.common.Tag;
+import ru.mentor.common.CourseTagResponse;
 import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.grpc.error.GrpcErrorText;
 import ru.mentor.mapper.AdminCourseMapper;
+import ru.mentor.mapper.AdminModuleMapper;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TagMapper;
 import ru.mentor.mapper.UserMapper;
@@ -48,7 +49,9 @@ class AdminCourseServiceServerTest {
     @Spy
     private TagMapper tagMapper;
     @Spy
-    private final AdminCourseMapper courseMapper = new AdminCourseMapper(userMapper, tagMapper);
+    private AdminModuleMapper moduleMapper;
+    @Spy
+    private final AdminCourseMapper courseMapper = new AdminCourseMapper(userMapper, tagMapper, moduleMapper);
     @InjectMocks
     private AdminCourseServiceServer adminCourseServiceServer;
 
@@ -57,8 +60,7 @@ class AdminCourseServiceServerTest {
 
         List<CourseTagEntity> listOfTags =
                 TestEntityStubGenerator.constructCourseTagEntityList(4);
-
-        List<Tag> tags = listOfTags.stream().map(tagMapper::toGrpcTagResponse).toList();
+        List<CourseTagResponse> tags = listOfTags.stream().map(tagMapper::toGrpcTagResponse).toList();
 
         GetCourseRequest getCourseRequest = TestGrpcStubGenerator.constructGetCourseRequest();
         CourseResponse courseResponse = TestGrpcStubGenerator.constructCourseResponse();

@@ -1,5 +1,6 @@
 package ru.mentor.testUtil;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -8,11 +9,21 @@ import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.AuthorResponse;
 import ru.mentor.common.CourseResponse;
+import ru.mentor.common.CourseTagResponse;
+import ru.mentor.common.CreateCourseGrpcRequest;
+import ru.mentor.common.CreateCourseTagGrpcRequest;
+import ru.mentor.common.CreateModuleGrpcRequest;
+import ru.mentor.common.DeleteCourseRequest;
+import ru.mentor.common.DeleteCourseTagRequest;
+import ru.mentor.common.DeleteModuleRequest;
 import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GetCourseRequest;
+import ru.mentor.common.GetCourseTagRequest;
 import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.Header;
+import ru.mentor.common.ImportModuleFromFileRequest;
+import ru.mentor.common.ListCourseTagsResponse;
 import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.common.MentorSlotsInfoResponse;
 import ru.mentor.common.ModuleResponse;
@@ -34,6 +45,8 @@ public class TestGrpcStubGenerator {
     public static GetModuleRequest constructGetModuleRequest() {
         return GetModuleRequest.newBuilder()
                                .setHeader(buildTestHeader())
+                               .setCourseId(TestConstantHolder.courseId)
+                               .setModuleOrderNumber(TestConstantHolder.moduleOrderNumber)
                                .setModuleId(TestConstantHolder.moduleId)
                                .build();
     }
@@ -65,6 +78,54 @@ public class TestGrpcStubGenerator {
                                .setHeader(buildTestHeader())
                                .setCourseId(TestConstantHolder.courseId)
                                .build();
+    }
+
+    public static CreateCourseGrpcRequest constructCreateCourseGrpcRequest() {
+        return CreateCourseGrpcRequest.newBuilder()
+                .setHeader(buildTestHeader())
+                .setUserId(TestConstantHolder.userId)
+                .setCourseName(TestConstantHolder.courseTitle)
+                .setCourseDescription(TestConstantHolder.courseDescription)
+                .build();
+    }
+
+    public static DeleteCourseRequest constructDeleteCourseRequest() {
+        return DeleteCourseRequest.newBuilder()
+                .setHeader(buildTestHeader())
+                .setSenderId(TestConstantHolder.userId)
+                .setCourseId(TestConstantHolder.courseId)
+                .build();
+    }
+
+    public static CreateModuleGrpcRequest constructCreateModuleGrpcRequest() {
+        return CreateModuleGrpcRequest.newBuilder()
+                .setHeader(buildTestHeader())
+                .setCourseId(TestConstantHolder.courseId)
+                .setContent(TestConstantHolder.moduleContent)
+                .setTitle(TestConstantHolder.moduleTitle)
+                .setOrderNumber(TestConstantHolder.moduleOrderNumber)
+                .build();
+    }
+
+    public static ImportModuleFromFileRequest constructImportModuleFromFileGrpcRequest() {
+        return ImportModuleFromFileRequest.newBuilder()
+                .setHeader(buildTestHeader())
+                .setCourseId(TestConstantHolder.courseId)
+                .setContent(TestConstantHolder.moduleContent)
+                .setTitle(TestConstantHolder.moduleTitle)
+                .setOrderNumber(TestConstantHolder.moduleOrderNumber)
+                .setFileContent(ByteString.copyFrom(TestConstantHolder.moduleContent.getBytes()))
+                .build();
+    }
+
+    public static DeleteModuleRequest constructDeleteModuleRequest() {
+        return DeleteModuleRequest.newBuilder()
+                .setHeader(buildTestHeader())
+                .setSenderId(TestConstantHolder.userId)
+                .setCourseId(TestConstantHolder.courseId)
+                .setModuleId(TestConstantHolder.moduleId)
+                .setModuleOrderNumber(TestConstantHolder.moduleOrderNumber)
+                .build();
     }
 
     public static PageDetails constructPageDetails() {
@@ -171,6 +232,45 @@ public class TestGrpcStubGenerator {
         return MentorSlotsInfoResponse.newBuilder()
                                       .addAllSlots(List.of(constructMentorSlotInfo()))
                                       .build();
+    }
+
+    public static CreateCourseTagGrpcRequest constructCreateCourseTagGrpcRequest(){
+        return CreateCourseTagGrpcRequest.newBuilder()
+                                         .setHeader(buildTestHeader())
+                                         .setSenderId(TestConstantHolder.userId)
+                                         .setName(TestConstantHolder.courseTagName)
+                                         .build();
+    }
+
+    public static CourseTagResponse constructCourseTagResponse(){
+        return CourseTagResponse.newBuilder()
+                                .setId(TestConstantHolder.courseTagId)
+                                .setName(TestConstantHolder.courseTagName)
+                                .setCreatedAt(TestConstantHolder.courseTagCreatedAtTimestamp)
+                                .setIsActive(TestConstantHolder.isActive)
+                                .build();
+    }
+
+    public static DeleteCourseTagRequest constructDeleteCourseTagGrpcRequest(){
+        return DeleteCourseTagRequest.newBuilder()
+                .setHeader(buildTestHeader())
+                .setSenderId(TestConstantHolder.userId)
+                .setTagId(TestConstantHolder.courseTagId)
+                .build();
+    }
+
+    public static GetCourseTagRequest constructGetCourseTagGrpcRequest() {
+        return GetCourseTagRequest.newBuilder()
+                .setHeader(buildTestHeader())
+                .setSenderId(TestConstantHolder.userId)
+                .setTagId(TestConstantHolder.courseTagId)
+                .build();
+    }
+
+    public static ListCourseTagsResponse constructAllCourseTagsResponse(){
+        return ListCourseTagsResponse.newBuilder()
+                .addTags(constructCourseTagResponse())
+                .build();
     }
 
 }

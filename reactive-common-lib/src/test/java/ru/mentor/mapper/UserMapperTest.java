@@ -16,6 +16,7 @@ class UserMapperTest {
     @Test
     void mapUserEntityToCourseAuthorResponse_returnsExpectedAuthor() {
         UserEntity userEntity = TestEntityStubGenerator.constructAuthorUserEntity();
+        userEntity.setId(TestConstantHolder.COURSE_AUTHOR_ID);
 
         AuthorResponse response = mapper.mapUserEntityToCourseAuthorResponse(userEntity);
 

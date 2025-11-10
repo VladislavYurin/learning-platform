@@ -3,7 +3,7 @@ package ru.mentor.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.mentor.dto.tag.CourseTagDto;
-import ru.mentor.dto.tag.CreateTagRequest;
+import ru.mentor.dto.tag.CreateCourseTagRequest;
 import ru.mentor.entity.CourseTagEntity;
 
 @Mapper(componentModel = "spring")
@@ -15,5 +15,5 @@ public interface CourseTagMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "isActive", constant = "true")
     @Mapping(target = "courseTags", ignore = true)
-    CourseTagEntity toEntity(CreateTagRequest request);
+    CourseTagEntity toEntity(CreateCourseTagRequest request);
 }

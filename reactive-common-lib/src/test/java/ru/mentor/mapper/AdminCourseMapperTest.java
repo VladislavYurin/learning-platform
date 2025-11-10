@@ -8,6 +8,7 @@ import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.CourseTagEntity;
+import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
@@ -17,19 +18,30 @@ class AdminCourseMapperTest {
 
     private final UserMapper userMapper = new UserMapper();
     private final TagMapper tagMapper = new TagMapper();
-    private final AdminCourseMapper mapper = new AdminCourseMapper(userMapper, tagMapper);
+    private final AdminModuleMapper moduleMapper = new AdminModuleMapper();
+    private final AdminCourseMapper mapper = new AdminCourseMapper(userMapper, tagMapper, moduleMapper);
 
     @Test
     void mapCourseEntityToGrpcCourseResponse_returnsExpectedResponse() {
         CourseEntity courseEntity = TestEntityStubGenerator.constructCourseEntity();
+        courseEntity.setId(TestConstantHolder.COURSE_ID);
+
         UserEntity courseAuthor = TestEntityStubGenerator.constructAuthorUserEntity();
+        courseAuthor.setId(TestConstantHolder.COURSE_AUTHOR_ID);
+
+        ModuleEntity moduleEntity = TestEntityStubGenerator.constructModuleEntity();
+        moduleEntity.setId(TestConstantHolder.MODULE_ID);
+
         List<CourseTagEntity> listOfTags =
                 TestEntityStubGenerator.constructCourseTagEntityList(4);
+        List<ModuleEntity> listOfModules =
+                List.of(moduleEntity);
 
         CourseResponse response = mapper.mapCourseEntityToGrpcCourseResponse(
                 courseEntity,
                 courseAuthor,
-                listOfTags
+                listOfTags,
+                listOfModules
         );
 
 
@@ -53,6 +65,9 @@ class AdminCourseMapperTest {
 
         Assertions.assertEquals(4, response.getTagsCount());
         Assertions.assertEquals("test-tag-1", response.getTags(0).getName());
+        Assertions.assertEquals(1, response.getModulesCount());
+        Assertions.assertEquals(TestConstantHolder.MODULE_TITLE,
+                                response.getModulesList().get(0).getTitle());
     }
 
     @Test

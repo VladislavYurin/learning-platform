@@ -38,6 +38,7 @@ class ModuleFacadeImplTest {
     @Test
     void findModuleResponseById_whenModuleExist_shouldReturnModuleResponse() {
         ModuleEntity moduleEntity = TestEntityStubGenerator.constructModuleEntity();
+        moduleEntity.setId(TestConstantHolder.MODULE_ID);
         ModuleResponse expectedResponse = TestGrpcStubGenerator.constructModuleResponse();
 
         Mockito.when(moduleRepository.findByIdOrThrow(TestConstantHolder.MODULE_ID))
@@ -80,6 +81,7 @@ class ModuleFacadeImplTest {
     void findModuleResponseById_whenCourseNotFound_shouldThrowException() {
         String errorMessage = "Course not found";
         ModuleEntity moduleEntity = TestEntityStubGenerator.constructModuleEntity();
+        moduleEntity.setId(TestConstantHolder.MODULE_ID);
 
         Mockito.when(moduleRepository.findByIdOrThrow(TestConstantHolder.MODULE_ID))
                .thenReturn(Mono.just(moduleEntity));
@@ -97,6 +99,7 @@ class ModuleFacadeImplTest {
     @Test
     public void findAllModulesResponse_success_returnsAllModulesResponse() {
         ModuleEntity moduleEntity = TestEntityStubGenerator.constructModuleEntity();
+        moduleEntity.setId(TestConstantHolder.MODULE_ID);
         AllModulesResponse allModulesResponse = TestGrpcStubGenerator.constructAllModulesResponse();
 
         Mockito.when(moduleRepository.findAllBy(TestConstantHolder.PAGE_REQUEST))

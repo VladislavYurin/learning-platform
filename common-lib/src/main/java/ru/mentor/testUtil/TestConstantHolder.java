@@ -30,8 +30,11 @@ public class TestConstantHolder {
     public static String courseDescription = "Course description";
 
     public static Long tagId = 1L;
+    public static long courseTagId = 1L;
     public static String courseTagName = "Test courseTagName";
-
+    public static Timestamp courseTagCreatedAtTimestamp = Timestamp.newBuilder()
+                                                              .setSeconds(createdAt.toEpochSecond(ZoneOffset.UTC))
+                                                              .build();
     public static long moduleId = 1L;
     public static String moduleTitle = "Module title";
     public static String moduleContent = "Content";
