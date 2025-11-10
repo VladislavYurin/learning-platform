@@ -24,6 +24,11 @@ import ru.mentor.util.RqGenerator;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final String ACCESS_DENIED_PROBLEM_TITLE = "Access Denied";
+    private static final String ENTITY_NOT_FOUND_PROBLEM_TITLE = "Not Found";
+    private static final String ENTITY_ALREADY_EXISTS_PROBLEM_TITLE = "Already exists";
+    private static final String INTERNAL_SERVER_ERROR_PROBLEM_TITLE = "Internal Server Error";
+
     /**
      * Преобразует {@link FeignClientExceptionWithResponse} в HTTP-ответ.
      *
@@ -44,28 +49,75 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ProblemDetail> handleAccessDeniedException(AccessDeniedException e) {
 
-        String rqId = RqGenerator.generateRqId();
-        log.error("[requestId = {} ] Ошибка при попытке создания курса", rqId, e);
+        String requestId = RqGenerator.generateRqId();
+        log.error("[ requestId = {} ] {}", requestId, e.getMessage());
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.FORBIDDEN,
                 "Доступ запрещен: у вас недостаточно прав для выполнения этой операции"
         );
-        problem.setTitle("Access Denied");
+        problem.setTitle(ACCESS_DENIED_PROBLEM_TITLE);
         problem.setProperty("errorCode", "ACCESS_DENIED");
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
     }
 
+    @ExceptionHandler(CustomAccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleCustomAccessDeniedException(
+            CustomAccessDeniedException e) {
+
+        String requestId = e.getRequestId() != null ? e.getRequestId() : RqGenerator.generateRqId();
+        log.error("[RequestUid = {} ] {}", requestId, e.getMessage());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                e.getMessage()
+        );
+        problem.setTitle(ACCESS_DENIED_PROBLEM_TITLE);
+        problem.setProperty("errorCode", "ACCESS_DENIED");
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleEntityNotFoundException(EntityNotFoundException e) {
+        String requestId = e.getRequestId() != null ? e.getRequestId() : RqGenerator.generateRqId();
+        log.info("[RequestUid = {} ] {}", requestId, e.getMessage());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                e.getMessage()
+        );
+        problem.setTitle(ENTITY_NOT_FOUND_PROBLEM_TITLE);
+        problem.setProperty("errorCode", "ENTITY_NOT_FOUND");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public ResponseEntity<ProblemDetail> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
+        String requestId = e.getRequestId() != null ? e.getRequestId() : RqGenerator.generateRqId();
+
+        log.info("[ RequestUid = {} ] {}", requestId, e.getMessage());
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                e.getMessage()
+        );
+        problem.setTitle(ENTITY_ALREADY_EXISTS_PROBLEM_TITLE);
+        problem.setProperty("errorCode", "ENTITY_ALREADY_EXISTS");
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleInternalServerError(Exception e) {
-        String rqId = RqGenerator.generateRqId();
-        log.error("[requestId = {} ] Ошибка при получении списка тегов курса", rqId, e);
+        String requestId = RqGenerator.generateRqId();
+        log.error("[requestId = {} ] {}", requestId, e.getMessage());
 
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        problem.setTitle("Internal Server Error");
-        problem.setDetail("Произошла внутренняя ошибка сервера");
-        problem.setProperty("requestId", rqId);
+        problem.setTitle(INTERNAL_SERVER_ERROR_PROBLEM_TITLE);
+        problem.setProperty("errorCode", "INTERNAL_SERVER_ERROR");
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
     }

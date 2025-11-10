@@ -1,6 +1,7 @@
 package ru.mentor.repository;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.data.repository.reactive.ReactiveSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -25,7 +26,7 @@ public interface CourseRepository
      * @param courseId
      *         идентификатор курса
      *
-     * @return сущность курса
+     * @return Mono с сущностью курса
      *
      * @throws EntityNotFoundException
      *         если курс с указанным идентификатором не найден
@@ -34,7 +35,7 @@ public interface CourseRepository
         return this.findById(courseId)
                    .switchIfEmpty(Mono.error(new EntityNotFoundException(
                            String.format(
-                                   "Курс с ID = %d не найден",
+                                   "Курс с [ ID = %d ] не найден",
                                    courseId
                            )
                    )));
@@ -49,5 +50,36 @@ public interface CourseRepository
      * @return список всех курсов постранично
      */
     Flux<CourseEntity> findAllBy(Pageable pageable);
+
+    /**
+     * Находит все курсы автора с переданным id
+     *
+     * @param authorId - ID пользователя в таблице users
+     *
+     * @return - Flux с сущностями курсов
+     */
+    Flux<CourseEntity> findAllByAuthorId(Long authorId);
+
+    /**
+     * Находит все курсы, к которым пользователь с переданным id имеет доступ
+     *
+     * @param userId - id пользователя в таблице users
+     *
+     * @return - Flux с сущностями курсов
+     */
+    @Query("""
+            SELECT c.* FROM courses c
+            JOIN user_course_access uca ON c.id_course = uca.course_id
+            WHERE uca.user_id = :userId
+            AND c.is_active = true
+            """)
+    Flux<CourseEntity> findAllByUserAccess(Long userId);
+
+    /**
+     * Находит все активные курсы
+     *
+     * @return Flux с сущностями активных курсов
+     */
+    Flux<CourseEntity> findAllByIsActiveTrue();
 
 }

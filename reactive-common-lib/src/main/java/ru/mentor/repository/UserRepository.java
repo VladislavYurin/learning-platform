@@ -64,15 +64,14 @@ public interface UserRepository extends R2dbcRepository<UserEntity, Long> {
         return this.findById(userId)
                    .switchIfEmpty(Mono.error(new EntityNotFoundException(
                            String.format(
-                                   "Юзер с ID = %d не найден",
+                                   "Юзер с [ ID = %d ] не найден",
                                    userId
                            )
                    )));
     }
 
     @Query("""
-            SELECT
-            *
+            SELECT users.*
             FROM users JOIN mentor_time_slot__users slots_users
                 ON users.id_user = slots_users.user_id
             WHERE slots_users.time_slot_id = :slotId""")

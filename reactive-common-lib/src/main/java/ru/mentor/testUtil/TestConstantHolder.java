@@ -50,6 +50,7 @@ public final class TestConstantHolder {
 
     public static final long USER_ID = 100L;
     public static final String USERNAME = "test-user";
+    public static final String PASSWORD = "password";
     public static final String FIRST_NAME = "John";
     public static final String LAST_NAME = "Doe";
     public static final String TG_NICKNAME = "@john";
@@ -81,7 +82,7 @@ public final class TestConstantHolder {
 
     public static final long MODULE_ID = 2L;
     public static final String MODULE_TITLE = "test-module-title";
-    public static final int MODULE_ORDER_NUMBER = 5;
+    public static final int MODULE_ORDER_NUMBER = 1;
     public static final String MODULE_CONTENT = "test-module-content";
     public static final Boolean IS_ACTIVE_MODULE = true;
     public static final long MODULE_CREATED_AT_EPOCH_SECONDS = CREATED_AT_EPOCH_SECONDS;

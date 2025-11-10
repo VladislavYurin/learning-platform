@@ -60,7 +60,7 @@ public class ModuleEntity {
      * Флаг активности модуля.
      */
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     /**
      * Дата и время создания модуля.

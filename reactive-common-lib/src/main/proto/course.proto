@@ -3,7 +3,8 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "common.proto";
 import "user.proto";
-import "tag.proto";
+import "course_tag.proto";
+import "module.proto";
 
 option java_multiple_files = true;
 option java_package = "ru.mentor.common";
@@ -22,6 +23,17 @@ message AllCoursesResponse {
   repeated CourseResponse courses = 2;
 }
 
+// Запрос всех активных курсов для превью
+message GetAllActiveCoursesPreviewRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+}
+
+// Ответ со списком курсов для превью
+message AllActiveCoursesResponse {
+  repeated CourseResponse courses = 1;
+}
+
 // Запрошенный курс
 message CourseResponse {
   uint64 course_id = 1;
@@ -30,5 +42,46 @@ message CourseResponse {
   bool is_active = 4;
   google.protobuf.Timestamp created_at = 5;
   AuthorResponse author = 6;
-  repeated Tag tags = 7;
+  repeated CourseTagResponse tags = 7;
+  repeated ModuleResponse modules = 8;
+}
+
+// Запрос для создания курса
+message CreateCourseGrpcRequest {
+  Header header = 1;
+  uint64 user_id = 2;
+  string course_name = 3;
+  string course_description = 4;
+  repeated uint64 tag_ids = 5;
+}
+
+// Запрос для удаления курса
+message DeleteCourseRequest {
+  Header  header = 1;
+  uint64 sender_id = 2;
+  uint64 course_id = 3;
+}
+
+message DeleteCourseResponse {
+}
+
+service CourseService {
+
+  // Получить курс по ID
+  rpc GetCourse (GetCourseRequest) returns (CourseResponse);
+
+  // Получить все курсы
+  rpc GetAllCourses (GrpcPageRequest) returns (AllCoursesResponse);
+
+  // Получить все активные курсы
+  rpc GetAllActiveCourses (GrpcPageRequest) returns (AllCoursesResponse);
+
+  // Получить превью курсов
+  rpc GetAllActiveCoursesPreview (GetAllActiveCoursesPreviewRequest) returns (AllActiveCoursesResponse);
+
+  // Создать новый курс
+  rpc CreateCourse (CreateCourseGrpcRequest) returns (CourseResponse);
+
+  // Удалить курс
+  rpc DeleteCourse (DeleteCourseRequest) returns (DeleteCourseResponse);
 }

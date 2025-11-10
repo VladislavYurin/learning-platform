@@ -1,260 +1,188 @@
 package ru.mentor.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
+import io.grpc.Status;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+import ru.mentor.common.AllActiveCoursesResponse;
+import ru.mentor.common.AllCoursesResponse;
+import ru.mentor.common.CourseResponse;
+import ru.mentor.common.CreateCourseGrpcRequest;
+import ru.mentor.common.DeleteCourseRequest;
+import ru.mentor.common.DeleteCourseResponse;
+import ru.mentor.common.GetAllActiveCoursesPreviewRequest;
+import ru.mentor.common.GetCourseRequest;
+import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.constant.Role;
-import ru.mentor.dto.CourseDto;
-import ru.mentor.dto.InnerCreateCourseRequest;
-import ru.mentor.dto.ModuleDto;
-import ru.mentor.entity.CourseEntity;
-import ru.mentor.entity.CourseTagLinkEntity;
 import ru.mentor.entity.ModuleEntity;
-import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
-import ru.mentor.entity.UserModuleAccessEntity;
-import ru.mentor.exception.CustomAccessDeniedException;
-import ru.mentor.kafka.KafkaFacade;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.facade.CourseFacade;
 import ru.mentor.repository.CourseRepository;
-import ru.mentor.repository.CourseTagRepository;
-import ru.mentor.repository.UserCourseAccessRepository;
+import ru.mentor.repository.ModuleRepository;
 import ru.mentor.repository.UserModuleAccessRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.service.CourseService;
 import ru.mentor.util.AccessChecker;
 
 /**
- * Реализация сервиса для управления курсами в системе управления онлайн-курсами.
- * Cервис предоставляет методы для создания и удаления курсов,
- * а также управляет доступом к ним в соответствии с ролями пользователей.
+ * Реализация сервиса для управления курсами.
+ * Управляет доступом к методам фасада в соответствии с ролями пользователей.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class CourseServiceImpl implements CourseService {
 
-    private final CourseRepository courseRepository;
-
+    private final CourseFacade courseFacade;
     private final UserRepository userRepository;
-
-    private final BaseMapper baseMapper;
-
+    private final CourseRepository courseRepository;
     private final AccessChecker accessChecker;
-
-    private final UserCourseAccessRepository userCourseAccessRepository;
-
+    private final ModuleRepository moduleRepository;
     private final UserModuleAccessRepository userModuleAccessRepository;
 
-    private final KafkaFacade kafkaFacade;
-
-    private final CourseTagRepository tagRepository;
-
     /**
-     * Создает новый курс от имени пользователя (ментора или администратора).
+     * Находит в базе данных пользователя по ID из запроса, после чего проверяет его роль.
+     * Если роль позволяет, вызывает метод фасада для создания курса и передает в него данные
+     * запроса.
      *
-     * @param request Запрос на создание курса, содержащий данные о названии, описании и ID автора курса.
-     * @return DTO курса, созданного в результате операции, содержащий информацию о курсе.
-     * @throws CustomAccessDeniedException Если пользователь не обладает необходимыми правами для создания курса.
+     * @param request gRPC-запрос с данными для создания курса
+     *
+     * @return Mono с gRPC-ответом, содержащим данные созданного курса
      */
     @Override
-    @Transactional
-    public CourseDto createCourse(InnerCreateCourseRequest request) {
-        UserEntity user = userRepository.findByIdOrThrow(request.getAuthorId());
-
-        CourseEntity course = CourseEntity.builder()
-                                          .author(user)
-                                          .courseTitle(request.getCourseName())
-                                          .description(request.getCourseDescription())
-                                          .build();
-
-        List<Long> ids = getCourseTagIds(request);
-
-        course.getCourseTags().addAll(
-                ids.stream()
-                   .map(id -> CourseTagLinkEntity.builder()
-                                                 .course(course)
-                                                 .tag(tagRepository.getReferenceById(id))
-                                                 .createdAt(LocalDateTime.now())
-                                                 .build())
-                   .toList()
-        );
-        CourseEntity courseEntity = courseRepository.save(course);
-        return baseMapper.mapCourse(courseEntity, user, false, false, true);
+    public Mono<CourseResponse> createCourse(CreateCourseGrpcRequest request) {
+        return userRepository
+                .findByIdOrThrow(request.getUserId())
+                .flatMap(user -> {
+                    if (Role.checkIsMentor(user) || Role.checkIsAdmin(user)) {
+                        return courseFacade.createCourse(request, user);
+                    } else {
+                        return Mono.error(
+                                Status.PERMISSION_DENIED
+                                        .withDescription(String.format(
+                                                "Юзер с [ ID = %d ] не имеет доступа к созданию курса",
+                                                user.getId()
+                                        ))
+                                        .asRuntimeException()
+                        );
+                    }
+                });
     }
 
     /**
-     * Удаление курса
+     * Находит в базе данных пользователя, находит курс по ID из запроса и, если
+     * у пользователя подходящая роль, находит в базе данных курс по ID из запроса,
+     * проверяет права пользователя на курс. Если права есть, вызывает метод фасада
+     * для удаления курса.
      *
-     * @param userId
-     *         идентификатор пользователя, выполняющего операцию
-     * @param courseId
-     *         идентификатор удаляемого курса
+     * @param request - gRPC запрос {@link DeleteCourseRequest} с данными для удаления курса
      *
-     * @throws CustomAccessDeniedException
-     *         исключение если пользователю запрещен доступ к данной операции
+     * @return - пустой gRPC - ответ
      */
     @Override
-    @Transactional
-    public void deleteCourse(Long userId, Long courseId) {
-        UserEntity deletedByUser = userRepository.findByIdOrThrow(userId);
-        CourseEntity course = courseRepository.findByIdOrThrow(courseId);
-
-        // Админ может удалять любой курс
-        if (Role.checkIsAdmin(deletedByUser)) {
-            courseRepository.deleteById(courseId);
-            kafkaFacade.sendCourseDeletedMessage(course, deletedByUser);
-            return;
-        }
-
-        // Ментор может удалять только свои курсы
-        if (Role.checkIsMentor(deletedByUser) && course.getAuthor().equals(deletedByUser)) {
-            courseRepository.delete(course);
-            kafkaFacade.sendCourseDeletedMessage(course, deletedByUser);
-            return;
-        }
-
-        // Если дошли сюда — доступ запрещён
-        throw new CustomAccessDeniedException(
-                String.format(
-                        "Юзер с ID = %d не имеет доступа к удалению курса с ID = %d",
-                        userId,
-                        courseId
-                )
-        );
+    public Mono<DeleteCourseResponse> deleteCourse(DeleteCourseRequest request) {
+        return accessChecker
+                .isCourseAuthor(request.getSenderId(), request.getCourseId())
+                .flatMap(isAuthor -> {
+                    if (isAuthor) {
+                        return courseFacade.deleteCourse(request.getCourseId());
+                    } else {
+                        return Mono.error(
+                                Status.PERMISSION_DENIED
+                                        .withDescription(String.format(
+                                                "Юзер с [ ID = %d ] не имеет доступа к удалению"
+                                                        + " курса [ ID = %d ]",
+                                                request.getSenderId(),
+                                                request.getCourseId()
+                                        ))
+                                        .asRuntimeException()
+                        );
+                    }
+                });
     }
 
     /**
-     * Получение списка активных курсов
+     * Вызывает метод фасада для получения данных обо всех курсах
      *
-     * @param userId
-     *         идентификатор пользователя, выполняющего операцию
+     * @param request - параметры пагинации
      *
-     * @return List<CourseDto> список активных курсов
+     * @return Mono с gRPC-ответом, содержащим список курсов
      */
     @Override
-    public List<CourseDto> getAllActiveCourses(Long userId) {
-        UserEntity user = userRepository.findByIdOrThrow(userId);
-        if (Role.checkIsAdmin(user)) {
-            List<CourseEntity> courseEntities = courseRepository.findAllByIsActiveTrue();
-            return baseMapper.mapCourses(courseEntities, false, false, true);
-        }
-        if (Role.checkIsMentor(user)) {
-            List<CourseEntity> courseEntities = courseRepository.findAllByIsActiveTrueAndAuthorId(
-                    userId);
-            return baseMapper.mapCourses(courseEntities, false, false, true);
-        }
-        List<UserCourseAccessEntity> userCourseAccessEntities = user.getCourseAccesses();
-        if (userCourseAccessEntities.isEmpty()) {
-            return null;
-        }
-        List<CourseEntity> courses = userCourseAccessEntities.stream()
-                                                             .map(UserCourseAccessEntity::getCourse)
-                                                             .filter(CourseEntity::getIsActive)
-                                                             .toList();
-        return baseMapper.mapCourses(courses, false, false, true);
+    public Mono<AllCoursesResponse> getAllCourses(GrpcPageRequest request) {
+        return courseFacade.findAllCourses(request);
     }
 
     /**
-     * Получение всех курсов
+     * Вызывает метод фасада для получения данных обо всех активных курсах
+     * без информации о модулях
      *
-     * @param userId
-     *         идентификатор пользователя, который хочет получить курсы
+     * @param request - параметры пагинации
      *
-     * @return List<CourseDto> список курсов
+     * @return Mono с gRPC-ответом, содержащим список курсов
      */
     @Override
-    public List<CourseDto> getAllCourses(Long userId) {
-        UserEntity user = userRepository.findByIdOrThrow(userId);
-        if (Role.checkIsAdmin(user)) {
-            List<CourseEntity> courseEntities = courseRepository.findAll();
-            return baseMapper.mapCourses(courseEntities, false, false, true);
-        }
-        if (Role.checkIsMentor(user)) {
-            List<CourseEntity> courseEntities = courseRepository.findAllByAuthorId(userId);
-            return baseMapper.mapCourses(courseEntities, false, false, true);
-        }
-        List<UserCourseAccessEntity> userCourseAccessEntities = user.getCourseAccesses();
-        if (userCourseAccessEntities.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<CourseEntity> courses = userCourseAccessEntities.stream()
-                                                             .map(UserCourseAccessEntity::getCourse)
-                                                             .toList();
-        return baseMapper.mapCourses(courses, false, false, true);
+    public Mono<AllActiveCoursesResponse> getAllActiveCoursesPreview(GetAllActiveCoursesPreviewRequest request) {
+        return courseFacade.findAllActiveCoursesPreview(request)
+                           .map(list ->
+                               AllActiveCoursesResponse.newBuilder()
+                                                       .addAllCourses(list)
+                                                       .build());
     }
 
     /**
-     * Получение курса по идентификатору
+     * Находит в базе данных пользователя по ID из запроса, находит в базе курс по ID из запроса,
+     * проверяет, есть ли у пользователя доступ к курсу и к модулям. Если доступ есть,
+     * находит в базе список модулей и вызывает метод фасада для получения информации о курсе.
      *
-     * @param userId
-     *         идентификатор пользователя, который хочет получить курсы
-     * @param courseId
-     *         идентификатор курса
+     * @param request - gRPC - запрос данных о курсе
      *
-     * @return CourseDto ДТО курса полученная по идентификатору
-     *
-     * @throws CustomAccessDeniedException
-     *         исключение если пользователю запрещен доступ к данной операции
+     * @return Mono с gRPC-ответом, содержащим данные о курсе, модулях, тегах
      */
     @Override
-    public CourseDto getCourseById(Long userId, Long courseId) {
-        UserEntity user = userRepository.findByIdOrThrow(userId);
-        CourseEntity course = courseRepository.findByIdOrThrow(courseId);
-        if (Role.checkIsAdmin(user) ||
-                Role.checkIsMentor(user) && Role.checkMentorIsAuthorOfCourse(user, course)) {
-            return baseMapper.mapCourse(course, course.getAuthor(), true, false, true);
-        } else if (accessChecker.hasAccessToCourse(userId, courseId)) {
-            List<UserModuleAccessEntity> userModuleAccessEntities = userModuleAccessRepository.findAllByUserIdAndCourseId(
-                    userId,
-                    courseId
-            );
-            List<ModuleEntity> moduleEntities = userModuleAccessEntities.stream().map(
-                    UserModuleAccessEntity::getModule).toList();
-            CourseDto courseDto = baseMapper.mapCourse(
-                    course,
-                    course.getAuthor(),
-                    false,
-                    false,
-                    true
-            );
-            List<ModuleDto> modules = baseMapper.mapModules(moduleEntities, false);
-            courseDto.setModules(modules);
-            return courseDto;
-        }
-        throw new CustomAccessDeniedException(
-                String.format(
-                        "Юзер с ID = %d не имеет доступа к курсу с ID = %d",
-                        userId,
-                        courseId
-                )
-        );
+    public Mono<CourseResponse> getCourseById(GetCourseRequest request) {
+        return userRepository
+            .findByIdOrThrow(request.getSenderId())
+            .flatMap(user ->
+                courseRepository
+                    .findByIdOrThrow(request.getCourseId())
+                    .flatMap(course ->
+                        accessChecker.hasAccessToCourse(user.getId(), course.getId())
+                            .flatMap(hasAccess -> {
+                                Mono<List<ModuleEntity>> modules;
+                                if (Role.checkIsMentor(user) &&
+                                    user.getId().equals(course.getAuthorId())) {
+                                        modules = moduleRepository.findAllByCourseId(course.getId())
+                                                                  .collectList();
+                                } else if (hasAccess) {
+                                    modules = userModuleAccessRepository
+                                            .findAllByUserIdAndCourseId(user.getId(), course.getId())
+                                            .flatMap(link ->
+                                                moduleRepository.findById(link.getModuleId()))
+                                            .collectList();
+                                } else {
+                                    return Mono.error(
+                                        Status.PERMISSION_DENIED
+                                              .withDescription(String.format(
+                                                  "Юзер с [ ID = %d ] не имеет доступа к курсу с [ ID = %d ]",
+                                                  user.getId(),
+                                                  request.getCourseId()
+                                              ))
+                                              .asRuntimeException()
+                                    );
+                                }
+                                return userRepository.findByIdOrThrow(course.getAuthorId())
+                                    .flatMap(author ->
+                                        modules.flatMap(modulesList ->
+                                            courseFacade.getCourse(course, author, modulesList)
+                                        )
+                                    );
+                            })
+                    )
+                );
     }
-
-    private List<Long> getCourseTagIds(InnerCreateCourseRequest request) {
-        return request.getTagIds() == null ? List.of()
-                : request.getTagIds().stream().distinct().toList();
-    }
-
-    /**
-     * Получение списка всех активных курсов (без модулей) с информацией о наставнике
-     *
-     * @return список активных курсов (без модулей) с информацией о наставнике
-     */
-    @Override
-    public List<CourseDto> getAllActiveCoursesPreview() {
-        List<CourseEntity> courseEntityList = courseRepository.findAllByIsActiveTrue()
-                .stream()
-                .sorted(Comparator.comparing(CourseEntity::getCourseTitle))
-                .toList();
-            return baseMapper.mapCourses(
-                    courseEntityList,
-                    false,
-                    false,
-                    true);
-        }
 }

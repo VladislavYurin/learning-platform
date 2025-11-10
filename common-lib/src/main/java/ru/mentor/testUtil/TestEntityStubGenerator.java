@@ -13,6 +13,8 @@ import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.UserInfoDto;
+import ru.mentor.dto.tag.CourseTagDto;
+import ru.mentor.dto.tag.CreateCourseTagRequest;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.entity.MentorTimeSlotEntity;
@@ -222,4 +224,20 @@ public class TestEntityStubGenerator {
                               .build();
     }
 
+    public static CourseTagDto constructCourseTagDto(){
+        return CourseTagDto.builder()
+                           .tagName(TestConstantHolder.courseTagName)
+                           .build();
+    }
+
+    public static List<CourseTagDto> constructCourseTagDtoListRequest(){
+        return List.of(constructCourseTagDto());
+    }
+
+    public static CreateCourseTagRequest constructCreateCourseTagRequest(){
+        return CreateCourseTagRequest
+                .builder()
+                .tagName(TestConstantHolder.courseTagName)
+                .build();
+    }
 }

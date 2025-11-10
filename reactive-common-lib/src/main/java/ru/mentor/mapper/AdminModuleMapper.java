@@ -1,11 +1,14 @@
 package ru.mentor.mapper;
 
 import com.google.protobuf.Timestamp;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.AllModulesResponse;
+import ru.mentor.common.CreateModuleGrpcRequest;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.PageDetails;
 import ru.mentor.entity.CourseEntity;
@@ -14,6 +17,7 @@ import ru.mentor.entity.ModuleEntity;
 /**
  * Converters between module entities and gRPC responses for admin flows.
  */
+@Slf4j
 @Component
 public class AdminModuleMapper {
 
@@ -73,6 +77,17 @@ public class AdminModuleMapper {
                              .setCreatedAt(createdAtTimestamp)
                              .setCourseId(courseEntity.getId())
                              .build();
+    }
+
+    public ModuleEntity mapCreateModuleGrpcRequestToModuleEntity(CreateModuleGrpcRequest request) {
+        return ModuleEntity.builder()
+                           .moduleTitle(request.getTitle())
+                           .moduleContent(request.getContent())
+                           .moduleOrderNumber(request.getOrderNumber())
+                           .courseId(request.getCourseId())
+                           .isActive(true)
+                           .createdAt(LocalDateTime.now())
+                           .build();
     }
 
 }

@@ -10,5 +10,5 @@ public interface TagGrpcMapper {
     @Mapping(target = "tagName", source = "name")
     @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "isActive", source = "isActive")
-    CourseTagDto fromGrpc(ru.mentor.grpc.tags.Tag src);
+    CourseTagDto fromGrpc(ru.mentor.common.CourseTagResponse src);
 }

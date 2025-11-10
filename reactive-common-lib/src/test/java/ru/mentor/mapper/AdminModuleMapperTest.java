@@ -18,6 +18,7 @@ class AdminModuleMapperTest {
     @Test
     void mapModuleEntityToModuleResponse_returnsExpectedResponse() {
         ModuleEntity moduleEntity = TestEntityStubGenerator.constructModuleEntity();
+        moduleEntity.setId(TestConstantHolder.MODULE_ID);
 
         ModuleResponse response = mapper.mapModuleEntityToModuleResponse(moduleEntity);
 
@@ -57,7 +58,9 @@ class AdminModuleMapperTest {
     @Test
     void mapModuleEntityToGrpcModuleResponse_returnsResponseWithCourseData() {
         CourseEntity courseEntity = TestEntityStubGenerator.constructCourseEntity();
+        courseEntity.setId(TestConstantHolder.COURSE_ID);
         ModuleEntity moduleEntity = TestEntityStubGenerator.constructModuleEntity();
+        moduleEntity.setId(TestConstantHolder.MODULE_ID);
 
         ModuleResponse response = mapper.mapModuleEntityToGrpcModuleResponse(
                 courseEntity,

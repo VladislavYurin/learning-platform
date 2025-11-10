@@ -1,7 +1,7 @@
 package ru.mentor.services;
 
 import java.util.List;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.front.CreateCourseRequest;
 
@@ -27,7 +27,7 @@ public interface RedirectCourseService {
      * @param courseId идентификатор курса
      * @return пустой ответ со статусом 200
      */
-    ResponseEntity<?> deleteCourse(Long courseId);
+    void deleteCourse(Long courseId);
 
     /**
      * Возвращает курс по идентификатору.
@@ -40,13 +40,13 @@ public interface RedirectCourseService {
      * Возвращает список всех активных курсов.
      * @return список курсов
      */
-    List<CourseDto> getAllActiveCourses();
+    Page<CourseDto> getAllActiveCourses(int pageNumber, int pageSize);
 
     /**
      * Возвращает список всех курсов.
      * @return список курсов
      */
-    List<CourseDto> getAllCourses();
+    Page<CourseDto> getAllCourses(int pageNumber, int pageSize);
 
     /**
      * Возращает список всех активных курсов без модулей с информацией о наставнике.

@@ -12,6 +12,8 @@ message GetModuleRequest {
   Header header = 1;
   uint64 sender_id = 2;
   uint64 module_id = 3;
+  uint64 course_id = 4;
+  uint32 module_order_number = 5;
 }
 
 // Запрос на получение всех модулей курса
@@ -19,6 +21,40 @@ message GetAllModulesRequest {
   Header header = 1;
   uint64 sender_id = 2;
   uint64 course_id = 3;
+}
+
+// Запрос для создания модуля
+message CreateModuleGrpcRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+  uint64 course_id = 3;
+  string title = 4;
+  string content = 5;
+  uint32 order_number = 6;
+}
+
+// Запрос для создания модуля
+message ImportModuleFromFileRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+  uint64 course_id = 3;
+  string title = 4;
+  string content = 5;
+  uint32 order_number = 6;
+  string filename = 7;
+  bytes fileContent = 8;
+}
+
+// Запрос для удаления модуля
+message DeleteModuleRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+  uint64 course_id = 3;
+  uint64 module_id = 4;
+  uint32 module_order_number = 5;
+}
+
+message DeleteModuleResponse {
 }
 
 // Запрошенный модуль
@@ -36,4 +72,23 @@ message ModuleResponse {
 message AllModulesResponse {
   PageDetails page_details = 1;
   repeated ModuleResponse modules = 2;
+}
+
+// Сервис для запросов по модулям
+service ModuleService {
+
+  // Получить модуль по ID
+  rpc GetModule (GetModuleRequest) returns (ModuleResponse);
+
+  // Получить все модули курса
+  rpc GetAllModules (GrpcPageRequest) returns (AllModulesResponse);
+
+  // Создать модуль
+  rpc CreateModule (CreateModuleGrpcRequest) returns (ModuleResponse);
+
+  // Удалить модуль
+  rpc DeleteModule (DeleteModuleRequest) returns (DeleteModuleResponse);
+
+  // Импортировать модуль из файла
+  rpc ImportModuleFromFile (ImportModuleFromFileRequest) returns (ModuleResponse);
 }

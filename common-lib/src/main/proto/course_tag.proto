@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.common";
+option java_outer_classname = "TagsProto";
+
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+
+/**
+ * Пустое сообщение-заглушка.
+ * Используется в методах, где не требуется входных параметров.
+ */
+message Empty{}
+
+/**
+ * Ответ на запрос получения всех тегов.
+ * Содержит список объектов {@link Tag}.
+ */
+message ListCourseTagsResponse {
+  /** Список тегов */
+  repeated CourseTagResponse tags = 1;
+}
+
+// Запрос на получение тега по ID
+message GetCourseTagRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+  uint64 tag_id = 3;
+}
+
+//Запрос создания тега
+message CreateCourseTagGrpcRequest{
+  Header header = 1;
+  uint64 sender_id = 2;
+  string name = 3;
+}
+
+//Ответ на запрос создания тега
+message CourseTagResponse{
+  /** Уникальный идентификатор тега */
+  int64 id = 1;
+  /** Название тега */
+  string name = 2;
+  /** Дата и время создания тега */
+  google.protobuf.Timestamp created_at = 3;
+  /** Флаг активности тега */
+  bool is_active = 4;
+}
+
+// Запрос для удаления тега по ID
+message DeleteCourseTagRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+  uint64 tag_id = 3;
+}
+
+message DeleteCourseTagResponse {
+}
+
+/**
+ * gRPC-сервис для работы с тегами.
+ */
+service CourseTagsService {
+
+  // Создать новый тег
+  rpc CreateCourseTag (CreateCourseTagGrpcRequest) returns (CourseTagResponse);
+
+  // Удалить тег
+  rpc DeleteCourseTag (DeleteCourseTagRequest) returns (DeleteCourseTagResponse);
+
+  // Получить тег по ID
+  rpc GetCourseTag (GetCourseTagRequest) returns (CourseTagResponse);
+
+  /**
+ * Получить список всех тегов.
+ *
+ * @param Empty пустой запрос
+ * @return ListTagsResponse список тегов
+ */
+  rpc GetAllTags(Empty) returns (ListCourseTagsResponse);
+}

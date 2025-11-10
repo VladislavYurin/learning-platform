@@ -16,7 +16,9 @@ import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.PageDetails;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.UserInfoDto;
+import ru.mentor.dto.tag.CourseTagDto;
 import ru.mentor.entity.CourseEntity;
 
 @Component
@@ -24,6 +26,10 @@ import ru.mentor.entity.CourseEntity;
 public class AdminCourseMapper {
 
     private final UserMapper userMapper;
+
+    private final AdminModuleMapper moduleMapper;
+
+    private final TagGrpcMapper tagGrpcMapper;
 
     /**
      * Преобразует gRPC-объект в DTO для отправки пользователю.
@@ -42,6 +48,12 @@ public class AdminCourseMapper {
         );
 
         UserInfoDto authorInfo = userMapper.mapGrpcAuthorResponseToUserInfoDto(response.getAuthor());
+        List<ModuleDto> moduleDtoList = moduleMapper.toModuleDtoList(response.getModulesList());
+        List<CourseTagDto> tagsList =
+                response.getTagsList()
+                        .stream()
+                        .map(tagGrpcMapper::fromGrpc)
+                        .toList();
 
         return CourseDto.builder()
                         .id(response.getCourseId())
@@ -50,6 +62,8 @@ public class AdminCourseMapper {
                         .isActive(response.getIsActive())
                         .createdAt(createdAtDateTime)
                         .author(authorInfo)
+                        .modules(moduleDtoList)
+                        .tags(tagsList)
                         .build();
     }
 

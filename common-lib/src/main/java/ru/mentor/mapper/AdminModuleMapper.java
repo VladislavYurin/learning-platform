@@ -3,6 +3,7 @@ package ru.mentor.mapper;
 import com.google.protobuf.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -50,11 +51,14 @@ public class AdminModuleMapper {
      * @return {@link ModuleDto}
      */
     public ModuleDto mapGrpcModuleResponseToModuleDto(ModuleResponse grpcModuleResponse) {
-        LocalDateTime createdAtDateTime = LocalDateTime.ofEpochSecond(
-                grpcModuleResponse.getCreatedAt().getSeconds(),
-                grpcModuleResponse.getCreatedAt().getNanos(),
-                ZoneOffset.UTC
-        );
+        LocalDateTime createdAtDateTime = LocalDateTime.now();
+        if (grpcModuleResponse.hasCreatedAt()) {
+            createdAtDateTime = LocalDateTime.ofEpochSecond(
+                    grpcModuleResponse.getCreatedAt().getSeconds(),
+                    grpcModuleResponse.getCreatedAt().getNanos(),
+                    ZoneOffset.UTC
+            );
+        }
         return ModuleDto.builder()
                         .id(grpcModuleResponse.getModuleId())
                         .moduleTitle(grpcModuleResponse.getTitle())
@@ -126,6 +130,15 @@ public class AdminModuleMapper {
                                  .setPageDetails(extractPageDetailsFromModuleEntityPage(modulesPage))
                                  .addAllModules(moduleResponses)
                                  .build();
+    }
+
+    public List<ModuleDto> toModuleDtoList(List<ModuleResponse> moduleResponses) {
+        return moduleResponses
+                .stream()
+                .map(this::mapGrpcModuleResponseToModuleDto)
+                .sorted(Comparator.comparingInt(ModuleDto::getModuleOrderNumber))
+                .toList();
+
     }
 
     private PageDetails extractPageDetailsFromModuleEntityPage(Page<ModuleEntity> modulesPage) {

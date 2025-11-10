@@ -26,6 +26,12 @@ class AdminCourseMapperTest {
     @Spy
     private UserMapper userMapper;
 
+    @Spy
+    private AdminModuleMapper moduleMapper;
+
+    @Spy
+    private TagGrpcMapper tagGrpcMapper;
+
     @InjectMocks
     private AdminCourseMapper adminCourseMapper;
 

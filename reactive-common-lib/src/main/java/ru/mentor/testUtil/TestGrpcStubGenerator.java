@@ -11,6 +11,8 @@ import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.AuthorResponse;
 import ru.mentor.common.CourseResponse;
+import ru.mentor.common.CreateCourseGrpcRequest;
+import ru.mentor.common.DeleteCourseRequest;
 import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GetModuleRequest;
@@ -20,7 +22,7 @@ import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.PageDetails;
 import ru.mentor.common.Role;
-import ru.mentor.common.Tag;
+import ru.mentor.common.CourseTagResponse;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.common.UserInfo;
 
@@ -37,11 +39,29 @@ public final class TestGrpcStubGenerator {
                      .build();
     }
 
+    public static CreateCourseGrpcRequest constructCreateCourseRequest() {
+        return CreateCourseGrpcRequest.newBuilder()
+                                      .setHeader(buildTestHeader())
+                                      .setUserId(TestConstantHolder.COURSE_AUTHOR_ID)
+                                      .setCourseName(TestConstantHolder.COURSE_TITLE)
+                                      .setCourseDescription(TestConstantHolder.COURSE_DESCRIPTION)
+                                      .build();
+    }
+
+    public static DeleteCourseRequest constructDeleteCourseRequest() {
+        return DeleteCourseRequest.newBuilder()
+                                  .setHeader(buildTestHeader())
+                                  .setCourseId(TestConstantHolder.COURSE_ID)
+                                  .setSenderId(TestConstantHolder.COURSE_AUTHOR_ID)
+                                  .build();
+    }
+
     public static GrpcPageRequest constructGrpcPageRequest() {
         return GrpcPageRequest.newBuilder()
                               .setHeader(buildTestHeader())
                               .setPageNumber(TestConstantHolder.PAGE_NUMBER)
                               .setPageSize(TestConstantHolder.PAGE_SIZE)
+                              .setSenderId(TestConstantHolder.COURSE_AUTHOR_ID)
                               .build();
     }
 
@@ -106,6 +126,7 @@ public final class TestGrpcStubGenerator {
                                                     .setSeconds(TestConstantHolder.CREATED_AT_EPOCH_SECONDS)
                                                     .build())
                              .addAllTags(constructCourseTagsListResponse())
+                             .addAllModules(List.of(constructModuleResponse()))
                              .setAuthor(constructCourseAuthorResponse())
                              .build();
     }
@@ -139,7 +160,10 @@ public final class TestGrpcStubGenerator {
     public static GetModuleRequest constructGetModuleRequest() {
         return GetModuleRequest.newBuilder()
                                .setHeader(buildTestHeader())
+                               .setCourseId(TestConstantHolder.COURSE_ID)
+                               .setModuleOrderNumber(TestConstantHolder.MODULE_ORDER_NUMBER)
                                .setModuleId(TestConstantHolder.MODULE_ID)
+                               .setSenderId(TestConstantHolder.COURSE_AUTHOR_ID)
                                .build();
     }
 
@@ -202,18 +226,18 @@ public final class TestGrpcStubGenerator {
         );
     }
 
-    public static List<Tag> constructCourseTagsListResponse() {
-        List<Tag> listOfTags = new ArrayList<>();
+    public static List<CourseTagResponse> constructCourseTagsListResponse() {
+        List<CourseTagResponse> listOfTags = new ArrayList<>();
 
         for (long i = 1; i <= 4; i++) {
-            listOfTags.add(Tag.newBuilder()
-                              .setId(i)
-                              .setName("test-tag-" + i)
-                              .setCreatedAt(Timestamp.newBuilder()
-                                                     .setSeconds(TestConstantHolder.CREATED_AT_EPOCH_SECONDS)
-                                                     .build())
-                              .setIsActive(true)
-                              .build());
+            listOfTags.add(CourseTagResponse.newBuilder()
+                                            .setId(i)
+                                            .setName("test-tag-" + i)
+                                            .setCreatedAt(Timestamp.newBuilder()
+                                                                   .setSeconds(TestConstantHolder.CREATED_AT_EPOCH_SECONDS)
+                                                                   .build())
+                                            .setIsActive(true)
+                                            .build());
         }
 
         return listOfTags;
