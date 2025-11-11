@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -32,10 +31,10 @@ class AdminCourseControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
+    @MockBean
     private PageCourseDtoMapper pageCourseDtoMapper;
 
-    @Autowired
+    @MockBean
     private CourseDtoMapper courseDtoMapper;
 
     @MockBean
@@ -61,21 +60,27 @@ class AdminCourseControllerTest {
                 TestConstantHolder.totalElementsCount
         );
 
-        PageCourseDto pageCourseDto = pageCourseDtoMapper.toDto(page);
+        PageCourseDto pageCourseDto = new PageCourseDto();
+        pageCourseDto.setContent(List.of(dto));
+        pageCourseDto.setTotalElements((long) TestConstantHolder.totalElementsCount);
+        pageCourseDto.setTotalPages(TestConstantHolder.totalPagesCount);
+        pageCourseDto.setNumber(TestConstantHolder.pageNumber);
+        pageCourseDto.setSize(TestConstantHolder.pageSize);
 
         Mockito.when(redirectAdminCourseService.getAllCourses(
-                        ArgumentMatchers.anyInt(),
-                        ArgumentMatchers.anyInt()
-                ))
-                .thenReturn(page);
+                ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt())
+        ).thenReturn(page);
+
+        Mockito.when(pageCourseDtoMapper.toDto(page))
+                .thenReturn(pageCourseDto);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/course/all")
                         .param("pageNumber", String.valueOf(TestConstantHolder.pageNumber))
-                        .param("pageSize", String.valueOf(TestConstantHolder.pageSize))
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .param("pageSize", String.valueOf(TestConstantHolder.pageSize)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content").isArray())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()").value(1));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements").value(TestConstantHolder.totalElementsCount));
     }
 
     @Test
