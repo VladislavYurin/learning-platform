@@ -920,7 +920,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PageMentorSlotInfoDto'
-  /admin/module/get-one:
+  /admin/module/{moduleId}:
     get:
       tags:
         - Admin Module Controller
@@ -929,7 +929,7 @@ paths:
       operationId: adminGetModuleById
       parameters:
         - name: moduleId
-          in: query
+          in: path
           required: true
           schema:
             type: integer
@@ -959,6 +959,39 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ModuleDto'
+  /admin/module/all:
+    get:
+      tags:
+        - Admin Module Controller
+      summary: Получить все модули
+      description: Возвращает страницу с модулями
+      operationId: adminGetAllModules
+      parameters:
+        - name: pageNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Страница модулей
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageModuleDto'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageModuleDto'
   /admin/course/{courseId}:
     get:
       tags:
@@ -1526,6 +1559,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CourseDto'
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        number:
+          type: integer
+          format: int32
+    PageModuleDto:
+      type: object
+      description: Страница модулей
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModuleDto'
         totalElements:
           type: integer
           format: int64
