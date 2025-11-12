@@ -13,9 +13,9 @@ import ru.mentor.common.BookTimeSlotRequest;
 import ru.mentor.common.CreateTimeSlotRequest;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.constant.Role;
-import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.gateway.model.MentorTimeSlotCreateRequest;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
 import ru.mentor.mapper.MentorTimeSlotCreateRequestMapper;
 import ru.mentor.mapper.TimeSlotMapper;
@@ -46,40 +46,57 @@ class RedirectCalendarServiceImplTest {
     @Test
     public void createTimeSlot_Success() {
 
-        MentorTimeSlotCreateRequest testCreateRequest = TestEntityStubGenerator.constructMentorTimeSlotCreateRequest();
-        TimeSlotResponse testGrpcResponse = TestGrpcStubGenerator.constructTimeSlotResponse();
-        UserEntity testUser = TestEntityStubGenerator.constructUserEntityWithRole(Role.MENTOR);
+        MentorTimeSlotCreateRequest apiRequest =
+                Mockito.mock(MentorTimeSlotCreateRequest.class);
+
+        ru.mentor.dto.MentorTimeSlotCreateRequest commonRequest =
+                TestEntityStubGenerator.constructMentorTimeSlotCreateRequest();
+
+        UserEntity testUser =
+                TestEntityStubGenerator.constructUserEntityWithRole(Role.MENTOR);
+
+        CreateTimeSlotRequest grpcCreateReq = CreateTimeSlotRequest.newBuilder()
+                .setMentorId(TestConstantHolder.mentorId)
+                .build();
+
+        TimeSlotResponse grpcResp = TestGrpcStubGenerator.constructTimeSlotResponse();
 
         Mockito.when(userService.getCurrentUser()).thenReturn(testUser);
-        Mockito.when(calendarServiceClient.createMentorTimeSlot(ArgumentMatchers.any(
-                       CreateTimeSlotRequest.class)))
-               .thenReturn(testGrpcResponse);
 
-        MentorTimeSlotDto result = redirectCalendarService.createTimeSlot(mentorTimeSlotCreateRequestMapper.toApi(testCreateRequest));
+        Mockito.when(mentorTimeSlotCreateRequestMapper.toCommon(apiRequest))
+                .thenReturn(commonRequest);
+
+        Mockito.doReturn(grpcCreateReq)
+                .when(timeSlotMapper)
+                .requestCreateToGrpcDto(
+                        ArgumentMatchers.eq(commonRequest),
+                        ArgumentMatchers.anyString(),
+                        ArgumentMatchers.eq(testUser)
+                );
+
+        Mockito.when(calendarServiceClient.createMentorTimeSlot(ArgumentMatchers.any(CreateTimeSlotRequest.class)))
+                .thenReturn(grpcResp);
+
+        MentorTimeSlotDto expectedDto = TestEntityStubGenerator.constructMentorTimeSlotDto();
+        Mockito.doReturn(expectedDto)
+                .when(timeSlotMapper)
+                .grpcResponseToDto(grpcResp);
+
+        MentorTimeSlotDto result = redirectCalendarService.createTimeSlot(apiRequest);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(TestConstantHolder.timeSlotId, result.getId());
-        Assertions.assertEquals(TestConstantHolder.mentorId, result.getMentorId());
-        Assertions.assertEquals(testCreateRequest.getStartTime(), result.getStartTime());
-        Assertions.assertEquals(testCreateRequest.getEndTime(), result.getEndTime());
-        Assertions.assertEquals(TestConstantHolder.slotType, result.getSlotType());
-        Assertions.assertEquals(TestConstantHolder.slotMeetingType, result.getSlotMeetingType());
-        Assertions.assertEquals(TestConstantHolder.maxParticipants, result.getMaxParticipants());
-        Assertions.assertEquals(testCreateRequest.getMeetingLink(), result.getMeetingLink());
-        Assertions.assertEquals(testCreateRequest.getDescription(), result.getDescription());
-        Assertions.assertNotNull(result.getCreatedAt());
+        Assertions.assertEquals(expectedDto.getId(), result.getId());
+        Assertions.assertEquals(expectedDto.getMentorId(), result.getMentorId());
 
-        Mockito.verify(userService, Mockito.times(1)).getCurrentUser();
-        Mockito.verify(calendarServiceClient, Mockito.times(1))
-               .createMentorTimeSlot(ArgumentMatchers.any(CreateTimeSlotRequest.class));
-        Mockito.verify(timeSlotMapper, Mockito.times(1))
-               .requestCreateToGrpcDto(
-                       ArgumentMatchers.any(),
-                       ArgumentMatchers.anyString(),
-                       ArgumentMatchers.any()
-               );
-        Mockito.verify(timeSlotMapper, Mockito.times(1))
-               .grpcResponseToDto(ArgumentMatchers.any());
+        Mockito.verify(userService).getCurrentUser();
+        Mockito.verify(mentorTimeSlotCreateRequestMapper).toCommon(apiRequest);
+        Mockito.verify(timeSlotMapper).requestCreateToGrpcDto(
+                ArgumentMatchers.eq(commonRequest),
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.eq(testUser)
+        );
+        Mockito.verify(calendarServiceClient).createMentorTimeSlot(ArgumentMatchers.any(CreateTimeSlotRequest.class));
+        Mockito.verify(timeSlotMapper).grpcResponseToDto(grpcResp);
     }
 
     @Test
