@@ -44,13 +44,13 @@ paths:
         '200':
           description: Роль МЕНТОР выдана
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/UserInfoDto'
         '404':
           description: Пользователь не найден
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
   /slot/create:
@@ -70,25 +70,25 @@ paths:
         '200':
           description: Слот успешно создан
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/MentorTimeSlotDto'
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/MentorTimeSlotDto'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/MentorTimeSlotDto'
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/MentorTimeSlotDto'
   /slot/book:
@@ -109,25 +109,25 @@ paths:
         '200':
           description: Слот успешно забронирован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/MentorTimeSlotDto'
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/MentorTimeSlotDto'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/MentorTimeSlotDto'
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/MentorTimeSlotDto'
   /module/import:
@@ -155,25 +155,25 @@ paths:
         '200':
           description: Информация о модуле
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
   /module/create:
@@ -193,25 +193,25 @@ paths:
         '200':
           description: Модуль успешно создан
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
   /course/create:
@@ -231,25 +231,25 @@ paths:
         '200':
           description: Курс успешно создан
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
   /auth/token/refresh:
@@ -268,7 +268,7 @@ paths:
         '200':
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/JwtAuthResponse'
   /auth/reg:
@@ -288,13 +288,13 @@ paths:
         '200':
           description: Регистрация успешна
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/JwtAuthResponse'
         '400':
           description: Пользователь уже существует
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/JwtAuthResponse'
   /auth/login:
@@ -313,7 +313,7 @@ paths:
         '200':
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/JwtAuthResponse'
   /access/module/get-access:
@@ -422,13 +422,13 @@ paths:
         '200':
           description: Пользовательская информация выдана
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/UserInfoDto'
         '404':
           description: Пользователь не найден
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
   /user/me:
@@ -442,13 +442,13 @@ paths:
         '200':
           description: Пользовательская информация выдана
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/UserInfoDto'
         '404':
           description: Пользователь не найден
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
   /slot:
@@ -469,7 +469,7 @@ paths:
         '200':
           description: Выдан список слотов
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -477,7 +477,7 @@ paths:
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -485,7 +485,7 @@ paths:
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -501,7 +501,7 @@ paths:
         '200':
           description: Выдан список слотов
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -509,7 +509,7 @@ paths:
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -517,7 +517,7 @@ paths:
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -540,7 +540,7 @@ paths:
         '200':
           description: Информацию о всех учениках в курсе
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -548,7 +548,7 @@ paths:
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -556,7 +556,7 @@ paths:
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -564,7 +564,7 @@ paths:
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -587,25 +587,25 @@ paths:
         '200':
           description: Информации о прогрессе учеников
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseProgressResponse'
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseProgressResponse'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseProgressResponse'
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseProgressResponse'
   /course-tag/all:
@@ -650,25 +650,25 @@ paths:
         '200':
           description: Информация о модуле
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
     delete:
@@ -694,25 +694,25 @@ paths:
         '200':
           description: Модуль успешно удален
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
   /course/{courseId}:
@@ -733,19 +733,19 @@ paths:
         '200':
           description: Информация о курсе
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
         '404':
           description: Курс не найден
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
     delete:
@@ -765,25 +765,25 @@ paths:
         '200':
           description: Курс успешно удален
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
         '404':
           description: Курс не найден
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
   /course/all:
@@ -797,7 +797,7 @@ paths:
         '200':
           description: Список всех курсов
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -805,7 +805,7 @@ paths:
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -821,7 +821,7 @@ paths:
         '200':
           description: Список активных курсов
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -829,7 +829,7 @@ paths:
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -858,7 +858,7 @@ paths:
         '404':
           description: Пользователь не найден
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
   /admin/user/me:
@@ -878,7 +878,7 @@ paths:
         '404':
           description: Пользователь не найден
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
   /admin/slot/all:
@@ -938,25 +938,25 @@ paths:
         '200':
           description: Информация о модуле
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
         '400':
           description: Невалидные входные данные
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
         '403':
           description: Доступ запрещен
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ModuleDto'
   /admin/module/all:
@@ -1010,19 +1010,19 @@ paths:
         '200':
           description: Информация о курсе
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
         '401':
           description: Не авторизован
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
         '404':
           description: Курс не найден
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CourseDto'
   /admin/course/all:
@@ -1306,9 +1306,6 @@ components:
             - USER
             - ADMIN
             - MENTOR
-            - USER
-            - MENTOR
-            - ADMIN
       description: Ответ с токенами доступа и ролью пользователя
     RegRequest:
       required:

@@ -57,7 +57,7 @@
                             <inputSpec>${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
-                            <typeMappings>DateTime=java.time.ZonedDateTime</typeMappings>
+<!--                            <typeMappings>DateTime=java.time.ZonedDateTime</typeMappings>-->
                             <output>${project.build.directory}/generated-sources/openapi</output>
                             <apiPackage>ru.mentor.gateway.api</apiPackage>
                             <modelPackage>ru.mentor.gateway.model</modelPackage>
@@ -74,7 +74,9 @@
                                 <useJakartaEe>true</useJakartaEe>
 
                                 <skipDefaultInterface>true</skipDefaultInterface>
-                                <dateLibrary>java8</dateLibrary>
+<!--                                <dateLibrary>java8</dateLibrary>-->
+                                <dateLibrary>java8-localdatetime</dateLibrary>
+                                <useZonedDateTime>false</useZonedDateTime>
                             </configOptions>
                         </configuration>
                     </execution>
