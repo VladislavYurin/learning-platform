@@ -1,7 +1,7 @@
 package ru.mentor.services;
 
 import ru.mentor.dto.MentorSlotInfoDto;
-import ru.mentor.dto.MentorTimeSlotCreateRequest;
+import ru.mentor.gateway.model.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 

@@ -1,7 +1,8 @@
 package ru.mentor.services;
 
 import org.springframework.data.domain.Page;
-import ru.mentor.dto.CourseDto;
+//import ru.mentor.dto.CourseDto;
+import ru.mentor.gateway.model.CourseDto;
 
 /**
  * Сервис редиректа в админский сервис управления курсами.

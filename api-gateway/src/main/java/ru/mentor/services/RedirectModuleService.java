@@ -2,7 +2,7 @@ package ru.mentor.services;
 
 import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.dto.ModuleDto;
-import ru.mentor.dto.front.CreateModuleRequest;
+import ru.mentor.gateway.model.CreateModuleRequest;
 
 /**
  * Сервис редиректов/интеграции для операций с модулями курса.

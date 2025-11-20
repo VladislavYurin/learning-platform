@@ -40,7 +40,7 @@ public interface MentorClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<?> giveCourseAccess(
+    ResponseEntity<Void> giveCourseAccess(
             @RequestHeader("RqUId") String rqUId,
             @RequestBody GetAccessRequest dto);
 
@@ -56,7 +56,7 @@ public interface MentorClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<?> revokeCourseAccess(
+    ResponseEntity<Void> revokeCourseAccess(
             @RequestHeader("RqUId") String rqUId,
             @RequestBody GetAccessRequest dto);
 
@@ -72,7 +72,7 @@ public interface MentorClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<?> giveModuleAccess(
+    ResponseEntity<Void> giveModuleAccess(
             @RequestHeader("RqUId") String rqUId,
             @RequestBody GetAccessRequest dto);
 
@@ -88,7 +88,7 @@ public interface MentorClient {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<?> revokeModuleAccess(
+    ResponseEntity<Void> revokeModuleAccess(
             @RequestHeader("RqUId") String rqUId,
             @RequestBody GetAccessRequest dto);
 

@@ -3,7 +3,7 @@ package ru.mentor.services;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import ru.mentor.dto.CourseDto;
-import ru.mentor.dto.front.CreateCourseRequest;
+import ru.mentor.gateway.model.CreateCourseRequest;
 
 /**
  * Сервис редиректов/интеграции для операций с курсами.

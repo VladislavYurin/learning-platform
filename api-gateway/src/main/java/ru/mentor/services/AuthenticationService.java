@@ -1,8 +1,8 @@
 package ru.mentor.services;
 
-import ru.mentor.dto.auth.AuthRequest;
-import ru.mentor.dto.auth.JwtAuthResponse;
-import ru.mentor.dto.auth.RegRequest;
+import ru.mentor.gateway.model.AuthRequest;
+import ru.mentor.gateway.model.JwtAuthResponse;
+import ru.mentor.gateway.model.RegRequest;
 
 /**
  * Сервис для работы с аутентификацией и регистрацией пользователей.

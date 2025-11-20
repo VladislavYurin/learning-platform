@@ -10,7 +10,7 @@ import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GrpcPageRequest;
-import ru.mentor.dto.CourseDto;
+import ru.mentor.gateway.model.CourseDto;
 import ru.mentor.grpc.AdminCourseServiceGrpcClient;
 import ru.mentor.mapper.AdminCourseMapper;
 import ru.mentor.mapper.BaseMapper;

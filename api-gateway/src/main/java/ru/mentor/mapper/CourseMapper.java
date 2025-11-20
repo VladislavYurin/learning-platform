@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.mentor.dto.InnerCreateCourseRequest;
 import ru.mentor.dto.InnerCreateModuleRequest;
-import ru.mentor.dto.front.CreateCourseRequest;
-import ru.mentor.dto.front.CreateModuleRequest;
+import ru.mentor.gateway.model.CreateCourseRequest;
+import ru.mentor.gateway.model.CreateModuleRequest;
 
 /**
  * Маппер для формирования внутреннего запроса на создание курса и модуля.

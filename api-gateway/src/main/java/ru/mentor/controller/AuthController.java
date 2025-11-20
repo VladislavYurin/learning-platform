@@ -1,61 +1,48 @@
 package ru.mentor.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.PermitAll;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import ru.mentor.dto.auth.AuthRequest;
-import ru.mentor.dto.auth.JwtAuthResponse;
-import ru.mentor.dto.auth.RegRequest;
+import ru.mentor.gateway.api.AuthControllerApi;
+import ru.mentor.gateway.model.AuthRequest;
+import ru.mentor.gateway.model.JwtAuthResponse;
+import ru.mentor.gateway.model.RegRequest;
 import ru.mentor.services.AuthenticationService;
 
 /**
  * Контроллер для регистрации, авторизации пользователя и обновления токена.
  */
 @RestController
-@RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth Management", description = "Регистрация и авторизация")
-public class AuthController {
+public class AuthController implements AuthControllerApi {
 
     private final AuthenticationService authenticationService;
 
-    @Operation(
-            summary = "Регистрация пользователя",
-            description = "Позволяет зарегистрировать пользователя с ролью USER",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Регистрация успешна"),
-                    @ApiResponse(responseCode = "400", description = "Пользователь уже существует"),
-            }
-    )
-    @PostMapping("/reg")
-    @PermitAll
-    public JwtAuthResponse registration(@RequestBody @Valid RegRequest request) {
-        return authenticationService.registration(request);
+    /**
+     * Реализация ручки POST /auth/login
+     */
+    @Override
+    public ResponseEntity<JwtAuthResponse> login(AuthRequest authRequest) {
+
+        return ResponseEntity.ok(authenticationService.authentication(authRequest));
     }
 
-    @Operation(summary = "Авторизация пользователя")
-    @PostMapping("/login")
-    @PermitAll
-    public JwtAuthResponse login(@RequestBody @Valid AuthRequest request) {
-        return authenticationService.authentication(request);
-    }
-
-    @Operation(summary = "Обновление токена")
-    @PostMapping("/token/refresh")
-    public JwtAuthResponse refreshToken(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String refreshToken) {
-        if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
+    /**
+     * Реализация ручки POST /auth/token/refresh
+     */
+    @Override
+    public ResponseEntity<JwtAuthResponse> refreshToken(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
             throw new RuntimeException("Отсутствует токен");
         }
-        return authenticationService.refreshToken(refreshToken.substring(7));
+        return ResponseEntity.ok(authenticationService.refreshToken(authorization.substring(7)));
     }
 
+    /**
+     * Реализация ручки POST /auth/reg
+     */
+    @Override
+    public ResponseEntity<JwtAuthResponse> registration(RegRequest regRequest) {
+        return ResponseEntity.ok(authenticationService.registration(regRequest));
+    }
 }

@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.mentor.dto.ModuleDto;
+import ru.mentor.mapper.ModuleDtoMapper;
+import ru.mentor.mapper.PageModuleDtoMapper;
 import ru.mentor.services.JwtService;
 import ru.mentor.services.RedirectAdminModuleService;
 import ru.mentor.services.UserService;
@@ -27,6 +29,7 @@ class AdminModuleControllerTest {
 
     public static final String PAGE_NUMBER_REQUEST_PARAMETER = "pageNumber";
     public static final String PAGE_SIZE_REQUEST_PARAMETER = "pageSize";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -38,6 +41,12 @@ class AdminModuleControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private ModuleDtoMapper moduleDtoMapper;
+
+    @MockBean
+    private PageModuleDtoMapper pageModuleDtoMapper;
 
     @Test
     @SneakyThrows

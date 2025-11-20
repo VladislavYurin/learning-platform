@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.UserInfoDto;
+import ru.mentor.mapper.UserInfoDtoMapper;
 import ru.mentor.services.JwtService;
 import ru.mentor.services.UserInfoService;
 import ru.mentor.services.UserService;
@@ -33,6 +34,9 @@ class AdminUserInfoControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private UserInfoDtoMapper userInfoDtoMapper;
 
     @Test
     void getMyUserInfo_success() throws Exception {

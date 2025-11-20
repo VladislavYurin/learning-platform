@@ -35,6 +35,12 @@
       <artifactId>reactive-common-lib</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
+    <!-- Для работы с protobuf -->
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java-util</artifactId>
+      <version>3.22.0</version>
+    </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
