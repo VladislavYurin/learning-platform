@@ -57,10 +57,13 @@ public class HeaderAuthLoggingServerInterceptor implements ServerInterceptor {
         ServerCall.Listener<ReqT> listener = next.startCall(call, metadata);
 
         return new SimpleForwardingServerCallListener<>(listener) {
+            private boolean closedByAuthFail = false;
+
             @Override
             public void onMessage(ReqT message) {
                 Header header = extractHeader(message);
                 if (header == null) {
+                    closedByAuthFail = true;
                     closeUnauthenticated(call, NO_REQUEST_ID);
                     return;
                 }
@@ -72,11 +75,20 @@ public class HeaderAuthLoggingServerInterceptor implements ServerInterceptor {
                 logInboundCall(requestId, clientNodeId);
 
                 if (isApiKeyInvalid(apiKey)) {
+                    closedByAuthFail = true;
                     closeUnauthenticated(call, requestId);
                     return;
                 }
 
                 super.onMessage(message);
+            }
+
+            @Override
+            public void onHalfClose() {
+                if (closedByAuthFail) {
+                    return;
+                }
+                super.onHalfClose();
             }
         };
     }
