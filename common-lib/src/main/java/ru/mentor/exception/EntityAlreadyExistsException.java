@@ -14,7 +14,7 @@ public class EntityAlreadyExistsException extends RuntimeException {
      * Идентификатор запроса, связанный с исключением.
      * Может быть null, если не установлен.
      */
-    private String rqUId = null;
+    private String requestId = null;
 
     /**
      * Создает новое исключение EntityAlreadyExistsException без сообщения и идентификатора запроса.
@@ -36,11 +36,11 @@ public class EntityAlreadyExistsException extends RuntimeException {
      * Создает новое исключение EntityAlreadyExistsException с указанным сообщением и идентификатором запроса.
      *
      * @param message сообщение об ошибке
-     * @param rqUId идентификатор запроса
+     * @param requestId идентификатор запроса
      */
-    public EntityAlreadyExistsException(String message, String rqUId) {
+    public EntityAlreadyExistsException(String message, String requestId) {
         super(message);
-        this.rqUId = rqUId;
+        this.requestId = requestId;
     }
 
 }

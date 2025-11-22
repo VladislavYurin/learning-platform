@@ -10,20 +10,20 @@ option java_outer_classname = "TimeSlotProto";
 
 // Запрос на бронирование слота
 message BookTimeSlotRequest {
-  string rqUid = 1;                           // Уникальный идентификатор запроса
+  Header header = 1;                          // Универсальный заголовок gRPC-запроса
   int64 slot_id = 2;                          // ID бронируемого слота
   int64 user_id = 3;                          // ID пользователя
 }
 
 // Запрос всех слотов ментора
 message MentorSlotsInfoRequest {
-  string rqUid = 1;
+  Header header = 1;
   int64 mentor_id = 2;
 }
 
 // Запрос на создание слота
 message CreateTimeSlotRequest {
-  string rqUid = 1;                         // Уникальный идентификатор запроса
+  Header header = 1;                        // Универсальный заголовок gRPC-запроса
   int64 mentor_id = 2;                      // ID ментора
   google.protobuf.Timestamp start_time = 3; // Время начала слота
   google.protobuf.Timestamp end_time = 4;   // Время окончания слота
@@ -53,7 +53,7 @@ message MentorSlotsInfoResponse {
 
 // Ответ с созданным слотом
 message TimeSlotResponse {
-  string rqUid = 1;                          // Уникальный идентификатор запроса
+  string request_id = 1;                     // Уникальный идентификатор запроса
   int64 slot_id = 2;                         // ID созданного слота
   int64 mentor_id = 3;                       // ID ментора
   google.protobuf.Timestamp start_time = 4;  // Время начала

@@ -20,7 +20,9 @@ public class AdminCalendarServiceGrpcClient {
 
     /**
      * Возвращает все слоты в соответствии с настройками страницы
-     * @param pageRequest настройки страницы (номер страницы и размер)
+     *
+     * @param pageRequest
+     *         настройки страницы (номер страницы и размер)
      *
      * @return {@link AllTimeSlotsResponse}
      */
@@ -36,9 +38,9 @@ public class AdminCalendarServiceGrpcClient {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            pageRequest.getRequestId()
+                            pageRequest.getHeader().getRequestId()
                     ),
-                    pageRequest.getRequestId()
+                    pageRequest.getHeader().getRequestId()
             );
         }
     }

@@ -12,6 +12,8 @@ import ru.mentor.constant.CalendarSlotType;
 public class TestConstantHolder {
 
     public static String requestId = UUID.randomUUID().toString();
+    public static String nodeId = "TestNodeId";
+    public static String apiKey = "TestApiKey";
     public static LocalDateTime createdAt = LocalDateTime.now(ZoneOffset.UTC).withNano(0);
     public static String notFoundExceptionText = "not found";
     public static String grpcExceptionText = "Ошибка gRPC";
@@ -54,13 +56,16 @@ public class TestConstantHolder {
     public static String slotDescription = "Test slot description";
 
     public static Timestamp slotStartTimestamp = Timestamp.newBuilder()
-                                                          .setSeconds(slotStartTime.toEpochSecond(ZoneOffset.UTC))
+                                                          .setSeconds(slotStartTime.toEpochSecond(
+                                                                  ZoneOffset.UTC))
                                                           .build();
     public static Timestamp slotEndTimestamp = Timestamp.newBuilder()
-                                                        .setSeconds(slotEndTime.toEpochSecond(ZoneOffset.UTC))
+                                                        .setSeconds(slotEndTime.toEpochSecond(
+                                                                ZoneOffset.UTC))
                                                         .build();
     public static Timestamp slotCreatedAtTimestamp = Timestamp.newBuilder()
-                                                              .setSeconds(createdAt.toEpochSecond(ZoneOffset.UTC))
+                                                              .setSeconds(createdAt.toEpochSecond(
+                                                                      ZoneOffset.UTC))
                                                               .build();
 
 }

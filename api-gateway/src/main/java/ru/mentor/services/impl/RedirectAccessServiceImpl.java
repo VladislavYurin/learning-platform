@@ -30,82 +30,94 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
 
     /**
      * Предоставляет пользователю доступ к курсу.
-     * @param request параметры предоставления доступа (идентификаторы пользователя и курса)
+     *
+     * @param request
+     *         параметры предоставления доступа (идентификаторы пользователя и курса)
+     *
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
     public ResponseEntity<?> giveCourseAccess(CourseAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getCourseId(),
                 user.getId()
         ));
         GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
-        return mentorClient.giveCourseAccess(rqUId, innerRequest);
+        return mentorClient.giveCourseAccess(requestId, innerRequest);
     }
 
     /**
      * Закрывает доступ пользователя к курсу.
-     * @param request параметры предоставления доступа (идентификаторы пользователя и курса)
+     *
+     * @param request
+     *         параметры предоставления доступа (идентификаторы пользователя и курса)
+     *
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
     public ResponseEntity<?> revokeCourseAccess(CourseAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getCourseId(),
                 user.getId()
         ));
         GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
-        return mentorClient.revokeCourseAccess(rqUId, innerRequest);
+        return mentorClient.revokeCourseAccess(requestId, innerRequest);
     }
 
     /**
      * Предоставляет пользователю доступ к модулю.
-     * @param request параметры предоставления доступа (идентификаторы пользователя, курса и модуля)
+     *
+     * @param request
+     *         параметры предоставления доступа (идентификаторы пользователя, курса и модуля)
+     *
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
     public ResponseEntity<?> giveModuleAccess(ModuleAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getModuleId(),
                 user.getId()
         ));
         GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
-        return mentorClient.giveModuleAccess(rqUId, innerRequest);
+        return mentorClient.giveModuleAccess(requestId, innerRequest);
     }
 
     /**
      * Закрывает доступ пользователя к модулю.
-     * @param request параметры предоставления доступа (идентификаторы пользователя, курса и модуля)
+     *
+     * @param request
+     *         параметры предоставления доступа (идентификаторы пользователя, курса и модуля)
+     *
      * @return ответ внешнего сервиса с кодом статуса операции
      */
     @Override
     public ResponseEntity<?> revokeModuleAccess(ModuleAccessRequest request) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getModuleId(),
                 user.getId()
         ));
         GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
-        return mentorClient.revokeModuleAccess(rqUId, innerRequest);
+        return mentorClient.revokeModuleAccess(requestId, innerRequest);
     }
 
 }

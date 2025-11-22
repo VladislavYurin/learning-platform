@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.Header;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.PageDetails;
 import ru.mentor.dto.ModuleDto;
@@ -26,16 +27,16 @@ public class AdminModuleMapper {
     /**
      * Создает gRPC-объект.
      *
-     * @param requestId
-     *         сквозной UUID запроса
+     * @param header
+     *         заголовок gRPC-запроса (requestId/nodeId/apiKey)
      * @param moduleId
      *         ID модуля
      *
      * @return gRPC-объект {@link GetModuleRequest}
      */
-    public GetModuleRequest constructGetModuleRequest(String requestId, long moduleId) {
+    public GetModuleRequest constructGetModuleRequest(Header header, long moduleId) {
         return GetModuleRequest.newBuilder()
-                               .setRequestId(requestId)
+                               .setHeader(header)
                                .setModuleId(moduleId)
                                .build();
     }

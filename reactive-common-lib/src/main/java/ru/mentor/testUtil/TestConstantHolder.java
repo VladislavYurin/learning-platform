@@ -16,6 +16,11 @@ public final class TestConstantHolder {
     public static final String EMPTY_REQUEST_TEXT = "Empty request";
 
     public static final String REQUEST_ID = UUID.randomUUID().toString();
+    public static final String NODE_ID = "test-node";
+    public static final String REMOTE_NODE_ID = "test-remote-node";
+    public static final String API_KEY = "test-api-key";
+    public static final String INVALID_API_KEY = "test-invalid-api-key";
+    public static final String BLANK = "   ";
     public static final LocalDateTime CREATED_AT = LocalDateTime.of(2025, 1, 1, 12, 0);
     public static final int PAGE_NUMBER = 0;
     public static final int PAGE_SIZE = 1;

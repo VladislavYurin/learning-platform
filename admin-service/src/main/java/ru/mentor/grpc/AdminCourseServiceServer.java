@@ -25,12 +25,11 @@ public class AdminCourseServiceServer extends
         ReactorAdminCourseServiceGrpc.AdminCourseServiceImplBase {
 
     public static final String GET_COURSE_REQUEST_LOG_TEXT =
-            "[ rqUID = {} ] Поступил запрос на получение данных о курсе"
+            "[ requestId = {} ] Поступил запрос на получение данных о курсе"
                     + " [ ID = {} ] от администратора [ ID = {} ]";
     public static final String GET_ALL_COURSES_REQUEST_LOG_TEXT =
-            "[ rqUID = {} ] Поступил запрос  на получение данных обо всех курсах"
+            "[ requestId = {} ] Поступил запрос  на получение данных обо всех курсах"
                     + " от администратора [ ID = {} ]";
-
 
     private final CourseFacade courseFacade;
 
@@ -79,15 +78,17 @@ public class AdminCourseServiceServer extends
     }
 
     private void logAllCoursesGrpcPageRequest(GrpcPageRequest request) {
-        log.info(GET_ALL_COURSES_REQUEST_LOG_TEXT,
-                request.getRequestId(),
+        log.info(
+                GET_ALL_COURSES_REQUEST_LOG_TEXT,
+                request.getHeader().getRequestId(),
                 request.getSenderId()
         );
     }
 
     private void logGetCourseRequest(GetCourseRequest request) {
-        log.info(GET_COURSE_REQUEST_LOG_TEXT,
-                request.getRequestId(),
+        log.info(
+                GET_COURSE_REQUEST_LOG_TEXT,
+                request.getHeader().getRequestId(),
                 request.getCourseId(),
                 request.getSenderId()
         );

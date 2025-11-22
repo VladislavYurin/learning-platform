@@ -10,7 +10,9 @@ import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.Header;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminCourseServiceGrpcClient;
 import ru.mentor.mapper.AdminCourseMapper;
 import ru.mentor.mapper.BaseMapper;
@@ -30,6 +32,8 @@ public class RedirectAdminCourseServiceImpl implements RedirectAdminCourseServic
 
     private final BaseMapper baseMapper;
 
+    private final HeaderFactory headerFactory;
+
     /**
      * Возвращает курс с указанным ID.
      *
@@ -43,13 +47,14 @@ public class RedirectAdminCourseServiceImpl implements RedirectAdminCourseServic
     public CourseDto getCourseById(Long courseId) {
 
         String requestId = UUID.randomUUID().toString();
+        Header header = headerFactory.create(requestId);
         log.info(
-                "[ rqUID = {} ] Получен запрос извлечение курса по ID [ {} ]",
+                "[ requestId = {} ] Получен запрос извлечение курса по ID [ {} ]",
                 requestId, courseId
         );
 
         GetCourseRequest getCourseRequest = courseMapper.constructGetCourseRequest(
-                requestId,
+                header,
                 courseId
         );
 
@@ -62,7 +67,6 @@ public class RedirectAdminCourseServiceImpl implements RedirectAdminCourseServic
      *
      * @param pageNumber
      *         номер страницы
-     *
      * @param pageSize
      *         размер страницы
      *
@@ -73,12 +77,17 @@ public class RedirectAdminCourseServiceImpl implements RedirectAdminCourseServic
     public Page<CourseDto> getAllCourses(int pageNumber, int pageSize) {
 
         String requestId = UUID.randomUUID().toString();
+        Header header = headerFactory.create(requestId);
         log.info(
-                "[ rqUID = {} ] Получен запрос на извлечение всех курсов",
+                "[ requestId = {} ] Получен запрос на извлечение всех курсов",
                 requestId
         );
 
-        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(requestId, pageNumber, pageSize);
+        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
+                header,
+                pageNumber,
+                pageSize
+        );
         AllCoursesResponse allCoursesResponse = courseServiceClient.getAllCourses(pageRequest);
 
         return courseMapper.mapGrpcCourseResponseToCourseDtoPage(allCoursesResponse);

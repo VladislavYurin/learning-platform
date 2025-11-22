@@ -50,16 +50,20 @@ public class AccessServiceImpl implements AccessService {
     /**
      * Предоставляет пользователю доступ к курсу.
      *
-     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request Запрос, содержащий идентификаторы наставника, пользователя и курса.
-     * @throws EntityAlreadyExistsException Если у пользователя уже имеется доступ к курсу.
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request
+     *         Запрос, содержащий идентификаторы наставника, пользователя и курса.
+     *
+     * @throws EntityAlreadyExistsException
+     *         Если у пользователя уже имеется доступ к курсу.
      */
     @Override
-    public void getCourseAccessToUser(String rqUId, GetAccessRequest request) {
+    public void getCourseAccessToUser(String requestId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
         UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
-        checkUserIsAuthorOrAdmin(rqUId, mentor, course);
+        checkUserIsAuthorOrAdmin(requestId, mentor, course);
 
         // Проверяем, имеет ли пользователь доступ к курсу
         if (!accessChecker.hasAccessToCourse(user.getId(), course.getId())) {
@@ -72,47 +76,58 @@ public class AccessServiceImpl implements AccessService {
             kafkaFacade.sendCourseAccessGrantedMessage(user, mentor, course, savedAccess);
         } else {
             // Если пользователь уже имеет доступ к курсу, выбрасываем исключение
-            throw new EntityAlreadyExistsException(String.format(
-                    "Юзер с ID = %d уже имеет доступ к курсу %d",
-                    user.getId(),
-                    course.getId()
-            ), rqUId);
+            throw new EntityAlreadyExistsException(
+                    String.format(
+                            "Юзер с ID = %d уже имеет доступ к курсу %d",
+                            user.getId(),
+                            course.getId()
+                    ), requestId
+            );
         }
     }
 
     /**
      * Предоставляет пользователю доступ к модулю.
      *
-     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request Запрос, содержащий идентификаторы наставника, пользователя, курса и модуля.
-     * @throws EntityAlreadyExistsException Если у пользователя уже имеется доступ к модулю.
-     * @throws EntityNotFoundException Если у пользователя нет доступа к курсу.
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request
+     *         Запрос, содержащий идентификаторы наставника, пользователя, курса и модуля.
+     *
+     * @throws EntityAlreadyExistsException
+     *         Если у пользователя уже имеется доступ к модулю.
+     * @throws EntityNotFoundException
+     *         Если у пользователя нет доступа к курсу.
      */
     @Override
-    public void getModuleAccessToUser(String rqUId, GetAccessRequest request) {
+    public void getModuleAccessToUser(String requestId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
         UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
         ModuleEntity module = moduleRepository.findByIdOrThrow(request.getModuleId());
-        checkUserIsAuthorOrAdmin(rqUId, mentor, course);
-        checkModuleIsInCourse(rqUId, course, module);
+        checkUserIsAuthorOrAdmin(requestId, mentor, course);
+        checkModuleIsInCourse(requestId, course, module);
 
         // Проверяем, имеет ли пользователь доступ к модулю
         if (accessChecker.hasAccessToModule(user.getId(), module.getId())) {
-            throw new EntityAlreadyExistsException(String.format(
-                    "Юзер с ID = %d уже имеет доступ к модулю %d",
-                    user.getId(),
-                    module.getId()
-            ), rqUId);
+            throw new EntityAlreadyExistsException(
+                    String.format(
+                            "Юзер с ID = %d уже имеет доступ к модулю %d",
+                            user.getId(),
+                            module.getId()
+                    ), requestId
+            );
         }
 
         // Проверяем, имеет ли пользователь доступ к курсу
         if (!accessChecker.hasAccessToCourse(user.getId(), course.getId())) {
-            throw new EntityNotFoundException(String.format(
-                    "Юзер с ID = %d не имеет доступа к курсу %d",
-                    user.getId(),
-                    course.getId()
-            ), rqUId);
+            throw new EntityNotFoundException(
+                    String.format(
+                            "Юзер с ID = %d не имеет доступа к курсу %d",
+                            user.getId(),
+                            course.getId()
+                    ), requestId
+            );
         }
 
         UserModuleAccessEntity access = UserModuleAccessEntity.builder()
@@ -129,25 +144,32 @@ public class AccessServiceImpl implements AccessService {
     /**
      * Удаляет доступ пользователя к курсу.
      *
-     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request Запрос, содержащий идентификаторы наставника, пользователя и курса.
-     * @throws CustomAccessDeniedException Если наставник не имеет прав на удаление доступа к курсу.
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request
+     *         Запрос, содержащий идентификаторы наставника, пользователя и курса.
+     *
+     * @throws CustomAccessDeniedException
+     *         Если наставник не имеет прав на удаление доступа к курсу.
      */
 
     @Override
     @Transactional
-    public void deleteCourseAccessToUser(String rqUId, GetAccessRequest request) {
+    public void deleteCourseAccessToUser(String requestId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
         UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
-        checkUserIsAuthorOrAdmin(rqUId, mentor, course);
+        checkUserIsAuthorOrAdmin(requestId, mentor, course);
         accessChecker.hasAccessToCourse(request.getUserId(), request.getCourseId());
 
         UserCourseAccessEntity access = userCourseAccessRepository
                 .findByUserIdAndCourseId(request.getUserId(), request.getCourseId())
-                        .orElseThrow(() -> new EntityNotFoundException(
-                                String.format("Доступ пользователя %d к курсу %d не найден",
-                                        request.getUserId(), request.getCourseId()), rqUId));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(
+                                "Доступ пользователя %d к курсу %d не найден",
+                                request.getUserId(), request.getCourseId()
+                        ), requestId
+                ));
 
         LocalDateTime accessRevokedAt = LocalDateTime.now();
 
@@ -166,28 +188,39 @@ public class AccessServiceImpl implements AccessService {
     /**
      * Удаляет доступ пользователя к модулю.
      *
-     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request Запрос, содержащий идентификаторы наставника, пользователя, курса и модуля.
-     * @throws CustomAccessDeniedException Если наставник не имеет прав на удаление доступа к модулю.
-     * @throws EntityNotFoundException Если у пользователя нет доступа к курсу или модулю.
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request
+     *         Запрос, содержащий идентификаторы наставника, пользователя, курса и модуля.
+     *
+     * @throws CustomAccessDeniedException
+     *         Если наставник не имеет прав на удаление доступа к модулю.
+     * @throws EntityNotFoundException
+     *         Если у пользователя нет доступа к курсу или модулю.
      */
     @Override
     @Transactional
-    public void deleteModuleAccessToUser(String rqUId, GetAccessRequest request) {
+    public void deleteModuleAccessToUser(String requestId, GetAccessRequest request) {
         UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
         UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
         CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
         ModuleEntity module = moduleRepository.findByIdOrThrow(request.getModuleId());
-        checkUserIsAuthorOrAdmin(rqUId, mentor, course);
-        checkModuleIsInCourse(rqUId, course, module);
+        checkUserIsAuthorOrAdmin(requestId, mentor, course);
+        checkModuleIsInCourse(requestId, course, module);
         accessChecker.hasAccessToCourse(request.getUserId(), request.getCourseId());
         accessChecker.hasAccessToModule(request.getUserId(), request.getModuleId());
 
-        if (!userModuleAccessRepository.existsByUserIdAndModuleId(request.getUserId(), request.getModuleId())) {
+        if (!userModuleAccessRepository.existsByUserIdAndModuleId(
+                request.getUserId(),
+                request.getModuleId()
+        )) {
             throw new EntityNotFoundException(
-                    String.format("Доступ пользователя %d к модулю %d не найден",
-                            request.getUserId(), request.getModuleId()),
-                    rqUId);
+                    String.format(
+                            "Доступ пользователя %d к модулю %d не найден",
+                            request.getUserId(), request.getModuleId()
+                    ),
+                    requestId
+            );
         }
 
         LocalDateTime accessRevokedAt = LocalDateTime.now();
@@ -203,12 +236,20 @@ public class AccessServiceImpl implements AccessService {
     /**
      * Проверяет, что пользователь является автором курса или администратором.
      *
-     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param mentor Наставник, запрашивающий доступ.
-     * @param course Курс, для которого требуется доступ.
-     * @throws CustomAccessDeniedException Если у наставника нет прав на выдачу доступа к курсу.
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param mentor
+     *         Наставник, запрашивающий доступ.
+     * @param course
+     *         Курс, для которого требуется доступ.
+     *
+     * @throws CustomAccessDeniedException
+     *         Если у наставника нет прав на выдачу доступа к курсу.
      */
-    private void checkUserIsAuthorOrAdmin(String rqUId, UserEntity mentor, CourseEntity course) {
+    private void checkUserIsAuthorOrAdmin(
+            String requestId,
+            UserEntity mentor,
+            CourseEntity course) {
 
         // Проверяем, что юзер является автором курса
         if (Role.checkIsAdmin(mentor)) {
@@ -221,23 +262,30 @@ public class AccessServiceImpl implements AccessService {
         }
 
         // Если юзер не является автором курса, выбрасываем исключение
-        throw new CustomAccessDeniedException(String.format(
-                "Юзер с ID = %d не имеет доступа к выдаче доступа к курсу %d",
-                mentor.getId(),
-                course.getId()
-        ), rqUId);
+        throw new CustomAccessDeniedException(
+                String.format(
+                        "Юзер с ID = %d не имеет доступа к выдаче доступа к курсу %d",
+                        mentor.getId(),
+                        course.getId()
+                ), requestId
+        );
     }
 
     /**
      * Проверяет, что модуль принадлежит указанному курсу.
      *
-     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param course Курс, к которому принадлежит модуль.
-     * @param moduleEntity Модуль для проверки.
-     * @throws EntityNotFoundException Если модуль не принадлежит курсу.
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param course
+     *         Курс, к которому принадлежит модуль.
+     * @param moduleEntity
+     *         Модуль для проверки.
+     *
+     * @throws EntityNotFoundException
+     *         Если модуль не принадлежит курсу.
      */
     private void checkModuleIsInCourse(
-            String rqUId,
+            String requestId,
             CourseEntity course,
             ModuleEntity moduleEntity) {
 
@@ -251,7 +299,8 @@ public class AccessServiceImpl implements AccessService {
                         "Модуль с ID = %d не принадлежит курсу с ID = %d",
                         moduleEntity.getId(),
                         course.getId()
-                ), rqUId);
+                ), requestId
+        );
     }
 
 }

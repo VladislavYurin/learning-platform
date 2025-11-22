@@ -4,6 +4,7 @@ WORKDIR /opt/app
 COPY ./pom.xml ./
 COPY ./common-lib/pom.xml ./common-lib/
 COPY ./reactive-common-lib/pom.xml ./reactive-common-lib/
+COPY ./grpc-common-starter/pom.xml ./grpc-common-starter/
 COPY ./api-gateway/pom.xml ./api-gateway/
 COPY ./course-service/pom.xml ./course-service/
 COPY ./mentor-service/pom.xml ./mentor-service/

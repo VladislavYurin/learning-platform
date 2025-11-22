@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.AllTimeSlotsResponse;
-import ru.mentor.common.PageDetails;
 import ru.mentor.common.MentorSlotInfo;
+import ru.mentor.common.PageDetails;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
 import ru.mentor.common.TimeSlotResponse;
@@ -21,7 +21,7 @@ public class TimeSlotMapper {
 
     public TimeSlotResponse entityToGrpcResponse(
             MentorTimeSlotEntity timeSlotEntity,
-            String rqUId) {
+            String requestId) {
 
         Timestamp startTime = UtilMapper.buildTimestamp(timeSlotEntity.getStartTime());
         Timestamp endTime = UtilMapper.buildTimestamp(timeSlotEntity.getEndTime());
@@ -31,7 +31,7 @@ public class TimeSlotMapper {
         Timestamp createdAt = UtilMapper.buildTimestamp(timeSlotEntity.getCreatedAt());
 
         return TimeSlotResponse.newBuilder()
-                               .setRqUid(rqUId)
+                               .setRequestId(requestId)
                                .setSlotId(timeSlotEntity.getId())
                                .setMentorId(timeSlotEntity.getMentorId())
                                .setStartTime(startTime)

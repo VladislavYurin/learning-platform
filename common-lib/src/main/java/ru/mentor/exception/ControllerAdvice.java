@@ -27,7 +27,7 @@ public class ControllerAdvice {
      */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
-        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
+        log.info(String.format("[ requestId = %s ] %s", e.getRequestId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
@@ -40,7 +40,7 @@ public class ControllerAdvice {
      */
     @ExceptionHandler(CustomAccessDeniedException.class)
     public ResponseEntity<String> handleCustomAccessDeniedException(CustomAccessDeniedException e) {
-        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
+        log.info(String.format("[ requestId = %s ] %s", e.getRequestId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 
@@ -65,7 +65,7 @@ public class ControllerAdvice {
      */
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<String> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
-        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
+        log.info(String.format("[ requestId = %s ] %s", e.getRequestId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
@@ -78,7 +78,7 @@ public class ControllerAdvice {
      */
     @ExceptionHandler(FileProcessingException.class)
     public ResponseEntity<String> handleConversionException(FileProcessingException e) {
-        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
+        log.info(String.format("[ requestId = %s ] %s", e.getRequestId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
@@ -91,7 +91,7 @@ public class ControllerAdvice {
      */
     @ExceptionHandler(UserException.class)
     public ResponseEntity<String> handleUserException(UserException e) {
-        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
+        log.info(String.format("[ requestId = %s ] %s", e.getRequestId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
@@ -129,7 +129,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(TimeSlotUnavailableException.class)
     public ResponseEntity<String> handleTimeSlotUnavailableException(TimeSlotUnavailableException e) {
-        log.info(String.format("[ RqUId = %s ] %s", e.getRqUId(), e.getMessage()));
+        log.info(String.format("[ requestId = %s ] %s", e.getRequestId(), e.getMessage()));
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 }

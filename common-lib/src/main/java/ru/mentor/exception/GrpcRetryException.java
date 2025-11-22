@@ -12,7 +12,7 @@ public class GrpcRetryException extends RuntimeException {
     /**
      * Идентификатор запроса, связанный с исключением.
      */
-    private String rqUId = null;
+    private String requestId = null;
 
     /**
      * Создает новое исключение GrpcRetryException без сообщения и идентификатора запроса.
@@ -34,11 +34,11 @@ public class GrpcRetryException extends RuntimeException {
      * Создает новое исключение GrpcRetryException с указанным сообщением и идентификатором запроса.
      *
      * @param message сообщение об ошибке
-     * @param rqUId идентификатор запроса
+     * @param requestId идентификатор запроса
      */
-    public GrpcRetryException(String message, String rqUId) {
+    public GrpcRetryException(String message, String requestId) {
         super(message);
-        this.rqUId = rqUId;
+        this.requestId = requestId;
     }
 
 }

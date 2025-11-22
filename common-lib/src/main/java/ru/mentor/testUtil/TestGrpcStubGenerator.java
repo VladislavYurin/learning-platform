@@ -12,19 +12,28 @@ import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.GrpcPageRequest;
-import ru.mentor.common.ModuleResponse;
-import ru.mentor.common.PageDetails;
+import ru.mentor.common.Header;
 import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.common.MentorSlotsInfoResponse;
+import ru.mentor.common.ModuleResponse;
+import ru.mentor.common.PageDetails;
 import ru.mentor.common.Role;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.common.UserInfo;
 
 public class TestGrpcStubGenerator {
 
+    private static Header buildTestHeader() {
+        return Header.newBuilder()
+                     .setRequestId(TestConstantHolder.requestId)
+                     .setNodeId(TestConstantHolder.nodeId)
+                     .setApiKey(TestConstantHolder.apiKey)
+                     .build();
+    }
+
     public static GetModuleRequest constructGetModuleRequest() {
         return GetModuleRequest.newBuilder()
-                               .setRequestId(TestConstantHolder.requestId)
+                               .setHeader(buildTestHeader())
                                .setModuleId(TestConstantHolder.moduleId)
                                .build();
     }
@@ -38,7 +47,7 @@ public class TestGrpcStubGenerator {
 
     public static GrpcPageRequest constructGrpcPageRequest() {
         return GrpcPageRequest.newBuilder()
-                              .setRequestId(TestConstantHolder.requestId)
+                              .setHeader(buildTestHeader())
                               .setPageNumber(TestConstantHolder.pageNumber)
                               .setPageSize(TestConstantHolder.pageSize)
                               .build();
@@ -46,14 +55,14 @@ public class TestGrpcStubGenerator {
 
     public static GetAllModulesRequest constructGetAllModulesRequest() {
         return GetAllModulesRequest.newBuilder()
-                                   .setRequestId(TestConstantHolder.requestId)
+                                   .setHeader(buildTestHeader())
                                    .setCourseId(TestConstantHolder.courseId)
                                    .build();
     }
 
     public static GetCourseRequest constructGetCourseRequest() {
         return GetCourseRequest.newBuilder()
-                               .setRequestId(TestConstantHolder.requestId)
+                               .setHeader(buildTestHeader())
                                .setCourseId(TestConstantHolder.courseId)
                                .build();
     }
@@ -116,7 +125,7 @@ public class TestGrpcStubGenerator {
 
     public static TimeSlotResponse constructTimeSlotResponse() {
         return TimeSlotResponse.newBuilder()
-                               .setRqUid(TestConstantHolder.requestId)
+                               .setRequestId(TestConstantHolder.requestId)
                                .setSlotId(TestConstantHolder.timeSlotId)
                                .setMentorId(TestConstantHolder.mentorId)
                                .setStartTime(TestConstantHolder.slotStartTimestamp)

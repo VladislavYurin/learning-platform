@@ -18,7 +18,7 @@ import ru.mentor.dto.MenteeProgressDto;
  * Клиент OpenFeign для управления доступом наставника во внешнем сервисе.
  * <p>
  *     Инкапсулирует вызовы API управления доступом. Для трассировки
- *     каждый запрос передаёт корелляционный заголовок {@code RqUId}.
+ *     каждый запрос передаёт корелляционный заголовок {@code requestId}.
  * </p>
  */
 @FeignClient(
@@ -30,7 +30,7 @@ public interface MentorClient {
 
     /**
      * Предоставляет доступ к курсу пользователю во внешнем сервисе.
-     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param requestId корелляционный идентификатор запроса (заголовок {@code requestId})
      * @param dto параметры предоставления доступа к курсу
      * @return ответ внешнего сервиса
      */
@@ -41,12 +41,12 @@ public interface MentorClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<?> giveCourseAccess(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @RequestBody GetAccessRequest dto);
 
     /**
      * Закрывает доступ пользователя к курсу во внешнем сервисе.
-     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param requestId корелляционный идентификатор запроса (заголовок {@code requestId})
      * @param dto параметры предоставления доступа к курсу
      * @return ответ внешнего сервиса
      */
@@ -57,12 +57,12 @@ public interface MentorClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<?> revokeCourseAccess(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @RequestBody GetAccessRequest dto);
 
     /**
      * Предоставляет доступ к модулю пользователю во внешнем сервисе.
-     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param requestId корелляционный идентификатор запроса (заголовок {@code requestId})
      * @param dto параметры предоставления доступа к курсу
      * @return ответ внешнего сервиса
      */
@@ -73,12 +73,12 @@ public interface MentorClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<?> giveModuleAccess(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @RequestBody GetAccessRequest dto);
 
     /**
      * Закрывает доступ пользователя к модулю во внешнем сервисе.
-     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param requestId корелляционный идентификатор запроса (заголовок {@code requestId})
      * @param dto параметры предоставления доступа к модулю
      * @return ответ внешнего сервиса
      */
@@ -89,12 +89,12 @@ public interface MentorClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<?> revokeModuleAccess(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @RequestBody GetAccessRequest dto);
 
     /**
      * Возвращает статистику прогресса по курсу для наставника по его идентификатору.
-     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param requestId корелляционный идентификатор запроса (заголовок {@code requestId})
      * @param mentorId идентификатор наставника
      * @param courseId идентификатор курса
      * @return ответ с телом
@@ -106,13 +106,13 @@ public interface MentorClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<CourseProgressResponse> getCourseProgressByMentor(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @PathVariable Long mentorId,
             @PathVariable Long courseId);
 
     /**
      * Возвращает список прогресса всех учеников на указанном курсе для конкретного наставника.
-     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @param requestId корелляционный идентификатор запроса (заголовок {@code requestId})
      * @param mentorId идентификатор наставника
      * @param courseId идентификатор курса
      * @return ответ со списком учеников
@@ -124,7 +124,7 @@ public interface MentorClient {
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<List<MenteeProgressDto>> getAllUsersAtCourse(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @PathVariable Long mentorId,
             @PathVariable Long courseId);
 

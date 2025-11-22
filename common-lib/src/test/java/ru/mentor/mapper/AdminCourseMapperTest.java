@@ -11,6 +11,7 @@ import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.AuthorResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.GetCourseRequest;
+import ru.mentor.common.Header;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.UserInfoDto;
@@ -72,21 +73,30 @@ class AdminCourseMapperTest {
         CourseEntity courseEntity = TestEntityStubGenerator.constructCourseEntity();
         AuthorResponse authorResponse = TestGrpcStubGenerator.constructAuthorResponse();
 
-        Page<CourseEntity> coursePage = TestEntityStubGenerator.constructCourseEntityPage(courseEntity);
+        Page<CourseEntity> coursePage = TestEntityStubGenerator.constructCourseEntityPage(
+                courseEntity);
         AllCoursesResponse response =
                 adminCourseMapper.mapCourseEntityPageToGrpcAllCoursesResponse(coursePage);
 
-        Assertions.assertThat(response.getCoursesList()).hasSize(TestConstantHolder.totalElementsCount);
+        Assertions.assertThat(response.getCoursesList())
+                  .hasSize(TestConstantHolder.totalElementsCount);
         Assertions.assertThat(response.getCoursesList().get(TestConstantHolder.pageNumber)
                                       .getCourseId()).isEqualTo(TestConstantHolder.courseId);
     }
 
     @Test
     void constructGetCourseRequest_success() {
-        GetCourseRequest request = adminCourseMapper.constructGetCourseRequest(
-                TestConstantHolder.requestId, TestConstantHolder.courseId);
+        Header header = Header.newBuilder()
+                              .setRequestId(TestConstantHolder.requestId)
+                              .setNodeId(TestConstantHolder.nodeId)
+                              .setApiKey(TestConstantHolder.apiKey)
+                              .build();
 
-        Assertions.assertThat(request.getRequestId()).isEqualTo(TestConstantHolder.requestId);
+        GetCourseRequest request = adminCourseMapper.constructGetCourseRequest(
+                header, TestConstantHolder.courseId);
+
+        Assertions.assertThat(request.getHeader().getRequestId())
+                  .isEqualTo(TestConstantHolder.requestId);
         Assertions.assertThat(request.getCourseId()).isEqualTo(TestConstantHolder.courseId);
     }
 

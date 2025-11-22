@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class TimeSlotUnavailableException extends RuntimeException {
 
-    private String rqUId = null;
+    private String requestId = null;
 
     public TimeSlotUnavailableException() {
         super();
@@ -15,8 +15,8 @@ public class TimeSlotUnavailableException extends RuntimeException {
         super(message);
     }
 
-    public TimeSlotUnavailableException(String message, String rqUId) {
+    public TimeSlotUnavailableException(String message, String requestId) {
         super(message);
-        this.rqUId = rqUId;
+        this.requestId = requestId;
     }
 }

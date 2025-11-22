@@ -1,5 +1,7 @@
 package ru.mentor.controller;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -22,9 +24,6 @@ import ru.mentor.services.RedirectCalendarService;
 import ru.mentor.services.UserService;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * Тест для проверки работы эндпоинта создания слота ментором.
@@ -62,7 +61,7 @@ class TimeSlotControllerTest {
         MentorTimeSlotDto timeSlotDto = MentorTimeSlotDto.builder()
                                                          .id(1L)
                                                          .mentorId(1L)
-                                                         .rqUId(testRequestUUID)
+                                                         .requestId(testRequestUUID)
                                                          .startTime(LocalDateTime.parse(startTime))
                                                          .endTime(LocalDateTime.parse(endTime))
                                                          .slotType(CalendarSlotType.GROUP)
@@ -103,7 +102,7 @@ class TimeSlotControllerTest {
                .andExpect(MockMvcResultMatchers.status().isOk())
                .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
                .andExpect(MockMvcResultMatchers.jsonPath("$.mentorId").exists())
-               .andExpect(MockMvcResultMatchers.jsonPath("$.rqUId").exists())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.requestId").exists())
                .andExpect(MockMvcResultMatchers.jsonPath("$.startTime").value(startTime))
                .andExpect(MockMvcResultMatchers.jsonPath("$.endTime").value(endTime))
                .andExpect(MockMvcResultMatchers.jsonPath("$.slotType").value(slotTypeGroup))
@@ -125,19 +124,27 @@ class TimeSlotControllerTest {
                 TestEntityStubGenerator.constructMentorTimeSlotInfoForUserDto();
 
         Mockito.when(redirectCalendarService.getMentorSlotsInfoForUser(TestConstantHolder.mentorId))
-                .thenReturn(List.of(dto));
+               .thenReturn(List.of(dto));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/slot")
-                        .param("mentorId", String.valueOf(TestConstantHolder.mentorId))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].slotFull").value(false))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.id").value(TestConstantHolder.timeSlotId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.mentorId").value(TestConstantHolder.mentorId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.slotType").value(TestConstantHolder.slotType.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.slotMeetingType").value(TestConstantHolder.slotMeetingType.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.isActive").value(false));
+                                              .param(
+                                                      "mentorId",
+                                                      String.valueOf(TestConstantHolder.mentorId)
+                                              )
+                                              .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1))
+               .andExpect(MockMvcResultMatchers.jsonPath("$[0].slotFull").value(false))
+               .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.id")
+                                               .value(TestConstantHolder.timeSlotId))
+               .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.mentorId")
+                                               .value(TestConstantHolder.mentorId))
+               .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.slotType")
+                                               .value(TestConstantHolder.slotType.toString()))
+               .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.slotMeetingType")
+                                               .value(TestConstantHolder.slotMeetingType.toString()))
+               .andExpect(MockMvcResultMatchers.jsonPath("$[0].mentorTimeSlotDto.isActive")
+                                               .value(false));
 
         log.info("Тест отработал");
     }

@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.Header;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.dto.ModuleDto;
+import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminModuleServiceGrpcClient;
 import ru.mentor.mapper.AdminModuleMapper;
 import ru.mentor.mapper.BaseMapper;
@@ -32,6 +34,8 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
 
     private final BaseMapper baseMapper;
 
+    private final HeaderFactory headerFactory;
+
     /**
      * Возвращает модуль с указанным ID.
      *
@@ -44,15 +48,16 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
     public ModuleDto getModuleById(Long moduleId) {
 
         String requestId = UUID.randomUUID().toString();
+        Header header = headerFactory.create(requestId);
         Long adminId = userService.getCurrentUserId();
         log.info(
-                "[ rqUID = {} ] Получен запрос на извлечение модуля [ ID = {} ] от администратора [ ID = {} ]",
+                "[ requestId = {} ] Получен запрос на извлечение модуля [ ID = {} ] от администратора [ ID = {} ]",
                 requestId,
                 moduleId,
                 adminId
         );
 
-        GetModuleRequest grpcRequest = moduleMapper.constructGetModuleRequest(requestId, moduleId);
+        GetModuleRequest grpcRequest = moduleMapper.constructGetModuleRequest(header, moduleId);
         ModuleResponse grpcModuleResponse = moduleGrpcClient.getModule(grpcRequest);
         return moduleMapper.mapGrpcModuleResponseToModuleDto(grpcModuleResponse);
     }
@@ -71,15 +76,16 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
     public Page<ModuleDto> getAllModules(Integer pageNumber, Integer pageSize) {
 
         String requestId = UUID.randomUUID().toString();
+        Header header = headerFactory.create(requestId);
         Long adminId = userService.getCurrentUserId();
         log.info(
-                "[ rqUID = {} ] Получен запрос на извлечение всех модулей от администратора [ ID = {} ]",
+                "[ requestId = {} ] Получен запрос на извлечение всех модулей от администратора [ ID = {} ]",
                 requestId,
                 adminId
         );
 
         GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
-                requestId,
+                header,
                 pageNumber,
                 pageSize
         );

@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleAccessDeniedException(AccessDeniedException e) {
 
         String rqId = RqGenerator.generateRqId();
-        log.error("[RqUid = {} ] Ошибка при попытке создания курса", rqId, e);
+        log.error("[requestId = {} ] Ошибка при попытке создания курса", rqId, e);
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.FORBIDDEN,
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleInternalServerError(Exception e) {
         String rqId = RqGenerator.generateRqId();
-        log.error("[RqUid = {} ] Ошибка при получении списка тегов курса", rqId, e);
+        log.error("[requestId = {} ] Ошибка при получении списка тегов курса", rqId, e);
 
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         problem.setTitle("Internal Server Error");

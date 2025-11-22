@@ -56,7 +56,10 @@ public class CalendarFacadeImpl implements CalendarFacade {
                        PageRequest pageRequest =
                                baseMapper.mapGrpcPageRequestToPageRequest(request);
                        Mono<List<MentorSlotInfo>> mentorSlotInfoListMono =
-                               findMentorSlotInfoList(pageRequest, request.getRequestId());
+                               findMentorSlotInfoList(
+                                       pageRequest,
+                                       request.getHeader().getRequestId()
+                               );
                        return mentorSlotInfoListMono
                                .zipWith(
                                        timeSlotRepository.count(),

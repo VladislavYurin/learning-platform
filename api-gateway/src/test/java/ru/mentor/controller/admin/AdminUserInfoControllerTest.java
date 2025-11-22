@@ -49,7 +49,10 @@ class AdminUserInfoControllerTest {
         UserInfoDto dto = TestEntityStubGenerator.constructUserInfoDtoWithRole(Role.USER);
         Mockito.when(userInfoService.getOtherUserInfo(ArgumentMatchers.anyLong())).thenReturn(dto);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/admin/user/{userId}", TestConstantHolder.userId))
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                       "/admin/user/{userId}",
+                       TestConstantHolder.userId
+               ))
 
                .andExpect(MockMvcResultMatchers.status().isOk());
     }

@@ -14,8 +14,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
@@ -23,10 +21,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.mentor.kafka.KafkaFacade;
-import ru.mentor.mapper.BaseMapper;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import ru.mentor.common.BookTimeSlotRequest;
 import ru.mentor.common.CreateTimeSlotRequest;
+import ru.mentor.common.Header;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
 import ru.mentor.common.TimeSlotResponse;
@@ -36,6 +35,8 @@ import ru.mentor.constant.Role;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.EntityNotFoundException;
+import ru.mentor.kafka.KafkaFacade;
+import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
@@ -63,6 +64,8 @@ class CalendarServiceServerTest {
     private CalendarServiceServer calendarServiceServer;
 
     String requestUUID = UUID.randomUUID().toString();
+    String testNodeId = "TestNodeId";
+    String testApiKey = "TestApiKey";
     int maxParticipants = 10;
     String meetingLink = "https://meet.com/test";
     String description = "Test description";
@@ -72,6 +75,14 @@ class CalendarServiceServerTest {
     UserEntity testUser = new UserEntity();
     MentorTimeSlotEntity mentorTimeSlot = new MentorTimeSlotEntity();
     Long timeSlotId = 1L;
+
+    private Header buildTestHeader() {
+        return Header.newBuilder()
+                     .setRequestId(requestUUID)
+                     .setNodeId(testNodeId)
+                     .setApiKey(testApiKey)
+                     .build();
+    }
 
     @BeforeEach
     void setUp() {
@@ -109,7 +120,7 @@ class CalendarServiceServerTest {
                                      .build();
 
         CreateTimeSlotRequest request = CreateTimeSlotRequest.newBuilder()
-                                                             .setRqUid(requestUUID)
+                                                             .setHeader(buildTestHeader())
                                                              .setMentorId(mentorId)
                                                              .setStartTime(startTime)
                                                              .setEndTime(endTime)
@@ -166,7 +177,7 @@ class CalendarServiceServerTest {
 
         TimeSlotResponse response = responseCaptor.getValue();
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(requestUUID, response.getRqUid());
+        Assertions.assertEquals(requestUUID, response.getRequestId());
         Assertions.assertEquals(mentorId, response.getSlotId());
         Assertions.assertEquals(mentorId, response.getMentorId());
         Assertions.assertEquals(SlotType.INDIVIDUAL, response.getSlotType());
@@ -180,7 +191,7 @@ class CalendarServiceServerTest {
     void bookTimeSlot_Success() {
 
         BookTimeSlotRequest request = BookTimeSlotRequest.newBuilder()
-                                                         .setRqUid(requestUUID)
+                                                         .setHeader(buildTestHeader())
                                                          .setSlotId(timeSlotId)
                                                          .setUserId(userId)
                                                          .build();
@@ -272,7 +283,7 @@ class CalendarServiceServerTest {
 
         TimeSlotResponse response = responseCaptor.getValue();
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(requestUUID, response.getRqUid());
+        Assertions.assertEquals(requestUUID, response.getRequestId());
         Assertions.assertEquals(1L, response.getSlotId());
         Assertions.assertEquals(mentorId, response.getMentorId());
         Assertions.assertEquals(SlotType.INDIVIDUAL, response.getSlotType());
@@ -285,7 +296,7 @@ class CalendarServiceServerTest {
     @Test
     void bookTimeSlot_slotIsAlreadyFull_throwException() {
         BookTimeSlotRequest request = BookTimeSlotRequest.newBuilder()
-                                                         .setRqUid(requestUUID)
+                                                         .setHeader(buildTestHeader())
                                                          .setSlotId(timeSlotId)
                                                          .setUserId(userId)
                                                          .build();
@@ -352,7 +363,7 @@ class CalendarServiceServerTest {
     @Test
     void bookTimeSlot_slotIsInactive_throwException() {
         BookTimeSlotRequest request = BookTimeSlotRequest.newBuilder()
-                                                         .setRqUid(requestUUID)
+                                                         .setHeader(buildTestHeader())
                                                          .setSlotId(timeSlotId)
                                                          .setUserId(userId)
                                                          .build();
@@ -419,7 +430,7 @@ class CalendarServiceServerTest {
     @Test
     void bookTimeSlot_existsOverlapping_throwException() {
         BookTimeSlotRequest request = BookTimeSlotRequest.newBuilder()
-                                                         .setRqUid(requestUUID)
+                                                         .setHeader(buildTestHeader())
                                                          .setSlotId(timeSlotId)
                                                          .setUserId(userId)
                                                          .build();
@@ -492,7 +503,7 @@ class CalendarServiceServerTest {
     @Test
     void bookTimeSlot_UserNotFound_throwException() {
         BookTimeSlotRequest request = BookTimeSlotRequest.newBuilder()
-                                                         .setRqUid(requestUUID)
+                                                         .setHeader(buildTestHeader())
                                                          .setSlotId(timeSlotId)
                                                          .setUserId(userId)
                                                          .build();
@@ -565,7 +576,8 @@ class CalendarServiceServerTest {
     @Test
     void bookTimeSlot_SlotNotFound_throwException() {
         BookTimeSlotRequest request = BookTimeSlotRequest.newBuilder()
-                                                         .setRqUid(requestUUID)
+                                                         //                                                         .setRqUid(requestUUID)
+                                                         .setHeader(buildTestHeader())
                                                          .setSlotId(timeSlotId)
                                                          .setUserId(userId)
                                                          .build();

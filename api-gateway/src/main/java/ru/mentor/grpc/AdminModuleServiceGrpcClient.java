@@ -40,9 +40,9 @@ public class AdminModuleServiceGrpcClient {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getRequestId()
+                            request.getHeader().getRequestId()
                     ),
-                    request.getRequestId()
+                    request.getHeader().getRequestId()
             );
         }
     }
@@ -50,7 +50,8 @@ public class AdminModuleServiceGrpcClient {
     /**
      * Возвращает все модули в соответствии с настройками страницы.
      *
-     * @param request настройки страницы (номер страницы и размер)
+     * @param request
+     *         настройки страницы (номер страницы и размер)
      *
      * @return {@link AllModulesResponse}
      */
@@ -66,9 +67,9 @@ public class AdminModuleServiceGrpcClient {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getRequestId()
+                            request.getHeader().getRequestId()
                     ),
-                    request.getRequestId()
+                    request.getHeader().getRequestId()
             );
         }
     }
