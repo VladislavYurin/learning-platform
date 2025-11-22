@@ -18,6 +18,7 @@
   <modules>
     <module>common-lib</module>
     <module>reactive-common-lib</module>
+    <module>grpc-common-starter</module>
     <module>api-gateway</module>
     <module>course-service</module>
     <module>mentor-service</module>

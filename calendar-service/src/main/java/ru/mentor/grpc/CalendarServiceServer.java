@@ -62,12 +62,12 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             CreateTimeSlotRequest request,
             StreamObserver<TimeSlotResponse> responseObserver) {
 
-        String rqUId = request.getRqUid();
+        String requestId = request.getHeader().getRequestId();
         long mentorId = request.getMentorId();
 
         log.info(
                 "Поступил запрос {} на создание слота от ментора с ID {}",
-                rqUId,
+                requestId,
                 mentorId
         );
 
@@ -81,7 +81,10 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
                     mentor
             );
             newMentorTimeSlot = mentorTimeSlotRepository.save(newMentorTimeSlot);
-            responseObserver.onNext(timeSlotMapper.entityToGrpcResponse(newMentorTimeSlot, rqUId));
+            responseObserver.onNext(timeSlotMapper.entityToGrpcResponse(
+                    newMentorTimeSlot,
+                    requestId
+            ));
             responseObserver.onCompleted();
 
         } catch (UserException e) {
@@ -109,13 +112,13 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             BookTimeSlotRequest request,
             StreamObserver<TimeSlotResponse> responseObserver
     ) {
-        String rqUId = request.getRqUid();
+        String requestId = request.getHeader().getRequestId();
         Long userId = request.getUserId();
         Long slotId = request.getSlotId();
 
         log.info(
                 "Поступил запрос {} на бронирование слота от пользователя с ID: {}",
-                rqUId,
+                requestId,
                 userId
         );
 
@@ -168,7 +171,7 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
                 }
             }
 
-            responseObserver.onNext(timeSlotMapper.entityToGrpcResponse(bookedTimeSlot, rqUId));
+            responseObserver.onNext(timeSlotMapper.entityToGrpcResponse(bookedTimeSlot, requestId));
             responseObserver.onCompleted();
 
         } catch (TimeSlotUnavailableException e) {
@@ -233,19 +236,19 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             MentorSlotsInfoRequest request,
             StreamObserver<MentorSlotsInfoResponse> responseObserver) {
 
-        String rqUId = request.getRqUid();
+        String requestId = request.getHeader().getRequestId();
         long mentorId = request.getMentorId();
 
         log.info(
                 "Поступил запрос {} в gRPC сервис на получение всех слотов ментора с ID {}",
-                rqUId, mentorId
+                requestId, mentorId
         );
 
         List<MentorTimeSlotEntity> mentorSlots =
                 mentorTimeSlotRepository.findByMentorIdWithParticipants(mentorId);
 
         MentorSlotsInfoResponse response =
-                timeSlotMapper.convertToMentorSlotsInfoResponse(mentorSlots, rqUId);
+                timeSlotMapper.convertToMentorSlotsInfoResponse(mentorSlots, requestId);
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();

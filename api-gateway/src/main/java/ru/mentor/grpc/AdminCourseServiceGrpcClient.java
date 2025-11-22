@@ -22,7 +22,9 @@ public class AdminCourseServiceGrpcClient {
 
     /**
      * Возвращает запрошенный курс
-     * @param request объект, содержащий данные для запроса
+     *
+     * @param request
+     *         объект, содержащий данные для запроса
      *
      * @return {@link CourseResponse}
      */
@@ -38,9 +40,9 @@ public class AdminCourseServiceGrpcClient {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getRequestId()
+                            request.getHeader().getRequestId()
                     ),
-                    request.getRequestId()
+                    request.getHeader().getRequestId()
             );
         }
     }
@@ -57,9 +59,9 @@ public class AdminCourseServiceGrpcClient {
             throw new GrpcRetryException(
                     String.format(
                             "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getRequestId()
+                            request.getHeader().getRequestId()
                     ),
-                    request.getRequestId()
+                    request.getHeader().getRequestId()
             );
         }
     }

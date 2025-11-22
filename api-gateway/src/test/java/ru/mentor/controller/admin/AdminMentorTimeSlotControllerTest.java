@@ -51,8 +51,14 @@ class AdminMentorTimeSlotControllerTest {
                ));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/slot/all")
-                                              .param("pageNumber", String.valueOf(TestConstantHolder.pageNumber))
-                                              .param("pageSize", String.valueOf(TestConstantHolder.pageSize))
+                                              .param(
+                                                      "pageNumber",
+                                                      String.valueOf(TestConstantHolder.pageNumber)
+                                              )
+                                              .param(
+                                                      "pageSize",
+                                                      String.valueOf(TestConstantHolder.pageSize)
+                                              )
                                               .contentType(MediaType.APPLICATION_JSON))
 
                .andExpect(MockMvcResultMatchers.status().isOk())

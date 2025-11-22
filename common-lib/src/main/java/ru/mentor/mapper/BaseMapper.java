@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.Header;
 import ru.mentor.common.PageDetails;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.ModuleDto;
@@ -118,8 +119,8 @@ public class BaseMapper {
     /**
      * Создать gRPC-объект для запроса страницы любых объектов (аналог {@link PageRequest})
      *
-     * @param requestId
-     *         сквозной UUID запроса
+     * @param header
+     *         заголовок gRPC-запроса (requestId/nodeId/apiKey)
      * @param pageNumber
      *         номер страницы
      * @param pageSize
@@ -128,11 +129,11 @@ public class BaseMapper {
      * @return gRPC-объект {@link GrpcPageRequest}
      */
     public GrpcPageRequest constructGrpcPageRequest(
-            String requestId,
+            Header header,
             int pageNumber,
             int pageSize) {
         return GrpcPageRequest.newBuilder()
-                              .setRequestId(requestId)
+                              .setHeader(header)
                               .setPageNumber(pageNumber)
                               .setPageSize(pageSize)
                               .build();
@@ -162,9 +163,9 @@ public class BaseMapper {
         return PageRequest.of(grpcPageRequest.getPageNumber(), grpcPageRequest.getPageSize());
     }
 
-    public GetAllModulesRequest constructGetAllModulesRequest(String requestId, long courseId) {
+    public GetAllModulesRequest constructGetAllModulesRequest(Header header, long courseId) {
         return GetAllModulesRequest.newBuilder()
-                                   .setRequestId(requestId)
+                                   .setHeader(header)
                                    .setCourseId(courseId)
                                    .build();
     }

@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllTimeSlotsResponse;
-import ru.mentor.common.PageDetails;
 import ru.mentor.common.MentorSlotInfo;
+import ru.mentor.common.PageDetails;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.testUtil.TestConstantHolder;
@@ -25,7 +25,7 @@ class TimeSlotMapperTest {
                 TestConstantHolder.REQUEST_ID
         );
 
-        Assertions.assertEquals(TestConstantHolder.REQUEST_ID, response.getRqUid());
+        Assertions.assertEquals(TestConstantHolder.REQUEST_ID, response.getRequestId());
         Assertions.assertEquals(TestConstantHolder.SLOT_ID, response.getSlotId());
         Assertions.assertEquals(TestConstantHolder.MENTOR_ID, response.getMentorId());
         Assertions.assertEquals(

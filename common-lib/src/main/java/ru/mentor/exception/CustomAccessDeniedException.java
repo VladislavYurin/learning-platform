@@ -13,7 +13,7 @@ public class CustomAccessDeniedException extends RuntimeException {
      * Идентификатор запроса, связанный с исключением.
      * Может быть null, если не установлен.
      */
-    private String rqUId = null;
+    private String requestId = null;
 
     /**
      * Создает новое исключение CustomAccessDeniedException без сообщения и идентификатора запроса.
@@ -35,10 +35,10 @@ public class CustomAccessDeniedException extends RuntimeException {
      * Создает новое исключение CustomAccessDeniedException с указанным сообщением и идентификатором запроса.
      *
      * @param message сообщение об ошибке
-     * @param rqUId идентификатор запроса
+     * @param requestId идентификатор запроса
      */
-    public CustomAccessDeniedException(String message, String rqUId) {
+    public CustomAccessDeniedException(String message, String requestId) {
         super(message);
-        this.rqUId = rqUId;
+        this.requestId = requestId;
     }
 }

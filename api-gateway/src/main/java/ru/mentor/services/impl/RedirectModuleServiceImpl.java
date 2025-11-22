@@ -30,16 +30,19 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
 
     /**
      * Создаёт новый модуль в составе курса.
-     * @param request данные для создания модуля
+     *
+     * @param request
+     *         данные для создания модуля
+     *
      * @return созданный модуль
      */
     @Override
     public ModuleDto createModule(CreateModuleRequest request) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на создание модуля в курсе [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на создание модуля в курсе [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getCourseId(),
                 user.getId()
         ));
@@ -47,42 +50,50 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 user.getId(),
                 request
         );
-        return courseClient.createModule(rqUId, innerCreateModuleRequest);
+        return courseClient.createModule(requestId, innerCreateModuleRequest);
     }
 
     /**
      * Возвращает модуль по идентификатору курса и модуля.
-     * @param courseId идентификатор курса
-     * @param moduleId идентификатор модуля внутри курса
+     *
+     * @param courseId
+     *         идентификатор курса
+     * @param moduleId
+     *         идентификатор модуля внутри курса
+     *
      * @return найденный модуль
      */
     @Override
     public ModuleDto getModuleById(Long courseId, Long moduleId) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на получение модуля [ ID = %d ] из курса [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на получение модуля [ ID = %d ] из курса [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 moduleId,
                 courseId,
                 user.getId()
         ));
-        return courseClient.getModuleById(rqUId, user.getId(), courseId, moduleId);
+        return courseClient.getModuleById(requestId, user.getId(), courseId, moduleId);
     }
 
     /**
      * Импортирует модуль из загруженного файла (например, Markdown).
-     * @param request параметры создаваемого модуля
-     * @param file файл с содержимым модуля
+     *
+     * @param request
+     *         параметры создаваемого модуля
+     * @param file
+     *         файл с содержимым модуля
+     *
      * @return созданный модуль
      */
     @Override
     public ModuleDto importModuleFromFile(CreateModuleRequest request, MultipartFile file) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на импорт файлом модуля в курсе [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на импорт файлом модуля в курсе [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getCourseId(),
                 user.getId()
         ));
@@ -90,26 +101,29 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 user.getId(),
                 request
         );
-        return courseClient.importModuleFromMarkdown(rqUId, innerCreateModuleRequest, file);
+        return courseClient.importModuleFromMarkdown(requestId, innerCreateModuleRequest, file);
     }
 
     /**
      * Удаляет модуль из курса.
-     * @param courseId идентификатор курса
-     * @param moduleId идентификатор модуля внутри курса
+     *
+     * @param courseId
+     *         идентификатор курса
+     * @param moduleId
+     *         идентификатор модуля внутри курса
      */
     @Override
     public void deleteModule(Long courseId, Long moduleId) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на удаление модуля [ ID = %d ] в курсе [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на удаление модуля [ ID = %d ] в курсе [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 moduleId,
                 courseId,
                 user.getId()
         ));
-        courseClient.deleteModule(rqUId, user.getId(), courseId, moduleId);
+        courseClient.deleteModule(requestId, user.getId(), courseId, moduleId);
     }
 
 }

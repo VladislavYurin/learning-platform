@@ -1,5 +1,6 @@
 package ru.mentor.services.impl;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,8 +11,6 @@ import ru.mentor.feign.MentorClient;
 import ru.mentor.services.RedirectProgressService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
-
-import java.util.List;
 
 /**
  * Реализация сервиса редиректов/агрегации прогресса по курсам.
@@ -27,38 +26,44 @@ public class RedirectProgressServiceImpl implements RedirectProgressService {
 
     /**
      * Возвращает агрегированную статистику прогресса по курсу для наставника.
-     * @param courseId идентификатор курса
+     *
+     * @param courseId
+     *         идентификатор курса
+     *
      * @return сводный отчет по прогрессу курса
      */
     @Override
     public CourseProgressResponse getCourseProgressByMentor(Long courseId) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на получение прогресса учеников в курсе [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на получение прогресса учеников в курсе [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 courseId,
                 user.getId()
         ));
-        return mentorClient.getCourseProgressByMentor(rqUId, user.getId(), courseId).getBody();
+        return mentorClient.getCourseProgressByMentor(requestId, user.getId(), courseId).getBody();
     }
 
     /**
      * Возвращает список прогресса всех учеников курса для текущего наставника.
-     * @param courseId идентификатор курса
+     *
+     * @param courseId
+     *         идентификатор курса
+     *
      * @return список прогресса по каждому ученику
      */
     @Override
     public List<MenteeProgressDto> getAllUsersAtCourse(Long courseId) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на получение всех учеников в курсе [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на получение всех учеников в курсе [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 courseId,
                 user.getId()
         ));
-        return mentorClient.getAllUsersAtCourse(rqUId, user.getId(), courseId).getBody();
+        return mentorClient.getAllUsersAtCourse(requestId, user.getId(), courseId).getBody();
     }
 
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class ConflictException extends RuntimeException {
 
-    private String rqUId = null;
+    private String requestId = null;
 
     public ConflictException() {
         super();
@@ -15,8 +15,8 @@ public class ConflictException extends RuntimeException {
         super(message);
     }
 
-    public ConflictException(String message, String rqUId) {
+    public ConflictException(String message, String requestId) {
         super(message);
-        this.rqUId = rqUId;
+        this.requestId = requestId;
     }
 }

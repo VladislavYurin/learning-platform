@@ -2,12 +2,11 @@ package ru.mentor.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -21,7 +20,7 @@ public class MentorTimeSlotDto {
     private long mentorId;
 
     @Schema(description = "UUID запроса", example = "6e8f4e02-c91c-465f-b22d-7f102fca381b")
-    private String rqUId;
+    private String requestId;
 
     @Schema(description = "Начало открытого слота", example = "2025-01-15T13:00:00")
     private LocalDateTime startTime;

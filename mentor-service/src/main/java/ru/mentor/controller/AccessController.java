@@ -15,7 +15,7 @@ import ru.mentor.service.AccessService;
 /**
  * Контроллер для работы с доступами со стороны ментора.
  * Управляет доступом пользователей к курсам и модулям.
- *
+ * <p>
  * Этот контроллер предоставляет API для добавления и удаления доступа к курсам и модулям
  * для конкретных пользователей. Использует аннотации Spring для определения маршрутов
  * и обработки HTTP запросов.
@@ -32,25 +32,28 @@ public class AccessController {
     /**
      * Запрос на добавление доступа пользователя к курсу.
      *
-     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request Объект запроса, содержащий идентификаторы пользователя и курса.
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request
+     *         Объект запроса, содержащий идентификаторы пользователя и курса.
+     *
      * @return Ответ с подтверждением успешного добавления доступа.
      */
     @PostMapping("/course/get-access")
     public ResponseEntity<?> getCourseAccessToUser(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @RequestBody GetAccessRequest request) {
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getCourseId(),
                 request.getUserId()
         ));
-        accessService.getCourseAccessToUser(rqUId, request);
+        accessService.getCourseAccessToUser(requestId, request);
         log.info(String.format(
-                "[ RqUId = %s ] Успешно обработан запрос на добавление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Успешно обработан запрос на добавление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getCourseId(),
                 request.getUserId()
@@ -61,25 +64,28 @@ public class AccessController {
     /**
      * Запрос на удаление доступа пользователя к курсу.
      *
-     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request Объект запроса, содержащий идентификаторы пользователя и курса.
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request
+     *         Объект запроса, содержащий идентификаторы пользователя и курса.
+     *
      * @return Ответ с подтверждением успешного удаления доступа.
      */
     @PostMapping("/course/delete-access")
     public ResponseEntity<?> deleteCourseAccessToUser(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @RequestBody GetAccessRequest request) {
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getCourseId(),
                 request.getUserId()
         ));
-        accessService.deleteCourseAccessToUser(rqUId, request);
+        accessService.deleteCourseAccessToUser(requestId, request);
         log.info(String.format(
-                "[ RqUId = %s ] Успешно обработан запрос на удаление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Успешно обработан запрос на удаление доступа юзеру [ ID = %d ] к курсу [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getCourseId(),
                 request.getUserId()
@@ -87,28 +93,31 @@ public class AccessController {
         return ResponseEntity.ok().body(null);
     }
 
-/**
- * Запрос на добавление доступа пользователя к модулю.
- *
- * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
- * @param request Объект запроса, содержащий идентификаторы пользователя и модуля.
- * @return Ответ с подтверждением успешного добавления доступа к модулю.
- */
+    /**
+     * Запрос на добавление доступа пользователя к модулю.
+     *
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request
+     *         Объект запроса, содержащий идентификаторы пользователя и модуля.
+     *
+     * @return Ответ с подтверждением успешного добавления доступа к модулю.
+     */
     @PostMapping("/module/get-access")
     public ResponseEntity<?> getModuleAccessToUser(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @RequestBody GetAccessRequest request) {
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на добавление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getModuleId(),
                 request.getUserId()
         ));
-        accessService.getModuleAccessToUser(rqUId, request);
+        accessService.getModuleAccessToUser(requestId, request);
         log.info(String.format(
-                "[ RqUId = %s ] Успешно обработан запрос на добавление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Успешно обработан запрос на добавление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getModuleId(),
                 request.getUserId()
@@ -119,25 +128,28 @@ public class AccessController {
     /**
      * Запрос на удаление доступа пользователя к модулю.
      *
-     * @param rqUId Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request Объект запроса, содержащий идентификаторы пользователя и модуля.
+     * @param requestId
+     *         Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request
+     *         Объект запроса, содержащий идентификаторы пользователя и модуля.
+     *
      * @return Ответ с подтверждением успешного удаления доступа к модулю.
      */
     @PostMapping("/module/delete-access")
     public ResponseEntity<?> deleteModuleAccessToUser(
-            @RequestHeader("RqUId") String rqUId,
+            @RequestHeader("requestId") String requestId,
             @RequestBody GetAccessRequest request) {
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на удаление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getModuleId(),
                 request.getUserId()
         ));
-        accessService.deleteModuleAccessToUser(rqUId, request);
+        accessService.deleteModuleAccessToUser(requestId, request);
         log.info(String.format(
-                "[ RqUId = %s ] Успешно обработан запрос на удаление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Успешно обработан запрос на удаление доступа юзеру [ ID = %d ] к модулю [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 request.getUserId(),
                 request.getModuleId(),
                 request.getUserId()

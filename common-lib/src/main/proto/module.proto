@@ -9,14 +9,14 @@ option java_outer_classname = "ModuleProto";
 
 // Запрос на получение модуля
 message GetModuleRequest {
-  string request_id = 1;
+  Header header = 1;
   uint64 sender_id = 2;
   uint64 module_id = 3;
 }
 
 // Запрос на получение всех модулей курса
 message GetAllModulesRequest {
-  string request_id = 1;
+  Header header = 1;
   uint64 sender_id = 2;
   uint64 course_id = 3;
 }

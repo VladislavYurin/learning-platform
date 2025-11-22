@@ -1,6 +1,7 @@
 package ru.mentor.services;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -11,11 +12,13 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentor.common.BookTimeSlotRequest;
 import ru.mentor.common.CreateTimeSlotRequest;
+import ru.mentor.common.Header;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.services.impl.RedirectCalendarServiceImpl;
@@ -33,11 +36,23 @@ class RedirectCalendarServiceImplTest {
     @Mock
     private CalendarServiceGrpcClient calendarServiceClient;
 
+    @Mock
+    private HeaderFactory headerFactory;
+
     @Spy
     private TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
 
     @InjectMocks
     private RedirectCalendarServiceImpl redirectCalendarService;
+
+    @BeforeEach
+    void setUp() {
+        Mockito.when(headerFactory.create(ArgumentMatchers.anyString()))
+               .thenReturn(
+                       Header.newBuilder()
+                             .build()
+               );
+    }
 
     @Test
     public void createTimeSlot_Success() {
@@ -71,7 +86,7 @@ class RedirectCalendarServiceImplTest {
         Mockito.verify(timeSlotMapper, Mockito.times(1))
                .requestCreateToGrpcDto(
                        ArgumentMatchers.any(),
-                       ArgumentMatchers.anyString(),
+                       ArgumentMatchers.any(Header.class),
                        ArgumentMatchers.any()
                );
         Mockito.verify(timeSlotMapper, Mockito.times(1))
@@ -99,7 +114,7 @@ class RedirectCalendarServiceImplTest {
         Mockito.verify(timeSlotMapper).grpcResponseToDto(testTimeSlotResponse);
         Mockito.verify(timeSlotMapper, Mockito.times(1))
                .toGrpcBookTimeSlotRequest(
-                       ArgumentMatchers.anyString(),
+                       ArgumentMatchers.any(Header.class),
                        ArgumentMatchers.anyLong(),
                        ArgumentMatchers.anyLong()
                );
@@ -109,49 +124,52 @@ class RedirectCalendarServiceImplTest {
     }
 
     @Test
-    public void getMentorSlotsInfoForUser_passedMentorId_shouldUsePassedMentorId(){
+    public void getMentorSlotsInfoForUser_passedMentorId_shouldUsePassedMentorId() {
 
         Mockito.when(userService.getCurrentUser())
-                .thenReturn(TestDataGenerator.getTestParticipantUser());
+               .thenReturn(TestDataGenerator.getTestParticipantUser());
         Mockito.when(calendarServiceClient.getMentorSlotsInfo(ArgumentMatchers.any()))
-                .thenReturn(TestGrpcStubGenerator.constructMentorSlotsInfoResponse());
+               .thenReturn(TestGrpcStubGenerator.constructMentorSlotsInfoResponse());
 
         redirectCalendarService.getMentorSlotsInfoForUser(TestConstantHolder.mentorId);
 
         Mockito.verify(timeSlotMapper, Mockito.times(1))
-                .toSlotInfoForUserList(ArgumentMatchers.any());
+               .toSlotInfoForUserList(ArgumentMatchers.any());
 
         // проверка вызовов во вспомогательном методе
 
         Mockito.verify(userService, Mockito.times(1))
-                .getCurrentUser();
+               .getCurrentUser();
         Mockito.verify(timeSlotMapper, Mockito.times(1))
-                .toMentorSlotsInfoGrpcRequest(ArgumentMatchers.eq(TestConstantHolder.mentorId),
-                        ArgumentMatchers.anyString());
+               .toMentorSlotsInfoGrpcRequest(
+                       ArgumentMatchers.eq(TestConstantHolder.mentorId),
+                       ArgumentMatchers.any(Header.class)
+               );
         Mockito.verify(calendarServiceClient, Mockito.times(1))
-                .getMentorSlotsInfo(ArgumentMatchers.any());
+               .getMentorSlotsInfo(ArgumentMatchers.any());
     }
 
     @Test
     public void getMentorSlotsInfoForMentor_noPassedMentorId_shouldUseCurrentUserId() {
         Mockito.when(userService.getCurrentUser())
-                .thenReturn(TestDataGenerator.getTestMentorUser());
+               .thenReturn(TestDataGenerator.getTestMentorUser());
         Mockito.when(calendarServiceClient.getMentorSlotsInfo(ArgumentMatchers.any()))
-                .thenReturn(TestGrpcStubGenerator.constructMentorSlotsInfoResponse());
+               .thenReturn(TestGrpcStubGenerator.constructMentorSlotsInfoResponse());
 
         redirectCalendarService.getMentorSlotsInfoForMentor();
 
         Mockito.verify(calendarServiceClient, Mockito.times(1))
-                .getMentorSlotsInfo(ArgumentMatchers.any());
+               .getMentorSlotsInfo(ArgumentMatchers.any());
         Mockito.verify(timeSlotMapper, Mockito.times(1))
-                .toSlotInfoDtoList(ArgumentMatchers.any());
+               .toSlotInfoDtoList(ArgumentMatchers.any());
 
         Mockito.verify(userService, Mockito.times(1))
-                .getCurrentUser();
+               .getCurrentUser();
         Mockito.verify(timeSlotMapper, Mockito.times(1))
-                .toMentorSlotsInfoGrpcRequest(ArgumentMatchers.eq(TestConstantHolder.mentorId),
-                                              ArgumentMatchers.anyString());
+               .toMentorSlotsInfoGrpcRequest(
+                       ArgumentMatchers.eq(TestConstantHolder.mentorId),
+                       ArgumentMatchers.any(Header.class)
+               );
     }
-
 
 }

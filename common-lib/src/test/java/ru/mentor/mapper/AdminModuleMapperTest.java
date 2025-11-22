@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.GetModuleRequest;
+import ru.mentor.common.Header;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.PageDetails;
 import ru.mentor.dto.ModuleDto;
@@ -29,10 +30,17 @@ class AdminModuleMapperTest {
 
     @Test
     void constructGetModuleRequest_success() {
-        GetModuleRequest request = adminModuleMapper.constructGetModuleRequest(
-                TestConstantHolder.requestId, TestConstantHolder.moduleId);
+        Header header = Header.newBuilder()
+                              .setRequestId(TestConstantHolder.requestId)
+                              .setNodeId(TestConstantHolder.nodeId)
+                              .setApiKey(TestConstantHolder.apiKey)
+                              .build();
 
-        Assertions.assertThat(request.getRequestId()).isEqualTo(TestConstantHolder.requestId);
+        GetModuleRequest request = adminModuleMapper.constructGetModuleRequest(
+                header, TestConstantHolder.moduleId);
+
+        Assertions.assertThat(request.getHeader().getRequestId())
+                  .isEqualTo(TestConstantHolder.requestId);
         Assertions.assertThat(request.getModuleId()).isEqualTo(TestConstantHolder.moduleId);
     }
 
@@ -60,7 +68,9 @@ class AdminModuleMapperTest {
                 grpcResponse);
 
         Assertions.assertThat(result.getContent()).hasSize(TestConstantHolder.totalPagesCount);
-        Assertions.assertThat(result.getContent().get(TestConstantHolder.pageNumber).getModuleTitle())
+        Assertions.assertThat(result.getContent()
+                                    .get(TestConstantHolder.pageNumber)
+                                    .getModuleTitle())
                   .isEqualTo(TestConstantHolder.moduleTitle);
         Assertions.assertThat(result.getTotalElements())
                   .isEqualTo(TestConstantHolder.totalElementsCount);

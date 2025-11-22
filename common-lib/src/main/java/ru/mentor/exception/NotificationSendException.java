@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class NotificationSendException extends RuntimeException {
-    private String rqUId = null;
+    private String requestId = null;
 
     public NotificationSendException() {
         super();
@@ -14,8 +14,8 @@ public class NotificationSendException extends RuntimeException {
         super(message);
     }
 
-    public NotificationSendException(String message, String rqUId) {
+    public NotificationSendException(String message, String requestId) {
         super(message);
-        this.rqUId = rqUId;
+        this.requestId = requestId;
     }
 }

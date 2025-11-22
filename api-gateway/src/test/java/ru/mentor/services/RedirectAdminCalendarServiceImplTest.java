@@ -1,6 +1,7 @@
 package ru.mentor.services;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -12,7 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.Header;
 import ru.mentor.dto.MentorSlotInfoDto;
+import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminCalendarServiceGrpcClient;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
@@ -28,6 +31,8 @@ class RedirectAdminCalendarServiceImplTest {
     private UserService userService;
     @Mock
     private AdminCalendarServiceGrpcClient calendarServiceGrpcClient;
+    @Mock
+    private HeaderFactory headerFactory;
     @Spy
     private TimeSlotMapper timeSlotMapper;
     @Spy
@@ -35,6 +40,15 @@ class RedirectAdminCalendarServiceImplTest {
 
     @InjectMocks
     private RedirectAdminCalendarServiceImpl redirectService;
+
+    @BeforeEach
+    void setUp() {
+        Mockito.when(headerFactory.create(ArgumentMatchers.anyString()))
+               .thenReturn(
+                       Header.newBuilder()
+                             .build()
+               );
+    }
 
     @Test
     void getAllMentorTimeSlots_success() {
@@ -69,25 +83,30 @@ class RedirectAdminCalendarServiceImplTest {
 
         GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
 
-        Mockito.when(userService.getCurrentUserId()).thenReturn(TestConstantHolder.userId);
-        Mockito.when(baseMapper.constructGrpcPageRequest(
-                       ArgumentMatchers.anyString(),
+        Mockito.when(userService.getCurrentUserId())
+               .thenReturn(TestConstantHolder.userId);
+
+        Mockito.doReturn(grpcPageRequest)
+               .when(baseMapper)
+               .constructGrpcPageRequest(
+                       ArgumentMatchers.any(Header.class),
                        ArgumentMatchers.anyInt(),
                        ArgumentMatchers.anyInt()
-               ))
-               .thenReturn(grpcPageRequest);
+               );
+
         Mockito.when(calendarServiceGrpcClient.getAllTimeSlots(grpcPageRequest))
                .thenThrow(new RuntimeException(TestConstantHolder.notFoundExceptionText));
 
         Assertions.assertThatThrownBy(() -> redirectService.getAllMentorTimeSlots(
-                          TestConstantHolder.pageNumber, TestConstantHolder.pageSize
+                          TestConstantHolder.pageNumber,
+                          TestConstantHolder.pageSize
                   ))
                   .isInstanceOf(RuntimeException.class)
                   .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
 
         Mockito.verify(userService).getCurrentUserId();
         Mockito.verify(baseMapper).constructGrpcPageRequest(
-                ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(Header.class),
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.anyInt()
         );

@@ -9,12 +9,12 @@ import ru.mentor.dto.GetAccessRequest;
  */
 public interface AccessService {
 
-    void getCourseAccessToUser(String rqUId, GetAccessRequest request);
+    void getCourseAccessToUser(String requestId, GetAccessRequest request);
 
-    void getModuleAccessToUser(String rqUId, GetAccessRequest request);
+    void getModuleAccessToUser(String requestId, GetAccessRequest request);
 
-    void deleteCourseAccessToUser(String rqUId, GetAccessRequest request);
+    void deleteCourseAccessToUser(String requestId, GetAccessRequest request);
 
-    void deleteModuleAccessToUser(String rqUId, GetAccessRequest request);
+    void deleteModuleAccessToUser(String requestId, GetAccessRequest request);
 
 }

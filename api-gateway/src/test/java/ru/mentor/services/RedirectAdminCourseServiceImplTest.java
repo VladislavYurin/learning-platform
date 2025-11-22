@@ -1,6 +1,7 @@
 package ru.mentor.services;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -13,7 +14,9 @@ import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.Header;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminCourseServiceGrpcClient;
 import ru.mentor.mapper.AdminCourseMapper;
 import ru.mentor.mapper.BaseMapper;
@@ -31,9 +34,20 @@ class RedirectAdminCourseServiceImplTest {
     private AdminCourseMapper courseMapper;
     @Mock
     private BaseMapper baseMapper;
+    @Mock
+    private HeaderFactory headerFactory;
 
     @InjectMocks
     private RedirectAdminCourseServiceImpl redirectService;
+
+    @BeforeEach
+    void setUp() {
+        Mockito.when(headerFactory.create(ArgumentMatchers.anyString()))
+               .thenReturn(
+                       Header.newBuilder()
+                             .build()
+               );
+    }
 
     @Test
     void getCourseById_success() {
@@ -41,7 +55,7 @@ class RedirectAdminCourseServiceImplTest {
         CourseDto dto = Mockito.mock(CourseDto.class);
 
         Mockito.when(courseMapper.constructGetCourseRequest(
-                       ArgumentMatchers.anyString(),
+                       ArgumentMatchers.any(Header.class),
                        ArgumentMatchers.eq(TestConstantHolder.courseId)
                ))
                .thenReturn(TestGrpcStubGenerator.constructGetCourseRequest());
@@ -54,7 +68,7 @@ class RedirectAdminCourseServiceImplTest {
 
         Assertions.assertThat(result).isEqualTo(dto);
         Mockito.verify(courseMapper).constructGetCourseRequest(
-                ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(Header.class),
                 ArgumentMatchers.eq(TestConstantHolder.courseId)
         );
         Mockito.verify(courseServiceClient).getCourse(ArgumentMatchers.any(GetCourseRequest.class));
@@ -64,7 +78,7 @@ class RedirectAdminCourseServiceImplTest {
     @Test
     void getCourseById_failure() {
         Mockito.when(courseMapper.constructGetCourseRequest(
-                       ArgumentMatchers.anyString(),
+                       ArgumentMatchers.any(Header.class),
                        ArgumentMatchers.eq(TestConstantHolder.courseId)
                ))
                .thenReturn(TestGrpcStubGenerator.constructGetCourseRequest());
@@ -76,7 +90,7 @@ class RedirectAdminCourseServiceImplTest {
                   .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
 
         Mockito.verify(courseMapper).constructGetCourseRequest(
-                ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(Header.class),
                 ArgumentMatchers.eq(TestConstantHolder.courseId)
         );
         Mockito.verify(courseServiceClient).getCourse(ArgumentMatchers.any(GetCourseRequest.class));
@@ -90,7 +104,7 @@ class RedirectAdminCourseServiceImplTest {
         Page<CourseDto> courseDtoPage = TestEntityStubGenerator.constructCourseDtoPage();
 
         Mockito.when(baseMapper.constructGrpcPageRequest(
-                       ArgumentMatchers.anyString(),
+                       ArgumentMatchers.any(Header.class),
                        ArgumentMatchers.anyInt(),
                        ArgumentMatchers.anyInt()
                ))
@@ -107,7 +121,7 @@ class RedirectAdminCourseServiceImplTest {
 
         Assertions.assertThat(result).isEqualTo(courseDtoPage);
         Mockito.verify(baseMapper).constructGrpcPageRequest(
-                ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(Header.class),
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.anyInt()
         );
@@ -121,7 +135,7 @@ class RedirectAdminCourseServiceImplTest {
         GrpcPageRequest grpcPageRequest = TestGrpcStubGenerator.constructGrpcPageRequest();
 
         Mockito.when(baseMapper.constructGrpcPageRequest(
-                       ArgumentMatchers.anyString(),
+                       ArgumentMatchers.any(Header.class),
                        ArgumentMatchers.anyInt(),
                        ArgumentMatchers.anyInt()
                ))
@@ -137,7 +151,7 @@ class RedirectAdminCourseServiceImplTest {
                   .hasMessageContaining(TestConstantHolder.notFoundExceptionText);
 
         Mockito.verify(baseMapper).constructGrpcPageRequest(
-                ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(Header.class),
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.anyInt()
         );

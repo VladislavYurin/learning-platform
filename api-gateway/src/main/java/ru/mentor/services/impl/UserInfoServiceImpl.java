@@ -15,8 +15,8 @@ import ru.mentor.util.RqGenerator;
 /**
  * Реализация сервиса для работы с пользовательской информацией.
  * <p>
- *     Предоставляет операции получения данных текущего пользователя,
- *     просмотра профиля другого пользователя и назначения роли наставника.
+ * Предоставляет операции получения данных текущего пользователя,
+ * просмотра профиля другого пользователя и назначения роли наставника.
  * </p>
  */
 @Service
@@ -32,15 +32,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * Возвращает данные текущего (аутентифицированного) пользователя.
+     *
      * @return DTO с информацией о текущем пользователе
      */
     @Override
     public UserInfoDto getMyUserInfo() {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на получение своей информации юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на получение своей информации юзером [ ID = %d ].",
+                requestId,
                 user.getId()
         ));
         return baseMapper.mapUserDto(user);
@@ -48,16 +49,19 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * Возвращает данные другого пользователя по его идентификатору.
-     * @param userId идентификатор другого пользователя
+     *
+     * @param userId
+     *         идентификатор другого пользователя
+     *
      * @return DTO с информацией о запрашиваемом пользователе
      */
     @Override
     public UserInfoDto getOtherUserInfo(Long userId) {
         UserEntity user = userRepository.findByIdOrThrow(userId);
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на получении информации юзера [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на получении информации юзера [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 userId,
                 user.getId()
         ));
@@ -66,15 +70,16 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * Назначает текущему пользователю роль наставника и возвращает обновлённые данные.
+     *
      * @return DTO с актуальными данными пользователя после назначения роли
      */
     @Override
     public UserInfoDto assignMentorRole() {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на выдачу роли ментора юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на выдачу роли ментора юзером [ ID = %d ].",
+                requestId,
                 user.getId()
         ));
         user.setRole(Role.MENTOR);

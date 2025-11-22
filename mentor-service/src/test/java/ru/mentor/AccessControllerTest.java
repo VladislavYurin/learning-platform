@@ -53,9 +53,9 @@ class AccessControllerTest {
     // Поднимаем только Postgres
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.3-alpine")
-                                                     .withDatabaseName("testdb")
-                                                     .withUsername("test")
-                                                     .withPassword("test");
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
 
     // Подменяем реальный KafkaTemplate мок-объектом
     @MockBean
@@ -101,11 +101,11 @@ class AccessControllerTest {
         CourseEntity course = commonTestUtil.createCourse(
                 "Test Course", "Test Description", mentor);
 
-        String rqUId = UUID.randomUUID().toString();
+        String requestId = UUID.randomUUID().toString();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/access/course/get-access")
                                               .contentType(MediaType.APPLICATION_JSON)
-                                              .header("RqUId", rqUId)
+                                              .header("requestId", requestId)
                                               .header("X-Service-Auth", API_KEY)
                                               .content(String.format(
                                                       """

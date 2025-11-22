@@ -2,12 +2,12 @@ package ru.mentor.services.impl;
 
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.mentor.common.BookTimeSlotRequest;
 import ru.mentor.common.CreateTimeSlotRequest;
+import ru.mentor.common.Header;
 import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.common.MentorSlotsInfoRequest;
 import ru.mentor.common.TimeSlotResponse;
@@ -16,6 +16,7 @@ import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.services.RedirectCalendarService;
@@ -36,23 +37,30 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
 
     private final TimeSlotMapper timeSlotMapper;
 
+    private final HeaderFactory headerFactory;
+
     /**
      * Отправляет запрос на создание слота ментором.
      *
-     * @param createRequest {@link MentorTimeSlotCreateRequest}
+     * @param createRequest
+     *         {@link MentorTimeSlotCreateRequest}
+     *
      * @return {@link MentorTimeSlotDto}
      */
     @Override
     public MentorTimeSlotDto createTimeSlot(MentorTimeSlotCreateRequest createRequest) {
 
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
-        log.info("[ RqUId = {} ] Получен запрос на создание слота ментором [ ID = {} ].",
-                rqUId,
-                user.getId());
+        String requestId = RqGenerator.generateRqId();
+        Header header = headerFactory.create(requestId);
+        log.info(
+                "[ requestId = {} ] Получен запрос на создание слота ментором [ ID = {} ].",
+                requestId,
+                user.getId()
+        );
 
         CreateTimeSlotRequest createTimeSlotGrpcRequest =
-                timeSlotMapper.requestCreateToGrpcDto(createRequest, rqUId, user);
+                timeSlotMapper.requestCreateToGrpcDto(createRequest, header, user);
 
         TimeSlotResponse timeSlotGrpcResponse = calendarServiceClient
                 .createMentorTimeSlot(createTimeSlotGrpcRequest);
@@ -63,21 +71,26 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
     /**
      * Отправляет запрос на бронирование слота по ID.
      *
-     * @param timeSlotId ID слота для бронирования
+     * @param timeSlotId
+     *         ID слота для бронирования
+     *
      * @return {@link MentorTimeSlotDto}
      */
     @Override
     public MentorTimeSlotDto bookTimeSlot(long timeSlotId) {
 
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
-        log.info("[ RqUId = {} ] Получен запрос на бронирование слота [ ID = {}] учеником [ ID = {} ].",
-                rqUId,
+        String requestId = RqGenerator.generateRqId();
+        Header header = headerFactory.create(requestId);
+        log.info(
+                "[ requestId = {} ] Получен запрос на бронирование слота [ ID = {}] учеником [ ID = {} ].",
+                requestId,
                 timeSlotId,
-                user.getId());
+                user.getId()
+        );
 
-        BookTimeSlotRequest bookTimeSlotRequest =
-                timeSlotMapper.toGrpcBookTimeSlotRequest(rqUId, timeSlotId, user.getId());
+        BookTimeSlotRequest bookTimeSlotRequest = timeSlotMapper
+                .toGrpcBookTimeSlotRequest(header, timeSlotId, user.getId());
 
         TimeSlotResponse timeSlotGrpcResponse = calendarServiceClient
                 .bookTimeSlot(bookTimeSlotRequest);
@@ -86,7 +99,9 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
     }
 
     /**
-     * Отправляет запрос для получения информации о слотах текущего ментора и участниках в этих слотах
+     * Отправляет запрос для получения информации о слотах текущего ментора и участниках в этих
+     * слотах
+     *
      * @return список ДТО {@link List<MentorSlotInfoDto>}
      */
     @Override
@@ -98,7 +113,10 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
 
     /**
      * Отправляет запрос для получения информации о слотах ментора с ID = mentorId
-     * @param mentorId - ID ментора, слоты которого нужно вернуть
+     *
+     * @param mentorId
+     *         - ID ментора, слоты которого нужно вернуть
+     *
      * @return список ДТО {@link List<MentorTimeSlotInfoForUserDto>}
      */
     @Override
@@ -111,14 +129,20 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
     public List<MentorSlotInfo> getMentorSlotsInfoRequest(Optional<Long> mentorId) {
 
         Long userId = userService.getCurrentUser().getId();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
+        Header header = headerFactory.create(requestId);
 
-        log.info("[ RqUId = {} ] Получен запрос от пользователя [ ID = {} ] на извлечение информации о слотах ментора [ ID = {} ].",
-                rqUId, userId, mentorId.orElse(userId));
+        log.info(
+                "[ requestId = {} ] Получен запрос от пользователя [ ID = {} ] на извлечение информации о слотах ментора [ ID = {} ].",
+                requestId,
+                userId,
+                mentorId.orElse(userId)
+        );
 
         MentorSlotsInfoRequest request =
-                timeSlotMapper.toMentorSlotsInfoGrpcRequest(mentorId.orElse(userId), rqUId);
+                timeSlotMapper.toMentorSlotsInfoGrpcRequest(mentorId.orElse(userId), header);
 
         return calendarServiceClient.getMentorSlotsInfo(request).getSlotsList();
     }
+
 }

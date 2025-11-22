@@ -1,5 +1,6 @@
 package ru.mentor.services.impl;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +11,6 @@ import ru.mentor.grpc.tags.ListTagsResponse;
 import ru.mentor.mapper.TagGrpcMapper;
 import ru.mentor.services.RedirectTagService;
 import ru.mentor.util.RqGenerator;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +23,14 @@ public class RedirectTagServiceImpl implements RedirectTagService {
     @Override
     public ResponseEntity<List<CourseTagDto>> getAllTags() {
         String rqId = RqGenerator.generateRqId();
-        log.info("[RqUid = {} ] Запрос на получение списка тегов курса", rqId);
-            ListTagsResponse response = client.listTags();
+        log.info("[requestId = {} ] Запрос на получение списка тегов курса", rqId);
+        ListTagsResponse response = client.listTags();
 
-            List<CourseTagDto> list = response.getTagsList().stream()
-                    .map(tagGrpcMapper::fromGrpc)
-                    .toList();
+        List<CourseTagDto> list = response.getTagsList().stream()
+                                          .map(tagGrpcMapper::fromGrpc)
+                                          .toList();
 
-            return ResponseEntity.ok(list);
+        return ResponseEntity.ok(list);
     }
+
 }

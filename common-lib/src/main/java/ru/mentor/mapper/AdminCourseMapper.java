@@ -13,6 +13,7 @@ import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.AuthorResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.GetCourseRequest;
+import ru.mentor.common.Header;
 import ru.mentor.common.PageDetails;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.UserInfoDto;
@@ -118,16 +119,16 @@ public class AdminCourseMapper {
     /**
      * Создает gRPC-объект запроса курса {@link GetCourseRequest}
      *
-     * @param requestId
-     *         сквозной UUID запроса
+     * @param header
+     *         заголовок gRPC-запроса (requestId/nodeId/apiKey)
      * @param courseId
      *         ID курса
      *
      * @return {@link GetCourseRequest}
      */
-    public GetCourseRequest constructGetCourseRequest(String requestId, long courseId) {
+    public GetCourseRequest constructGetCourseRequest(Header header, long courseId) {
         return GetCourseRequest.newBuilder()
-                               .setRequestId(requestId)
+                               .setHeader(header)
                                .setCourseId(courseId)
                                .build();
     }

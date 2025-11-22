@@ -32,9 +32,14 @@ public class CalendarServiceGrpcClient {
     /**
      * Создаёт тайм-слот наставника в Calendar Service.
      * Выполняет RPC-вызов {@code createMentorTimeSlot}.
-     * @param request запрос на создание тайм-слота (должен содержать корректный {@code rqUid})
+     *
+     * @param request
+     *         запрос на создание тайм-слота (должен содержать корректный {@code requestId})
+     *
      * @return Calendar Service с данными созданного тайм-слота
-     * @throws GrpcRetryException при ошибке отправки/выполнения RPC будет перехвачен ретраем
+     *
+     * @throws GrpcRetryException
+     *         при ошибке отправки/выполнения RPC будет перехвачен ретраем
      */
     @Retryable(
             retryFor = GrpcRetryException.class,
@@ -47,17 +52,20 @@ public class CalendarServiceGrpcClient {
         try {
             return blockingStub.createMentorTimeSlot(request);
         } catch (Exception e) {
-            throw new GrpcRetryException(String.format(
-                    "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
-                    request.getRqUid()
-            ), request.getRqUid());
+            throw new GrpcRetryException(
+                    String.format(
+                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
+                            request.getHeader().getRequestId()
+                    ), request.getHeader().getRequestId()
+            );
         }
     }
 
     /**
      * Бронирует слот.
      *
-     * @param bookTimeSlotRequest объект, содержащий данные для бронирования
+     * @param bookTimeSlotRequest
+     *         объект, содержащий данные для бронирования
      *
      * @return {@link TimeSlotResponse}
      */
@@ -70,16 +78,21 @@ public class CalendarServiceGrpcClient {
         try {
             return blockingStub.bookTimeslot(bookTimeSlotRequest);
         } catch (Exception e) {
-            throw new GrpcRetryException(String.format(
-                    "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
-                    bookTimeSlotRequest.getRqUid()
-            ), bookTimeSlotRequest.getRqUid());
+            throw new GrpcRetryException(
+                    String.format(
+                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
+                            bookTimeSlotRequest.getHeader().getRequestId()
+                    ), bookTimeSlotRequest.getHeader().getRequestId()
+            );
         }
     }
 
     /**
      * Возвращает gRPC-ответ с данными о слотах ментора и участниках в этих слотах
-     * @param mentorSlotsInfoRequest {@link MentorSlotsInfoRequest} сгенерированный из proto класс запроса
+     *
+     * @param mentorSlotsInfoRequest
+     *         {@link MentorSlotsInfoRequest} сгенерированный из proto класс запроса
+     *
      * @return {@link MentorSlotsInfoResponse} сгенерированный класс ответа
      */
     @Retryable(
@@ -91,10 +104,13 @@ public class CalendarServiceGrpcClient {
         try {
             return blockingStub.getMentorSlots(mentorSlotsInfoRequest);
         } catch (Exception e) {
-            throw new GrpcRetryException(String.format(
-                    "[ RqUId = %s ] Ошибка отправки gRPC запроса.",
-                    mentorSlotsInfoRequest.getRqUid()
-            ));
+            throw new GrpcRetryException(
+                    String.format(
+                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
+                            mentorSlotsInfoRequest.getHeader().getRequestId()
+                    ), mentorSlotsInfoRequest.getHeader().getRequestId()
+            );
         }
     }
+
 }

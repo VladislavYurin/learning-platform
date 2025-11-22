@@ -10,8 +10,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.GrpcPageRequest;
+import ru.mentor.common.Header;
 import ru.mentor.common.PageDetails;
 import ru.mentor.dto.MentorSlotInfoDto;
+import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminCalendarServiceGrpcClient;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
@@ -34,12 +36,13 @@ public class RedirectAdminCalendarServiceImpl implements RedirectAdminCalendarSe
 
     private final BaseMapper baseMapper;
 
+    private final HeaderFactory headerFactory;
+
     /**
      * Возвращает все слоты ментора с постраничностью.
      *
      * @param pageNumber
      *         номер страницы
-     *
      * @param pageSize
      *         размер страницы
      *
@@ -51,14 +54,19 @@ public class RedirectAdminCalendarServiceImpl implements RedirectAdminCalendarSe
 
         String requestId = UUID.randomUUID().toString();
         Long currentUserId = userService.getCurrentUserId();
+        Header header = headerFactory.create(requestId);
 
         log.info(
-                "[ rqUID = {} ] Получен запрос от администратора [ ID = {} ] на извлечение всех слотов",
+                "[ requestId = {} ] Получен запрос от администратора [ ID = {} ] на извлечение всех слотов",
                 requestId,
                 currentUserId
         );
 
-        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(requestId, pageNumber, pageSize);
+        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
+                header,
+                pageNumber,
+                pageSize
+        );
         AllTimeSlotsResponse allTimeSlots = calendarServiceGrpcClient.getAllTimeSlots(pageRequest);
 
         List<MentorSlotInfoDto> mentorSlotInfoDtoList =

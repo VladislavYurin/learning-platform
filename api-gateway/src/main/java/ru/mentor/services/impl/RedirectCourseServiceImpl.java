@@ -30,90 +30,103 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
 
     /**
      * Создает новый курс.
-     * @param request данные для создания курса
+     *
+     * @param request
+     *         данные для создания курса
+     *
      * @return созданный модуль
      */
     @Override
     public CourseDto createCourse(CreateCourseRequest request) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на создание курса юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на создание курса юзером [ ID = %d ].",
+                requestId,
                 user.getId()
         ));
-        return courseClient.createCourse(rqUId, courseMapper.mapToInnerCreateCourseRequest(
-                user.getId(),
-                request
-        ));
+        return courseClient.createCourse(
+                requestId, courseMapper.mapToInnerCreateCourseRequest(
+                        user.getId(),
+                        request
+                )
+        );
     }
 
     /**
      * Удаляет курс.
-     * @param courseId идентификатор курса
+     *
+     * @param courseId
+     *         идентификатор курса
+     *
      * @return пустой ответ со статусом 200
      */
     @Override
     public ResponseEntity<?> deleteCourse(Long courseId) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на удаление курса [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на удаление курса [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 courseId,
                 user.getId()
         ));
-        return courseClient.deleteCourse(rqUId, user.getId(), courseId);
+        return courseClient.deleteCourse(requestId, user.getId(), courseId);
     }
 
     /**
      * Возвращает курс по идентификатору.
-     * @param courseId идентификатор курса
+     *
+     * @param courseId
+     *         идентификатор курса
+     *
      * @return найденный курс
      */
     @Override
     public CourseDto getCourseById(Long courseId) {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на получение курса [ ID = %d ] юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на получение курса [ ID = %d ] юзером [ ID = %d ].",
+                requestId,
                 courseId,
                 user.getId()
         ));
-        return courseClient.getCourseById(rqUId, user.getId(), courseId);
+        return courseClient.getCourseById(requestId, user.getId(), courseId);
     }
 
     /**
      * Возвращает список всех активных курсов.
+     *
      * @return список курсов
      */
     @Override
     public List<CourseDto> getAllActiveCourses() {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на получение активных курсов юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на получение активных курсов юзером [ ID = %d ].",
+                requestId,
                 user.getId()
         ));
-        return courseClient.getAllActiveCourses(rqUId, user.getId());
+        return courseClient.getAllActiveCourses(requestId, user.getId());
     }
 
     /**
      * Возвращает список всех курсов.
+     *
      * @return список курсов
      */
     @Override
     public List<CourseDto> getAllCourses() {
         UserEntity user = userService.getCurrentUser();
-        String rqUId = RqGenerator.generateRqId();
+        String requestId = RqGenerator.generateRqId();
         log.info(String.format(
-                "[ RqUId = %s ] Получен запрос на получение всех курсов юзером [ ID = %d ].",
-                rqUId,
+                "[ requestId = %s ] Получен запрос на получение всех курсов юзером [ ID = %d ].",
+                requestId,
                 user.getId()
         ));
-        return courseClient.getAllCourses(rqUId, user.getId());
+        return courseClient.getAllCourses(requestId, user.getId());
     }
 
 }

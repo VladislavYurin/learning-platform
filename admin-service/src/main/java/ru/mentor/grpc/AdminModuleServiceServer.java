@@ -27,10 +27,10 @@ public class AdminModuleServiceServer extends
         ReactorAdminModuleServiceGrpc.AdminModuleServiceImplBase {
 
     public static final String GET_MODULE_REQUEST_LOG_TEXT =
-            "[ rqUID = {} ] Поступил запрос на получение модуля [ ID = {} ] от администратора [ ID = {} ]";
+            "[ requestId = {} ] Поступил запрос на получение модуля [ ID = {} ] от администратора [ ID = {} ]";
 
     public static final String GET_ALL_MODULES_REQUEST_LOG_TEXT = """
-            [ rqUID = {} ] Поступил запрос на получение страницы модулей \
+            [ requestId = {} ] Поступил запрос на получение страницы модулей \
             [ страница={} ], [ размер={} ] от администратора [ ID = {} ]""";
 
     private final ModuleFacade moduleFacade;
@@ -64,13 +64,13 @@ public class AdminModuleServiceServer extends
     @Override
     public Mono<AllModulesResponse> getAllModules(Mono<GrpcPageRequest> pageRequest) {
         return pageRequest.switchIfEmpty(toInvalidArgumentError())
-                      .doOnNext(this::recordGetAllModulesRequestToLog)
-                      .map(baseMapper::mapGrpcPageRequestToPageRequest)
-                      .flatMap(moduleFacade::findAllModulesResponse)
-                      .onErrorMap(
-                              EntityNotFoundException.class,
-                              convertToRuntimeException()
-                      );
+                          .doOnNext(this::recordGetAllModulesRequestToLog)
+                          .map(baseMapper::mapGrpcPageRequestToPageRequest)
+                          .flatMap(moduleFacade::findAllModulesResponse)
+                          .onErrorMap(
+                                  EntityNotFoundException.class,
+                                  convertToRuntimeException()
+                          );
     }
 
     private <T> Mono<T> toInvalidArgumentError() {
@@ -82,7 +82,7 @@ public class AdminModuleServiceServer extends
     private void recordGetModuleRequestToLog(GetModuleRequest getModuleRequest) {
         log.info(
                 GET_MODULE_REQUEST_LOG_TEXT,
-                getModuleRequest.getRequestId(),
+                getModuleRequest.getHeader().getRequestId(),
                 getModuleRequest.getModuleId(),
                 getModuleRequest.getSenderId()
         );
@@ -91,11 +91,11 @@ public class AdminModuleServiceServer extends
     private void recordGetAllModulesRequestToLog(GrpcPageRequest grpcPageRequest) {
         log.info(
                 GET_ALL_MODULES_REQUEST_LOG_TEXT,
-                grpcPageRequest.getRequestId(),
+                grpcPageRequest.getHeader().getRequestId(),
                 grpcPageRequest.getPageNumber(),
                 grpcPageRequest.getPageSize(),
                 grpcPageRequest.getSenderId()
-                );
+        );
     }
 
     private Function<EntityNotFoundException, Throwable> convertToRuntimeException() {
