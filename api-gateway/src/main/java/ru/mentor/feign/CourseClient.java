@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.config.CommonFeignConfig;
-import ru.mentor.dto.CourseDto;
-import ru.mentor.dto.InnerCreateCourseRequest;
-import ru.mentor.dto.InnerCreateModuleRequest;
-import ru.mentor.dto.ModuleDto;
+import ru.mentor.dto.*;
 
 /**
  * Клиент OpenFeign для работы с курсами во внешнем сервисе.
@@ -186,5 +183,19 @@ public interface CourseClient {
             @PathVariable Long userId,
             @PathVariable Long courseId,
             @PathVariable Long moduleId);
+
+    /**
+     * Возвращает список всех активных курсов без модулей c информацией о наставнике.
+     * @param rqUId корелляционный идентификатор запроса (заголовок {@code RqUId})
+     * @return список курсов
+     */
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = "/course/all/active/preview",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    List<CourseDto> getAllActiveCoursesPreview(
+            @RequestHeader("RqUId") String rqUId);
 
 }

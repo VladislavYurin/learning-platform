@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.CourseDto;
+import ru.mentor.dto.CourseDtoWithoutModules;
 import ru.mentor.dto.front.CreateCourseRequest;
 import ru.mentor.services.RedirectCourseService;
 
@@ -110,4 +111,17 @@ public class CourseController {
         return ResponseEntity.ok().body(redirectCourseService.getAllCourses());
     }
 
+    @Operation(
+            summary = "Получить все активные курсы без модулей и с информацией о наставнике",
+            description = "Возвращает список всех активных курсов PREWIEW",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Список активных курсов PREVIEW",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = CourseDtoWithoutModules.class)))),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
+            }
+    )
+    @GetMapping("/all/active/preview")
+    public ResponseEntity<List<CourseDto>> getAllActiveCoursesPreview() {
+        return ResponseEntity.ok().body(redirectCourseService.getAllActiveCoursesPreview());
+    }
 }

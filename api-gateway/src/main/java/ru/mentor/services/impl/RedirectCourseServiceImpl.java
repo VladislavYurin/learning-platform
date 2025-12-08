@@ -129,4 +129,20 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         return courseClient.getAllCourses(requestId, user.getId());
     }
 
+    /**
+     * Возвращает список всех активных курсов (без модулей) с информацией о наставнике.
+     * @return список DTO курсов
+     */
+    @Override
+    public List<CourseDto> getAllActiveCoursesPreview() {
+        UserEntity userEntity = userService.getCurrentUser();
+        String rqUId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ RqUId = %s ] Получен запрос на получение всех активных курсов " +
+                "с информацией о наставнике пользователем [ ID = %d ].",
+                rqUId,
+                userEntity.getId()
+        ));
+        return courseClient.getAllActiveCoursesPreview(rqUId);
+    }
 }

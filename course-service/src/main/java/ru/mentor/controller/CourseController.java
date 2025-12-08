@@ -89,4 +89,8 @@ public class CourseController {
         return ResponseEntity.ok().body(courseService.getAllCourses(userId));
     }
 
+    @GetMapping("/all/active/preview")
+    public ResponseEntity<List<CourseDto>> getAllActiveCoursesPreview(){
+        return ResponseEntity.ok().body(courseService.getAllActiveCoursesPreview());
+    }
 }

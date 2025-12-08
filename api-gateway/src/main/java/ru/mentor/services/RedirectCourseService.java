@@ -48,4 +48,9 @@ public interface RedirectCourseService {
      */
     List<CourseDto> getAllCourses();
 
+    /**
+     * Возращает список всех активных курсов без модулей с информацией о наставнике.
+     * @return список курсов
+     */
+    List<CourseDto> getAllActiveCoursesPreview();
 }
