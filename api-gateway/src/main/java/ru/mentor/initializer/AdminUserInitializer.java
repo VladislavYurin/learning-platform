@@ -48,7 +48,7 @@ public class AdminUserInitializer implements ApplicationRunner {
             userRepository.save(request);
         }
 
-        String defaultMentor = "vlad.yurin98@gmail.com";
+        String defaultMentor = "mentor@gmail.com";
         if (!userRepository.existsByUsername(defaultMentor)) {
             UserEntity request = UserEntity.builder()
                                            .username(defaultMentor)
