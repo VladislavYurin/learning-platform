@@ -87,4 +87,27 @@ public class UserInfoServiceImpl implements UserInfoService {
         return baseMapper.mapUserDto(savedUser);
     }
 
+    /**
+     * Изменяет данные текущего (аутентифицированного) пользователя.
+     * Идентификатор пользователя берётся из контекста безопасности.
+     * @param updateDto обновляемые данные текущего пользователя
+     * @return DTO с актуальными данными текущего пользователя
+     */
+    @Override
+    public UserInfoDto updateMyUserInfo(UserInfoDto updateDto) {
+        UserEntity myUser = userService.getCurrentUser();
+
+        String requestId = RqGenerator.generateRqId();
+        log.info(String.format(
+                "[ requestId = %s ] Получен запрос на изменение своей информации юзером [ ID = %d ].",
+                requestId,
+                updateDto.getId()
+        ));
+
+        UserEntity updateMyUser = baseMapper.mapUserEntity(updateDto);
+        updateMyUser.setPassword(myUser.getPassword());
+        UserEntity savedUpdateMyUser = userRepository.save(updateMyUser);
+        return baseMapper.mapUserDto(savedUpdateMyUser);
+    }
+
 }
