@@ -1,5 +1,7 @@
 package ru.mentor.testUtil;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -61,6 +63,21 @@ public class TestEntityStubGenerator {
                          .tgChatId(TestConstantHolder.tgChatId)
                          .role(role)
                          .build();
+    }
+
+    public static String constructUserJsonWithRole(Role role) throws JsonProcessingException {
+        UserInfoDto dto = UserInfoDto.builder()
+                .id(TestConstantHolder.userId)
+                .username(TestConstantHolder.username)
+                .firstName(TestConstantHolder.firstName)
+                .lastName(TestConstantHolder.lastName)
+                .tgNickname(TestConstantHolder.tgNickname)
+                .tgChatId(TestConstantHolder.tgChatId)
+                .role(role)
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(dto);
     }
 
     public static PageImpl<CourseEntity> constructCourseEntityPage(CourseEntity courseEntity) {

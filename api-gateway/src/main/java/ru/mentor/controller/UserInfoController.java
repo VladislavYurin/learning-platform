@@ -6,8 +6,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.mentor.dto.UserInfoDto;
@@ -66,6 +68,20 @@ public class UserInfoController {
     @PostMapping("/mentor/register")
     public ResponseEntity<?> assignMentorRole() {
         UserInfoDto response = userInfoService.assignMentorRole();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @Operation(
+            summary = "Изменить свою информацию",
+            description = "Позволяет изменить пользовательскую информацию от пользователя",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Пользовательская информация изменена"),
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+            }
+    )
+    @PutMapping("/me")
+    public ResponseEntity<?> updateMyUserInfo(@RequestBody UserInfoDto updateDto) {
+        UserInfoDto response = userInfoService.updateMyUserInfo(updateDto);
         return ResponseEntity.ok().body(response);
     }
 
