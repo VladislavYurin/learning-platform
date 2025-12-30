@@ -3,7 +3,6 @@ package ru.mentor.services;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -32,7 +31,7 @@ public class UserInfoServiceImplTest {
     @InjectMocks
     private UserInfoServiceImpl userInfoService;
 
-    private final String UPDATED_FIRST_NAME = "updateFirstName";
+    private final String UPDATED_FIRST_NAME = "updatedFirstName";
 
     @Test
     public void updateMyUserInfo() {
