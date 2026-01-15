@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
@@ -24,6 +26,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import ru.mentor.common.BookTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotResponse;
 import ru.mentor.common.CreateTimeSlotRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.SlotMeetingType;
@@ -37,6 +41,7 @@ import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.mapper.BaseMapper;
+import ru.mentor.exception.UserException;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
@@ -647,6 +652,168 @@ class CalendarServiceServerTest {
         Assertions.assertTrue(error.getMessage().contains(String.format(
                 "Юзер с ID = %d не найден",
                 userId
+        )));
+    }
+
+    @Test
+    void cancelTimeSlot_success(){
+        UserEntity testUser = new UserEntity();
+        testUser.setId(userId);
+
+        CancelTimeSlotRequest cancelRequest = CancelTimeSlotRequest.newBuilder()
+                .setHeader(buildTestHeader())
+                .setSlotId(timeSlotId)
+                .setUserId(userId)
+                .build();
+
+        MentorTimeSlotEntity originTimeSlot = MentorTimeSlotEntity.builder()
+                .id(1L)
+                .mentor(mentorUser)
+                .startTime(LocalDateTime.of(
+                        2025,
+                        1,
+                        15,
+                        13,
+                        0
+                ))
+                .endTime(LocalDateTime.of(
+                        2025,
+                        1,
+                        15,
+                        14,
+                        0
+                ))
+                .slotType(CalendarSlotType.INDIVIDUAL)
+                .slotMeetingType(
+                        CalendarSlotMeetingType.COMMUNICATION)
+                .maxParticipants(1)
+                .meetingParticipants(Set.of(testUser))
+                .meetingLink(meetingLink)
+                .description(description)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        @SuppressWarnings("unchecked")
+        StreamObserver<CancelTimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
+
+        Mockito.when(mentorTimeSlotRepository.findByIdWithParticipantsOrThrow(timeSlotId)).thenReturn(originTimeSlot);
+        Mockito.when(mentorTimeSlotRepository.deleteParticipantById(userId)).thenReturn(1);
+
+        calendarServiceServer.cancelTimeSlot(cancelRequest, responseObserver);
+
+        Mockito.verify(mentorTimeSlotRepository).findByIdWithParticipantsOrThrow(timeSlotId);
+        Mockito.verify(mentorTimeSlotRepository).deleteParticipantById(ArgumentMatchers.any());
+
+        ArgumentCaptor<CancelTimeSlotResponse> responseCaptor = ArgumentCaptor.forClass(CancelTimeSlotResponse.class);
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        Mockito.verify(responseObserver).onCompleted();
+
+        CancelTimeSlotResponse response = responseCaptor.getValue();
+        CancelTimeSlotResponse expected = CancelTimeSlotResponse.newBuilder().setRqUid(requestUUID).build();
+
+        Assertions.assertEquals(expected, response);
+    }
+
+    @Test
+    void cancelTimeSlot_notPresentOnMeeting_throwException(){
+        CancelTimeSlotRequest cancelRequest = CancelTimeSlotRequest.newBuilder()
+                                                                   .setHeader(buildTestHeader())
+                                                                   .setSlotId(timeSlotId)
+                                                                   .setUserId(userId)
+                                                                   .build();
+
+        MentorTimeSlotEntity originTimeSlot = MentorTimeSlotEntity.builder()
+                                                                  .id(1L)
+                                                                  .mentor(mentorUser)
+                                                                  .startTime(LocalDateTime.of(
+                                                                          2025,
+                                                                          1,
+                                                                          15,
+                                                                          13,
+                                                                          0
+                                                                  ))
+                                                                  .endTime(LocalDateTime.of(
+                                                                          2025,
+                                                                          1,
+                                                                          15,
+                                                                          14,
+                                                                          0
+                                                                  ))
+                                                                  .slotType(CalendarSlotType.INDIVIDUAL)
+                                                                  .slotMeetingType(
+                                                                          CalendarSlotMeetingType.COMMUNICATION)
+                                                                  .maxParticipants(1)
+                                                                  .meetingParticipants(new HashSet<UserEntity>())
+                                                                  .meetingLink(meetingLink)
+                                                                  .description(description)
+                                                                  .isActive(true)
+                                                                  .createdAt(LocalDateTime.now())
+                                                                  .build();
+
+        @SuppressWarnings("unchecked")
+        StreamObserver<CancelTimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
+
+        Mockito.when(mentorTimeSlotRepository.findByIdWithParticipantsOrThrow(timeSlotId)).thenReturn(originTimeSlot);
+
+        calendarServiceServer.cancelTimeSlot(cancelRequest, responseObserver);
+
+        Mockito.verify(mentorTimeSlotRepository).findByIdWithParticipantsOrThrow(timeSlotId);
+        Mockito.verify(mentorTimeSlotRepository, Mockito.never()).save(ArgumentMatchers.any());
+
+        ArgumentCaptor<Throwable> errorCaptor = ArgumentCaptor.forClass(Throwable.class);
+        Mockito.verify(responseObserver).onError(errorCaptor.capture());
+        Mockito.verify(responseObserver, Mockito.never()).onNext(ArgumentMatchers.any());
+        Mockito.verify(responseObserver, Mockito.never()).onCompleted();
+
+        Throwable error = errorCaptor.getValue();
+        Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+        Assertions.assertEquals(
+                Status.NOT_FOUND.getCode(),
+                ((io.grpc.StatusRuntimeException) error).getStatus().getCode()
+        );
+        Assertions.assertTrue(error.getMessage().contains("Пользователь не участвует в данной встрече"));
+    }
+
+    @Test
+    void cancelTimeSlot_timeSlotNotFound_throwException(){
+        CancelTimeSlotRequest cancelRequest = CancelTimeSlotRequest.newBuilder()
+                .setHeader(buildTestHeader())
+                .setSlotId(timeSlotId)
+                .setUserId(userId)
+                .build();
+
+        @SuppressWarnings("unchecked")
+        StreamObserver<CancelTimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
+
+        Mockito.when(mentorTimeSlotRepository.findByIdWithParticipantsOrThrow(timeSlotId)).thenThrow(
+                new EntityNotFoundException(
+                        String.format(
+                                "Слот с ID = %d не найден",
+                                timeSlotId
+                        )
+        ));
+
+        calendarServiceServer.cancelTimeSlot(cancelRequest, responseObserver);
+
+        Mockito.verify(mentorTimeSlotRepository).findByIdWithParticipantsOrThrow(timeSlotId);
+        Mockito.verify(mentorTimeSlotRepository, Mockito.never()).save(ArgumentMatchers.any());
+
+        ArgumentCaptor<Throwable> errorCaptor = ArgumentCaptor.forClass(Throwable.class);
+        Mockito.verify(responseObserver).onError(errorCaptor.capture());
+        Mockito.verify(responseObserver, Mockito.never()).onNext(ArgumentMatchers.any());
+        Mockito.verify(responseObserver, Mockito.never()).onCompleted();
+
+        Throwable error = errorCaptor.getValue();
+        Assertions.assertInstanceOf(StatusRuntimeException.class, error);
+        Assertions.assertEquals(
+                Status.NOT_FOUND.getCode(),
+                ((io.grpc.StatusRuntimeException) error).getStatus().getCode()
+        );
+        System.out.println(error.getMessage());
+        Assertions.assertTrue(error.getMessage().contains(String.format(
+                "Слот с ID = %d не найден",
+                timeSlotId
         )));
     }
 

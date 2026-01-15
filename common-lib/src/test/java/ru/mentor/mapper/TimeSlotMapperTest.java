@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.mentor.common.CancelTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotResponse;
 import ru.mentor.common.CreateTimeSlotRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.MentorSlotsInfoResponse;
@@ -227,4 +229,34 @@ class TimeSlotMapperTest {
         Assertions.assertTrue(response.getSlotsList().get(1).getParticipantsList().isEmpty());
     }
 
+    @Test
+    void toGrpcCancelTimeSlotRequest() {
+        Long slotId = 1L;
+        Long userId = 2L;
+
+        Header header = Header.newBuilder()
+                .setRequestId(TestDataGenerator.TEST_UUID)
+                .setNodeId("TestNodeId")
+                .setApiKey("TestApiKey")
+                .build();
+
+        CancelTimeSlotRequest request = timeSlotMapper.toGrpcCancelTimeSlotRequest(header, slotId, userId);
+
+        Assertions.assertNotNull(request);
+
+        Assertions.assertEquals(header, request.getHeader());
+        Assertions.assertEquals(1L, request.getSlotId());
+        Assertions.assertEquals(2L, request.getUserId());
+    }
+
+    @Test
+    void toGrpcCancelTimeSlotResponse() {
+        String rqUId = "test-rq-id";
+
+        CancelTimeSlotResponse response = timeSlotMapper.toGrpcCancelTimeSlotResponse(rqUId);
+
+        Assertions.assertNotNull(response);
+
+        Assertions.assertEquals(rqUId, response.getRqUid());
+    }
 }

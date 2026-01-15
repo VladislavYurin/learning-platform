@@ -4,6 +4,9 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -12,6 +15,8 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import ru.mentor.calendar.CalendarServiceGrpc;
 import ru.mentor.common.BookTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotRequest;
+import ru.mentor.common.CancelTimeSlotResponse;
 import ru.mentor.common.CreateTimeSlotRequest;
 import ru.mentor.common.MentorSlotsInfoRequest;
 import ru.mentor.common.MentorSlotsInfoResponse;
@@ -185,6 +190,39 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
         }
     }
 
+    @Transactional
+    @Override
+    public void cancelTimeSlot(
+            CancelTimeSlotRequest request,
+            StreamObserver<CancelTimeSlotResponse> responseObserver
+    ) {
+        String rqUId = request.getHeader().getRequestId();
+        Long userId = request.getUserId();
+        Long slotId = request.getSlotId();
+
+        log.info("Поступил запрос {} на отмену слота от пользователя с ID: {}",
+                rqUId,
+                userId);
+
+        try {
+            MentorTimeSlotEntity mentorTimeSlotEntity = mentorTimeSlotRepository.findByIdWithParticipantsOrThrow(slotId);
+
+            if(mentorTimeSlotRepository.deleteParticipantById(userId) <= 0){
+                throw new UserException("Пользователь не участвует в данной встрече");
+            }
+
+            CancelTimeSlotResponse response = timeSlotMapper.toGrpcCancelTimeSlotResponse(rqUId);
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
+        }
+    }
+
     private void checkSlotIsAvailable(MentorTimeSlotEntity slotEntity, Long userId)
             throws TimeSlotUnavailableException {
         if (slotIsFull(slotEntity)) {
@@ -204,22 +242,6 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
                     "Вы уже записаны на другой слот в это время"
             );
         }
-    }
-
-    private boolean slotIsFull(MentorTimeSlotEntity slotEntity) {
-        return slotEntity.getMeetingParticipants().size() + 1 > slotEntity.getMaxParticipants();
-    }
-
-    private boolean slotIsInactive(MentorTimeSlotEntity slotEntity) {
-        return !slotEntity.getIsActive();
-    }
-
-    private boolean existsOverlappingSlots(Long userId, MentorTimeSlotEntity slotEntity) {
-        return mentorTimeSlotRepository.existsOverlappingSlots(
-                userId,
-                slotEntity.getStartTime(),
-                slotEntity.getEndTime()
-        );
     }
 
     /**
@@ -254,4 +276,27 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
         responseObserver.onCompleted();
     }
 
+
+    private boolean slotIsFull(MentorTimeSlotEntity slotEntity) {
+        return slotEntity.getMeetingParticipants().size() + 1 > slotEntity.getMaxParticipants();
+    }
+
+    private boolean slotIsInactive(MentorTimeSlotEntity slotEntity) {
+        return !slotEntity.getIsActive();
+    }
+
+    private boolean existsOverlappingSlots(Long userId, MentorTimeSlotEntity slotEntity) {
+        return mentorTimeSlotRepository.existsOverlappingSlots(
+                userId,
+                slotEntity.getStartTime(),
+                slotEntity.getEndTime()
+        );
+    }
+
+    private Set<UserEntity> removeUserById(MentorTimeSlotEntity mentorTimeSlotEntity, Long userId) {
+        Set<UserEntity> filtredSet = mentorTimeSlotEntity.getMeetingParticipants()
+                .stream().filter(user -> userId != user.getId()).collect(Collectors.toSet());
+
+        return filtredSet;
+    }
 }

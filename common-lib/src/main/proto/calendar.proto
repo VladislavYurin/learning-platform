@@ -14,7 +14,8 @@ service CalendarService {
 
   // Бронирование существующего слота
   rpc BookTimeslot (BookTimeSlotRequest) returns (TimeSlotResponse);
-
+  // Отмена брони слота
+  rpc CancelTimeSlot (CancelTimeSlotRequest) returns (CancelTimeSlotResponse);
   // Получение всех слотов ментора с информацией об участниках
   rpc GetMentorSlots (MentorSlotsInfoRequest) returns (MentorSlotsInfoResponse);
 

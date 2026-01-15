@@ -2,7 +2,11 @@ package ru.mentor.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,6 +25,16 @@ public interface MentorTimeSlotRepository
                                    slotId
                            )
                    ));
+    }
+
+    default MentorTimeSlotEntity findByIdWithParticipantsOrThrow(Long slotId) {
+        return this.findByIdWithParticipants(slotId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(
+                                "Слот с ID = %d не найден",
+                                slotId
+                        )
+                ));
     }
 
     @Query(nativeQuery = true, value = """
@@ -47,4 +61,15 @@ public interface MentorTimeSlotRepository
     """)
     List<MentorTimeSlotEntity> findUpcomingTimeSlotsWithParticipants(@Param("currentTime") LocalDateTime currentTime,
                                                                      @Param("endTime") LocalDateTime endTime);
+    @Query(value = """
+            SELECT slot FROM MentorTimeSlotEntity slot LEFT JOIN FETCH slot.meetingParticipants
+            WHERE slot.id = :slotId
+    """)
+    Optional<MentorTimeSlotEntity> findByIdWithParticipants(Long slotId);
+
+    @Modifying
+    @Query(nativeQuery = true, value = """
+            DELETE FROM mentor_time_slot__users slotUsers WHERE slotUsers.user_id = :userId   
+    """)
+    int deleteParticipantById(@Param("userId") Long userId);
 }

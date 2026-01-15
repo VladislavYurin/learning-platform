@@ -11,6 +11,7 @@
              relativeToChangelogFile="true"
              endDelimiter=";"/>
   </changeSet>
+
   <changeSet id="2" author="vladislav_yurin" runOnChange="false">
     <sqlFile path="sql/lepl-16_create_course_tags_table.sql"
              relativeToChangelogFile="true"
@@ -22,5 +23,4 @@
              relativeToChangelogFile="true"
              endDelimiter=";"/>
   </changeSet>
-
 </databaseChangeLog>
