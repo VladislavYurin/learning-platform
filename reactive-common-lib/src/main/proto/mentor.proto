@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "common.proto";
+import "course.proto";
+import "module.proto";
+import "access.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.mentor";
+option java_outer_classname = "MentorProto";
+
+// Сервис для управления доступом к курсам от имени наставника
+service MentorCourseAccessService {
+
+  // Выдать пользователю доступ к курсу
+  rpc GrantCourseAccess (access.CourseAccessRequest)
+      returns (google.protobuf.Empty);
+
+  // Отозвать у пользователя доступ к курсу
+  rpc RevokeCourseAccess (access.CourseAccessRequest)
+      returns (google.protobuf.Empty);
+}
+
+// Сервис для управления доступом к модулям от имени наставника
+service MentorModuleAccessService {
+
+  // Выдать пользователю доступ к модулю
+  rpc GrantModuleAccess (access.ModuleAccessRequest)
+      returns (google.protobuf.Empty);
+
+  // Отозвать у пользователя доступ к модулю
+  rpc RevokeModuleAccess (access.ModuleAccessRequest)
+      returns (google.protobuf.Empty);
+}

@@ -1,6 +1,7 @@
 package ru.mentor.service;
 
-import ru.mentor.dto.GetAccessRequest;
+import reactor.core.publisher.Mono;
+
 
 /**
  * Интерфейс для управления доступом к курсам и модулям.
@@ -9,12 +10,12 @@ import ru.mentor.dto.GetAccessRequest;
  */
 public interface AccessService {
 
-    void getCourseAccessToUser(String requestId, GetAccessRequest request);
+    Mono<Void> getCourseAccessToUser(String requestId, CourseAccessRequest request);
 
-    void getModuleAccessToUser(String requestId, GetAccessRequest request);
+    Mono<Void> getModuleAccessToUser(String requestId, ModuleAccessRequest request);
 
-    void deleteCourseAccessToUser(String requestId, GetAccessRequest request);
+    Mono<Void> deleteCourseAccessToUser(String requestId, CourseAccessRequest request);
 
-    void deleteModuleAccessToUser(String requestId, GetAccessRequest request);
+    Mono<Void> deleteModuleAccessToUser(String requestId, ModuleAccessRequest request);
 
 }

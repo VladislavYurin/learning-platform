@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package access;
+
+import "google/protobuf/empty.proto";
+import "common.proto";
+import "course.proto";
+import "module.proto";
+import "user.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.access.grpc";
+option java_outer_classname = "AccessProto";
+
+service AccessService {
+
+  rpc GrantCourseAccess (CourseAccessRequest)
+      returns (google.protobuf.Empty);
+
+  rpc RevokeCourseAccess (CourseAccessRequest)
+      returns (google.protobuf.Empty);
+
+  rpc HasCourseAccess (CourseAccessRequest)
+      returns (HasAccessResponse);
+
+  rpc GrantModuleAccess (ModuleAccessRequest)
+      returns (google.protobuf.Empty);
+
+  rpc RevokeModuleAccess (ModuleAccessRequest)
+      returns (google.protobuf.Empty);
+
+  rpc HasModuleAccess (ModuleAccessRequest)
+      returns (HasAccessResponse);
+}
+
+message CourseAccessRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+  uint64 course_id = 3;
+}
+
+message ModuleAccessRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+  uint64 module_id = 3;
+}
+
+message HasAccessResponse {
+  bool has_access = 1;
+}
