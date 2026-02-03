@@ -7,9 +7,10 @@ services:
     env_file:
       - .env.docker.example
     command: >
-      --spring.main.web-application-type=none
+      --spring.profiles.active=migrations
       --spring.liquibase.enabled=true
       --spring.sql.init.mode=never
+      --server.port=0
     depends_on:
       database:
         condition: service_healthy
