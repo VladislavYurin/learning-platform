@@ -1,6 +1,8 @@
-FROM mentor/common-lib:local AS build
+# syntax=docker/dockerfile:1.7
+FROM maven:3.9.11-eclipse-temurin-21 AS common-build
 WORKDIR /opt/app
 
+# Копируем только POM'ы — для кеша зависимостей
 COPY ./pom.xml ./
 COPY ./common-lib/pom.xml ./common-lib/
 COPY ./reactive-common-lib/pom.xml ./reactive-common-lib/
@@ -11,16 +13,38 @@ COPY ./mentor-service/pom.xml ./mentor-service/
 COPY ./notification-service/pom.xml ./notification-service/
 COPY ./calendar-service/pom.xml ./calendar-service/
 COPY ./admin-service/pom.xml ./admin-service/
+
+# Прогреваем зависимости для общих модулей
+RUN --mount=type=cache,target=/root/.m2,id=m2cache \
+    mvn -B -ntp -pl common-lib,reactive-common-lib,grpc-common-starter dependency:go-offline
+
+# Копируем исходники общих модулей и ставим их в локальный репозиторий
+COPY ./common-lib/src ./common-lib/src
+COPY ./reactive-common-lib/src ./reactive-common-lib/src
+COPY ./grpc-common-starter/src ./grpc-common-starter/src
+
+RUN --mount=type=cache,target=/root/.m2,id=m2cache \
+    mvn -B -ntp -pl common-lib,reactive-common-lib,grpc-common-starter -am install -DskipTests
+
+
+# ===== Сборка конкретного сервиса =====
+FROM common-build AS build
+WORKDIR /opt/app
+
+# Подкладываем исходники сервиса
 COPY ./admin-service/src ./admin-service/src
 
 RUN --mount=type=cache,target=/root/.m2,id=m2cache \
-    mvn -B -ntp -pl admin-service package -DskipTests
+    mvn -B -ntp -pl admin-service -am package -DskipTests
 
+
+# ===== Layertools (как у тебя) =====
 FROM eclipse-temurin:21-jre AS layers
 WORKDIR /opt/app
 COPY --from=build /opt/app/admin-service/target/*.jar ./admin-service.jar
 RUN java -Djarmode=layertools -jar admin-service.jar extract
 RUN rm ./admin-service.jar
+
 
 FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /opt/app
