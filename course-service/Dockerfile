@@ -1,6 +1,4 @@
-# syntax=docker/dockerfile:1.7
-
-FROM maven:3.9.11-eclipse-temurin-21 AS common-build
+FROM mentor/common-lib:local AS build
 WORKDIR /opt/app
 
 COPY ./pom.xml ./
@@ -13,33 +11,16 @@ COPY ./mentor-service/pom.xml ./mentor-service/
 COPY ./notification-service/pom.xml ./notification-service/
 COPY ./calendar-service/pom.xml ./calendar-service/
 COPY ./admin-service/pom.xml ./admin-service/
-
-RUN --mount=type=cache,target=/root/.m2,id=m2cache \
-    mvn -B -ntp -pl common-lib,reactive-common-lib,grpc-common-starter dependency:go-offline
-
-COPY ./common-lib/src ./common-lib/src
-COPY ./reactive-common-lib/src ./reactive-common-lib/src
-COPY ./grpc-common-starter/src ./grpc-common-starter/src
-
-RUN --mount=type=cache,target=/root/.m2,id=m2cache \
-    mvn -B -ntp -pl common-lib,reactive-common-lib,grpc-common-starter -am install -DskipTests
-
-
-FROM common-build AS build
-WORKDIR /opt/app
-
 COPY ./course-service/src ./course-service/src
 
 RUN --mount=type=cache,target=/root/.m2,id=m2cache \
-    mvn -B -ntp -pl course-service -am package -DskipTests
-
+    mvn -B -ntp -pl course-service package -DskipTests
 
 FROM eclipse-temurin:21-jre AS layers
 WORKDIR /opt/app
 COPY --from=build /opt/app/course-service/target/*.jar ./course-service.jar
 RUN java -Djarmode=layertools -jar course-service.jar extract
 RUN rm ./course-service.jar
-
 
 FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /opt/app
