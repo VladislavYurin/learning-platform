@@ -28,7 +28,6 @@ import ru.mentor.services.UserService;
  */
 @Component
 @RequiredArgsConstructor
-@Profile("!migrations")
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String HEADER_NAME = "Authorization";
