@@ -1,23 +1,26 @@
 services:
-  api-gateway-migrations:
+  common-lib:
+    profiles:
+      - lib.build
     build:
       context: .
-      dockerfile: ./api-gateway/Dockerfile
+      dockerfile: ./reactive-common-lib/Dockerfile
+    image: mentor/common-lib:local
+
+  api-gateway-migrations:
     image: mentor/api-gateway:local
     env_file:
       - .env.docker.example
     command: >
-      --spring.profiles.active=migrations
       --spring.main.web-application-type=none
       --spring.liquibase.enabled=true
       --spring.sql.init.mode=never
     depends_on:
       database:
         condition: service_healthy
-    restart: "no"
+    restart: no
     networks:
       - backend
-
 
   api-gateway:
     build:
@@ -146,7 +149,7 @@ services:
     env_file:
       - .env.docker.example
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -163,7 +166,7 @@ services:
       - .env.docker.example
     image: apache/kafka:3.9.1
     healthcheck:
-      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka-1:9092 >/dev/null 2>&1"]
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka-1:9092 >/dev/null 2>&1" ]
       interval: 10s
       timeout: 5s
       retries: 10
