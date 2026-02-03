@@ -6,17 +6,10 @@ services:
     image: mentor/api-gateway:local
     env_file:
       - .env.docker.example
-    environment:
-      SPRING_APPLICATION_JSON: >-
-        {
-          "spring": {
-            "profiles": { "active": "migrations" },
-            "liquibase": { "enabled": true },
-            "sql": { "init": { "mode": "never" } },
-            "main": { "web-application-type": "servlet" }
-          },
-          "server": { "port": 0 }
-        }
+    command: >
+      --spring.main.web-application-type=none
+      --spring.liquibase.enabled=true
+      --spring.sql.init.mode=never
     depends_on:
       database:
         condition: service_healthy

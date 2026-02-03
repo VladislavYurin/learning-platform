@@ -3,6 +3,7 @@ package ru.mentor.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -31,6 +32,7 @@ import ru.mentor.services.UserService;
 @EnableWebSecurity
 @EnableMethodSecurity(jsr250Enabled = true)
 @RequiredArgsConstructor
+@Profile("!migrations")
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
