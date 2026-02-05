@@ -7,11 +7,14 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.dto.auth.AuthRequest;
 import ru.mentor.dto.auth.JwtAuthResponse;
 import ru.mentor.dto.auth.RegRequest;
@@ -36,10 +39,16 @@ public class AuthController {
                     @ApiResponse(responseCode = "400", description = "Пользователь уже существует"),
             }
     )
-    @PostMapping("/reg")
+    @PostMapping(
+            value = "/reg",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     @PermitAll
-    public JwtAuthResponse registration(@RequestBody @Valid RegRequest request) {
-        return authenticationService.registration(request);
+    public JwtAuthResponse registration(
+            @RequestPart("request") @Valid RegRequest request,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar
+    ) {
+        return authenticationService.registration(request, avatar);
     }
 
     @Operation(summary = "Авторизация пользователя")

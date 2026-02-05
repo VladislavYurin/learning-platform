@@ -32,6 +32,9 @@ public class AuthControllerTest {
     @MockBean
     private ru.mentor.kafka.KafkaFacade kafkaFacade;
 
+    @MockBean
+    private io.minio.MinioClient minioClient;
+
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
             .withDatabaseName("testdb")

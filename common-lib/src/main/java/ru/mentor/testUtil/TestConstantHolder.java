@@ -3,6 +3,7 @@ package ru.mentor.testUtil;
 import com.google.protobuf.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.UUID;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
@@ -46,6 +47,17 @@ public class TestConstantHolder {
     public static String lastName = "User";
     public static String tgNickname = "@testuser";
     public static long tgChatId = 123L;
+
+    public static String avatarBucket = "avatars";
+    public static long avatarMaxSizeBytes = 5_242_880L;
+    public static List<String> avatarAllowedExtensions = List.of("jpg", "jpeg", "png");
+    public static List<String> avatarAllowedContentTypes = List.of("image/jpeg", "image/png");
+    public static byte[] avatarMinimalContent = new byte[] { 1 };
+    public static String avatarContentTypeJpeg = "image/jpeg";
+    public static String avatarContentTypeText = "text/plain";
+    public static String avatarFilenameJpg = "avatar.jpg";
+    public static String avatarFilenameGif = "avatar.gif";
+    public static String avatarFilenameNoDot = "avatar";
 
     public static Long timeSlotId = 1L;
     public static LocalDateTime slotStartTime = LocalDateTime.now(ZoneOffset.UTC).withNano(0);

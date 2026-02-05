@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.constant.Role;
 import ru.mentor.dto.auth.AuthRequest;
 import ru.mentor.dto.auth.JwtAuthResponse;
@@ -15,6 +16,7 @@ import ru.mentor.entity.UserEntity;
 import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.services.AuthenticationService;
 import ru.mentor.services.JwtService;
+import ru.mentor.services.UserAvatarService;
 import ru.mentor.services.UserService;
 
 /**
@@ -30,17 +32,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final KafkaFacade kafkaFacade;
+    private final UserAvatarService userAvatarService;
 
     /**
      * Регистрация пользователя
      *
      * @param request
      *         данные пользователя
+     * @param userAvatar
+     *         файл аватара (опционально)
      *
      * @return токен
      */
     @Override
-    public JwtAuthResponse registration(RegRequest request) {
+    public JwtAuthResponse registration(RegRequest request, MultipartFile userAvatar) {
+        String userAvatarKey = null;
+
+        if (userAvatar != null) {
+            userAvatarKey = userAvatarService.uploadUserAvatar(userAvatar);
+        }
 
         UserEntity user = userService.create(UserEntity.builder()
                                                        .username(request.getUsername())
@@ -49,6 +59,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                                        .firstName(request.getFirstName())
                                                        .lastName(request.getLastName())
                                                        .role(Role.USER)
+                                                       .userAvatarKey(userAvatarKey)
                                                        .build());
 
         kafkaFacade.sendUserRegistrationMessage(user);
@@ -106,7 +117,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     /**
      * Генерирует пару JWT-токенов (access/refresh) для указанного пользователя.
-     * @param user пользователь, для которого создаются токены
+     *
+     * @param user
+     *         пользователь, для которого создаются токены
+     *
      * @return объект с парой токенов
      */
     private JwtAuthResponse generateTokens(UserEntity user) {

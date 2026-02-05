@@ -23,4 +23,11 @@
              relativeToChangelogFile="true"
              endDelimiter=";"/>
   </changeSet>
+
+  <changeSet id="4" author="pavel stepanov">
+    <sqlFile path="sql/lepl-40_add_user_avatar_key_to_users.sql"
+            relativeToChangelogFile="true"
+            endDelimiter=";"/>
+  </changeSet>
+
 </databaseChangeLog>

@@ -1,5 +1,6 @@
 package ru.mentor.services;
 
+import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.dto.auth.AuthRequest;
 import ru.mentor.dto.auth.JwtAuthResponse;
 import ru.mentor.dto.auth.RegRequest;
@@ -14,10 +15,11 @@ public interface AuthenticationService {
      *
      * @param request
      *         данные для регистрации
-     *
+     * @param avatar
+     *         файл аватара
      * @return JWT-ответ с токеном
      */
-    JwtAuthResponse registration(RegRequest request);
+    JwtAuthResponse registration(RegRequest request, MultipartFile avatar);
 
     /**
      * Аутентификация пользователя.
