@@ -81,6 +81,12 @@ public class UserEntity implements UserDetails {
     private Long tgChatId;
 
     /**
+     * Ключ аватар в MinIO.
+     */
+    @Column("user_avatar_key")
+    private String userAvatarKey;
+
+    /**
      * Возвращает список ролей пользователя.
      * Преобразует роль пользователя в формат, понятный Spring Security.
      */

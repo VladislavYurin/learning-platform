@@ -9,6 +9,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.mentor.config.CommonFeignConfig.CustomErrorDecoder.FeignClientExceptionWithResponse;
+import ru.mentor.exception.useravatar.UserAvatarServiceException;
+import ru.mentor.exception.useravatar.UserAvatarValidationException;
 import ru.mentor.util.RqGenerator;
 
 /**
@@ -108,6 +110,35 @@ public class GlobalExceptionHandler {
         problem.setProperty("errorCode", "ENTITY_ALREADY_EXISTS");
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(UserAvatarValidationException.class)
+    public ResponseEntity<ProblemDetail> handleUserAvatarValidationException(
+            UserAvatarValidationException e) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        log.warn("Ошибка валидации файла: {}", e.getMessage());
+
+        ProblemDetail problem = ProblemDetail.forStatus(status);
+        problem.setTitle("Ошибка валидации файла");
+        problem.setDetail(e.getMessage());
+
+        return ResponseEntity.status(status).body(problem);
+    }
+
+    @ExceptionHandler(UserAvatarServiceException.class)
+    public ResponseEntity<ProblemDetail> handleUserAvatarServiceException(UserAvatarServiceException e) {
+
+        HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
+
+        log.error("Ошибка при работе с хранилищем: {}", e.getMessage(), e);
+
+        ProblemDetail problem = ProblemDetail.forStatus(status);
+        problem.setTitle("Ошибка получения файла");
+        problem.setDetail("Не удалось получить файл");
+
+        return ResponseEntity.status(status).body(problem);
     }
 
     @ExceptionHandler(Exception.class)

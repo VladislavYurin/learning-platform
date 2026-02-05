@@ -96,6 +96,12 @@ public class UserEntity implements UserDetails {
     private Long tgChatId;
 
     /**
+     * Ключ аватара в MinIO.
+     */
+    @Column(name = "user_avatar_key")
+    private String userAvatarKey;
+
+    /**
      * Список доступов пользователя к курсам.
      * Содержит все записи о курсах, к которым предоставлен доступ данному пользователю.
      */

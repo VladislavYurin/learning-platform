@@ -53,4 +53,12 @@ public interface UserService {
      */
     Long getCurrentUserId();
 
+    /**
+     * Получение пользователя по идентификатору.
+     *
+     * @param userId идентификатор пользователя
+     * @return пользователь
+     */
+    UserEntity getUserById(Long userId);
+
 }

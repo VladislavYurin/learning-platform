@@ -21,9 +21,14 @@ public class UserServiceImpl implements UserService {
     /**
      * Создаёт нового пользователя, если в системе нет пользователя с именем {@code username}.
      * Проверяет уникальность по username, при отсутствии конфликтов сохраняет сущность.
-     * @param userEntity доменная сущность пользователя для сохранения
+     *
+     * @param userEntity
+     *         доменная сущность пользователя для сохранения
+     *
      * @return сохраненная сущность (с заполненным идентификатором)
-     * @throws UserException если пользователь с таким username уже существует
+     *
+     * @throws UserException
+     *         если пользователь с таким username уже существует
      */
     @Override
     public UserEntity create(UserEntity userEntity) {
@@ -38,7 +43,10 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Проверяет существование пользователя по имени пользователя.
-     * @param username имя пользователя для проверки (не {@code null})
+     *
+     * @param username
+     *         имя пользователя для проверки (не {@code null})
+     *
      * @return true, если пользователь с таким именем существует, иначе false
      */
     @Override
@@ -48,7 +56,10 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Возвращает пользователя по имени или кидает исключение, если не найден.
-     * @param username имя пользователя
+     *
+     * @param username
+     *         имя пользователя
+     *
      * @return найденная сущность пользователя
      */
     @Override
@@ -58,6 +69,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Возвращает адаптер для интеграции со Spring Security.
+     *
      * @return адаптер, который загружает пользователя по {@code username}
      */
     @Override
@@ -67,6 +79,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Возвращает текущего аутентифицированного пользователя из контекста безопасности.
+     *
      * @return сущность текущего пользователя
      */
     @Override
@@ -77,6 +90,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Возвращает идентификатор текущего пользователя из principal контекста безопасности.
+     *
      * @return идентификатор пользователя
      */
     @Override
@@ -86,6 +100,19 @@ public class UserServiceImpl implements UserService {
             return userEntity.getId();
         }
         throw new IllegalStateException("Пользователь не найден в контексте безопасности");
+    }
+
+    /**
+     * Возвращает пользователя по идентификатору.
+     *
+     * @param userId
+     *         идентификатор пользователя
+     *
+     * @return найденная сущность пользователя
+     */
+    @Override
+    public UserEntity getUserById(Long userId) {
+        return userRepository.findByIdOrThrow(userId);
     }
 
 }

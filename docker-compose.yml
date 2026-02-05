@@ -189,9 +189,25 @@ services:
       kafka-1:
         condition: service_healthy
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    env_file:
+      - .env.docker.example
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - backend
+
 volumes:
   mentor-database:
     name: mentor-database
+  minio-data:
+    name: minio-data
 
 networks:
   backend:
