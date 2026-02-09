@@ -9,7 +9,7 @@ import ru.mentor.common.CourseTagResponse;
 import ru.mentor.common.CreateCourseTagGrpcRequest;
 import ru.mentor.common.DeleteCourseTagRequest;
 import ru.mentor.common.DeleteCourseTagResponse;
-import ru.mentor.common.Empty;
+import ru.mentor.common.GetAllCourseTagsRequest;
 import ru.mentor.common.GetCourseTagRequest;
 import ru.mentor.common.ListCourseTagsResponse;
 import ru.mentor.common.ReactorCourseTagsServiceGrpc;
@@ -85,7 +85,7 @@ public class CourseTagsGrpcServer extends ReactorCourseTagsServiceGrpc.CourseTag
     }
 
     @Override
-    public Mono<ListCourseTagsResponse> getAllTags(Mono<Empty> request) {
+    public Mono<ListCourseTagsResponse> getAllTags(Mono<GetAllCourseTagsRequest> request) {
         return request
                 .flatMap(empty -> courseTagService.getAllTags())
                 .onErrorMap(EntityNotFoundException.class, e -> Status.NOT_FOUND

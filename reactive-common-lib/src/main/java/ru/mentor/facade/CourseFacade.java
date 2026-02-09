@@ -20,6 +20,8 @@ public interface CourseFacade {
 
     Mono<AllCoursesResponse> findAllCourses(GrpcPageRequest request);
 
+    Mono<AllCoursesResponse> findAllActiveCourses(GrpcPageRequest request);
+
     Mono<List<CourseResponse>> findAllActiveCoursesPreview(GetAllActiveCoursesPreviewRequest request);
 
     Mono<CourseResponse> createCourse(CreateCourseGrpcRequest request, UserEntity author);

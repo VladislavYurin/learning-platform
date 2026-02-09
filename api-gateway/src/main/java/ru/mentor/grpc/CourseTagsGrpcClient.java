@@ -9,7 +9,7 @@ import ru.mentor.common.CourseTagsServiceGrpc;
 import ru.mentor.common.CreateCourseTagGrpcRequest;
 import ru.mentor.common.DeleteCourseTagRequest;
 import ru.mentor.common.DeleteCourseTagResponse;
-import ru.mentor.common.Empty;
+import ru.mentor.common.GetAllCourseTagsRequest;
 import ru.mentor.common.GetCourseTagRequest;
 import ru.mentor.common.ListCourseTagsResponse;
 import ru.mentor.exception.GrpcRetryException;
@@ -99,9 +99,9 @@ public class CourseTagsGrpcClient {
      *
      * @return - список ДТО тегов
      */
-    public ListCourseTagsResponse getAllTags() {
+    public ListCourseTagsResponse getAllTags(GetAllCourseTagsRequest request) {
         try {
-            return stub.getAllTags(Empty.getDefaultInstance());
+            return stub.getAllTags(request);
         } catch (Exception e) {
             throw new GrpcRetryException("Ошибка отправки gRPC запроса.");
         }

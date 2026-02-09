@@ -30,6 +30,7 @@ import ru.mentor.repository.CourseTagLinkRepository;
 import ru.mentor.repository.CourseTagRepository;
 import ru.mentor.repository.ModuleRepository;
 import ru.mentor.repository.UserRepository;
+import ru.mentor.util.CourseAccessResolver;
 
 /**
  * Фасад для работы с курсами.
@@ -53,6 +54,8 @@ public class CourseFacadeImpl implements CourseFacade {
     private final BaseMapper baseMapper;
 
     private final CourseTagLinkRepository courseTagLinkRepository;
+
+    private final CourseAccessResolver courseAccessResolver;
 
     /**
      * Создает сущность курса из {@link CreateCourseGrpcRequest}, сущности {@link UserEntity}, и
@@ -170,54 +173,74 @@ public class CourseFacadeImpl implements CourseFacade {
                 .findByIdOrThrow(request.getSenderId())
                 .flatMap(user -> {
 
-                    Flux<CourseEntity> courseEntityFlux;
+                    Flux<CourseEntity> courseEntityFlux = courseAccessResolver
+                            .resolveCoursesForUser(user);
+                    return getAllCoursesResponseMono(pageRequest, user, courseEntityFlux);
+                });
+    }
 
-                    if (Role.checkIsAdmin(user)) {
-                        courseEntityFlux = courseRepository.findAllBy(pageRequest);
-                    } else if (Role.checkIsMentor(user)) {
-                        courseEntityFlux = courseRepository.findAllByAuthorId(user.getId());
+    private Mono<AllCoursesResponse> getAllCoursesResponseMono(
+            PageRequest pageRequest,
+            UserEntity user,
+            Flux<CourseEntity> courseEntityFlux) {
+        return courseEntityFlux
+                .flatMap(course -> {
+                    Flux<ModuleEntity> modulesFlux;
+                    if (Role.checkIsAdmin(user) || Role.checkIsMentor(user)) {
+                        modulesFlux = moduleRepository.findAllByCourseId(course.getId());
                     } else {
-                        courseEntityFlux = courseRepository.findAllByUserAccess(user.getId());
+                        modulesFlux = moduleRepository.findAllAccessibleModules(
+                                course.getId(),
+                                user.getId()
+                        );
                     }
 
-                    return courseEntityFlux
-                            .flatMap(course -> {
-                                Flux<ModuleEntity> modulesFlux;
-                                if (Role.checkIsAdmin(user) || Role.checkIsMentor(user)) {
-                                    modulesFlux = moduleRepository.findAllByCourseId(course.getId());
-                                } else {
-                                    modulesFlux = moduleRepository.findAllAccessibleModules(
-                                            course.getId(),
-                                            user.getId()
-                                    );
-                                }
+                    return Mono.zip(
+                            userRepository.findByIdOrThrow(course.getAuthorId()),
+                            courseTagRepository.findAllByCourseId(course.getId())
+                                               .collectList(),
+                            modulesFlux.collectList()
+                    ).map(tuple ->
+                                  courseMapper.mapCourseEntityToGrpcCourseResponse(
+                                          course,
+                                          tuple.getT1(),
+                                          tuple.getT2(),
+                                          tuple.getT3()
+                                  )
+                    );
+                })
+                .collectList()
+                .zipWith(
+                        courseRepository.count(),
+                        (courses, numberOfCourses) ->
+                                new PageImpl<>(
+                                        courses,
+                                        pageRequest,
+                                        numberOfCourses
+                                )
+                )
+                .map(courseMapper::mapCourseResponsePageToGrpcAllCoursesResponse);
+    }
 
-                                return Mono.zip(
-                                        userRepository.findByIdOrThrow(course.getAuthorId()),
-                                        courseTagRepository.findAllByCourseId(course.getId())
-                                                           .collectList(),
-                                        modulesFlux.collectList()
-                                ).map(tuple ->
-                                              courseMapper.mapCourseEntityToGrpcCourseResponse(
-                                                      course,
-                                                      tuple.getT1(),
-                                                      tuple.getT2(),
-                                                      tuple.getT3()
-                                              )
-                                );
-                            })
-                            .collectList()
-                            .zipWith(
-                                    courseRepository.count(),
-                                    (courses, numberOfCourses) ->
-                                            new PageImpl<>(
-                                                    courses,
-                                                    pageRequest,
-                                                    numberOfCourses
-                                            )
-                            )
-                            .map(courseMapper::mapCourseResponsePageToGrpcAllCoursesResponse);
-                });
+    /**
+     * Находит все активные курсы, формирует список и добавляет к нему параметры пагинации
+     *
+     * @param request
+     *         - gRPC запрос курсов с параметрами пагинации
+     *
+     * @return - {@link Mono<AllCoursesResponse>} - Mono ответ со списком DTO курсов
+     */
+    @Override
+    public Mono<AllCoursesResponse> findAllActiveCourses(GrpcPageRequest request) {
+        PageRequest pageRequest =
+                baseMapper.mapGrpcPageRequestToPageRequest(request);
+        return userRepository.findByIdOrThrow(request.getSenderId())
+                             .flatMap(user -> {
+                                 Flux<CourseEntity> courseEntityFlux = courseAccessResolver
+                                         .resolveCoursesForUser(user)
+                                         .filter(CourseEntity::getIsActive);
+                                 return getAllCoursesResponseMono(pageRequest, user, courseEntityFlux);
+                             });
     }
 
     /**

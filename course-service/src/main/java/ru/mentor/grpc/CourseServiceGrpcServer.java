@@ -35,6 +35,9 @@ public class CourseServiceGrpcServer extends CourseServiceImplBase {
     public static final String GET_ALL_COURSES_REQUEST_LOG_TEXT =
             "[ requestId = {} ] Поступил запрос  на получение данных обо всех курсах"
                     + " от пользователя с [ ID = {} ]";
+    public static final String GET_ALL_ACTIVE_COURSES_REQUEST_LOG_TEXT =
+            "[ requestId = {} ] Поступил запрос на получение всех активных курсов"
+            + " от пользователя с [ ID = {} ]";
     public static final String CREATE_COURSE_REQUEST_LOG_TEXT =
             "[ requestId = {} ] Поступил запрос на создание курса [ name = {} ]"
                     + " от пользователя с [ ID = {} ]";
@@ -79,6 +82,22 @@ public class CourseServiceGrpcServer extends CourseServiceImplBase {
                 .doOnNext(this::logAllCoursesGrpcPageRequest)
                 .flatMap(courseService::getAllCourses)
                 .onErrorMap(EntityNotFoundException.class, convertToRuntimeException());
+    }
+
+    /**
+     * Принимает gRPC-запрос на получение всех активных курсов
+     *
+     * @param request - содержит параметры пагинации
+     *
+     * @return - gRPC-ответ с данными курсов
+     */
+    @Override
+    public Mono<AllCoursesResponse> getAllActiveCourses(Mono<GrpcPageRequest> request){
+        return request.switchIfEmpty(toInvalidArgumentError(Status.INVALID_ARGUMENT,
+                                                            GrpcErrorText.EMPTY_REQUEST))
+                      .doOnNext(this::logAllActiveCoursesGrpcPageRequest)
+                      .flatMap(courseService::getAllActiveCourses)
+                      .onErrorMap(EntityNotFoundException.class, convertToRuntimeException());
     }
 
     /**
@@ -156,6 +175,12 @@ public class CourseServiceGrpcServer extends CourseServiceImplBase {
                  request.getHeader().getRequestId(),
                  request.getSenderId()
         );
+    }
+
+    private void logAllActiveCoursesGrpcPageRequest(GrpcPageRequest request) {
+        log.info(GET_ALL_ACTIVE_COURSES_REQUEST_LOG_TEXT,
+                 request.getHeader().getRequestId(),
+                 request.getSenderId());
     }
 
     private void logCreateCourseRequest(CreateCourseGrpcRequest request) {
