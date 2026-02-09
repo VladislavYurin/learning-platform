@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -69,7 +68,8 @@ public interface MentorTimeSlotRepository
 
     @Modifying
     @Query(nativeQuery = true, value = """
-            DELETE FROM mentor_time_slot__users slotUsers WHERE slotUsers.user_id = :userId   
+            DELETE FROM mentor_time_slot__users slotUsers WHERE slotUsers.id = :slotId AND slotUsers.user_id = :userId   
     """)
-    int deleteParticipantById(@Param("userId") Long userId);
+    int deleteParticipantByUserAndSlotIds(@Param("slotId") Long slotId,
+                                          @Param("userId") Long userId);
 }

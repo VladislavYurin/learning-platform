@@ -12,8 +12,8 @@ import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.dto.kafka.StudentReminderNotificationPayload;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
-import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.KafkaMapper;
+import ru.mentor.mapper.UtilMapper;
 
 @ExtendWith(MockitoExtension.class)
 class KafkaFacadeTest {
@@ -21,7 +21,7 @@ class KafkaFacadeTest {
     @Mock
     private KafkaProducerService mockKafkaProducerService;
     @Mock
-    private BaseMapper mockBaseMapper;
+    private UtilMapper utilMapper;
     @Mock
     private KafkaMapper mockKafkaMapper;
     @Mock
@@ -42,7 +42,7 @@ class KafkaFacadeTest {
 
     @Test
     void sendStudentCalendarSlotReminderMessage_validData_methodsCalled() {
-        Mockito.when(mockBaseMapper.mapUserDto(mockUser)).thenReturn(mockUserInfoDto);
+        Mockito.when(utilMapper.userEntityToUserInfoDto(mockUser)).thenReturn(mockUserInfoDto);
         Mockito.when(mockKafkaMapper.createStudentReminderNotificationPayload(mockSlot, mockUser))
                 .thenReturn(mockStudentReminderNotificationPayload);
         Mockito.when(mockKafkaMapper.createKafkaNotificationDto(
@@ -55,7 +55,7 @@ class KafkaFacadeTest {
 
         Mockito.verify(mockKafkaProducerService, Mockito.times(1))
                 .send(mockKafkaNotificationDto);
-        Mockito.verify(mockBaseMapper, Mockito.times(1)).mapUserDto(mockUser);
+        Mockito.verify(utilMapper, Mockito.times(1)).userEntityToUserInfoDto(mockUser);
         Mockito.verify(mockKafkaMapper, Mockito.times(1))
                 .createStudentReminderNotificationPayload(mockSlot, mockUser);
         Mockito.verify(mockKafkaMapper, Mockito.times(1)).createKafkaNotificationDto(

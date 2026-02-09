@@ -1,5 +1,6 @@
 package ru.mentor.grpc;
 
+import io.grpc.StatusRuntimeException;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -31,14 +32,14 @@ public class CourseTagsGrpcClient {
     /**
      * Отправляет gRPC-запрос для создания нового тега
      *
-     * @param request
-     *         - ДТО с данными запроса
-     *
+     * @param request - ДТО с данными запроса
      * @return - ДТО созданного тега
      */
     public CourseTagResponse createCourseTag(CreateCourseTagGrpcRequest request) {
         try {
             return stub.createCourseTag(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -53,14 +54,14 @@ public class CourseTagsGrpcClient {
     /**
      * Отправляет gRPC-запрос для удаления тега
      *
-     * @param request
-     *         - ДТО с данными запроса
-     *
+     * @param request - ДТО с данными запроса
      * @return - пустой gRPC-ответ
      */
     public DeleteCourseTagResponse deleteCourseTag(DeleteCourseTagRequest request) {
         try {
             return stub.deleteCourseTag(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -75,14 +76,14 @@ public class CourseTagsGrpcClient {
     /**
      * Отправляет gRPC-запрос для получения тега
      *
-     * @param request
-     *         - ДТО с данными запроса
-     *
+     * @param request - ДТО с данными запроса
      * @return - ДТО тега
      */
     public CourseTagResponse getCourseTag(GetCourseTagRequest request) {
         try {
             return stub.getCourseTag(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -102,6 +103,8 @@ public class CourseTagsGrpcClient {
     public ListCourseTagsResponse getAllTags(GetAllCourseTagsRequest request) {
         try {
             return stub.getAllTags(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException("Ошибка отправки gRPC запроса.");
         }

@@ -40,7 +40,7 @@ public class UserInfoControllerTest {
 
     @Test
     void updateMyUserInfo() throws Exception {
-        UserInfoDto updateDto = TestEntityStubGenerator.constructUserInfoDtoWithRole(Role.USER);
+        UserInfoDto updateDto = TestEntityStubGenerator.getUserInfoDto();
         String jsonResponse = TestEntityStubGenerator.constructUserJsonWithRole(Role.USER);
 
         Mockito.when(userInfoService.updateMyUserInfo(ArgumentMatchers.any(UserInfoDto.class)))

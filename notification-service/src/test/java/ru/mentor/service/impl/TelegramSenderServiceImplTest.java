@@ -15,9 +15,9 @@ import ru.mentor.integration.telegram.TelegramApiClient;
 @ConditionalOnProperty(name = "application.notify.telegram.enable", havingValue = "true")
 class TelegramSenderServiceImplTest {
 
-    public static final String TOKEN = "TEST_TOKEN";
-    private static final long CHAT_ID = 123L;
-    private static final String MESSAGE = "hello <b>world</b>";
+    public final String TOKEN = "TEST_TOKEN";
+    private final long CHAT_ID = 123L;
+    private final String MESSAGE = "hello <b>world</b>";
 
     @Mock
     TelegramApiClient telegramApiClient;

@@ -1,20 +1,18 @@
 package ru.mentor.mapper;
 
 import com.google.protobuf.Timestamp;
+
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
-import ru.mentor.common.CancelTimeSlotRequest;
-import ru.mentor.common.CancelTimeSlotResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.mentor.common.CreateTimeSlotRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.MentorSlotsInfoResponse;
@@ -27,116 +25,107 @@ import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestDataGenerator;
+import ru.mentor.testUtil.TestGrpcStubGenerator;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = {
+        TimeSlotMapperImpl.class,
+        UtilMapperImpl.class})
 class TimeSlotMapperTest {
 
-    @InjectMocks
-    TimeSlotMapper timeSlotMapper;
+    @Autowired
+    private TimeSlotMapper timeSlotMapper;
 
     @Test
-    void grpcResponseToDto() {
-        Timestamp startTime = UtilMapper.buildTimestamp(
-                LocalDateTime.of(2025, 1, 15, 13, 0));
-        Timestamp endTime = UtilMapper.buildTimestamp(
-                LocalDateTime.of(2025, 1, 15, 14, 0));
-        Timestamp createdAt = UtilMapper.buildTimestamp(
-                LocalDateTime.of(2025, 1, 14, 10, 0));
+    void timeSlotResponseToMentorTimeSlotDto() {
+        Timestamp startTime = TestConstantHolder.startTimestamp;
+        Timestamp endTime = TestConstantHolder.endTimestamp;
+        Timestamp createdAt = TestConstantHolder.createdAtTimestamp;
 
         TimeSlotResponse grpcResponse = TestDataGenerator.createTestTimeSlotGrpcResponse(
                 startTime, endTime, createdAt);
 
-        MentorTimeSlotDto result = timeSlotMapper.grpcResponseToDto(grpcResponse);
+        MentorTimeSlotDto result = timeSlotMapper.timeSlotResponseToMentorTimeSlotDto(grpcResponse);
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getRequestId());
-        Assertions.assertEquals(1L, result.getId());
-        Assertions.assertEquals(1L, result.getMentorId());
-        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0), result.getStartTime());
-        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0), result.getEndTime());
+        Assertions.assertEquals(TestConstantHolder.requestId, result.getRequestId());
+        Assertions.assertEquals(TestConstantHolder.timeSlotId, result.getId());
+        Assertions.assertEquals(TestConstantHolder.mentorId, result.getMentorId());
+        Assertions.assertEquals(TestConstantHolder.startTime, result.getStartTime());
+        Assertions.assertEquals(TestConstantHolder.endTime, result.getEndTime());
         Assertions.assertEquals(CalendarSlotType.INDIVIDUAL, result.getSlotType());
         Assertions.assertEquals(CalendarSlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
         Assertions.assertEquals(
-                TestDataGenerator.TEST_MAX_PARTICIPANTS,
+                TestConstantHolder.maxParticipants,
                 result.getMaxParticipants()
         );
-        Assertions.assertEquals(TestDataGenerator.TEST_LINK, result.getMeetingLink());
-        Assertions.assertEquals(TestDataGenerator.TEST_DESCRIPTION, result.getDescription());
-        Assertions.assertEquals(LocalDateTime.of(2025, 1, 14, 10, 0), result.getCreatedAt());
+        Assertions.assertEquals(TestConstantHolder.meetingLink, result.getMeetingLink());
+        Assertions.assertEquals(TestConstantHolder.slotDescription, result.getDescription());
+        Assertions.assertEquals(TestConstantHolder.createdAt, result.getCreatedAt());
     }
 
     @Test
     void requestCreateToGrpcDto() {
-        LocalDateTime startTime = LocalDateTime.of(2025, 1, 15, 13, 0);
-        LocalDateTime endTime = LocalDateTime.of(2025, 1, 15, 14, 0);
+        LocalDateTime startTime = TestConstantHolder.startTime;
+        LocalDateTime endTime = TestConstantHolder.endTime;
 
         MentorTimeSlotCreateRequest createRequest = TestDataGenerator.createTestMentorTimeSlotCreateRequest(
                 startTime, endTime);
 
-        UserEntity testMentorUser = TestDataGenerator.getTestMentorUser();
+        UserEntity testMentorUser = TestDataGenerator.getMentorEntity();
 
-        Header header = Header.newBuilder()
-                              .setRequestId(TestDataGenerator.TEST_UUID)
-                              .setNodeId("TestNodeId")
-                              .setApiKey("TestApiKey")
-                              .build();
-        CreateTimeSlotRequest result = timeSlotMapper.requestCreateToGrpcDto(
+        Header header = TestGrpcStubGenerator.constructHeader();
+        CreateTimeSlotRequest result = timeSlotMapper.toCreateTimeSlotRequest(
                 createRequest,
                 header,
                 testMentorUser
         );
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getHeader().getRequestId());
-        Assertions.assertEquals(1L, result.getMentorId());
-        Assertions.assertEquals(
-                LocalDateTime.of(2025, 1, 15, 13, 0)
-                             .toEpochSecond(ZoneOffset.UTC),
+        Assertions.assertEquals(TestConstantHolder.requestId, result.getHeader().getRequestId());
+        Assertions.assertEquals(TestConstantHolder.mentorId, result.getMentorId());
+        Assertions.assertEquals(TestConstantHolder.startTimestamp.getSeconds(),
                 result.getStartTime().getSeconds()
         );
-        Assertions.assertEquals(
-                LocalDateTime.of(2025, 1, 15, 14, 0)
-                             .toEpochSecond(ZoneOffset.UTC),
+        Assertions.assertEquals(TestConstantHolder.endTimestamp.getSeconds(),
                 result.getEndTime().getSeconds()
         );
         Assertions.assertEquals(SlotType.INDIVIDUAL, result.getSlotType());
         Assertions.assertEquals(SlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
         Assertions.assertEquals(
-                TestDataGenerator.TEST_MAX_PARTICIPANTS,
+                TestConstantHolder.maxParticipants,
                 result.getMaxParticipants()
         );
-        Assertions.assertEquals(TestDataGenerator.TEST_LINK, result.getMeetingLink());
-        Assertions.assertEquals(TestDataGenerator.TEST_DESCRIPTION, result.getDescription());
+        Assertions.assertEquals(TestConstantHolder.meetingLink, result.getMeetingLink());
+        Assertions.assertEquals(TestConstantHolder.slotDescription, result.getDescription());
     }
 
     @Test
     void grpcCreateRequestToEntity() {
-        Timestamp startTime = UtilMapper.buildTimestamp(
-                LocalDateTime.of(2025, 1, 15, 13, 0));
-        Timestamp endTime = UtilMapper.buildTimestamp(
-                LocalDateTime.of(2025, 1, 15, 14, 0));
+        Timestamp startTime = TestConstantHolder.startTimestamp;
+        Timestamp endTime = TestConstantHolder.endTimestamp;
 
         CreateTimeSlotRequest request = TestDataGenerator.createTestCreateTimeSlotRequest(
                 startTime, endTime);
-        UserEntity testMentorUser = TestDataGenerator.getTestMentorUser();
-        MentorTimeSlotEntity result = timeSlotMapper.grpcCreateRequestToEntity(
+        UserEntity testMentorUser = TestDataGenerator.getMentorEntity();
+        MentorTimeSlotEntity result = timeSlotMapper.toMentorTimeSlotEntity(
                 request,
                 testMentorUser
         );
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(testMentorUser, result.getMentor());
-        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 13, 0), result.getStartTime());
-        Assertions.assertEquals(LocalDateTime.of(2025, 1, 15, 14, 0), result.getEndTime());
+        Assertions.assertEquals(TestConstantHolder.startTime, result.getStartTime());
+        Assertions.assertEquals(TestConstantHolder.endTime, result.getEndTime());
         Assertions.assertEquals(CalendarSlotType.INDIVIDUAL, result.getSlotType());
         Assertions.assertEquals(CalendarSlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
         Assertions.assertEquals(
-                TestDataGenerator.TEST_MAX_PARTICIPANTS,
+                TestConstantHolder.maxParticipants,
                 result.getMaxParticipants()
         );
-        Assertions.assertEquals(TestDataGenerator.TEST_LINK, result.getMeetingLink());
-        Assertions.assertEquals(TestDataGenerator.TEST_DESCRIPTION, result.getDescription());
+        Assertions.assertEquals(TestConstantHolder.meetingLink, result.getMeetingLink());
+        Assertions.assertEquals(TestConstantHolder.slotDescription, result.getDescription());
         Assertions.assertTrue(result.getIsActive());
     }
 
@@ -144,47 +133,45 @@ class TimeSlotMapperTest {
     void entityToGrpcResponse() {
 
         MentorTimeSlotEntity timeSlotEntity = TestDataGenerator.createTestSlot(
-                1L, Collections.emptySet(), true);
+                TestConstantHolder.timeSlotId,
+                TestConstantHolder.isActiveTrue,
+                Collections.emptySet());
 
-        TimeSlotResponse result = timeSlotMapper.entityToGrpcResponse(
+        TimeSlotResponse result = timeSlotMapper.toTimeSlotResponse(
                 timeSlotEntity,
-                TestDataGenerator.TEST_UUID
+                TestConstantHolder.requestId
         );
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(TestDataGenerator.TEST_UUID, result.getRequestId());
-        Assertions.assertEquals(1L, result.getSlotId());
-        Assertions.assertEquals(1L, result.getMentorId());
-        Assertions.assertEquals(
-                LocalDateTime.of(2025, 1, 15, 13, 0)
-                             .toEpochSecond(ZoneOffset.UTC), result.getStartTime().getSeconds()
+        Assertions.assertEquals(TestConstantHolder.requestId, result.getRequestId());
+        Assertions.assertEquals(TestConstantHolder.timeSlotId, result.getSlotId());
+        Assertions.assertEquals(TestConstantHolder.mentorId, result.getMentorId());
+        Assertions.assertEquals(TestConstantHolder.startTimestamp.getSeconds(),
+                result.getStartTime().getSeconds()
         );
-        Assertions.assertEquals(
-                LocalDateTime.of(2025, 1, 15, 14, 0)
-                             .toEpochSecond(ZoneOffset.UTC), result.getEndTime().getSeconds()
+        Assertions.assertEquals(TestConstantHolder.endTimestamp.getSeconds(),
+                result.getEndTime().getSeconds()
         );
         Assertions.assertEquals(SlotType.INDIVIDUAL, result.getSlotType());
         Assertions.assertEquals(SlotMeetingType.COMMUNICATION, result.getSlotMeetingType());
         Assertions.assertEquals(
-                TestDataGenerator.TEST_MAX_PARTICIPANTS,
+                TestConstantHolder.maxParticipants,
                 result.getMaxParticipants()
         );
-        Assertions.assertEquals(TestDataGenerator.TEST_LINK, result.getMeetingLink());
-        Assertions.assertEquals(TestDataGenerator.TEST_DESCRIPTION, result.getDescription());
-        Assertions.assertEquals(
-                LocalDateTime.of(2025, 1, 14, 10, 0)
-                             .toEpochSecond(ZoneOffset.UTC), result.getCreatedAt().getSeconds()
+        Assertions.assertEquals(TestConstantHolder.meetingLink, result.getMeetingLink());
+        Assertions.assertEquals(TestConstantHolder.slotDescription, result.getDescription());
+        Assertions.assertEquals(TestConstantHolder.createdAtTimestamp.getSeconds(),
+                result.getCreatedAt().getSeconds()
         );
     }
 
     @Test
     void toMentorSlotsInfoResponse_noSlots_empty() {
         List<MentorTimeSlotEntity> emptySlots = Collections.emptyList();
-        String rqUId = "test-rq-id";
 
-        MentorSlotsInfoResponse response = timeSlotMapper.convertToMentorSlotsInfoResponse(
+        MentorSlotsInfoResponse response = timeSlotMapper.toMentorSlotsInfoResponse(
                 emptySlots,
-                rqUId
+                TestConstantHolder.requestId
         );
 
         Assertions.assertNotNull(response);
@@ -193,70 +180,61 @@ class TimeSlotMapperTest {
 
     @Test
     void toMentorSlotsInfoResponse_twoSlots_mixed_twoReturned() {
-        String rqUId = "test-rq-id";
+        long FREE_SLOT_ID = 2L;
+        int EXPECTED_SLOTS_SIZE = 2;
+        int BOOKED_SLOT_INDEX = TestConstantHolder.zero;
+        int FREE_SLOT_INDEX = 1;
+        int FIRST_PARTICIPANT_INDEX = TestConstantHolder.zero;
+        int EXPECTED_PARTICIPANTS_SIZE = 1;
+        String EXPECTED_PARTICIPANT_USERNAME = TestConstantHolder.username;
 
         Set<UserEntity> participants = new HashSet<>();
-        participants.add(TestDataGenerator.getTestParticipantUser());
-        MentorTimeSlotEntity bookedSlot = TestDataGenerator.createTestSlot(1L, participants, true);
+        participants.add(TestDataGenerator.getUserEntity());
+        MentorTimeSlotEntity bookedSlot = TestDataGenerator.createTestSlot(
+                TestConstantHolder.timeSlotId,
+                TestConstantHolder.isActiveTrue,
+                participants);
 
         MentorTimeSlotEntity freeSlot = TestDataGenerator.createTestSlot(
-                2L,
-                Collections.emptySet(),
-                true
-        );
+                FREE_SLOT_ID,
+                TestConstantHolder.isActiveTrue,
+                Collections.emptySet());
 
         List<MentorTimeSlotEntity> slots = Arrays.asList(bookedSlot, freeSlot);
 
-        MentorSlotsInfoResponse response = timeSlotMapper.convertToMentorSlotsInfoResponse(
+        MentorSlotsInfoResponse response = timeSlotMapper.toMentorSlotsInfoResponse(
                 slots,
-                rqUId
+                TestConstantHolder.requestId
         );
 
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(2, response.getSlotsList().size());
+        Assertions.assertEquals(EXPECTED_SLOTS_SIZE, response.getSlotsList().size());
 
-        Assertions.assertFalse(response.getSlotsList().get(0).getParticipantsList().isEmpty());
-        Assertions.assertEquals(1, response.getSlotsList().get(0).getParticipantsList().size());
-        Assertions.assertEquals(
-                "participant",
+        Assertions.assertFalse(
                 response.getSlotsList()
-                        .get(0)
+                        .get(BOOKED_SLOT_INDEX)
                         .getParticipantsList()
-                        .get(0)
+                        .isEmpty());
+        Assertions.assertEquals(
+                EXPECTED_PARTICIPANTS_SIZE,
+                response.getSlotsList()
+                        .get(BOOKED_SLOT_INDEX)
+                        .getParticipantsList()
+                        .size());
+        Assertions.assertEquals(
+                EXPECTED_PARTICIPANT_USERNAME,
+                response.getSlotsList()
+                        .get(BOOKED_SLOT_INDEX)
+                        .getParticipantsList()
+                        .get(FIRST_PARTICIPANT_INDEX)
                         .getUsername()
         );
 
-        Assertions.assertTrue(response.getSlotsList().get(1).getParticipantsList().isEmpty());
+        Assertions.assertTrue(
+                response.getSlotsList()
+                        .get(FREE_SLOT_INDEX)
+                        .getParticipantsList()
+                        .isEmpty());
     }
 
-    @Test
-    void toGrpcCancelTimeSlotRequest() {
-        Long slotId = 1L;
-        Long userId = 2L;
-
-        Header header = Header.newBuilder()
-                .setRequestId(TestDataGenerator.TEST_UUID)
-                .setNodeId("TestNodeId")
-                .setApiKey("TestApiKey")
-                .build();
-
-        CancelTimeSlotRequest request = timeSlotMapper.toGrpcCancelTimeSlotRequest(header, slotId, userId);
-
-        Assertions.assertNotNull(request);
-
-        Assertions.assertEquals(header, request.getHeader());
-        Assertions.assertEquals(1L, request.getSlotId());
-        Assertions.assertEquals(2L, request.getUserId());
-    }
-
-    @Test
-    void toGrpcCancelTimeSlotResponse() {
-        String rqUId = "test-rq-id";
-
-        CancelTimeSlotResponse response = timeSlotMapper.toGrpcCancelTimeSlotResponse(rqUId);
-
-        Assertions.assertNotNull(response);
-
-        Assertions.assertEquals(rqUId, response.getRqUid());
-    }
 }

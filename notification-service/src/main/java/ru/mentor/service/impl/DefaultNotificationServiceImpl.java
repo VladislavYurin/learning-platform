@@ -13,6 +13,7 @@ import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.NotificationSendException;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.KafkaMapper;
+import ru.mentor.mapper.UtilMapper;
 import ru.mentor.repository.NotificationRepository;
 import ru.mentor.service.DefaultNotificationService;
 import ru.mentor.service.EmailSenderService;
@@ -29,6 +30,7 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
     private final NotificationTemplateService notificationTemplateService;
     private final NotificationRepository notificationRepository;
     private final BaseMapper baseMapper;
+    private final UtilMapper utilMapper;
     private final KafkaMapper kafkaMapper;
 
     @Override
@@ -91,7 +93,7 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
             log.info("Сообщение отправлено в Телеграм чат айди = {}, имя пользователя = {}, айди пользователя = {}",
                     userInfo.getTgChatId(), userInfo.getUsername(), userInfo.getId());
 
-        }  catch (Exception e) {
+        } catch (Exception e) {
 
             log.error("Не удалось отправить сообщение в Телеграм чат. Ошибка: {}", e.getMessage());
             saveNotificationWithError(notificationDto, NotificationDestination.TELEGRAM, e.getMessage());
@@ -102,17 +104,17 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
     /**
      * Сохраняет успешно отправленное уведомление в базе данных.
      *
-     * @param notificationDto данные уведомления
+     * @param notificationDto         данные уведомления
      * @param notificationDestination назначение уведомления
      */
     private void saveNotification(KafkaNotificationDto notificationDto, NotificationDestination notificationDestination) {
 
         NotificationEntity notification = kafkaMapper.mapNotificationEntity(
-                                                      notificationDto,
-                                                      notificationDestination,
-                                                      null,
-                                                      NotificationStatus.OK,
-                                                      getUserEntityFromNotificationDto(notificationDto));
+                notificationDto,
+                notificationDestination,
+                null,
+                NotificationStatus.OK,
+                getUserEntityFromNotificationDto(notificationDto));
 
         notificationRepository.save(notification);
     }
@@ -120,9 +122,9 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
     /**
      * Сохраняет не отправленное уведомление с сообщением ошибки в базе данных.
      *
-     * @param notificationDto данные уведомления
+     * @param notificationDto         данные уведомления
      * @param notificationDestination назначение уведомления
-     * @param exceptionMessage сообщение об ошибке
+     * @param exceptionMessage        сообщение об ошибке
      */
     private void saveNotificationWithError(KafkaNotificationDto notificationDto, NotificationDestination notificationDestination, String exceptionMessage) {
 
@@ -140,7 +142,7 @@ public class DefaultNotificationServiceImpl implements DefaultNotificationServic
      * Возвращает сущность пользователя-адрессата.
      */
     private UserEntity getUserEntityFromNotificationDto(KafkaNotificationDto notificationDto) {
-        return baseMapper.mapUserEntity(notificationDto.getUserInfo());
+        return utilMapper.userInfoDtoToUserEntity(notificationDto.getUserInfo());
     }
 
 }

@@ -123,7 +123,7 @@ public class CourseFacadeImpl implements CourseFacade {
                                                   .zipWith(Mono.just(tagsList));
             })
             .map(tuple ->
-                courseMapper.mapCourseEntityToGrpcCourseResponse(tuple.getT1(),
+                courseMapper.toCourseResponse(tuple.getT1(),
                                                                  author,
                                                                  tuple.getT2(),
                                                                  null)
@@ -153,7 +153,7 @@ public class CourseFacadeImpl implements CourseFacade {
                                                              .collectList()
                                      )
                                      .map(tuple ->
-                                                  courseMapper.mapCourseEntityToGrpcCourseResponse(
+                                                  courseMapper.toCourseResponse(
                                                           course,
                                                           tuple.getT1(),
                                                           tuple.getT2(),
@@ -207,7 +207,7 @@ public class CourseFacadeImpl implements CourseFacade {
                                                .collectList(),
                             modulesFlux.collectList()
                     ).map(tuple ->
-                                  courseMapper.mapCourseEntityToGrpcCourseResponse(
+                                  courseMapper.toCourseResponse(
                                           course,
                                           tuple.getT1(),
                                           tuple.getT2(),
@@ -251,7 +251,7 @@ public class CourseFacadeImpl implements CourseFacade {
 
     /**
      * Находит все активные курсы и возвращает их без информации о модулях. Предназначен для превью.
-     * Сначала проверяет кэш, если кэш пуст - загружает из БД.
+     *
      * @param request - DTO запроса курсов
      *
      * @return - Mono со списком DTO курсов без модулей
@@ -268,16 +268,16 @@ public class CourseFacadeImpl implements CourseFacade {
      */
     private Mono<List<CourseResponse>> loadActivePreviewsFromDb(){
         return courseRepository.findAllByIsActiveTrue()
-                               .flatMap(course ->
-                               userRepository.findByIdOrThrow(course.getAuthorId())
-                                             .flatMap(author -> courseTagRepository
-                                                              .findAllByCourseId(course.getId())
-                                                              .collectList()
-                                                              .flatMap(tags -> Mono.just(
-                                                                      courseMapper.mapCourseEntityToGrpcCourseResponse(
-                                                                              course, author, tags, null))
-                                                              ))
-                               ).collectList();
+                .flatMap(course ->
+                        userRepository.findByIdOrThrow(course.getAuthorId())
+                                .flatMap(author -> courseTagRepository
+                                        .findAllByCourseId(course.getId())
+                                        .collectList()
+                                        .flatMap(tags -> Mono.just(
+                                                courseMapper.toCourseResponse(
+                                                        course, author, tags, null))
+                                        ))
+                ).collectList();
     }
 
     /**
@@ -309,7 +309,7 @@ public class CourseFacadeImpl implements CourseFacade {
         return courseTagRepository
                 .findAllByCourseId(course.getId()).collectList()
                 .map(tags ->
-                             courseMapper.mapCourseEntityToGrpcCourseResponse(
+                             courseMapper.toCourseResponse(
                                      course,
                                      user,
                                      tags,

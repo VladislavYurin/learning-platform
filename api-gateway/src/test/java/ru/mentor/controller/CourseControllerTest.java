@@ -1,6 +1,5 @@
 package ru.mentor.controller;
 
-import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.security.JwtAuthenticationFilter;
 import ru.mentor.services.impl.RedirectCourseServiceImpl;
+import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 
 import java.util.List;
@@ -37,7 +35,7 @@ class CourseControllerTest {
     @Test
     void getAllActiveCoursesPreview_success_returnsStatusOkAndListOfCourseDto() throws Exception {
         CourseDto courseDto = TestEntityStubGenerator.constructCourseDto();
-        courseDto.setAuthor(TestEntityStubGenerator.constructUserInfoDtoWithRole(Role.MENTOR));
+        courseDto.setAuthor(TestEntityStubGenerator.getMentorInfoDto());
 
         Mockito.when(redirectCourseService.getAllActiveCoursesPreview())
                 .thenReturn(List.of(courseDto));
@@ -58,7 +56,7 @@ class CourseControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         "$[0].isActive").value(courseDto.getIsActive()))
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].createdAt").value(courseDto.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                        "$[0].createdAt").value(courseDto.getCreatedAt().format(TestConstantHolder.formatter)))
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         "$[0].author.id").value(courseDto.getAuthor().getId()))
                 .andExpect(MockMvcResultMatchers.jsonPath(

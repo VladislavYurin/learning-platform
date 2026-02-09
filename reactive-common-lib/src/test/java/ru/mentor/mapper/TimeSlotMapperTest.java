@@ -2,6 +2,8 @@ package ru.mentor.mapper;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.MentorSlotInfo;
@@ -12,15 +14,20 @@ import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 
+@SpringBootTest(classes = {
+        TimeSlotMapperImpl.class,
+        UtilMapperImpl.class
+})
 class TimeSlotMapperTest {
 
-    private final TimeSlotMapper mapper = new TimeSlotMapper();
+    @Autowired
+    private TimeSlotMapper mapper;
 
     @Test
     void entityToGrpcResponse_returnsExpectedResponse() {
         MentorTimeSlotEntity entity = TestEntityStubGenerator.constructMentorTimeSlotEntity();
 
-        TimeSlotResponse response = mapper.entityToGrpcResponse(
+        TimeSlotResponse response = mapper.toTimeSlotResponse(
                 entity,
                 TestConstantHolder.REQUEST_ID
         );

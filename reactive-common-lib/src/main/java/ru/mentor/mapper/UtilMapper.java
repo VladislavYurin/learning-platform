@@ -1,9 +1,13 @@
 package ru.mentor.mapper;
 
 import com.google.protobuf.Timestamp;
+
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import org.springframework.stereotype.Component;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Named;
+import org.mapstruct.NullValueCheckStrategy;
 import ru.mentor.common.Role;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
@@ -11,24 +15,34 @@ import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.entity.UserEntity;
 
-@Component
-public class UtilMapper {
+@Mapper(componentModel = "spring",
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+public interface UtilMapper {
 
-    public static Role userEntityRoleToUserInfoRole(UserEntity userEntity) {
+    @Named("userEntityRoleToUserInfoRole")
+    default Role userEntityRoleToUserInfoRole(UserEntity userEntity) {
         return Role.valueOf(userEntity.getRole().name());
     }
 
-    public static Timestamp buildTimestamp(LocalDateTime localDateTime) {
+    @Named("localDateTimeToTimestamp")
+    default Timestamp localDateTimeToTimestamp(LocalDateTime localDateTime) {
         return Timestamp.newBuilder()
-                         .setSeconds(localDateTime.toEpochSecond(ZoneOffset.UTC))
-                         .build();
+                .setSeconds(localDateTime.toEpochSecond(ZoneOffset.UTC))
+                .build();
     }
 
-    public static SlotType calendarSlotTypeToSlotType(CalendarSlotType calendarSlotType) {
+    @Named("getLocalDateTimeNow")
+    default LocalDateTime getLocalDateTimeNow() {
+        return LocalDateTime.now();
+    }
+
+    @Named("calendarSlotTypeToSlotType")
+    default SlotType calendarSlotTypeToSlotType(CalendarSlotType calendarSlotType) {
         return SlotType.valueOf(calendarSlotType.toString());
     }
 
-    public static SlotMeetingType calendarSlotMeetingTypeToSlotMeetingType(
+    @Named("calendarSlotMeetingTypeToSlotMeetingType")
+    default SlotMeetingType calendarSlotMeetingTypeToSlotMeetingType(
             CalendarSlotMeetingType calendarSlotMeetingType) {
         return SlotMeetingType.valueOf(calendarSlotMeetingType.toString());
     }

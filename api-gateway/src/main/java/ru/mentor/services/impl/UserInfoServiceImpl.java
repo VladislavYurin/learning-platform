@@ -8,6 +8,7 @@ import ru.mentor.constant.Role;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.UtilMapper;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.services.UserAvatarService;
 import ru.mentor.services.UserInfoService;
@@ -32,6 +33,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final UserRepository userRepository;
 
     private final BaseMapper baseMapper;
+    private final UtilMapper utilMapper;
 
     private final UserAvatarService userAvatarService;
 
@@ -49,15 +51,13 @@ public class UserInfoServiceImpl implements UserInfoService {
                 requestId,
                 user.getId()
         ));
-        return baseMapper.mapUserDto(user);
+        return utilMapper.userEntityToUserInfoDto(user);
     }
 
     /**
      * Возвращает данные другого пользователя по его идентификатору.
      *
-     * @param userId
-     *         идентификатор другого пользователя
-     *
+     * @param userId идентификатор другого пользователя
      * @return DTO с информацией о запрашиваемом пользователе
      */
     @Override
@@ -70,7 +70,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 userId,
                 user.getId()
         ));
-        return baseMapper.mapUserDto(user);
+        return utilMapper.userEntityToUserInfoDto(user);
     }
 
     /**
@@ -89,16 +89,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         ));
         user.setRole(Role.MENTOR);
         UserEntity savedUser = userRepository.save(user);
-        return baseMapper.mapUserDto(savedUser);
+        return utilMapper.userEntityToUserInfoDto(savedUser);
     }
 
     /**
      * Изменяет данные текущего (аутентифицированного) пользователя.
      * Идентификатор пользователя берётся из контекста безопасности.
      *
-     * @param updateDto
-     *         обновляемые данные текущего пользователя
-     *
+     * @param updateDto обновляемые данные текущего пользователя
      * @return DTO с актуальными данными текущего пользователя
      */
     @Override
@@ -111,11 +109,8 @@ public class UserInfoServiceImpl implements UserInfoService {
                 updateDto.getId()
         ));
 
-        UserEntity updatedUser = baseMapper.mapUserEntity(updateDto);
-        updatedUser.setPassword(currentUser.getPassword());
-        updatedUser.setUserAvatarKey(currentUser.getUserAvatarKey());
-        return baseMapper.mapUserDto(userRepository.save(updatedUser));
-
+        utilMapper.updateUserFromDto(updateDto, currentUser);
+        return utilMapper.userEntityToUserInfoDto(userRepository.save(currentUser));
     }
 
     /**
@@ -123,8 +118,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * загружает новый файл аватара в MinIO, сохраняет новый ключ в записи пользователя в БД,
      * затем удаляет предыдущий файл из MinIO (при наличии старого ключа).
      *
-     * @param avatar
-     *         файл нового аватара
+     * @param avatar файл нового аватара
      */
     @Override
     public void updateMyUserAvatar(MultipartFile avatar) {

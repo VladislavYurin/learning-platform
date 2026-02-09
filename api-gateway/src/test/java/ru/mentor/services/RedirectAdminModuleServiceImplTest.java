@@ -3,60 +3,52 @@ package ru.mentor.services;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.GrpcPageRequest;
-import ru.mentor.common.Header;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.exception.GrpcRetryException;
 import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminModuleServiceGrpcClient;
-import ru.mentor.mapper.AdminModuleMapper;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.AdminModuleMapperImpl;
+import ru.mentor.mapper.BaseMapperImpl;
+import ru.mentor.mapper.UtilMapperImpl;
 import ru.mentor.services.impl.RedirectAdminModuleServiceImpl;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = {
+        RedirectAdminModuleServiceImpl.class,
+        BaseMapperImpl.class,
+        AdminModuleMapperImpl.class,
+        UtilMapperImpl.class})
 class RedirectAdminModuleServiceImplTest {
 
-    @Mock
+    @MockBean
     private AdminModuleServiceGrpcClient moduleGrpcClient;
 
-    @Mock
+    @MockBean
     private UserService userService;
 
-    @Mock
+    @MockBean
     private HeaderFactory headerFactory;
 
-    @Spy
-    private BaseMapper baseMapper = new BaseMapper();
-
-    @Spy
-    private AdminModuleMapper moduleMapper = new AdminModuleMapper(baseMapper);
-
-    @InjectMocks
+    @Autowired
     private RedirectAdminModuleServiceImpl service;
 
     @BeforeEach
     void setUp() {
         Mockito.when(headerFactory.create(ArgumentMatchers.anyString()))
-               .thenReturn(
-                       Header.newBuilder()
-                             .setRequestId(TestConstantHolder.requestId)
-                             .build()
-               );
+               .thenReturn(TestGrpcStubGenerator.constructHeader());
     }
 
     @Test
@@ -114,7 +106,7 @@ class RedirectAdminModuleServiceImplTest {
                .thenReturn(grpcResponse);
 
         Page<ModuleDto> result = service.getAllModules(
-                TestConstantHolder.pageNumber,
+                TestConstantHolder.zero,
                 TestConstantHolder.pageSize
         );
 
@@ -127,7 +119,7 @@ class RedirectAdminModuleServiceImplTest {
 
         GrpcPageRequest actualRequest = captor.getValue();
         Assertions.assertThat(actualRequest.getPageNumber())
-                  .isEqualTo(TestConstantHolder.pageNumber);
+                  .isEqualTo(TestConstantHolder.zero);
         Assertions.assertThat(actualRequest.getPageSize()).isEqualTo(TestConstantHolder.pageSize);
         Assertions.assertThat(actualRequest.getHeader().getRequestId()).isNotBlank();
     }
@@ -148,7 +140,7 @@ class RedirectAdminModuleServiceImplTest {
                });
 
         Assertions.assertThatThrownBy(() -> service.getAllModules(
-                          TestConstantHolder.pageNumber,
+                          TestConstantHolder.zero,
                           TestConstantHolder.pageSize
                   ))
                   .isInstanceOf(GrpcRetryException.class)

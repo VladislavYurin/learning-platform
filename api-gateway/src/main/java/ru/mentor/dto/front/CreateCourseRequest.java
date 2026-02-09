@@ -18,11 +18,11 @@ public class CreateCourseRequest {
     private Long authorId;
 
     @Schema(description = "Название курса", example = "Основы Spring Boot")
-    @NotBlank
+    @NotBlank(message = "Название курса не может быть пустым")
     private String courseName;
 
     @Schema(description = "Описание курса", example = "Курс по основам Spring Framework")
-    @NotBlank
+    @NotBlank(message = "Описание курса не может быть пустым")
     private String courseDescription;
 
     private List<Long> tagIds;

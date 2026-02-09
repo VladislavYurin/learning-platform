@@ -1,5 +1,6 @@
 package ru.mentor.grpc;
 
+import io.grpc.StatusRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
@@ -34,14 +35,14 @@ public class CourseServiceModuleGrpcClient {
     /**
      * Отправляет gRPC-запрос для получения модуля курса
      *
-     * @param request
-     *         - ДТО с данными запроса
-     *
+     * @param request - ДТО с данными запроса
      * @return - ДТО с данными запрошенного модуля
      */
     public ModuleResponse getModule(GetModuleRequest request) {
         try {
             return moduleServiceBlockingStub.getModule(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -56,14 +57,14 @@ public class CourseServiceModuleGrpcClient {
     /**
      * Отправляет gRPC-запрос для получения всех модулей курса
      *
-     * @param request
-     *         - ДТО с данными запроса
-     *
+     * @param request - ДТО с данными запроса
      * @return ДТО с данными всех модулей
      */
     public AllModulesResponse getAllModules(GrpcPageRequest request) {
         try {
             return moduleServiceBlockingStub.getAllModules(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -78,14 +79,14 @@ public class CourseServiceModuleGrpcClient {
     /**
      * Отправляет gRPC-запрос для импорта модуля из файла
      *
-     * @param request
-     *         - ДТО с данными запроса
-     *
+     * @param request - ДТО с данными запроса
      * @return ДТО с данными импортированного модуля
      */
     public ModuleResponse importModuleFromMarkdown(ImportModuleFromFileRequest request) {
         try {
             return moduleServiceBlockingStub.importModuleFromFile(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -100,14 +101,14 @@ public class CourseServiceModuleGrpcClient {
     /**
      * Отправляет gRPC-запрос для создания нового модуля в курсе
      *
-     * @param request
-     *         - ДТО с данными запроса
-     *
+     * @param request - ДТО с данными запроса
      * @return - ДТО с данными созданного модуля
      */
     public ModuleResponse createModule(CreateModuleGrpcRequest request) {
         try {
             return moduleServiceBlockingStub.createModule(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -122,14 +123,14 @@ public class CourseServiceModuleGrpcClient {
     /**
      * Отправляет gRPC-запрос для удаления модуля в курсе
      *
-     * @param request
-     *         - ДТО с данными запроса
-     *
+     * @param request - ДТО с данными запроса
      * @return - пустой gRPC-ответ
      */
     public DeleteModuleResponse deleteModule(DeleteModuleRequest request) {
         try {
             return moduleServiceBlockingStub.deleteModule(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(

@@ -44,7 +44,7 @@ public class CourseTagFacadeImpl implements CourseTagFacade {
 
         return courseTagRepository.save(courseTagEntity)
                                   .map(savedTag ->
-                                               tagMapper.toGrpcTagResponse(courseTagEntity));
+                                               tagMapper.courseTagEntityToCourseTagResponse(courseTagEntity));
     }
 
     /**
@@ -70,7 +70,7 @@ public class CourseTagFacadeImpl implements CourseTagFacade {
     @Override
     public Mono<CourseTagResponse> getTagById(Long tagId) {
         return courseTagRepository.findByIdOrThrow(tagId)
-                .map(tagMapper::toGrpcTagResponse);
+                .map(tagMapper::courseTagEntityToCourseTagResponse);
     }
 
     /**

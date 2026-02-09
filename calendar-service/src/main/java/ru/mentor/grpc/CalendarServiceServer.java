@@ -2,11 +2,6 @@ package ru.mentor.grpc;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -27,10 +22,15 @@ import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.TimeSlotUnavailableException;
 import ru.mentor.exception.UserException;
 import ru.mentor.kafka.KafkaFacade;
-import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
+import ru.mentor.mapper.UtilMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Реализация сервиса календаря с использованием gRPC.
@@ -50,17 +50,15 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
 
     private final MentorTimeSlotRepository mentorTimeSlotRepository;
 
-    private final BaseMapper baseMapper;
+    private final UtilMapper utilMapper;
 
     private final KafkaFacade kafkaFacade;
 
     /**
      * Создает временной слот для ментора.
      *
-     * @param request
-     *         Запрос, содержащий детали временного слота, который нужно создать.
-     * @param responseObserver
-     *         Наблюдатель для отправки ответа обратно клиенту.
+     * @param request          Запрос, содержащий детали временного слота, который нужно создать.
+     * @param responseObserver Наблюдатель для отправки ответа обратно клиенту.
      */
     @Override
     public void createMentorTimeSlot(
@@ -78,15 +76,15 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
 
         try {
             UserEntity mentor = userRepository.findById(mentorId)
-                                              .orElseThrow(() -> new UserException(String.format(
-                                                      "Ментор с ID: %s не найден", mentorId)));
+                    .orElseThrow(() -> new UserException(String.format(
+                            "Ментор с ID: %s не найден", mentorId)));
 
-            MentorTimeSlotEntity newMentorTimeSlot = timeSlotMapper.grpcCreateRequestToEntity(
+            MentorTimeSlotEntity newMentorTimeSlot = timeSlotMapper.toMentorTimeSlotEntity(
                     request,
                     mentor
             );
             newMentorTimeSlot = mentorTimeSlotRepository.save(newMentorTimeSlot);
-            responseObserver.onNext(timeSlotMapper.entityToGrpcResponse(
+            responseObserver.onNext(timeSlotMapper.toTimeSlotResponse(
                     newMentorTimeSlot,
                     requestId
             ));
@@ -94,8 +92,8 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
 
         } catch (UserException e) {
             responseObserver.onError(Status.NOT_FOUND
-                                             .withDescription(e.getMessage())
-                                             .asRuntimeException());
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         }
     }
 
@@ -106,10 +104,8 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
      * Используется {@link TransactionSynchronizationManager} - позволяет подписаться
      * на колбэки жизненного цикла транзакции после коммита.
      *
-     * @param request
-     *         запрос на бронирование {@link BookTimeSlotRequest}
-     * @param responseObserver
-     *         наблюдатель отправки ответа клиенту {@link StreamObserver}
+     * @param request          запрос на бронирование {@link BookTimeSlotRequest}
+     * @param responseObserver наблюдатель отправки ответа клиенту {@link StreamObserver}
      */
     @Transactional
     @Override
@@ -137,8 +133,8 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             slotEntity.getMeetingParticipants().add(user);
             MentorTimeSlotEntity bookedTimeSlot = mentorTimeSlotRepository.saveAndFlush(slotEntity);
 
-            UserInfoDto mentorDto = baseMapper.mapUserDto(slotEntity.getMentor());
-            UserInfoDto menteeDto = baseMapper.mapUserDto(user);
+            UserInfoDto mentorDto = utilMapper.userEntityToUserInfoDto(slotEntity.getMentor());
+            UserInfoDto menteeDto = utilMapper.userEntityToUserInfoDto(user);
             LocalDateTime startAt = slotEntity.getStartTime();
             LocalDateTime endAt = slotEntity.getEndTime();
 
@@ -176,17 +172,17 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
                 }
             }
 
-            responseObserver.onNext(timeSlotMapper.entityToGrpcResponse(bookedTimeSlot, requestId));
+            responseObserver.onNext(timeSlotMapper.toTimeSlotResponse(bookedTimeSlot, requestId));
             responseObserver.onCompleted();
 
         } catch (TimeSlotUnavailableException e) {
             responseObserver.onError(Status.UNAVAILABLE
-                                             .withDescription(e.getMessage())
-                                             .asRuntimeException());
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (RuntimeException e) {
             responseObserver.onError(Status.NOT_FOUND
-                                             .withDescription(e.getMessage())
-                                             .asRuntimeException());
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         }
     }
 
@@ -197,27 +193,28 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
             StreamObserver<CancelTimeSlotResponse> responseObserver
     ) {
         String rqUId = request.getHeader().getRequestId();
-        Long userId = request.getUserId();
         Long slotId = request.getSlotId();
+        Long userId = request.getUserId();
 
         log.info("Поступил запрос {} на отмену слота от пользователя с ID: {}",
                 rqUId,
                 userId);
 
         try {
-            MentorTimeSlotEntity mentorTimeSlotEntity = mentorTimeSlotRepository.findByIdWithParticipantsOrThrow(slotId);
-
-            if(mentorTimeSlotRepository.deleteParticipantById(userId) <= 0){
-                throw new UserException("Пользователь не участвует в данной встрече");
+            if (mentorTimeSlotRepository.deleteParticipantByUserAndSlotIds(slotId, userId) <= 0) {
+                throw new UserException("Пользователь не участвует в данной встрече", rqUId);
             }
 
             CancelTimeSlotResponse response = timeSlotMapper.toGrpcCancelTimeSlotResponse(rqUId);
-
             responseObserver.onNext(response);
             responseObserver.onCompleted();
 
-        } catch (RuntimeException e) {
+        } catch (UserException e) {
             responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
                     .asRuntimeException());
         }
@@ -247,10 +244,8 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
     /**
      * gRPC - эндпоинт для получения всех слотов ментора
      *
-     * @param request
-     *         сгенерированный из proto {@link MentorSlotsInfoRequest}
-     * @param responseObserver
-     *         - объект {@link StreamObserver} для возврата ответа
+     * @param request          сгенерированный из proto {@link MentorSlotsInfoRequest}
+     * @param responseObserver - объект {@link StreamObserver} для возврата ответа
      */
 
     @Override
@@ -270,7 +265,7 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
                 mentorTimeSlotRepository.findByMentorIdWithParticipants(mentorId);
 
         MentorSlotsInfoResponse response =
-                timeSlotMapper.convertToMentorSlotsInfoResponse(mentorSlots, requestId);
+                timeSlotMapper.toMentorSlotsInfoResponse(mentorSlots, requestId);
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();

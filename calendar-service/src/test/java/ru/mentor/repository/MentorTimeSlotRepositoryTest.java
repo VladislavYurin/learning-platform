@@ -38,17 +38,17 @@ public class MentorTimeSlotRepositoryTest {
 
     @BeforeEach
     public void setupEach() {
-        reminderProperties =  new ReminderProperties();
+        reminderProperties = new ReminderProperties();
         reminderProperties.setRemindBeforeMinutes(60);
         reminderProperties.setSchedulerIntervalMs(300000L);
 
         currentTime = LocalDateTime.of(2035, 1, 1, 1, 0);
         endTime = currentTime.plusMinutes(reminderProperties.getRemindBeforeMinutes());
-        mentor = TestDataGenerator.getTestMentorUser();
+        mentor = TestDataGenerator.getMentorEntity();
         mentor.setId(null);
-        student1 = TestDataGenerator.getTestParticipantUser();
+        student1 = TestDataGenerator.getUserEntity();
         student1.setId(null);
-        student2 = TestDataGenerator.getAnotherTestParticipantUser();
+        student2 = TestDataGenerator.getAnotherUserEntity();
         student2.setId(null);
 
         testEntityManager.persist(mentor);

@@ -2,7 +2,6 @@ package ru.mentor.testUtil;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.mentor.constant.Role;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
@@ -23,31 +22,12 @@ public class CommonTestUtil {
     /**
      * Создание в БД юзера для интеграционного теста
      *
-     * @param email
-     *         Емейл юзера.
-     * @param firstName
-     *         Имя юзера.
-     * @param lastName
-     *         Фамилия юзера.
-     * @param role
-     *         Роль в системе.
+     * @param user
+     *         Юзер.
      *
      * @return Сохраненный в БД юзер.
      */
-    public UserEntity createUser(
-            String email,
-            String firstName,
-            String lastName,
-            Role role) {
-        UserEntity user = UserEntity.builder()
-                                    .username(email)
-                                    .password("password")
-                                    .role(role)
-                                    .firstName(firstName)
-                                    .lastName(lastName)
-                                    .tgNickname("@random_tg")
-                                    .tgChatId(null)
-                                    .build();
+    public UserEntity createUser(UserEntity user) {
         return userRepository.save(user);
     }
 
@@ -67,7 +47,7 @@ public class CommonTestUtil {
         CourseEntity course = CourseEntity.builder()
                                           .courseTitle(title)
                                           .description(description)
-                                          .isActive(true)
+                                          .isActive(TestConstantHolder.isActiveTrue)
                                           .author(author)
                                           .build();
         return courseRepository.save(course);
@@ -87,8 +67,8 @@ public class CommonTestUtil {
         ModuleEntity module = ModuleEntity.builder()
                                           .moduleTitle(title)
                                           .moduleOrderNumber(1)
-                                          .moduleContent("<h1>Content</h1>")
-                                          .isActive(true)
+                                          .moduleContent("<h1>" + TestConstantHolder.moduleContent + "</h1>")
+                                          .isActive(TestConstantHolder.isActiveTrue)
                                           .course(course)
                                           .build();
         return moduleRepository.save(module);

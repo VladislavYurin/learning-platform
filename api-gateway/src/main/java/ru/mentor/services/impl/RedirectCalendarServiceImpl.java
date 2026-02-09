@@ -62,12 +62,12 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
         );
 
         CreateTimeSlotRequest createTimeSlotGrpcRequest =
-                timeSlotMapper.requestCreateToGrpcDto(createRequest, header, user);
+                timeSlotMapper.toCreateTimeSlotRequest(createRequest, header, user);
 
         TimeSlotResponse timeSlotGrpcResponse = calendarServiceClient
                 .createMentorTimeSlot(createTimeSlotGrpcRequest);
 
-        return timeSlotMapper.grpcResponseToDto(timeSlotGrpcResponse);
+        return timeSlotMapper.timeSlotResponseToMentorTimeSlotDto(timeSlotGrpcResponse);
     }
 
     /**
@@ -92,12 +92,12 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
         );
 
         BookTimeSlotRequest bookTimeSlotRequest = timeSlotMapper
-                .toGrpcBookTimeSlotRequest(header, timeSlotId, user.getId());
+                .toBookTimeSlotRequest(header, timeSlotId, user.getId());
 
         TimeSlotResponse timeSlotGrpcResponse = calendarServiceClient
                 .bookTimeSlot(bookTimeSlotRequest);
 
-        return timeSlotMapper.grpcResponseToDto(timeSlotGrpcResponse);
+        return timeSlotMapper.timeSlotResponseToMentorTimeSlotDto(timeSlotGrpcResponse);
     }
 
     public String cancelTimeSlot(long timeSlotId) {
@@ -141,7 +141,7 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
     @Override
     public List<MentorTimeSlotInfoForUserDto> getMentorSlotsInfoForUser(Long mentorId) {
 
-        return timeSlotMapper.toSlotInfoForUserList(
+        return timeSlotMapper.mentorSlotInfoListToMentorTimeSlotInfoForUserDtoList(
                 this.getMentorSlotsInfoRequest(Optional.of(mentorId)));
     }
 

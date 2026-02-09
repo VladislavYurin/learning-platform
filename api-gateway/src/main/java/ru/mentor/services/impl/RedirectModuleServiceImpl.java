@@ -21,8 +21,6 @@ import ru.mentor.services.RedirectModuleService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
 
-import java.io.IOException;
-
 /**
  * Реализация сервиса редиректов/интеграции для операций с модулями курса.
  */
@@ -59,11 +57,11 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 "[ requestId = {} ] Получен запрос на создание модуля в курсе [ ID = {} ]"
                         + " юзером [ ID = {} ].", requestId, request.getCourseId(), userId
         );
-        CreateModuleGrpcRequest createModuleRequest = moduleMapper.constructGrpcCreateRequest(
+        CreateModuleGrpcRequest createModuleRequest = moduleMapper.toCreateModuleGrpcRequest(
                 header, userId, request);
         try {
             ModuleResponse moduleResponse = moduleGrpcClient.createModule(createModuleRequest);
-            return moduleMapper.mapGrpcModuleResponseToModuleDto(moduleResponse);
+            return moduleMapper.moduleResponseToModuleDto(moduleResponse);
         } catch (StatusRuntimeException e) {
             throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         }
@@ -91,7 +89,7 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 courseId, userId
         );
 
-        GetModuleRequest request = moduleMapper.constructGrpcGetRequest(
+        GetModuleRequest request = moduleMapper.toGetModuleRequest(
                 header,
                 userId,
                 courseId,
@@ -99,7 +97,7 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
         );
         try {
             ModuleResponse moduleResponse = moduleGrpcClient.getModule(request);
-            return moduleMapper.mapGrpcModuleResponseToModuleDto(moduleResponse);
+            return moduleMapper.moduleResponseToModuleDto(moduleResponse);
         } catch (StatusRuntimeException e) {
             throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         }
@@ -125,7 +123,7 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                         + "юзером [ ID = {} ].", requestId, request.getCourseId(), userId
         );
         try {
-            ImportModuleFromFileRequest importModuleFromFileRequest = moduleMapper.constructGrpcImportFromFileRequest(
+            ImportModuleFromFileRequest importModuleFromFileRequest = moduleMapper.toImportModuleFromFileRequest(
                     header,
                     userId,
                     request,
@@ -134,11 +132,9 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
 
             ModuleResponse moduleResponse = moduleGrpcClient.importModuleFromMarkdown(
                     importModuleFromFileRequest);
-            return moduleMapper.mapGrpcModuleResponseToModuleDto(moduleResponse);
+            return moduleMapper.moduleResponseToModuleDto(moduleResponse);
         } catch (StatusRuntimeException e) {
             throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -164,7 +160,7 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 courseId,
                 userId
         );
-        DeleteModuleRequest request = moduleMapper.constructGrpcDeleteRequest(
+        DeleteModuleRequest request = moduleMapper.toDeleteModuleRequest(
                 header, userId, courseId, moduleOrderNum);
         try {
             moduleGrpcClient.deleteModule(request);

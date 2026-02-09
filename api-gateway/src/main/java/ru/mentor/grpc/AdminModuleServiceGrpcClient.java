@@ -1,5 +1,6 @@
 package ru.mentor.grpc;
 
+import io.grpc.StatusRuntimeException;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -23,9 +24,7 @@ public class AdminModuleServiceGrpcClient {
     /**
      * Возвращает запрошенный модуль
      *
-     * @param request
-     *         объект, содержащий данные для запроса
-     *
+     * @param request объект, содержащий данные для запроса
      * @return {@link ModuleResponse}
      */
     @Retryable(
@@ -36,6 +35,8 @@ public class AdminModuleServiceGrpcClient {
     public ModuleResponse getModule(GetModuleRequest request) {
         try {
             return blockingStub.getModule(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -50,9 +51,7 @@ public class AdminModuleServiceGrpcClient {
     /**
      * Возвращает все модули в соответствии с настройками страницы.
      *
-     * @param request
-     *         настройки страницы (номер страницы и размер)
-     *
+     * @param request настройки страницы (номер страницы и размер)
      * @return {@link AllModulesResponse}
      */
     @Retryable(
@@ -63,6 +62,8 @@ public class AdminModuleServiceGrpcClient {
     public AllModulesResponse getAllModules(GrpcPageRequest request) {
         try {
             return blockingStub.getAllModules(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(

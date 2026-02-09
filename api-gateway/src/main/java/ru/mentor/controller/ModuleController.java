@@ -49,7 +49,7 @@ public class ModuleController {
     )
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
-    public ResponseEntity<?> createModule(@RequestBody CreateModuleRequest request) {
+    public ResponseEntity<?> createModule(@Valid @RequestBody CreateModuleRequest request) {
         return ResponseEntity.ok().body(redirectModuleService.createModule(request));
     }
 

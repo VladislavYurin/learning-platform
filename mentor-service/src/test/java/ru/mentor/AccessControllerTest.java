@@ -1,6 +1,5 @@
 package ru.mentor;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,13 +23,14 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.mentor.constant.NotificationTypeEnum;
-import ru.mentor.constant.Role;
 import ru.mentor.dto.kafka.CourseAccessGrantedNotificationPayload;
 import ru.mentor.dto.kafka.KafkaNotificationDto;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.repository.UserCourseAccessRepository;
 import ru.mentor.testUtil.CommonTestUtil;
+import ru.mentor.testUtil.TestConstantHolder;
+import ru.mentor.testUtil.TestDataGenerator;
 
 @Testcontainers
 @SpringBootTest(classes = MentorApplication.class)
@@ -94,14 +94,14 @@ class AccessControllerTest {
                ))
                .thenReturn(done);
 
-        UserEntity mentor = commonTestUtil.createUser(
-                "mentor@example.com", "Pipa", "Popov", Role.MENTOR);
-        UserEntity mentee = commonTestUtil.createUser(
-                "student@example.com", "Popa", "Pipov", Role.USER);
+        UserEntity mentor = commonTestUtil.createUser(TestDataGenerator.getMentorEntity());
+        UserEntity mentee = commonTestUtil.createUser(TestDataGenerator.getUserEntity());
         CourseEntity course = commonTestUtil.createCourse(
-                "Test Course", "Test Description", mentor);
+                TestConstantHolder.courseTitle,
+                TestConstantHolder.courseDescription,
+                mentor);
 
-        String requestId = UUID.randomUUID().toString();
+        String requestId = TestConstantHolder.requestId;
 
         mockMvc.perform(MockMvcRequestBuilders.post("/access/course/get-access")
                                               .contentType(MediaType.APPLICATION_JSON)
@@ -124,7 +124,7 @@ class AccessControllerTest {
 
         Assertions.assertThat(userCourseAccessRepository
                                       .existsByUserIdAndCourseId(mentee.getId(), course.getId()))
-                  .isTrue();
+                                      .isTrue();
 
         ArgumentCaptor<KafkaNotificationDto> dtoCaptor = ArgumentCaptor.forClass(
                 KafkaNotificationDto.class);
@@ -137,15 +137,15 @@ class AccessControllerTest {
         Assertions.assertThat(sent.getNotificationType())
                   .isEqualTo(NotificationTypeEnum.COURSE_ACCESS_GRANTED);
         Assertions.assertThat(sent.getUserInfo()).isNotNull();
-        Assertions.assertThat(sent.getUserInfo().getUsername()).isEqualTo("student@example.com");
+        Assertions.assertThat(sent.getUserInfo().getUsername()).isEqualTo(TestConstantHolder.username);
         Assertions.assertThat(sent.getPayload())
                   .isInstanceOf(CourseAccessGrantedNotificationPayload.class);
         CourseAccessGrantedNotificationPayload payload =
                 (CourseAccessGrantedNotificationPayload) sent.getPayload();
-        Assertions.assertThat(payload.getCourseTitle()).isEqualTo("Test Course");
+        Assertions.assertThat(payload.getCourseTitle()).isEqualTo(TestConstantHolder.courseTitle);
         Assertions.assertThat(payload.getAccessGrantedBy()).isNotNull();
         Assertions.assertThat(payload.getAccessGrantedBy().getUsername()).isEqualTo(
-                "mentor@example.com");
+                TestConstantHolder.mentorName);
         Assertions.assertThat(payload.getAccessGrantedAt()).isNotNull();
     }
 

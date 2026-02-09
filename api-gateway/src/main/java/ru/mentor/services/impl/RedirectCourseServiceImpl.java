@@ -1,7 +1,9 @@
 package ru.mentor.services.impl;
 
 import io.grpc.StatusRuntimeException;
+
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -44,12 +46,10 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
     private final GrpcExceptionMapper exceptionMapper;
 
     /**
-     * Создает gRPC-запрос для созднания нового курса и передает его в gRPC-клиенту для
+     * Создает gRPC-запрос для создания нового курса и передает его в gRPC-клиенту для
      * вызова сервера.
      *
-     * @param request
-     *         данные для создания курса
-     *
+     * @param request данные для создания курса
      * @return DTO созданного курса
      */
     @Override
@@ -62,24 +62,24 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
                 userId
         );
 
-        CreateCourseGrpcRequest createCourseRequest = courseMapper.constructGrpcCreateRequest(
+        CreateCourseGrpcRequest createCourseRequest = courseMapper.toCreateCourseGrpcRequest(
                 header, userId, request
         );
+
         try {
             CourseResponse courseResponse = courseGrpcClient.createCourse(createCourseRequest);
             return courseMapper.mapGrpcCourseResponseToCourseDto(courseResponse);
         } catch (StatusRuntimeException e) {
             log.error("[ requestId = {} ] Ошибка при создании курса юзером [ ID = {} ]: {}",
-                      requestId, userId, e.getMessage());
-            throw  exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
+                    requestId, userId, e.getMessage());
+            throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         }
     }
 
     /**
      * Создает gRPC-запрос для удаления курса и передает его gRPC-клиенту.
      *
-     * @param courseId
-     *         идентификатор удаляемого курса
+     * @param courseId идентификатор удаляемого курса
      */
     @Override
     public void deleteCourse(Long courseId) {
@@ -89,12 +89,12 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         log.info("[ requestId = {} ] Получен запрос на удаление курса [ ID = {} ] юзером [ ID = {} ].",
                 requestId, courseId, userId);
         try {
-            DeleteCourseRequest request = courseMapper.constructGrpcDeleteRequest(header, userId,
-                                                                                  courseId);
+            DeleteCourseRequest request = courseMapper.toDeleteCourseRequest(header, userId,
+                    courseId);
             courseGrpcClient.deleteCourse(request);
         } catch (StatusRuntimeException e) {
             log.error("[ requestId = {} ] Ошибка при удалении курса юзером [ ID = {} ]: {}",
-                      requestId, userId, e.getMessage());
+                    requestId, userId, e.getMessage());
             throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         }
     }
@@ -103,9 +103,7 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
      * Создает gRPC-запрос для получения информации о курсе и передает его gRPC-клиенту.
      * Возвращает DTO найденного курса, содержит информацию о курсе, авторе, модулях и тегах.
      *
-     * @param courseId
-     *         идентификатор курса
-     *
+     * @param courseId идентификатор курса
      * @return DTO найденного курса (курс, автор, модули, теги)
      */
     @Override
@@ -117,19 +115,19 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
                 requestId,
                 courseId,
                 userId);
-        GetCourseRequest courseRequest = courseMapper.constructGrpcGetRequest(header, userId, courseId);
+        GetCourseRequest courseRequest = courseMapper.toGetCourseRequest(header, userId, courseId);
         try {
             CourseResponse courseResponse = courseGrpcClient.getCourse(courseRequest);
             return courseMapper.mapGrpcCourseResponseToCourseDto(courseResponse);
         } catch (StatusRuntimeException e) {
             log.error("[ requestId = {} ] Ошибка при получении курса юзером [ ID = {} ]: {}",
-                      requestId, userId, e.getMessage());
+                    requestId, userId, e.getMessage());
             throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         }
     }
 
     /**
-     * Создает gRPC-запрос для получения всех курсов с пагинацией
+     * Создает gRPC-запрос для получения всех курсов с пагинацией.
      * Возвращает список всех курсов.
      *
      * @return список курсов
@@ -142,14 +140,14 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         log.info("[ requestId = {} ] Получен запрос на получение всех курсов юзером [ ID = {} ].",
                 requestId,
                 userId);
-        GrpcPageRequest request = courseMapper.constructGrpcPageRequest(header, pageNumber,
-                                                                        pageSize, userId);
+        GrpcPageRequest request = courseMapper.toGrpcPageRequest(header, pageNumber,
+                pageSize, userId);
         try {
             AllCoursesResponse allCourses = courseGrpcClient.getAllCourses(request);
             return courseMapper.mapGrpcCourseResponseToCourseDtoPage(allCourses);
         } catch (StatusRuntimeException e) {
             log.error("[ requestId = {} ] Ошибка при получении всех курсов юзером [ ID = {} ]: {}",
-                      requestId, userId, e.getMessage());
+                    requestId, userId, e.getMessage());
             throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         }
     }
@@ -166,17 +164,17 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         String requestId = RqGenerator.generateRqId();
         Header header = headerFactory.create(requestId);
         log.info("[ requestId = {} ] Получен запрос на получение всех активных курсов"
-                         + " юзером [ ID = {} ].",
-                 requestId,
-                 userId);
-        GrpcPageRequest request = courseMapper.constructGrpcPageRequest(header, pageNumber,
-                                                                        pageSize, userId);
+                        + " юзером [ ID = {} ].",
+                requestId,
+                userId);
+        GrpcPageRequest request = courseMapper.toGrpcPageRequest(header, pageNumber,
+                pageSize, userId);
         try {
             AllCoursesResponse allActiveCourses = courseGrpcClient.getAllActiveCourses(request);
             return courseMapper.mapGrpcCourseResponseToCourseDtoPage(allActiveCourses);
         } catch (StatusRuntimeException e) {
             log.error("[ requestId = {} ] Ошибка при получении всех активных курсов юзером [ ID = {} ]: {}",
-                      requestId, userId, e.getMessage());
+                    requestId, userId, e.getMessage());
             throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         }
     }
@@ -193,18 +191,18 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         String requestId = RqGenerator.generateRqId();
         Header header = headerFactory.create(requestId);
         log.info("[ requestId = {} ] Получен запрос на получение всех активных курсов " +
-                "с информацией о наставнике от пользователя [ ID = {} ].",
-                 requestId,
-                 userId);
+                        "с информацией о наставнике от пользователя [ ID = {} ].",
+                requestId,
+                userId);
         GetAllActiveCoursesPreviewRequest request =
-                courseMapper.constructGetAllActiveCoursesPreviewRequest(header, userId);
+                courseMapper.toGetAllActiveCoursesPreviewRequest(header, userId);
         try {
             AllActiveCoursesResponse coursesResponse = courseGrpcClient.getAllActiveCoursesPreview(
                     request);
             return courseMapper.mapGrpcAllActiveCoursesResponseToCourseDtoList(coursesResponse);
         } catch (StatusRuntimeException e) {
             log.error("[ requestId = {} ] Ошибка при получении всех активных курсов с информацией о наставнике юзером [ ID = {} ]: {}",
-                      requestId, userId, e.getMessage());
+                    requestId, userId, e.getMessage());
             throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         }
     }

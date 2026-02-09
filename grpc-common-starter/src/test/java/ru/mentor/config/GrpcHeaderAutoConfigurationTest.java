@@ -10,13 +10,13 @@ import ru.mentor.testUtil.TestConstantHolder;
 class GrpcHeaderAutoConfigurationTest {
 
     private final GrpcHeaderAutoConfiguration autoConfiguration = new GrpcHeaderAutoConfiguration();
-    private static final String LIFECYCLE_RUNNING_AFTER_START_MSG =
+    private final String LIFECYCLE_RUNNING_AFTER_START_MSG =
             "Lifecycle must be running after start()";
-    private static final String LIFECYCLE_NOT_RUNNING_AFTER_STOP_MSG =
+    private final String LIFECYCLE_NOT_RUNNING_AFTER_STOP_MSG =
             "Lifecycle must not be running after stop()";
-    private static final String HEADER_FACTORY_NOT_NULL_MSG =
+    private final String HEADER_FACTORY_NOT_NULL_MSG =
             "HeaderFactory bean must not be null";
-    private static final String HEADER_AUTH_INTERCEPTOR_NOT_NULL_MSG =
+    private final String HEADER_AUTH_INTERCEPTOR_NOT_NULL_MSG =
             "HeaderAuthLoggingServerInterceptor bean must not be null";
 
     @Test

@@ -6,15 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.mentor.constant.NotificationTypeEnum;
 import ru.mentor.dto.UserInfoDto;
-import ru.mentor.dto.kafka.CourseCreatedMentorNotificationPayload;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserCourseAccessEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.entity.UserModuleAccessEntity;
-import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.KafkaMapper;
+import ru.mentor.mapper.UtilMapper;
 
 /**
  * Фасадный сервис для отправки сообщений в Kafka.
@@ -40,7 +39,7 @@ public class KafkaFacade {
     /**
      * Базовый маппер для преобразования сущностей в DTO.
      */
-    private final BaseMapper baseMapper;
+    private final UtilMapper utilMapper;
 
     /**
      * Отправляет сообщение о предоставлении доступа к курсу.
@@ -58,11 +57,11 @@ public class KafkaFacade {
             UserCourseAccessEntity userCourseAccess) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.COURSE_ACCESS_GRANTED,
-                baseMapper.mapUserDto(user),
+                utilMapper.userEntityToUserInfoDto(user),
                 kafkaMapper.createCourseAccessGrantedNotificationPayload(
                         course.getCourseTitle(),
                         userCourseAccess.getAccessGrantedAt(),
-                        baseMapper.mapUserDto(mentor)
+                        utilMapper.userEntityToUserInfoDto(mentor)
                 )
         ));
     }
@@ -82,11 +81,11 @@ public class KafkaFacade {
             LocalDateTime accessRevokedAt) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.COURSE_ACCESS_REVOKED,
-                baseMapper.mapUserDto(user),
+                utilMapper.userEntityToUserInfoDto(user),
                 kafkaMapper.createCourseAccessRevokedNotificationPayload(
                         course.getCourseTitle(),
                         accessRevokedAt,
-                        baseMapper.mapUserDto(mentor)
+                        utilMapper.userEntityToUserInfoDto(mentor)
                 )
         ));
     }
@@ -100,7 +99,7 @@ public class KafkaFacade {
     public void sendCourseCreatedMessage(
             CourseEntity course,
             UserEntity recipient) {
-        UserInfoDto recipientInfo = baseMapper.mapUserDto(recipient);
+        UserInfoDto recipientInfo = utilMapper.userEntityToUserInfoDto(recipient);
         log.info("Получатель UserInfoDto: {}", recipientInfo);
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.COURSE_CREATED_MENTOR,
@@ -122,7 +121,7 @@ public class KafkaFacade {
             UserEntity recipient) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.COURSE_DELETED,
-                baseMapper.mapUserDto(recipient),
+                utilMapper.userEntityToUserInfoDto(recipient),
                 kafkaMapper.courseDeletedMentorNotificationPayload(
                         course.getCourseTitle())
         ));
@@ -146,12 +145,12 @@ public class KafkaFacade {
             UserModuleAccessEntity userModuleAccess) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.MODULE_ACCESS_GRANTED,
-                baseMapper.mapUserDto(user),
+                utilMapper.userEntityToUserInfoDto(user),
                 kafkaMapper.createModuleAccessGrantedNotificationPayload(
                         course.getCourseTitle(),
                         module.getModuleTitle(),
                         userModuleAccess.getAccessGrantedAt(),
-                        baseMapper.mapUserDto(mentor)
+                        utilMapper.userEntityToUserInfoDto(mentor)
                 )
         ));
     }
@@ -173,12 +172,12 @@ public class KafkaFacade {
             LocalDateTime accessRevokedAt) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.MODULE_ACCESS_REVOKED,
-                baseMapper.mapUserDto(user),
+                utilMapper.userEntityToUserInfoDto(user),
                 kafkaMapper.createModuleAccessRevokedNotificationPayload(
                         course.getCourseTitle(),
                         module.getModuleTitle(),
                         accessRevokedAt,
-                        baseMapper.mapUserDto(mentor)
+                        utilMapper.userEntityToUserInfoDto(mentor)
                 )
         ));
     }
@@ -197,12 +196,12 @@ public class KafkaFacade {
             UserEntity creator) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.MODULE_CREATED_MENTOR,
-                baseMapper.mapUserDto(recipient),
+                utilMapper.userEntityToUserInfoDto(recipient),
                 kafkaMapper.moduleCreatedMentorNotificationPayload(
                         course.getCourseTitle(),
                         module.getModuleTitle(),
                         module.getCreatedAt(),
-                        baseMapper.mapUserDto(creator))
+                        utilMapper.userEntityToUserInfoDto(creator))
         ));
     }
 
@@ -217,7 +216,7 @@ public class KafkaFacade {
             UserEntity recipient) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.MODULE_DELETED,
-                baseMapper.mapUserDto(recipient),
+                utilMapper.userEntityToUserInfoDto(recipient),
                 kafkaMapper.moduleDeletedMentorNotificationPayload(
                         course.getCourseTitle(),
                         module.getModuleTitle())
@@ -231,9 +230,9 @@ public class KafkaFacade {
     public void sendUserRegistrationMessage(UserEntity user) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.USER_REGISTRATION_USER,
-                baseMapper.mapUserDto(user),
+                utilMapper.userEntityToUserInfoDto(user),
                 kafkaMapper.userRegistrationNotificationPayload(
-                        baseMapper.mapUserDto(user)
+                        utilMapper.userEntityToUserInfoDto(user)
                 )
         ));
     }
@@ -272,7 +271,7 @@ public class KafkaFacade {
             UserEntity student) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.STUDENT_CALENDAR_SLOT_REMINDER,
-                baseMapper.mapUserDto(student),
+                utilMapper.userEntityToUserInfoDto(student),
                 kafkaMapper.createStudentReminderNotificationPayload(slot, student)
         ));
     }
@@ -285,7 +284,7 @@ public class KafkaFacade {
     public void sendMentorCalendarSlotReminderMessage(MentorTimeSlotEntity slot) {
         kafkaProducerService.send(kafkaMapper.createKafkaNotificationDto(
                 NotificationTypeEnum.MENTOR_CALENDAR_SLOT_REMINDER,
-                baseMapper.mapUserDto(slot.getMentor()),
+                utilMapper.userEntityToUserInfoDto(slot.getMentor()),
                 kafkaMapper.createMentorReminderNotificationPayload(slot)
         ));
     }

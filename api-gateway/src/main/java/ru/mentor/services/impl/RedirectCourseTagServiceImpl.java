@@ -17,8 +17,8 @@ import ru.mentor.dto.tag.CreateCourseTagRequest;
 import ru.mentor.exception.GrpcExceptionMapper;
 import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.CourseTagsGrpcClient;
+import ru.mentor.mapper.CourseTagMapper;
 import ru.mentor.mapper.CourseTagsMapper;
-import ru.mentor.mapper.TagGrpcMapper;
 import ru.mentor.services.RedirectCourseTagService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
@@ -33,7 +33,7 @@ public class RedirectCourseTagServiceImpl implements RedirectCourseTagService {
 
     private final CourseTagsGrpcClient client;
 
-    private final TagGrpcMapper tagGrpcMapper;
+    private final CourseTagMapper tagGrpcMapper;
 
     private final UserService userService;
 

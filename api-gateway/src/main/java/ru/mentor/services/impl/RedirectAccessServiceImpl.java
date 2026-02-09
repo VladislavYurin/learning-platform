@@ -47,7 +47,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getCourseId(),
                 user.getId()
         ));
-        GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
+        GetAccessRequest innerRequest = accessMapper.toGetAccessRequest(user, request);
         return mentorClient.giveCourseAccess(requestId, innerRequest);
     }
 
@@ -70,7 +70,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getCourseId(),
                 user.getId()
         ));
-        GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
+        GetAccessRequest innerRequest = accessMapper.toGetAccessRequest(user, request);
         return mentorClient.revokeCourseAccess(requestId, innerRequest);
     }
 
@@ -93,7 +93,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getModuleId(),
                 user.getId()
         ));
-        GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
+        GetAccessRequest innerRequest = accessMapper.toGetAccessRequest(user, request);
         return mentorClient.giveModuleAccess(requestId, innerRequest);
     }
 
@@ -116,7 +116,7 @@ public class RedirectAccessServiceImpl implements RedirectAccessService {
                 request.getModuleId(),
                 user.getId()
         ));
-        GetAccessRequest innerRequest = accessMapper.mapToGetAccessRequest(user, request);
+        GetAccessRequest innerRequest = accessMapper.toGetAccessRequest(user, request);
         return mentorClient.revokeModuleAccess(requestId, innerRequest);
     }
 

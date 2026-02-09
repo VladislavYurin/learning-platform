@@ -14,6 +14,7 @@ import ru.mentor.config.ReminderProperties;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.repository.MentorTimeSlotRepository;
+import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestDataGenerator;
 
 import java.time.LocalDateTime;
@@ -36,8 +37,7 @@ class TimeSlotSchedulerServiceTest {
     @InjectMocks
     private TimeSlotSchedulerService timeSlotSchedulerService;
 
-    @Mock
-    private ReminderProperties reminderProperties;
+    private ReminderProperties reminderProperties = new ReminderProperties();
 
     @BeforeAll
     static void setTime() {
@@ -75,11 +75,13 @@ class TimeSlotSchedulerServiceTest {
 
     @Test
     void checkTimeSlotsAndSendNotifications_oneUpcomingSlot_sendReminders() {
-        UserEntity student1 = TestDataGenerator.getTestParticipantUser();
-        UserEntity student2 = TestDataGenerator.getAnotherTestParticipantUser();
+        UserEntity student1 = TestDataGenerator.getUserEntity();
+        UserEntity student2 = TestDataGenerator.getAnotherUserEntity();
 
         MentorTimeSlotEntity timeSlot = TestDataGenerator.createTestSlot(
-                10L, Set.of(student1, student2), true,
+                TestConstantHolder.timeSlotId,
+                Set.of(student1, student2),
+                true,
                 fixedTime.plusMinutes(10),
                 fixedTime.plusMinutes(reminderProperties.getRemindBeforeMinutes()));
 
@@ -102,13 +104,21 @@ class TimeSlotSchedulerServiceTest {
 
     @Test
     void checkTimeSlotsAndSendNotifications_twoUpcomingSlots_calendarNotificationServiceCall() {
-        UserEntity student1 = TestDataGenerator.getTestParticipantUser();
-        UserEntity student2 = TestDataGenerator.getAnotherTestParticipantUser();
+        UserEntity student1 = TestDataGenerator.getUserEntity();
+        UserEntity student2 = TestDataGenerator.getAnotherUserEntity();
 
         MentorTimeSlotEntity timeSlot1 = TestDataGenerator.createTestSlot(
-                11L, Set.of(student1, student2), true, fixedTime.plusMinutes(20), fixedTime.plusMinutes(40));
+                11L,
+                Set.of(student1, student2),
+                true,
+                fixedTime.plusMinutes(20),
+                fixedTime.plusMinutes(40));
         MentorTimeSlotEntity timeSlot2 = TestDataGenerator.createTestSlot(
-                12L, Set.of(student1), true, fixedTime.plusMinutes(40), fixedTime.plusMinutes(60));
+                12L,
+                Set.of(student1),
+                true,
+                fixedTime.plusMinutes(40),
+                fixedTime.plusMinutes(60));
 
         Mockito.when(repository.findUpcomingTimeSlotsWithParticipants(fixedTime,
                         fixedTime.plusMinutes(reminderProperties.getRemindBeforeMinutes())))

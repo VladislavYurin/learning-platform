@@ -109,6 +109,7 @@ public final class TestEntityStubGenerator {
                            .courseId(TestConstantHolder.COURSE_ID)
                            .build();
     }
+
     public static CourseTagEntity constructActiveCourseTagEntity() {
         return CourseTagEntity.builder()
                               .id(TestConstantHolder.COURSE_TAG_ID)

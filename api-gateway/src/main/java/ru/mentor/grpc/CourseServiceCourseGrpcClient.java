@@ -1,5 +1,7 @@
 package ru.mentor.grpc;
 
+import io.grpc.StatusRuntimeException;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -19,6 +21,7 @@ import ru.mentor.exception.GrpcRetryException;
 /**
  * gRPC - клиент для отправки запросов, связанных с курсами в course-service
  */
+@Slf4j
 @Component
 @Retryable(
         retryFor = GrpcRetryException.class,
@@ -33,14 +36,14 @@ public class CourseServiceCourseGrpcClient {
     /**
      * Отправляет в course-service gRPC-запрос для создания нового курса
      *
-     * @param request
-     *         - gRPC-запрос с данными создаваемого курса
-     *
+     * @param request - gRPC-запрос с данными создаваемого курса
      * @return - gRPC-ответ с данными созданного курса
      */
     public CourseResponse createCourse(CreateCourseGrpcRequest request) {
         try {
             return courseServiceBlockingStub.createCourse(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -53,21 +56,21 @@ public class CourseServiceCourseGrpcClient {
     }
 
     /**
-     * Отправляет в course-service gRPC-запрос для получение данных курса
+     * Отправляет в course-service gRPC-запрос для получения данных курса
      *
-     * @param request
-     *         - gRPC-запрос курса
-     *
+     * @param request - gRPC-запрос курса
      * @return - gRPC-ответ с данными курса
      */
     public CourseResponse getCourse(GetCourseRequest request) {
         try {
             return courseServiceBlockingStub.getCourse(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "[ requestId = %s ] Ошибка отправки gRPC запроса: %s",
+                            request.getHeader().getRequestId(), e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
@@ -77,14 +80,14 @@ public class CourseServiceCourseGrpcClient {
     /**
      * Отправляет в course-service gRPC-запрос для удаления курса
      *
-     * @param request
-     *         - gRPC-запрос с данными для удаления курса
-     *
+     * @param request - gRPC-запрос с данными для удаления курса
      * @return - пустой gRPC-ответ
      */
     public DeleteCourseResponse deleteCourse(DeleteCourseRequest request) {
         try {
             return courseServiceBlockingStub.deleteCourse(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -99,14 +102,14 @@ public class CourseServiceCourseGrpcClient {
     /**
      * Отправляет в course-service gRPC-запрос для получения всех курсов
      *
-     * @param request
-     *         - gRPC-запрос с данными для получения курсов
-     *
+     * @param request - gRPC-запрос с данными для получения курсов
      * @return - gRPC-ответ с курсами
      */
     public AllCoursesResponse getAllCourses(GrpcPageRequest request) {
         try {
             return courseServiceBlockingStub.getAllCourses(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -121,6 +124,8 @@ public class CourseServiceCourseGrpcClient {
     public AllCoursesResponse getAllActiveCourses(GrpcPageRequest request) {
         try {
             return courseServiceBlockingStub.getAllActiveCourses(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -135,6 +140,8 @@ public class CourseServiceCourseGrpcClient {
     public AllActiveCoursesResponse getAllActiveCoursesPreview(GetAllActiveCoursesPreviewRequest request) {
         try {
             return courseServiceBlockingStub.getAllActiveCoursesPreview(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(

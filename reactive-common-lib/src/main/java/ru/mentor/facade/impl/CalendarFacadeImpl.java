@@ -111,9 +111,9 @@ public class CalendarFacadeImpl implements CalendarFacade {
             String requestId) {
 
         return Mono.zip(
-                Mono.just(timeSlotMapper.entityToGrpcResponse(timeSlotEntity, requestId)),
+                Mono.just(timeSlotMapper.toTimeSlotResponse(timeSlotEntity, requestId)),
                 userRepository.findAllSlotParticipantsBySlotId(timeSlotEntity.getId())
-                              .map(userMapper::mapUserEntityToUserInfo)
+                              .map(userMapper::userEntityToUserInfo)
                               .collectList(),
                 timeSlotMapper::mentorTimeSlotEntityToMentorSlotInfo
         );

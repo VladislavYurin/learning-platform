@@ -30,12 +30,16 @@ class AdminModuleServiceServerTest {
 
     @Spy
     private BaseMapper baseMapper = new BaseMapper();
+
     @Mock
     private ModuleRepository moduleRepository;
+
     @Spy
-    private AdminModuleMapper moduleMapper = new AdminModuleMapper();
+    private AdminModuleMapper moduleMapper;
+
     @Mock
     private ModuleFacade moduleFacade;
+
     @InjectMocks
     private AdminModuleServiceServer moduleServiceServer;
 

@@ -1,15 +1,10 @@
 package ru.mentor.facade.impl;
 
-import java.util.List;
-import java.util.function.Function;
-import java.util.Arrays;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -26,10 +21,11 @@ import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.mapper.AdminCourseMapper;
-import ru.mentor.mapper.AdminModuleMapper;
+import ru.mentor.mapper.AdminModuleMapperImpl;
 import ru.mentor.mapper.BaseMapper;
-import ru.mentor.mapper.TagMapper;
-import ru.mentor.mapper.UserMapper;
+import ru.mentor.mapper.TagMapperImpl;
+import ru.mentor.mapper.UserMapperImpl;
+import ru.mentor.mapper.UtilMapperImpl;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.CourseTagLinkRepository;
 import ru.mentor.repository.CourseTagRepository;
@@ -40,61 +36,47 @@ import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 import ru.mentor.util.CourseAccessResolver;
 
-@ExtendWith(MockitoExtension.class)
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+
+@SpringBootTest(classes = {
+        AdminCourseMapper.class,
+        AdminModuleMapperImpl.class,
+        BaseMapper.class,
+        CourseFacadeImpl.class,
+        TagMapperImpl.class,
+        UserMapperImpl.class,
+        UtilMapperImpl.class
+})
 class CourseFacadeImplTest {
 
-    @Mock
+    @MockBean
     private CourseRepository courseRepository;
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
 
-    @Mock
+    @MockBean
     private CourseTagRepository courseTagRepository;
 
-    @Mock
+    @MockBean
     private CourseTagLinkRepository courseTagLinkRepository;
 
-    @Mock
+    @MockBean
     private ModuleRepository moduleRepository;
 
-    @Mock
+    @MockBean
     private CourseAccessResolver courseAccessResolver;
 
-    @Spy
-    private final UserMapper userMapper = new UserMapper();
+    @Autowired
+    AdminCourseMapper adminCourseMapper;
 
-    @Spy
-    private final TagMapper tagMapper = new TagMapper();
-
-    @Spy
-    private final BaseMapper baseMapper = new BaseMapper();
-
-    @Spy
-    private final AdminModuleMapper moduleMapper = new AdminModuleMapper();
-
-    @Spy
-    private AdminCourseMapper courseMapper = new AdminCourseMapper(userMapper, tagMapper, moduleMapper);
-
-    @Mock
+    @MockBean
     private CacheAdapter<String, List<CourseResponse>> cache;
 
+    @Autowired
     private CourseFacadeImpl courseFacade;
-
-    @BeforeEach
-    void setUp() {
-        AdminCourseMapper courseMapper = new AdminCourseMapper(userMapper, tagMapper, moduleMapper);
-
-        courseFacade = new CourseFacadeImpl(courseRepository,
-                                            userRepository,
-                                            courseTagRepository,
-                                            moduleRepository,
-                                            courseMapper,
-                                            baseMapper,
-                                            courseTagLinkRepository,
-                                            courseAccessResolver,
-                                            cache);
-    }
 
     @Test
     public void findCourseWithAuthor_success_returnCourseResponse() {
@@ -107,14 +89,14 @@ class CourseFacadeImplTest {
         moduleEntity.setId(TestConstantHolder.MODULE_ID);
 
         Mockito.when(courseRepository.findByIdOrThrow(TestConstantHolder.COURSE_ID))
-                       .thenReturn(Mono.just(courseEntityStub));
+                .thenReturn(Mono.just(courseEntityStub));
         Mockito.when(userRepository.findByIdOrThrow(TestConstantHolder.COURSE_AUTHOR_ID))
-                       .thenReturn(Mono.just(userEntityStub));
+                .thenReturn(Mono.just(userEntityStub));
         Mockito.when(courseTagRepository.findAllByCourseId(TestConstantHolder.COURSE_ID))
-                       .thenReturn(Flux.fromIterable(
-                               TestEntityStubGenerator.constructCourseTagEntityList(4)));
+                .thenReturn(Flux.fromIterable(
+                        TestEntityStubGenerator.constructCourseTagEntityList(4)));
         Mockito.when(moduleRepository.findAllByCourseId(TestConstantHolder.COURSE_ID))
-                       .thenReturn(Flux.just(moduleEntity));
+                .thenReturn(Flux.just(moduleEntity));
 
         StepVerifier.create(courseFacade.findCourseById(TestConstantHolder.COURSE_ID))
                 .expectNext(expectedCourseResponse)
@@ -136,16 +118,18 @@ class CourseFacadeImplTest {
                 TestGrpcStubGenerator.constructAllCoursesResponse();
 
         Mockito.when(courseAccessResolver.resolveCoursesForUser(authorStub))
-               .thenReturn(Flux.just(courseEntity));
+                .thenReturn(Flux.just(courseEntity));
+        Mockito.when(courseRepository.findAllByAuthorId(TestConstantHolder.COURSE_AUTHOR_ID))
+                       .thenReturn(Flux.just(courseEntity));
         Mockito.when(courseRepository.count())
-                       .thenReturn(Mono.just(1L));
+                .thenReturn(Mono.just(1L));
         Mockito.when(userRepository.findByIdOrThrow(TestConstantHolder.COURSE_AUTHOR_ID))
                 .thenReturn(Mono.just(authorStub));
         Mockito.when(courseTagRepository.findAllByCourseId(TestConstantHolder.COURSE_ID))
-               .thenReturn(Flux.fromIterable(
-                       TestEntityStubGenerator.constructCourseTagEntityList(4)));
+                .thenReturn(Flux.fromIterable(
+                        TestEntityStubGenerator.constructCourseTagEntityList(4)));
         Mockito.when(moduleRepository.findAllByCourseId(TestConstantHolder.COURSE_ID))
-               .thenReturn(Flux.just(moduleEntity));
+                .thenReturn(Flux.just(moduleEntity));
 
         StepVerifier.create(courseFacade.findAllCourses(pageRequestStub))
                 .expectNext(expectedResult)
@@ -271,22 +255,22 @@ class CourseFacadeImplTest {
         List<CourseEntity> allCourses = Arrays.asList(activeCourse, inactiveCourse);
 
         Mockito.when(courseAccessResolver.resolveCoursesForUser(user))
-               .thenReturn(Flux.fromIterable(allCourses));
+                .thenReturn(Flux.fromIterable(allCourses));
         Mockito.when(userRepository.findByIdOrThrow(user.getId()))
-               .thenReturn(Mono.just(user));
+                .thenReturn(Mono.just(user));
         Mockito.when(courseTagRepository.findAllByCourseId(TestConstantHolder.COURSE_ID))
-               .thenReturn(Flux.fromIterable(
-                       TestEntityStubGenerator.constructCourseTagEntityList(4)));
+                .thenReturn(Flux.fromIterable(
+                        TestEntityStubGenerator.constructCourseTagEntityList(4)));
         Mockito.when(moduleRepository.findAllByCourseId(TestConstantHolder.COURSE_ID))
-               .thenReturn(Flux.just(moduleEntity));
+                .thenReturn(Flux.just(moduleEntity));
 
         Mockito.when(courseRepository.count()).thenReturn(Mono.just(1L));
 
         AllCoursesResponse expected = TestGrpcStubGenerator.constructAllCoursesResponse();
 
         StepVerifier.create(courseFacade.findAllActiveCourses(pageRequestStub))
-                    .expectNext(expected)
-                    .verifyComplete();
+                .expectNext(expected)
+                .verifyComplete();
 
         Mockito.verify(moduleRepository, Mockito.never()).findAllByCourseId(inactiveCourse.getId());
         Mockito.verify(courseTagRepository, Mockito.never()).findAllByCourseId(inactiveCourse.getId());

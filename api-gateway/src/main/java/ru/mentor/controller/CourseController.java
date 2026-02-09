@@ -6,7 +6,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +52,7 @@ public class CourseController {
     )
     @PostMapping("/create")
     @PreAuthorize("hasRole('MENTOR')")
-    public ResponseEntity<CourseDto> createCourse(@RequestBody CreateCourseRequest request) {
+    public ResponseEntity<CourseDto> createCourse(@Valid @RequestBody CreateCourseRequest request) {
         return ResponseEntity.ok(redirectCourseService.createCourse(request));
     }
 
@@ -64,7 +67,7 @@ public class CourseController {
             }
     )
     @DeleteMapping("/{courseId}")
-    @PreAuthorize("hasRole('MENTOR')")
+    @PreAuthorize("hasRole('MENTOR') or hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long courseId) {
         redirectCourseService.deleteCourse(courseId);
         return ResponseEntity.noContent().build();
@@ -95,8 +98,8 @@ public class CourseController {
             }
     )
     @GetMapping("/all/active")
-    public ResponseEntity<Page<CourseDto>> getAllActiveCourses(@RequestParam (defaultValue = "0") int pageNumber,
-                                                               @RequestParam (defaultValue = "10") int pageSize) {
+    public ResponseEntity<Page<CourseDto>> getAllActiveCourses(@RequestParam(defaultValue = "0") int pageNumber,
+                                                               @RequestParam(defaultValue = "10") int pageSize) {
         return ResponseEntity.ok().body(redirectCourseService.getAllActiveCourses(pageNumber, pageSize));
     }
 
@@ -111,7 +114,7 @@ public class CourseController {
     )
     @GetMapping("/all")
     public ResponseEntity<Page<CourseDto>> getAllCourses(@RequestParam(defaultValue = "0") int pageNumber,
-                                                         @RequestParam (defaultValue = "10") int pageSize) {
+                                                         @RequestParam(defaultValue = "10") int pageSize) {
         return ResponseEntity.ok().body(redirectCourseService.getAllCourses(pageNumber, pageSize));
     }
 

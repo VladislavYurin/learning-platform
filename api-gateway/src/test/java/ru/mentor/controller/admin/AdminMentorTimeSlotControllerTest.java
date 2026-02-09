@@ -46,14 +46,14 @@ class AdminMentorTimeSlotControllerTest {
                ))
                .thenReturn(new PageImpl<>(
                        List.of(dto),
-                       PageRequest.of(TestConstantHolder.pageNumber, TestConstantHolder.pageSize),
+                       PageRequest.of(TestConstantHolder.zero, TestConstantHolder.pageSize),
                        TestConstantHolder.totalElementsCount
                ));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/slot/all")
                                               .param(
                                                       "pageNumber",
-                                                      String.valueOf(TestConstantHolder.pageNumber)
+                                                      String.valueOf(TestConstantHolder.zero)
                                               )
                                               .param(
                                                       "pageSize",

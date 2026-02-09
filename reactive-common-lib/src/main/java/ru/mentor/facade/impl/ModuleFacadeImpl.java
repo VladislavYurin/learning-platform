@@ -81,7 +81,7 @@ public class ModuleFacadeImpl implements ModuleFacade {
      */
     @Override
     public Mono<ModuleResponse> createModule(CreateModuleGrpcRequest request) {
-        ModuleEntity newModule = moduleMapper.mapCreateModuleGrpcRequestToModuleEntity(request);
+        ModuleEntity newModule = moduleMapper.createModuleGrpcRequestToModuleEntity(request);
 
         return moduleRepository.save(newModule)
                                .map(moduleMapper::mapModuleEntityToModuleResponse);

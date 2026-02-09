@@ -18,7 +18,7 @@ import ru.mentor.service.ModuleService;
 import ru.mentor.util.AccessChecker;
 
 /**
- * Сервис для управления модулями курса
+ * Сервис для управления модулями курса.
  * Предоставляет методы для создания, удаления и получения модулей,
  * а также управляет доступом к ним в соответствии с ролями пользователей.
  */
@@ -45,20 +45,20 @@ public class ModuleServiceImpl implements ModuleService {
                     if (hasAccess) {
                         return moduleFacade
                                 .findModuleResponseByCourseIdAndModuleOrderNum(
-                                    request.getCourseId(),
-                                    request.getModuleOrderNumber());
+                                        request.getCourseId(),
+                                        request.getModuleOrderNumber());
                     } else {
                         return Mono.error(
-                            Status.PERMISSION_DENIED
-                                .withDescription(
-                                    String.format(
-                                        "Юзер с [ ID = %d ] не имеет доступа к модулю "
-                                        + "[ num = %d ] курса [ ID = %d ]"
-                                        + "или такого модуля не существует",
-                                        request.getSenderId(),
-                                        request.getModuleOrderNumber(),
-                                        request.getCourseId()
-                                    )).asRuntimeException());
+                                Status.PERMISSION_DENIED
+                                        .withDescription(
+                                                String.format(
+                                                        "Юзер с [ ID = %d ] не имеет доступа к модулю "
+                                                                + "[ num = %d ] курса [ ID = %d ]"
+                                                                + "или такого модуля не существует",
+                                                        request.getSenderId(),
+                                                        request.getModuleOrderNumber(),
+                                                        request.getCourseId()
+                                                )).asRuntimeException());
                     }
                 });
     }
@@ -73,41 +73,41 @@ public class ModuleServiceImpl implements ModuleService {
     @Transactional
     public Mono<ModuleResponse> createModule(CreateModuleGrpcRequest request) {
         return accessChecker
-            .isCourseAuthor(request.getSenderId(), request.getCourseId())
-            .flatMap(isAuthor -> {
-                if (isAuthor) {
-                    return moduleRepository
-                            .existsByCourseIdAndModuleOrderNumber(
-                                    request.getCourseId(),
-                                    request.getOrderNumber()
-                            )
-                            .flatMap(exists -> {
-                                if (!exists)
-                                    return moduleFacade.createModule(request);
-                                else {
-                                    return Mono.error(
-                                            Status.ALREADY_EXISTS
-                                                    .withDescription(String.format(
-                                                                             "Модуль с [num = %d ] уже есть"
-                                                                                     + " в курсе [ ID = %d ]",
-                                                                             request.getOrderNumber(),
-                                                                             request.getCourseId())
-                                                    ).asRuntimeException());
-                                }
-                            });
-                } else {
-                    return Mono.error(
-                            Status.PERMISSION_DENIED
-                                    .withDescription(String.format(
-                                            "Юзер с [ ID = %d ] не имеет доступа к модулю с"
-                                                    + "[ num = %d ] курса [ ID = %d ] ",
-                                            request.getSenderId(),
-                                            request.getOrderNumber(),
-                                            request.getCourseId()
-                                    )).asRuntimeException()
-                    );
-                }
-            });
+                .isCourseAuthor(request.getSenderId(), request.getCourseId())
+                .flatMap(isAuthor -> {
+                    if (isAuthor) {
+                        return moduleRepository
+                                .existsByCourseIdAndModuleOrderNumber(
+                                        request.getCourseId(),
+                                        request.getOrderNumber()
+                                )
+                                .flatMap(exists -> {
+                                    if (!exists)
+                                        return moduleFacade.createModule(request);
+                                    else {
+                                        return Mono.error(
+                                                Status.ALREADY_EXISTS
+                                                        .withDescription(String.format(
+                                                                "Модуль с [num = %d ] уже есть"
+                                                                        + " в курсе [ ID = %d ]",
+                                                                request.getOrderNumber(),
+                                                                request.getCourseId())
+                                                        ).asRuntimeException());
+                                    }
+                                });
+                    } else {
+                        return Mono.error(
+                                Status.PERMISSION_DENIED
+                                        .withDescription(String.format(
+                                                "Юзер с [ ID = %d ] не имеет доступа к модулю с"
+                                                        + "[ num = %d ] курса [ ID = %d ] ",
+                                                request.getSenderId(),
+                                                request.getOrderNumber(),
+                                                request.getCourseId()
+                                        )).asRuntimeException()
+                        );
+                    }
+                });
     }
 
     /**
@@ -157,22 +157,22 @@ public class ModuleServiceImpl implements ModuleService {
                 .flatMap(isAuthor -> {
                     if (isAuthor) {
                         return moduleRepository.existsByCourseIdAndModuleOrderNumber(
-                                                       request.getCourseId(), request.getOrderNumber())
-                                               .flatMap(exists -> {
-                                                   if (!exists) {
-                                                       return moduleFacade.importModuleFromFile(
-                                                               request);
-                                                   } else {
-                                                       return Mono.error(
-                                                               Status.ALREADY_EXISTS
-                                                                       .withDescription(String.format(
-                                                                               "Модуль с [num = %d ] уже есть"
-                                                                                       + " в курсе [ ID = %d ]",
-                                                                               request.getOrderNumber(),
-                                                                               request.getCourseId()
-                                                                       )).asRuntimeException());
-                                                   }
-                                               });
+                                        request.getCourseId(), request.getOrderNumber())
+                                .flatMap(exists -> {
+                                    if (!exists) {
+                                        return moduleFacade.importModuleFromFile(
+                                                request);
+                                    } else {
+                                        return Mono.error(
+                                                Status.ALREADY_EXISTS
+                                                        .withDescription(String.format(
+                                                                "Модуль с [num = %d ] уже есть"
+                                                                        + " в курсе [ ID = %d ]",
+                                                                request.getOrderNumber(),
+                                                                request.getCourseId()
+                                                        )).asRuntimeException());
+                                    }
+                                });
                     } else {
                         return Mono.error(
                                 Status.PERMISSION_DENIED

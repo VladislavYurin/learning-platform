@@ -48,13 +48,13 @@ class RedirectModuleServiceImplTest {
         ModuleResponse grpcResponse = TestGrpcStubGenerator.constructModuleResponse();
         ModuleDto dto = Mockito.mock(ModuleDto.class);
 
-        Mockito.when(moduleMapper.constructGrpcCreateRequest(
+        Mockito.when(moduleMapper.toCreateModuleGrpcRequest(
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TestConstantHolder.userId),
                         ArgumentMatchers.eq(createModuleRequest)
                 ))
                 .thenReturn(grpcRequest);
-        Mockito.when(moduleMapper.mapGrpcModuleResponseToModuleDto(grpcResponse))
+        Mockito.when(moduleMapper.moduleResponseToModuleDto(grpcResponse))
                 .thenReturn(dto);
         Mockito.when(moduleGrpcClient.createModule(ArgumentMatchers.eq(grpcRequest)))
                 .thenReturn(grpcResponse);
@@ -64,13 +64,13 @@ class RedirectModuleServiceImplTest {
         ModuleDto result = redirectModuleService.createModule(createModuleRequest);
 
         Assertions.assertThat(result).isEqualTo(dto);
-        Mockito.verify(moduleMapper).constructGrpcCreateRequest(
+        Mockito.verify(moduleMapper).toCreateModuleGrpcRequest(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(TestConstantHolder.userId),
                 ArgumentMatchers.eq(createModuleRequest)
         );
         Mockito.verify(moduleGrpcClient).createModule(ArgumentMatchers.any(CreateModuleGrpcRequest.class));
-        Mockito.verify(moduleMapper).mapGrpcModuleResponseToModuleDto(grpcResponse);
+        Mockito.verify(moduleMapper).moduleResponseToModuleDto(grpcResponse);
     }
 
     @Test
@@ -81,7 +81,7 @@ class RedirectModuleServiceImplTest {
         ModuleDto dto = Mockito.mock(ModuleDto.class);
         ModuleResponse grpcResponse = TestGrpcStubGenerator.constructModuleResponse();
 
-        Mockito.when(moduleMapper.constructGrpcImportFromFileRequest(
+        Mockito.when(moduleMapper.toImportModuleFromFileRequest(
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TestConstantHolder.userId),
                         ArgumentMatchers.eq(createModuleRequest),
@@ -90,7 +90,7 @@ class RedirectModuleServiceImplTest {
                 .thenReturn(grpcRequest);
         Mockito.when(moduleGrpcClient.importModuleFromMarkdown(ArgumentMatchers.eq(grpcRequest)))
                 .thenReturn(grpcResponse);
-        Mockito.when(moduleMapper.mapGrpcModuleResponseToModuleDto(grpcResponse))
+        Mockito.when(moduleMapper.moduleResponseToModuleDto(grpcResponse))
                 .thenReturn(dto);
         Mockito.when(userService.getCurrentUserId())
                 .thenReturn(TestConstantHolder.userId);
@@ -98,14 +98,14 @@ class RedirectModuleServiceImplTest {
         ModuleDto result = redirectModuleService.importModuleFromFile(createModuleRequest, file);
 
         Assertions.assertThat(result).isEqualTo(dto);
-        Mockito.verify(moduleMapper).constructGrpcImportFromFileRequest(
+        Mockito.verify(moduleMapper).toImportModuleFromFileRequest(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(TestConstantHolder.userId),
                 ArgumentMatchers.eq(createModuleRequest),
                 ArgumentMatchers.eq(file)
         );
         Mockito.verify(moduleGrpcClient).importModuleFromMarkdown(ArgumentMatchers.eq(grpcRequest));
-        Mockito.verify(moduleMapper).mapGrpcModuleResponseToModuleDto(grpcResponse);
+        Mockito.verify(moduleMapper).moduleResponseToModuleDto(grpcResponse);
     }
 
     @Test
@@ -116,20 +116,20 @@ class RedirectModuleServiceImplTest {
         ModuleDto dto = Mockito.mock(ModuleDto.class);
         ModuleResponse grpcResponse = TestGrpcStubGenerator.constructModuleResponse();
 
-        Mockito.when(moduleMapper.constructGrpcImportFromFileRequest(
+        Mockito.when(moduleMapper.toImportModuleFromFileRequest(
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TestConstantHolder.userId),
                         ArgumentMatchers.eq(createModuleRequest),
                         ArgumentMatchers.eq(file)
                 ))
-                .thenThrow(IOException.class);
+                .thenThrow(new RuntimeException("Ошибка чтения файла"));
         Mockito.when(userService.getCurrentUserId())
                 .thenReturn(TestConstantHolder.userId);
 
         Assertions.assertThatThrownBy(() -> redirectModuleService.importModuleFromFile(createModuleRequest, file))
                 .isInstanceOf(RuntimeException.class);
 
-        Mockito.verify(moduleMapper).constructGrpcImportFromFileRequest(
+        Mockito.verify(moduleMapper).toImportModuleFromFileRequest(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(TestConstantHolder.userId),
                 ArgumentMatchers.eq(createModuleRequest),
@@ -138,7 +138,7 @@ class RedirectModuleServiceImplTest {
         Mockito.verify(moduleGrpcClient, Mockito.times(0))
                 .importModuleFromMarkdown(ArgumentMatchers.eq(grpcRequest));
         Mockito.verify(moduleMapper, Mockito.times(0))
-                .mapGrpcModuleResponseToModuleDto(grpcResponse);
+                .moduleResponseToModuleDto(grpcResponse);
     }
 
     @Test
@@ -147,7 +147,7 @@ class RedirectModuleServiceImplTest {
         ModuleDto dto = Mockito.mock(ModuleDto.class);
         GetModuleRequest getModuleRequest = TestGrpcStubGenerator.constructGetModuleRequest();
 
-        Mockito.when(moduleMapper.constructGrpcGetRequest(
+        Mockito.when(moduleMapper.toGetModuleRequest(
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TestConstantHolder.userId),
                         ArgumentMatchers.eq(TestConstantHolder.courseId),
@@ -156,7 +156,7 @@ class RedirectModuleServiceImplTest {
                 .thenReturn(getModuleRequest);
         Mockito.when(moduleGrpcClient.getModule(ArgumentMatchers.eq(getModuleRequest)))
                 .thenReturn(grpcResponse);
-        Mockito.when(moduleMapper.mapGrpcModuleResponseToModuleDto(grpcResponse))
+        Mockito.when(moduleMapper.moduleResponseToModuleDto(grpcResponse))
                 .thenReturn(dto);
 
         Mockito.when(userService.getCurrentUserId())
@@ -166,21 +166,21 @@ class RedirectModuleServiceImplTest {
                 TestConstantHolder.courseId, TestConstantHolder.moduleOrderNumber);
 
         Assertions.assertThat(result).isEqualTo(dto);
-        Mockito.verify(moduleMapper).constructGrpcGetRequest(
+        Mockito.verify(moduleMapper).toGetModuleRequest(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(TestConstantHolder.userId),
                 ArgumentMatchers.eq(TestConstantHolder.courseId),
                 ArgumentMatchers.eq(TestConstantHolder.moduleOrderNumber)
         );
         Mockito.verify(moduleGrpcClient).getModule(ArgumentMatchers.eq(getModuleRequest));
-        Mockito.verify(moduleMapper).mapGrpcModuleResponseToModuleDto(grpcResponse);
+        Mockito.verify(moduleMapper).moduleResponseToModuleDto(grpcResponse);
     }
 
     @Test
     void getModuleByOrderNum_failure() {
         GetModuleRequest getModuleRequest = TestGrpcStubGenerator.constructGetModuleRequest();
 
-        Mockito.when(moduleMapper.constructGrpcGetRequest(
+        Mockito.when(moduleMapper.toGetModuleRequest(
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TestConstantHolder.userId),
                         ArgumentMatchers.eq(TestConstantHolder.courseId),
@@ -208,7 +208,7 @@ class RedirectModuleServiceImplTest {
     void deleteModule() {
         DeleteModuleRequest deleteModuleRequest = TestGrpcStubGenerator.constructDeleteModuleRequest();
 
-        Mockito.when(moduleMapper.constructGrpcDeleteRequest(
+        Mockito.when(moduleMapper.toDeleteModuleRequest(
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TestConstantHolder.userId),
                         ArgumentMatchers.eq(TestConstantHolder.courseId),
@@ -220,7 +220,7 @@ class RedirectModuleServiceImplTest {
 
         redirectModuleService.deleteModule(TestConstantHolder.courseId, TestConstantHolder.moduleOrderNumber);
 
-        Mockito.verify(moduleMapper).constructGrpcDeleteRequest(
+        Mockito.verify(moduleMapper).toDeleteModuleRequest(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(TestConstantHolder.userId),
                 ArgumentMatchers.eq(TestConstantHolder.courseId),

@@ -1,1277 +1,1334 @@
-type: collection.insomnia.rest/5.0
-name: Scratch Pad
-meta:
-  id: wrk_52771a8443794ddd9a54aa017d305d2f
-  created: 1767006545952
-  modified: 1767006545952
-  description: ""
-collection:
+info:
+  _postman_id: 53ae87bb-bf39-45db-a6b6-33b6ac61c5ad
+  name: Scratch Pad
+  schema: https://schema.getpostman.com/json/collection/v2.1.0/collection.json
+  _exporter_id: '34696280'
+item:
   - name: mentor
-    meta:
-      id: fld_5a59292707e04f87962fafbcb9b3d6c4
-      created: 1767006545954
-      modified: 1767006545954
-      sortKey: -1767006544816
-      description: ""
-    children:
+    item:
       - name: Learning Progress Managment
-        meta:
-          id: fld_71d31a248e2d4a2f9ee07a2020871367
-          created: 1767006545957
-          modified: 1767006545957
-          sortKey: -1767006544815
-          description: ""
-        children:
-          - url: localhost:8080/progress/course/1/users
-            name: get all users at course by mentor
-            meta:
-              id: req_89532b84e7854a2285b4fd2e5922f82a
-              created: 1767006545958
-              modified: 1767006545958
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544814
-            method: GET
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTcxODIwODYsImV4cCI6MTc1NzE4Mjk4Nn0.4yN6_J5J_Gv8nTTQSkxT_0pSNdDeOyLD6oAPaGZ0_gw
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTcxODIwODYsImV4cCI6MTc1NzE4Mjk4Nn0.4yN6_J5J_Gv8nTTQSkxT_0pSNdDeOyLD6oAPaGZ0_gw
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/progress/course/1/statistics
-            name: get course progress by mentor
-            meta:
-              id: req_6c7abe52352b4b59954baf88c65c1910
-              created: 1767006545960
-              modified: 1767006545960
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544813
-            method: GET
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwNDQ5MzgsImV4cCI6MTc1NDA0NTgzOH0.mqf4tECY26pz8tqXraiz-EgC9fn8UiEvQ2iXdlZSpRs
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwNDQ5MzgsImV4cCI6MTc1NDA0NTgzOH0.mqf4tECY26pz8tqXraiz-EgC9fn8UiEvQ2iXdlZSpRs
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
+        item:
+          - name: get all users at course by mentor
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTcxODIwODYsImV4cCI6MTc1NzE4Mjk4Nn0.4yN6_J5J_Gv8nTTQSkxT_0pSNdDeOyLD6oAPaGZ0_gw
+              url:
+                raw: localhost:8080/progress/course/1/users
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - progress
+                  - course
+                  - '1'
+                  - users
+            response: []
+          - name: get course progress by mentor
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwNDQ5MzgsImV4cCI6MTc1NDA0NTgzOH0.mqf4tECY26pz8tqXraiz-EgC9fn8UiEvQ2iXdlZSpRs
+              url:
+                raw: localhost:8080/progress/course/1/statistics
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - progress
+                  - course
+                  - '1'
+                  - statistics
+            response: []
       - name: Course Managment
-        meta:
-          id: fld_5fefad152590410fba86cdfc642a1764
-          created: 1767006545961
-          modified: 1767006545961
-          sortKey: -1767006544812
-          description: ""
-        children:
-          - url: localhost:8080/course/create
-            name: create course
-            meta:
-              id: req_d88b1bdfd04e4a2b8b8cc6f085049713
-              created: 1767006545963
-              modified: 1767006545963
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544811
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"courseName": "Java-разработчик с 0 до оффера",
-                	"courseDescription": "Теория и практика для новичков"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo4LCJzdWIiOiJsYXNsbyIsImlhdCI6MTc1MzE3NzMyMCwiZXhwIjoxNzUzMzIxMzIwfQ.Y_S_TLpYCH2r9K4xluz09usGBZ5T8q7nt8HkWGDXafs
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo4LCJzdWIiOiJsYXNsbyIsImlhdCI6MTc1MzE3NzMyMCwiZXhwIjoxNzUzMzIxMzIwfQ.Y_S_TLpYCH2r9K4xluz09usGBZ5T8q7nt8HkWGDXafs
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/course/create
-            name: create course
-            meta:
-              id: req_bd51572f11e848de848a8d54e58b7b81
-              created: 1767006545964
-              modified: 1767006545964
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544810
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"courseName": "Java-разработчик с 2 до конца",
-                	"courseDescription": "Теория и практика для бывалых"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTM2NTksImV4cCI6MTc1OTc1NDU1OX0.QiR6lNOjhqkYMSFiGdUagVK2ksLKgKdT0-3RenCIIhc
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTM2NTksImV4cCI6MTc1OTc1NDU1OX0.QiR6lNOjhqkYMSFiGdUagVK2ksLKgKdT0-3RenCIIhc
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/course/create
-            name: create course with tags
-            meta:
-              id: req_80db495ed21a46e280303003136c1644
-              created: 1767006545966
-              modified: 1767006545966
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544809
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                  "courseName": "Java-разработчик с 0 до оффера",
-                  "courseDescription": "Теория и практика для новичков",
-                  "tagIds": [1, 2, 3, 4, 5]
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
-            authentication:
-              type: bearer
-              disabled: false
-              token: ""
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/course/1
-            name: get course by id
-            meta:
-              id: req_88e6f30bd8a848e9a5d6a5b34dad36a4
-              created: 1767006545967
-              modified: 1767006545967
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544808
-            method: GET
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4Mzk4NjAsImV4cCI6MTc1OTg0MDc2MH0.5N7bes6LyU3SWwFJteZDCC7QVydNcRNxHiiZKlvhjX4
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4Mzk4NjAsImV4cCI6MTc1OTg0MDc2MH0.5N7bes6LyU3SWwFJteZDCC7QVydNcRNxHiiZKlvhjX4
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/course/1
-            name: delete course by id
-            meta:
-              id: req_77d8aa163d3f46c7b6ac2996f44addfc
-              created: 1767006545968
-              modified: 1767006545968
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544807
-            method: DELETE
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4Mzk4NjAsImV4cCI6MTc1OTg0MDc2MH0.5N7bes6LyU3SWwFJteZDCC7QVydNcRNxHiiZKlvhjX4
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4Mzk4NjAsImV4cCI6MTc1OTg0MDc2MH0.5N7bes6LyU3SWwFJteZDCC7QVydNcRNxHiiZKlvhjX4
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/course/49
-            name: delete course by id
-            meta:
-              id: req_e2fc8878b9d74922a0ff7d971ed70520
-              created: 1767006545972
-              modified: 1767006545972
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544806
-            method: DELETE
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.1
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/course/all
-            name: get all courses
-            meta:
-              id: req_c50eac31ed8f447587c92910f0ebab09
-              created: 1767006545973
-              modified: 1767006545973
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544805
-            method: GET
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwMzcwODYsImV4cCI6MTc1NDAzNzk4Nn0.csYnXQ-BuEdDbVAN2U3GzQelUMOxPOVVAhp0hOP5gps
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwMzcwODYsImV4cCI6MTc1NDAzNzk4Nn0.csYnXQ-BuEdDbVAN2U3GzQelUMOxPOVVAhp0hOP5gps
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/course/all/active
-            name: get all active courses
-            meta:
-              id: req_7ec05cf359154e3784834793570b26c7
-              created: 1767006545975
-              modified: 1767006545975
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544804
-            method: GET
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.1
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTk5Mzg5NjcsImV4cCI6MTc1OTkzOTg2N30.Wx0sFM2li5-bcJINIXB4hge8n9PVb2FcUs0HT6OjpyE
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTk5Mzg5NjcsImV4cCI6MTc1OTkzOTg2N30.Wx0sFM2li5-bcJINIXB4hge8n9PVb2FcUs0HT6OjpyE
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
+        item:
+          - name: create course
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo4LCJzdWIiOiJsYXNsbyIsImlhdCI6MTc1MzE3NzMyMCwiZXhwIjoxNzUzMzIxMzIwfQ.Y_S_TLpYCH2r9K4xluz09usGBZ5T8q7nt8HkWGDXafs
+              body:
+                mode: raw
+                raw: "{\n\t\"courseName\": \"Java-разработчик с 0 до оффера\",\n\t\"courseDescription\"\
+            : \"Теория и практика для новичков\"\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/course/create
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course
+                  - create
+            response: []
+          - name: create course allFieldComplit
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo4LCJzdWIiOiJsYXNsbyIsImlhdCI6MTc1MzE3NzMyMCwiZXhwIjoxNzUzMzIxMzIwfQ.Y_S_TLpYCH2r9K4xluz09usGBZ5T8q7nt8HkWGDXafs
+              body:
+                mode: raw
+                raw: "{\n    \"authorId\": 2,\n    \"courseName\": \"Java-разработчик с\
+            \ 0 до оффера\",\n    \"courseDescription\": \"Теория и практика для новичков\"\
+            ,\n    \"tagIds\": [1, 3, 23, 24]\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/course/create
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course
+                  - create
+            response: []
+          - name: create course
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTM2NTksImV4cCI6MTc1OTc1NDU1OX0.QiR6lNOjhqkYMSFiGdUagVK2ksLKgKdT0-3RenCIIhc
+              body:
+                mode: raw
+                raw: "{\n\t\"courseName\": \"Java-разработчик с 2 до конца\",\n\t\"courseDescription\"\
+            : \"Теория и практика для бывалых\"\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/course/create
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course
+                  - create
+            response: []
+          - name: create course with tags
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
+              body:
+                mode: raw
+                raw: "{\n  \"courseName\": \"Java-разработчик с 0 до оффера\",\n  \"courseDescription\"\
+            : \"Теория и практика для новичков\",\n  \"tagIds\": [1, 2, 3, 4, 5]\n\
+            }"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/course/create
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course
+                  - create
+            response: []
+          - name: get course by id
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4Mzk4NjAsImV4cCI6MTc1OTg0MDc2MH0.5N7bes6LyU3SWwFJteZDCC7QVydNcRNxHiiZKlvhjX4
+              url:
+                raw: localhost:8080/course/1
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course
+                  - '1'
+            response: []
+          - name: delete course by id
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: DELETE
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4Mzk4NjAsImV4cCI6MTc1OTg0MDc2MH0.5N7bes6LyU3SWwFJteZDCC7QVydNcRNxHiiZKlvhjX4
+              url:
+                raw: localhost:8080/course/1
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course
+                  - '1'
+            response: []
+          - name: delete course by id
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: DELETE
+              header:
+                - key: User-Agent
+                  value: insomnia/11.6.1
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5Mzg3MDEsImV4cCI6MTc1OTkzOTYwMX0.7Z8IFqNSQEnAU01DcpmfnjoeY3OZ-TLgf43vxtdO9CA
+              url:
+                raw: localhost:8080/course/49
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course
+                  - '49'
+            response: []
+          - name: get all courses
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTQwMzcwODYsImV4cCI6MTc1NDAzNzk4Nn0.csYnXQ-BuEdDbVAN2U3GzQelUMOxPOVVAhp0hOP5gps
+              url:
+                raw: localhost:8080/course/all
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course
+                  - all
+            response: []
+          - name: get all active courses
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: User-Agent
+                  value: insomnia/11.6.1
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTk5Mzg5NjcsImV4cCI6MTc1OTkzOTg2N30.Wx0sFM2li5-bcJINIXB4hge8n9PVb2FcUs0HT6OjpyE
+              url:
+                raw: localhost:8080/course/all/active
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course
+                  - all
+                  - active
+            response: []
       - name: User Managment
-        meta:
-          id: fld_f4ef2712b88c400fa3c58334ade4fd06
-          created: 1767006545976
-          modified: 1767006545976
-          sortKey: -1767006544803
-          description: ""
-        children:
-          - url: localhost:8080/user/mentor/register
-            name: assignMentorRole
-            meta:
-              id: req_b3041adf7cd14c588569e80f9c94bfae
-              created: 1767006545978
-              modified: 1767006545978
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544802
-            method: POST
-            authentication:
-              type: bearer
-              disabled: false
-              token: "{{accessToken}}"
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/user/1
-            name: get user info by userId
-            meta:
-              id: req_daf1ef61efc24943bdd18cc7536bea27
-              created: 1767006545980
-              modified: 1767006545980
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544801
-            method: GET
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTYzODIwMTcsImV4cCI6MTc1NjM4MjkxN30.kHfpAvnYDFsZTmazgKg56WvPkzx5YdACuNM-vHPGvcg
-            authentication:
-              type: bearer
-              disabled: false
-              token: "{{accessToken}}"
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/user/me
-            name: get my info
-            meta:
-              id: req_a462760b9fcf4e3e9d36cbb137f908a3
-              created: 1767006545981
-              modified: 1767006545981
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544800
-            method: GET
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
-            authentication:
-              type: bearer
-              disabled: false
-              token: "{{accessToken}}"
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/admin/user/1
-            name: get user info by id for ADMIN
-            meta:
-              id: req_cf51aca574b74c2380158cd727fec773
-              created: 1767006545983
-              modified: 1767006545983
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544799
-            method: GET
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.2
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/admin/user/me
-            name: my user info for ADMIN
-            meta:
-              id: req_820e24e71a8c4e86b9a72e17092b8621
-              created: 1767006545984
-              modified: 1767006545984
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544798
-            method: GET
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.2
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/user/me
-            name: update my info
-            meta:
-              id: req_aa46520c459349be82827048513e2243
-              created: 1767006545987
-              modified: 1767006545987
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544797
-            method: PUT
-            body:
-              mimeType: application/json
-              text: "{\r
-
-                \    \"id\": 3,\r
-
-                \    \"username\": \"pipa@popa.ru\",\r
-
-                \    \"role\": \"USER\",\r
-
-                \    \"firstName\": \"Попов\",\r
-
-                \    \"lastName\": \"Пипа\",\r
-
-                \    \"tgNickname\": \"@vladislavyurin\",\r
-
-                \    \"tgChatId\": null\r
-
-                }"
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: "{{accessToken}}"
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-      - name: Admin Module Managment
-        meta:
-          id: fld_c0b08b1dcf9b46578937f59fe82ca949
-          created: 1767006545989
-          modified: 1767006545989
-          sortKey: -1767006544796
-          description: ""
-        children:
-          - url: localhost:8080/admin/module/1
-            name: get module by id for ADMIN
-            meta:
-              id: req_f3f02f2c0b3b48519e4eba3b39146291
-              created: 1767006545990
-              modified: 1767006545990
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544795
-            method: GET
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.2
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/admin/module/all-by-course-id/1
-            name: get all modules by course id for ADMIN
-            meta:
-              id: req_9b062b1b0a7b44cda4ba430d10691e41
-              created: 1767006545992
-              modified: 1767006545992
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544794
-            method: GET
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.2
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
+        item:
+          - name: assignMentorRole
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header: []
+              url:
+                raw: localhost:8080/user/mentor/register
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - user
+                  - mentor
+                  - register
+            response: []
+          - name: get user info by userId
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTYzODIwMTcsImV4cCI6MTc1NjM4MjkxN30.kHfpAvnYDFsZTmazgKg56WvPkzx5YdACuNM-vHPGvcg
+              url:
+                raw: localhost:8080/user/1
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - user
+                  - '1'
+            response: []
+          - name: get my info
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
+              url:
+                raw: localhost:8080/user/me
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - user
+                  - me
+            response: []
+          - name: update my info ADMIN
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: PUT
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
+                - key: Content-Type
+                  value: application/json
+              body:
+                mode: raw
+                raw: "{\r\n    \"id\": 1,\r\n    \"username\": \"admin@example.com\",\r\n\
+            \    \"role\": \"ADMIN\",\r\n    \"firstName\": \"Админов\",\r\n    \"\
+            lastName\": \"Админ\",\r\n    \"tgNickname\": \"@tg\",\r\n    \"tgChatId\"\
+            : null\r\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/user/me
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - user
+                  - me
+            response: []
+          - name: update my info MENTOR
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: PUT
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
+                - key: Content-Type
+                  value: application/json
+              body:
+                mode: raw
+                raw: "{\r\n    \"id\": 2,\r\n    \"username\": \"mentor@gmail.com\",\r\n\
+            \    \"role\": \"MENTOR\",\r\n    \"firstName\": \"Влад\",\r\n    \"lastName\"\
+            : \"Юрин\",\r\n    \"tgNickname\": \"@vladislavyurin\",\r\n    \"tgChatId\"\
+            : 12345\r\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/user/me
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - user
+                  - me
+            response: []
+          - name: update my info USER
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: PUT
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
+                - key: Content-Type
+                  value: application/json
+              body:
+                mode: raw
+                raw: "{\r\n    \"id\": 3,\r\n    \"username\": \"pipa@popa.ru\",\r\n   \
+            \ \"role\": \"USER\",\r\n    \"firstName\": \"Попов\",\r\n    \"lastName\"\
+            : \"Пипа\",\r\n    \"tgNickname\": \"@vladislavyurin\",\r\n    \"tgChatId\"\
+            : null\r\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/user/me
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - user
+                  - me
+            response: []
       - name: Slot Managment
-        meta:
-          id: fld_0b7a2b534cc6471e8c28bec0aa17b440
-          created: 1767006545994
-          modified: 1767006545994
-          sortKey: -1767006544793
-          description: ""
-        children:
-          - url: localhost:8080/slot/create
-            name: create slot
-            meta:
-              id: req_21034ab140ed415a9cfe66d375ee8553
-              created: 1767006545996
-              modified: 1767006545996
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544792
-            method: POST
-            body:
-              mimeType: application/json
-              text: "{\r
-
-                \  \"startTime\": \"2025-12-29T10:47:24.784Z\",\r
-
-                \  \"endTime\": \"2025-12-29T10:47:24.784Z\",\r
-
-                \  \"slotType\": \"INDIVIDUAL\",\r
-
-                \  \"slotMeetingType\": \"ACQUAINTANCE\",\r
-
-                \  \"maxParticipants\": 50,\r
-
-                \  \"meetingLink\": \"string\",\r
-
-                \  \"description\": \"string\"\r
-
-                }"
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: "{{accessToken}}"
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/slot/book
-            name: book slot
-            meta:
-              id: req_01357431fb44483faf1e99969baaf099
-              created: 1767006545997
-              modified: 1767006545997
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544791
-            method: POST
-            parameters:
-              - name: timeSlotId
-                value: "3"
-                disabled: false
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjozLCJzdWIiOiJwaXBhQHBvcGEucnUiLCJpYXQiOjE3NTk5MjQ0MDIsImV4cCI6MTc1OTkyNTMwMn0.VxVKrZ40Ln-Rg2HZnS-HYIh_XCTnNgQn3CXNc1KfJHE
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjozLCJzdWIiOiJwaXBhQHBvcGEucnUiLCJpYXQiOjE3NTk5MjQ0MDIsImV4cCI6MTc1OTkyNTMwMn0.VxVKrZ40Ln-Rg2HZnS-HYIh_XCTnNgQn3CXNc1KfJHE
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/slot
-            name: get mentor slots
-            meta:
-              id: req_e7969cf6842e4d07aff1c855bca2df45
-              created: 1767006545997
-              modified: 1767006545997
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544790
-            method: GET
-            parameters:
-              - name: mentorId
-                value: "2"
-                disabled: false
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjozLCJzdWIiOiJwaXBhQHBvcGEucnUiLCJpYXQiOjE3NTk3NjgwNTIsImV4cCI6MTc1OTc2ODk1Mn0.6mJiX6sAHF_-tF4efP7E7Eo1VALQBOhn6hD7SKmCJFw
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjozLCJzdWIiOiJwaXBhQHBvcGEucnUiLCJpYXQiOjE3NTk3NjgwNTIsImV4cCI6MTc1OTc2ODk1Mn0.6mJiX6sAHF_-tF4efP7E7Eo1VALQBOhn6hD7SKmCJFw
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/slot/my
-            name: get my slots
-            meta:
-              id: req_38fc7876d27245f08ca9322380e52bc7
-              created: 1767006545998
-              modified: 1767006545998
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544789
-            method: GET
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3Njc4NTQsImV4cCI6MTc1OTc2ODc1NH0.zU3uGVnHKl1R5OcTCx2rW-vRfJRQu25xEZWo85uQQVw
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3Njc4NTQsImV4cCI6MTc1OTc2ODc1NH0.zU3uGVnHKl1R5OcTCx2rW-vRfJRQu25xEZWo85uQQVw
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-      - name: Access Managment
-        meta:
-          id: fld_e1baf7fe69df4fe0a2a164c2e3397728
-          created: 1767006545999
-          modified: 1767006545999
-          sortKey: -1767006544788
-          description: ""
-        children:
-          - url: localhost:8080/access/module/delete-access
-            name: revoke access to module by mentor
-            meta:
-              id: req_4aaf1763c7d148e58d4de1cd4c98e345
-              created: 1767006546000
-              modified: 1767006546000
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544786
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"userId": 3,
-                	"courseId": 1,
-                	"moduleId": 1
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTAwODAsImV4cCI6MTc1OTc1MDk4MH0.wDTiDl6ltfYl-jnmk9AyuC7nJKQX-qAVFXSQzdbVyBo
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTAwODAsImV4cCI6MTc1OTc1MDk4MH0.wDTiDl6ltfYl-jnmk9AyuC7nJKQX-qAVFXSQzdbVyBo
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/access/module/get-access
-            name: give access to module by mentor
-            meta:
-              id: req_6ce6080601bc4f72b2553ab210c6decc
-              created: 1767006546000
-              modified: 1767006546000
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544787
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"userId": 3,
-                	"courseId": 1,
-                	"moduleId": 1
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTAwODAsImV4cCI6MTc1OTc1MDk4MH0.wDTiDl6ltfYl-jnmk9AyuC7nJKQX-qAVFXSQzdbVyBo
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTAwODAsImV4cCI6MTc1OTc1MDk4MH0.wDTiDl6ltfYl-jnmk9AyuC7nJKQX-qAVFXSQzdbVyBo
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/access/course/get-access
-            name: give access to course by mentor
-            meta:
-              id: req_6ebcbf61cef34975bfae744b835ded8f
-              created: 1767006546001
-              modified: 1767006546001
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544785
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"userId": 8,
-                	"courseId": 2,
-                	"moduleId": null
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5MjQyMjgsImV4cCI6MTc1OTkyNTEyOH0.aVRuo33OUBweH2G_Y3wPOYhnOJXyCmMzzdf5Hp1JMAA
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5MjQyMjgsImV4cCI6MTc1OTkyNTEyOH0.aVRuo33OUBweH2G_Y3wPOYhnOJXyCmMzzdf5Hp1JMAA
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/access/course/delete-access
-            name: revoke access to course by mentor
-            meta:
-              id: req_415116c275cd4630ae80932d4444bc5f
-              created: 1767006546003
-              modified: 1767006546003
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544784
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"userId": 3,
-                	"courseId": 1,
-                	"moduleId": null
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NjQ0NzUsImV4cCI6MTc1OTc2NTM3NX0.PIMdzoOPHze4MV0skUPJdbbPAihRdwPGPdwH49f_l5o
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NjQ0NzUsImV4cCI6MTc1OTc2NTM3NX0.PIMdzoOPHze4MV0skUPJdbbPAihRdwPGPdwH49f_l5o
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
+        item:
+          - name: create slot 500error
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+              body:
+                mode: raw
+                raw: "{\r\n  \"startTime\": \"2025-12-29T10:47:24.784Z\",\r\n  \"endTime\"\
+            : \"2025-12-29T10:47:24.784Z\",\r\n  \"slotType\": \"INDIVIDUAL\",\r\n\
+            \  \"slotMeetingType\": \"ACQUAINTANCE\",\r\n  \"maxParticipants\": 50,\r\
+            \n  \"meetingLink\": \"string\",\r\n  \"description\": \"string\"\r\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/slot/create
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - slot
+                  - create
+            response: []
+          - name: create slot
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+              body:
+                mode: raw
+                raw: "{\r\n  \"startTime\": \"2025-12-29T10:00:00Z\",\r\n  \"endTime\":\
+            \ \"2025-12-29T11:00:00Z\",\r\n  \"slotType\": \"INDIVIDUAL\",\r\n  \"\
+            slotMeetingType\": \"ACQUAINTANCE\",\r\n  \"maxParticipants\": 1,\r\n\
+            \  \"meetingLink\": \"https://zoom.us/j/123456789\",\r\n  \"description\"\
+            : \"Пробное занятие\"\r\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/slot/create
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - slot
+                  - create
+            response: []
+          - name: book slot
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjozLCJzdWIiOiJwaXBhQHBvcGEucnUiLCJpYXQiOjE3NTk5MjQ0MDIsImV4cCI6MTc1OTkyNTMwMn0.VxVKrZ40Ln-Rg2HZnS-HYIh_XCTnNgQn3CXNc1KfJHE
+              url:
+                raw: localhost:8080/slot/book?timeSlotId=1
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - slot
+                  - book
+                query:
+                  - key: timeSlotId
+                    value: '1'
+            response: []
+          - name: get mentor slots
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjozLCJzdWIiOiJwaXBhQHBvcGEucnUiLCJpYXQiOjE3NTk3NjgwNTIsImV4cCI6MTc1OTc2ODk1Mn0.6mJiX6sAHF_-tF4efP7E7Eo1VALQBOhn6hD7SKmCJFw
+              url:
+                raw: localhost:8080/slot?mentorId=2
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - slot
+                query:
+                  - key: mentorId
+                    value: '2'
+            response: []
+          - name: get my slots
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3Njc4NTQsImV4cCI6MTc1OTc2ODc1NH0.zU3uGVnHKl1R5OcTCx2rW-vRfJRQu25xEZWo85uQQVw
+              url:
+                raw: localhost:8080/slot/my
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - slot
+                  - my
+            response: []
+          - name: cancelSlot
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header: []
+              url:
+                raw: localhost:8080/slot/cancel/1
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - slot
+                  - cancel
+                  - '1'
+            response: []
       - name: Slot Admin Managment
-        meta:
-          id: fld_6ccfdf2225cf46d69205a160400401bf
-          created: 1767006546004
-          modified: 1767006546004
-          sortKey: -1767006544783
-          description: ""
-        children:
-          - url: localhost:8080/admin/slot/all
-            name: get time slot page for ADMIN
-            meta:
-              id: req_6174792d5899484fb615d6d4bbad23de
-              created: 1767006546005
-              modified: 1767006546005
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544782
-            method: GET
-            parameters:
-              - name: pageNumber
-                value: "0"
-                disabled: false
-              - name: pageSize
-                value: "10"
-                disabled: false
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.2
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
+        item:
+          - name: get time slot page for ADMIN
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: User-Agent
+                  value: insomnia/11.6.2
+              url:
+                raw: localhost:8080/admin/slot/all?pageNumber=0&pageSize=10
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - admin
+                  - slot
+                  - all
+                query:
+                  - key: pageNumber
+                    value: '0'
+                  - key: pageSize
+                    value: '10'
+            response: []
+      - name: Access Managment
+        item:
+          - name: give access to module by mentor
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTAwODAsImV4cCI6MTc1OTc1MDk4MH0.wDTiDl6ltfYl-jnmk9AyuC7nJKQX-qAVFXSQzdbVyBo
+              body:
+                mode: raw
+                raw: "{\n\t\"userId\": 3,\n\t\"courseId\": 1,\n\t\"moduleId\": 1\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/access/module/get-access
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - access
+                  - module
+                  - get-access
+            response: []
+          - name: revoke access to module by mentor
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NTAwODAsImV4cCI6MTc1OTc1MDk4MH0.wDTiDl6ltfYl-jnmk9AyuC7nJKQX-qAVFXSQzdbVyBo
+              body:
+                mode: raw
+                raw: "{\n\t\"userId\": 3,\n\t\"courseId\": 1,\n\t\"moduleId\": 1\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/access/module/delete-access
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - access
+                  - module
+                  - delete-access
+            response: []
+          - name: give access to course by mentor
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5MjQyMjgsImV4cCI6MTc1OTkyNTEyOH0.aVRuo33OUBweH2G_Y3wPOYhnOJXyCmMzzdf5Hp1JMAA
+              body:
+                mode: raw
+                raw: "{\n\t\"userId\": 3,\n\t\"courseId\": 1,\n\t\"moduleId\": null\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/access/course/get-access
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - access
+                  - course
+                  - get-access
+            response: []
+          - name: revoke access to course by mentor
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk3NjQ0NzUsImV4cCI6MTc1OTc2NTM3NX0.PIMdzoOPHze4MV0skUPJdbbPAihRdwPGPdwH49f_l5o
+              body:
+                mode: raw
+                raw: "{\n\t\"userId\": 3,\n\t\"courseId\": 1,\n\t\"moduleId\": null\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/access/course/delete-access
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - access
+                  - course
+                  - delete-access
+            response: []
       - name: Auth Managment
-        meta:
-          id: fld_31cbfb366e62429abd1598fdd6b845a3
-          created: 1767006546007
-          modified: 1767006546007
-          sortKey: -1767006544781
-          description: ""
-        children:
-          - url: localhost:8080/auth/token/refresh
-            name: refresh token
-            meta:
-              id: req_06c1d5e4c5c246219dcf734ea96291df
-              created: 1767006546009
-              modified: 1767006546009
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544780
-            method: POST
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTMzNDc5MTUsImV4cCI6MTc1NDY0MzkxNX0.T7_8Blo-r2m398FA-Y9CK_vQM323R7G8vDcmRaunmi8
-            authentication:
-              type: bearer
-              disabled: false
-              token: "{{refreshToken}}"
-              prefix: ""
-            scripts:
-              afterResponse: "var response = insomnia.response.json();\r
-
-                var accessToken = response.accessToken;\r
-
-                \r\n"
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/auth/reg
-            name: registration USER
-            meta:
-              id: req_1125ff29b8514970a561d94e206677f5
-              created: 1767006546011
-              modified: 1767006546011
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544779
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"username": "111@mail.ru",
-                	"password": "testtesttest",
-                	"confirmPassword": "testtesttest",
-                	"tgNickname": "@vladislavyurin",
-                	"firstName": "11",
-                	"lastName":"11"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-              - name: User-Agent
-                value: insomnia/11.2.0
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/auth/login
-            name: login ADMIN
-            meta:
-              id: req_6f8b29bb618242a6a3f890006f20c76e
-              created: 1767006546013
-              modified: 1767006546013
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544778
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"username": "admin@example.com",
-                	"password": "testtesttest"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-            scripts:
-              afterResponse: "var response = insomnia.response.json();\r
-
-                var accessTokenAdmin = response.accessToken;\r
-
-                var refreshTokenAdmin = response.refreshToken;\r
-
-                \r
-
-                insomnia.collectionVariables.set(\"accessToken\",
-                accessTokenAdmin);\r
-
-                insomnia.collectionVariables.set(\"refreshToken\",
-                refreshTokenAdmin);"
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/auth/login
-            name: login MENTOR
-            meta:
-              id: req_0ecd6d33d1b24f9c85a6af64cf2463d7
-              created: 1767006546015
-              modified: 1767006546015
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544777
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"username": "vlad.yurin98@gmail.com",
-                	"password": "140698"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-            scripts:
-              afterResponse: "var response = insomnia.response.json();\r
-
-                var accessTokenMentor = response.accessToken;\r
-
-                var refreshTokenMentor = response.refreshToken;\r
-
-                \r
-
-                insomnia.collectionVariables.set(\"accessToken\",
-                accessTokenMentor);\r
-
-                insomnia.collectionVariables.set(\"refreshToken\",
-                refreshTokenMentor);"
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/auth/login
-            name: login USER
-            meta:
-              id: req_f4eb3f790f694a97837178afada6c094
-              created: 1767006546016
-              modified: 1767006546016
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544776
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"username": "pipa@popa.ru",
-                	"password": "140698"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-            scripts:
-              afterResponse: "var response = insomnia.response.json();\r
-
-                var accessTokenUser = response.accessToken;\r
-
-                var refreshTokenUser = response.refreshToken;\r
-
-                \r
-
-                insomnia.collectionVariables.set(\"accessToken\",
-                accessTokenUser);\r
-
-                insomnia.collectionVariables.set(\"refreshToken\",
-                refreshTokenUser);"
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
+        item:
+          - name: refresh token
+            event:
+              - listen: prerequest
+                script:
+                  exec:
+                    - ''
+                  type: text/javascript
+                  packages: {}
+                  requests: {}
+              - listen: test
+                script:
+                  exec:
+                    - pm.test('afterResponse', function () {
+                    - '    var response = pm.response.json();'
+                    - '    var accessToken = response.accessToken;'
+                    - '    var refreshToken = response.refreshToken;'
+                    - '    pm.collectionVariables.set(''accessToken'', accessToken);'
+                    - '    pm.collectionVariables.set(''refreshToken'', refreshToken);'
+                    - '});'
+                  type: text/javascript
+                  packages: {}
+                  requests: {}
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{refreshToken}}'
+                    type: string
+              method: POST
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQURNSU4iLCJpZCI6MSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTMzNDc5MTUsImV4cCI6MTc1NDY0MzkxNX0.T7_8Blo-r2m398FA-Y9CK_vQM323R7G8vDcmRaunmi8
+              url:
+                raw: localhost:8080/auth/token/refresh
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - auth
+                  - token
+                  - refresh
+            response: []
+          - name: registration USER
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: User-Agent
+                  value: insomnia/11.2.0
+              body:
+                mode: raw
+                raw: "{\n\t\"username\": \"111@mail.ru\",\n\t\"password\": \"testtesttest\"\
+            ,\n\t\"confirmPassword\": \"testtesttest\",\n\t\"tgNickname\": \"@vladislavyurin\"\
+            ,\n\t\"firstName\": \"11\",\n\t\"lastName\":\"11\"\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/auth/reg
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - auth
+                  - reg
+            response: []
+          - name: login ADMIN
+            event:
+              - listen: prerequest
+                script:
+                  type: text/javascript
+                  exec: []
+              - listen: test
+                script:
+                  type: text/javascript
+                  exec:
+                    - pm.test('afterResponse', function () {
+                    - '    var response = pm.response.json();'
+                    - '    var accessTokenAdmin = response.accessToken;'
+                    - '    var refreshTokenAdmin = response.refreshToken;'
+                    - '    pm.collectionVariables.set(''accessToken'', accessTokenAdmin);'
+                    - '    pm.collectionVariables.set(''refreshToken'', refreshTokenAdmin);'
+                    - '});'
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+              body:
+                mode: raw
+                raw: "{\n\t\"username\": \"admin@example.com\",\n\t\"password\": \"testtesttest\"\
+            \n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/auth/login
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - auth
+                  - login
+            response: []
+          - name: login MENTOR
+            event:
+              - listen: prerequest
+                script:
+                  exec:
+                    - ''
+                  type: text/javascript
+                  packages: {}
+                  requests: {}
+              - listen: test
+                script:
+                  exec:
+                    - pm.test('afterResponse', function () {
+                    - '    var response = pm.response.json();'
+                    - '    var accessTokenMentor = response.accessToken;'
+                    - '    var refreshTokenMentor = response.refreshToken;'
+                    - '    pm.collectionVariables.set(''accessToken'', accessTokenMentor);'
+                    - '    pm.collectionVariables.set(''refreshToken'', refreshTokenMentor);'
+                    - '});'
+                  type: text/javascript
+                  packages: {}
+                  requests: {}
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+              body:
+                mode: raw
+                raw: "{\n\t\"username\": \"mentor@gmail.com\",\n\t\"password\": \"140698\"\
+            \n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/auth/login
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - auth
+                  - login
+            response: []
+          - name: login USER
+            event:
+              - listen: prerequest
+                script:
+                  type: text/javascript
+                  exec: []
+              - listen: test
+                script:
+                  type: text/javascript
+                  exec:
+                    - pm.test('afterResponse', function () {
+                    - '    var response = pm.response.json();'
+                    - '    var accessTokenUser = response.accessToken;'
+                    - '    var refreshTokenUser = response.refreshToken;'
+                    - '    pm.collectionVariables.set(''accessToken'', accessTokenUser);'
+                    - '    pm.collectionVariables.set(''refreshToken'', refreshTokenUser);'
+                    - '});'
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              method: POST
+              header:
+                - key: Content-Type
+                  value: application/json
+              body:
+                mode: raw
+                raw: "{\n\t\"username\": \"pipa@popa.ru\",\n\t\"password\": \"140698\"\n\
+            }"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/auth/login
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - auth
+                  - login
+            response: []
       - name: Module Managment
-        meta:
-          id: fld_8f7453913adc44479a4239806499e67d
-          created: 1767006546019
-          modified: 1767006546019
-          sortKey: -1767006544775
-          description: ""
-        children:
-          - url: localhost:8080/module/1/1
-            name: get module by id
-            meta:
-              id: req_443eb7c069d24a0f9310400569bb7571
-              created: 1767006546020
-              modified: 1767006546020
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544774
-            method: GET
-            headers:
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/module/2/4
-            name: delete module
-            meta:
-              id: req_166a34c1eeb44b3e9f7a1331ac7ee721
-              created: 1767006546022
-              modified: 1767006546022
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544773
-            method: DELETE
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"courseId": 2,
-                	"moduleTitle": "Hello world",
-                	"moduleOrderNumber": 1,
-                	"moduleContent": "Здесь содержание модуля"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4NTI1MjEsImV4cCI6MTc1OTg1MzQyMX0.255fihe5nMyoc14YvycstCd0E5AHcfkB_aocuAPQZz4
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4NTI1MjEsImV4cCI6MTc1OTg1MzQyMX0.255fihe5nMyoc14YvycstCd0E5AHcfkB_aocuAPQZz4
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
+        item:
+          - name: create module
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: POST
+              header: []
+              body:
+                mode: raw
+                raw: "{\r\n  \"courseId\": 1,\r\n  \"moduleTitle\": \"Введение в Spring\
+            \ Boot\",\r\n  \"moduleContentDescription\": \"Видео-лекция: основы Spring\
+            \ Framework\",\r\n  \"moduleOrderNumber\": 1\r\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: http://localhost:8080/module/create
+                protocol: http
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - module
+                  - create
+            response: []
+          - name: get module by id
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
+              url:
+                raw: localhost:8080/module/1/1
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - module
+                  - '1'
+                  - '1'
+            response: []
+          - name: delete module
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: DELETE
+              header:
+                - key: Content-Type
+                  value: application/json
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk4NTI1MjEsImV4cCI6MTc1OTg1MzQyMX0.255fihe5nMyoc14YvycstCd0E5AHcfkB_aocuAPQZz4
+              body:
+                mode: raw
+                raw: "{\n\t\"courseId\": 2,\n\t\"moduleTitle\": \"Hello world\",\n\t\"moduleOrderNumber\"\
+            : 1,\n\t\"moduleContent\": \"Здесь содержание модуля\"\n}"
+                options:
+                  raw:
+                    language: json
+              url:
+                raw: localhost:8080/module/2/4
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - module
+                  - '2'
+                  - '4'
+            response: []
+      - name: Admin Module Managment
+        item:
+          - name: get user info by id for ADMIN
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: User-Agent
+                  value: insomnia/11.6.2
+              url:
+                raw: localhost:8080/admin/user/1
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - admin
+                  - user
+                  - '1'
+            response: []
+          - name: my user info for ADMIN
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: User-Agent
+                  value: insomnia/11.6.2
+              url:
+                raw: localhost:8080/admin/user/me
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - admin
+                  - user
+                  - me
+            response: []
+          - name: get module by id for ADMIN
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: User-Agent
+                  value: insomnia/11.6.2
+              url:
+                raw: localhost:8080/admin/module/1
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - admin
+                  - module
+                  - '1'
+            response: []
       - name: Admin Course Managment
-        meta:
-          id: fld_357ada8b4979451597d10178784395f8
-          created: 1767006546023
-          modified: 1767006546023
-          sortKey: -1767006544772
-          description: ""
-        children:
-          - url: localhost:8080/admin/course/1
-            name: get course by id for ADMIN
-            meta:
-              id: req_12058dec45394a579b48582f49331e68
-              created: 1767006546025
-              modified: 1767006546025
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544771
-            method: GET
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.2
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: localhost:8080/admin/course/all
-            name: get courses page for ADMIN
-            meta:
-              id: req_a1c686c73afa449f8c0e4d36cb678ccc
-              created: 1767006546028
-              modified: 1767006546028
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544770
-            method: GET
-            parameters:
-              - name: pageNumber
-                value: "0"
-                disabled: false
-              - name: pageSize
-                value: "10"
-                disabled: false
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.2
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
+        item:
+          - name: get course by id for ADMIN
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: User-Agent
+                  value: insomnia/11.6.2
+              url:
+                raw: localhost:8080/admin/course/1
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - admin
+                  - course
+                  - '1'
+            response: []
+          - name: get courses page for ADMIN
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: User-Agent
+                  value: insomnia/11.6.2
+              url:
+                raw: localhost:8080/admin/course/all?pageNumber=0&pageSize=10
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - admin
+                  - course
+                  - all
+                query:
+                  - key: pageNumber
+                    value: '0'
+                  - key: pageSize
+                    value: '10'
+            response: []
       - name: Tag-Controller
-        meta:
-          id: fld_e56d7c6c5e0e476a953db623ed098b45
-          created: 1767006546030
-          modified: 1767006546030
-          sortKey: -1767006544769
-          description: ""
-        children:
-          - url: http://localhost:8080/course-tag/all
-            name: get all course-tags
-            meta:
-              id: req_16eff34a8f7b4c788788a01c043812ae
-              created: 1767006546032
-              modified: 1767006546032
-              isPrivate: false
-              description: ""
-              sortKey: -1767006544768
-            method: GET
-            headers:
-              - name: User-Agent
-                value: insomnia/11.6.1
-              - name: Authorization
-                value: Bearer
-                  eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5MzgwOTIsImV4cCI6MTc1OTkzODk5Mn0.OaU02_9iItBt83ExtedVErznVW3EPOoq13T9whZf-Q0
-            authentication:
-              type: bearer
-              disabled: false
-              token: ""
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-    environment:
-      accessToken: ""
-      refreshToken: ""
-cookieJar:
-  name: Default Jar
-  meta:
-    id: jar_802c6457e5624e4802db595c18d6c5f25eea6300
-    created: 1767006546040
-    modified: 1767006546040
-environments:
-  name: Base Environment
-  meta:
-    id: env_802c6457e5624e4802db595c18d6c5f25eea6300
-    created: 1767006546035
-    modified: 1767006546035
-    isPrivate: false
+        item:
+          - name: get all course-tags
+            protocolProfileBehavior:
+              followRedirects: true
+              disableUrlEncoding: false
+              disableCookies: false
+            request:
+              auth:
+                type: bearer
+                bearer:
+                  - key: token
+                    value: '{{accessToken}}'
+                    type: string
+              method: GET
+              header:
+                - key: User-Agent
+                  value: insomnia/11.6.1
+                - key: Authorization
+                  value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiTUVOVE9SIiwiaWQiOjIsInN1YiI6InZsYWQueXVyaW45OEBnbWFpbC5jb20iLCJpYXQiOjE3NTk5MzgwOTIsImV4cCI6MTc1OTkzODk5Mn0.OaU02_9iItBt83ExtedVErznVW3EPOoq13T9whZf-Q0
+              url:
+                raw: http://localhost:8080/course-tag/all
+                protocol: http
+                host:
+                  - localhost
+                port: '8080'
+                path:
+                  - course-tag
+                  - all
+            response: []
+variable:
+  - key: accessToken
+    value: ''
+  - key: refreshToken
+    value: ''

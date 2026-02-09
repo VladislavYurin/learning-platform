@@ -2,8 +2,9 @@ package ru.mentor.services.impl;
 
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,12 +26,11 @@ import ru.mentor.services.UserService;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class RedirectAdminCalendarServiceImpl implements RedirectAdminCalendarService {
 
-    private final UserService userService;
-
     private final AdminCalendarServiceGrpcClient calendarServiceGrpcClient;
+
+    private final UserService userService;
 
     private final TimeSlotMapper timeSlotMapper;
 
@@ -38,14 +38,24 @@ public class RedirectAdminCalendarServiceImpl implements RedirectAdminCalendarSe
 
     private final HeaderFactory headerFactory;
 
+    public RedirectAdminCalendarServiceImpl(
+            AdminCalendarServiceGrpcClient calendarServiceGrpcClient,
+            UserService userService,
+            @Qualifier("timeSlotMapperImpl") TimeSlotMapper timeSlotMapper,
+            @Qualifier("baseMapperImpl") BaseMapper baseMapper,
+            HeaderFactory headerFactory) {
+        this.calendarServiceGrpcClient = calendarServiceGrpcClient;
+        this.userService = userService;
+        this.timeSlotMapper = timeSlotMapper;
+        this.baseMapper = baseMapper;
+        this.headerFactory = headerFactory;
+    }
+
     /**
      * Возвращает все слоты ментора с постраничностью.
      *
-     * @param pageNumber
-     *         номер страницы
-     * @param pageSize
-     *         размер страницы
-     *
+     * @param pageNumber номер страницы
+     * @param pageSize   размер страницы
      * @return объект {@link Page}, содержащий {@link MentorSlotInfoDto}
      */
     @PreAuthorize("hasRole('ADMIN')")
@@ -62,7 +72,7 @@ public class RedirectAdminCalendarServiceImpl implements RedirectAdminCalendarSe
                 currentUserId
         );
 
-        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
+        GrpcPageRequest pageRequest = baseMapper.toGrpcPageRequest(
                 header,
                 pageNumber,
                 pageSize
@@ -70,12 +80,12 @@ public class RedirectAdminCalendarServiceImpl implements RedirectAdminCalendarSe
         AllTimeSlotsResponse allTimeSlots = calendarServiceGrpcClient.getAllTimeSlots(pageRequest);
 
         List<MentorSlotInfoDto> mentorSlotInfoDtoList =
-                timeSlotMapper.mapGrpcAllTimeSlotsResponseToMentorSlotInfoDtoList(allTimeSlots);
+                timeSlotMapper.allTimeSlotsResponseToMentorSlotInfoDtoList(allTimeSlots);
 
         PageDetails pageDetails = allTimeSlots.getPageDetails();
         return new PageImpl<>(
                 mentorSlotInfoDtoList,
-                baseMapper.mapGrpcPageDetailsToPageRequest(pageDetails),
+                baseMapper.pageDetailsToPageRequest(pageDetails),
                 pageDetails.getTotalElements()
         );
     }

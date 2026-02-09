@@ -53,13 +53,13 @@ public class RedirectAdminCourseServiceImpl implements RedirectAdminCourseServic
                 requestId, courseId
         );
 
-        GetCourseRequest getCourseRequest = courseMapper.constructGetCourseRequest(
+        GetCourseRequest getCourseRequest = courseMapper.toGetCourseRequest(
                 header,
                 courseId
         );
 
         CourseResponse courseResponse = courseServiceClient.getCourse(getCourseRequest);
-        return courseMapper.mapGrpcCourseResponseToCourseDto(courseResponse);
+        return courseMapper.courseResponseToCourseDto(courseResponse);
     }
 
     /**
@@ -83,14 +83,14 @@ public class RedirectAdminCourseServiceImpl implements RedirectAdminCourseServic
                 requestId
         );
 
-        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
+        GrpcPageRequest pageRequest = baseMapper.toGrpcPageRequest(
                 header,
                 pageNumber,
                 pageSize
         );
         AllCoursesResponse allCoursesResponse = courseServiceClient.getAllCourses(pageRequest);
 
-        return courseMapper.mapGrpcCourseResponseToCourseDtoPage(allCoursesResponse);
+        return courseMapper.allCoursesResponseToCourseDtoPage(allCoursesResponse);
     }
 
 }

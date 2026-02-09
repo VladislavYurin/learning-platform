@@ -1,88 +1,58 @@
 package ru.mentor.mapper;
 
-import com.google.protobuf.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Component;
 import ru.mentor.common.AllCoursesResponse;
-import ru.mentor.common.AuthorResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.PageDetails;
 import ru.mentor.dto.CourseDto;
-import ru.mentor.dto.ModuleDto;
-import ru.mentor.dto.UserInfoDto;
-import ru.mentor.dto.tag.CourseTagDto;
 import ru.mentor.entity.CourseEntity;
 
-@Component
-@RequiredArgsConstructor
-public class AdminCourseMapper {
+import java.util.List;
 
-    private final UserMapper userMapper;
-
-    private final AdminModuleMapper moduleMapper;
-
-    private final TagGrpcMapper tagGrpcMapper;
+@Mapper(componentModel = "spring",
+        uses = UtilMapper.class,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface AdminCourseMapper {
 
     /**
      * Преобразует gRPC-объект в DTO для отправки пользователю.
      *
-     * @param response
-     *         {@link CourseResponse} объект курса из gRPC-клиента.
-     *
+     * @param response {@link CourseResponse} объект курса из gRPC-клиента.
      * @return {@link CourseDto} данные о курсе.
      */
-    public CourseDto mapGrpcCourseResponseToCourseDto(CourseResponse response) {
-
-        LocalDateTime createdAtDateTime = LocalDateTime.ofEpochSecond(
-                response.getCreatedAt().getSeconds(),
-                response.getCreatedAt().getNanos(),
-                ZoneOffset.UTC
-        );
-
-        UserInfoDto authorInfo = userMapper.mapGrpcAuthorResponseToUserInfoDto(response.getAuthor());
-        List<ModuleDto> moduleDtoList = moduleMapper.toModuleDtoList(response.getModulesList());
-        List<CourseTagDto> tagsList =
-                response.getTagsList()
-                        .stream()
-                        .map(tagGrpcMapper::fromGrpc)
-                        .toList();
-
-        return CourseDto.builder()
-                        .id(response.getCourseId())
-                        .courseTitle(response.getTitle())
-                        .courseDescription(response.getDescription())
-                        .isActive(response.getIsActive())
-                        .createdAt(createdAtDateTime)
-                        .author(authorInfo)
-                        .modules(moduleDtoList)
-                        .tags(tagsList)
-                        .build();
-    }
+    @Mapping(target = "id", source = "courseId")
+    @Mapping(target = "courseTitle", source = "title")
+    @Mapping(target = "courseDescription", source = "description")
+    @Mapping(target = "isActive", source = "isActive")
+    @Mapping(target = "createdAt", source = "createdAt",
+            qualifiedByName = "timestampToLocalDateTime")
+    @Mapping(target = "author", source = "author",
+            qualifiedByName = "authorResponseToUserInfoDto")
+    CourseDto courseResponseToCourseDto(CourseResponse response);
 
     /**
      * Преобразует gRPC-объект в DTO для отправки пользователю
      *
-     * @param grpcCoursesResponse
-     *         gRPC-объект, содержащий список курсов
-     *
+     * @param grpcCoursesResponse gRPC-объект, содержащий список курсов
      * @return объект {@link Page}, содержащий объекты {@link CourseDto}
      */
-    public Page<CourseDto> mapGrpcCourseResponseToCourseDtoPage(AllCoursesResponse grpcCoursesResponse) {
+    default Page<CourseDto> allCoursesResponseToCourseDtoPage(AllCoursesResponse grpcCoursesResponse) {
 
-        List<CourseDto> courseDtoList = getDtoListFromAllCoursesResponse(grpcCoursesResponse);
+        List<CourseDto> courseDtoList = AllCoursesResponseToCourseDtoList(grpcCoursesResponse);
         PageDetails pageDetails = grpcCoursesResponse.getPageDetails();
 
         return new PageImpl<>(
                 courseDtoList,
-                constructPageRequest(grpcCoursesResponse),
+                AllCoursesResponseToPageRequest(grpcCoursesResponse),
                 pageDetails.getTotalElements()
         );
     }
@@ -90,83 +60,67 @@ public class AdminCourseMapper {
     /**
      * Преобразует сущность курса в gRPC-объект
      *
-     * @param courseEntity
-     *         сущность курса
-     *
+     * @param courseEntity сущность курса
      * @return gRPC-объект {@link CourseResponse}
      */
-    public CourseResponse mapCourseEntityToGrpcCourseResponse(CourseEntity courseEntity) {
-        Timestamp createdAtTimestamp = Timestamp.newBuilder()
-                                                .setSeconds(courseEntity.getCreatedAt()
-                                                                        .toEpochSecond(ZoneOffset.UTC))
-                                                .build();
-        return CourseResponse.newBuilder()
-                             .setCourseId(courseEntity.getId())
-                             .setTitle(courseEntity.getCourseTitle())
-                             .setDescription(courseEntity.getDescription())
-                             .setIsActive(courseEntity.getIsActive())
-                             .setCreatedAt(createdAtTimestamp)
-                             .setAuthor(getAuthorFromCourseEntity(courseEntity))
-                             .build();
-    }
+    @Mapping(target = "courseId", source = "id")
+    @Mapping(target = "title", source = "courseTitle")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "isActive", source = "isActive")
+    @Mapping(target = "createdAt", source = "createdAt",
+            qualifiedByName = "localDateTimeToTimestamp")
+    @Mapping(target = "author", source = "author",
+            qualifiedByName = "userEntityToAuthorResponse")
+    CourseResponse courseEntityToCourseResponse(CourseEntity courseEntity);
 
     /**
      * Преобразует объект {@link Page} в gRPC-объект
      *
-     * @param coursesPage
-     *         {@link Page}
-     *
+     * @param coursesPage {@link Page}
      * @return gRPC-объект {@link AllCoursesResponse}
      */
-    public AllCoursesResponse mapCourseEntityPageToGrpcAllCoursesResponse
+    default AllCoursesResponse courseEntityPageToAllCoursesResponse
     (Page<CourseEntity> coursesPage) {
 
         List<CourseResponse> courseResponses = coursesPage.getContent().stream()
-                                                          .map(this::mapCourseEntityToGrpcCourseResponse)
-                                                          .toList();
+                .map(this::courseEntityToCourseResponse)
+                .toList();
         return AllCoursesResponse.newBuilder()
-                                 .setPageDetails(extractPageDetailsFromCourseEntityPage(coursesPage))
-                                 .addAllCourses(courseResponses)
-                                 .build();
+                .setPageDetails(courseEntityPageToPageDetails(coursesPage))
+                .addAllCourses(courseResponses)
+                .build();
     }
 
     /**
      * Создает gRPC-объект запроса курса {@link GetCourseRequest}
      *
-     * @param header
-     *         заголовок gRPC-запроса (requestId/nodeId/apiKey)
-     * @param courseId
-     *         ID курса
-     *
+     * @param header   заголовок gRPC-запроса (requestId/nodeId/apiKey)
+     * @param courseId ID курса
      * @return {@link GetCourseRequest}
      */
-    public GetCourseRequest constructGetCourseRequest(Header header, long courseId) {
+    default GetCourseRequest toGetCourseRequest(Header header, long courseId) {
         return GetCourseRequest.newBuilder()
-                               .setHeader(header)
-                               .setCourseId(courseId)
-                               .build();
+                .setHeader(header)
+                .setCourseId(courseId)
+                .build();
     }
 
-    private PageDetails extractPageDetailsFromCourseEntityPage(Page<CourseEntity> coursesPage) {
+    private PageDetails courseEntityPageToPageDetails(Page<CourseEntity> coursesPage) {
         return PageDetails.newBuilder()
-                          .setPage(coursesPage.getNumber())
-                          .setSize(coursesPage.getSize())
-                          .setTotalElements(coursesPage.getTotalElements())
-                          .setTotalPages(coursesPage.getTotalPages())
-                          .build();
+                .setPage(coursesPage.getNumber())
+                .setSize(coursesPage.getSize())
+                .setTotalElements(coursesPage.getTotalElements())
+                .setTotalPages(coursesPage.getTotalPages())
+                .build();
     }
 
-    private AuthorResponse getAuthorFromCourseEntity(CourseEntity courseEntity) {
-        return userMapper.mapUserEntityToCourseAuthorResponse(courseEntity.getAuthor());
-    }
-
-    private List<CourseDto> getDtoListFromAllCoursesResponse(AllCoursesResponse grpcCoursesResponse) {
+    private List<CourseDto> AllCoursesResponseToCourseDtoList(AllCoursesResponse grpcCoursesResponse) {
         return grpcCoursesResponse.getCoursesList().stream()
-                                  .map(this::mapGrpcCourseResponseToCourseDto)
-                                  .toList();
+                .map(this::courseResponseToCourseDto)
+                .toList();
     }
 
-    private PageRequest constructPageRequest(AllCoursesResponse grpcCoursesResponse) {
+    private PageRequest AllCoursesResponseToPageRequest(AllCoursesResponse grpcCoursesResponse) {
         PageDetails pageDetails = grpcCoursesResponse.getPageDetails();
         return PageRequest.of(
                 pageDetails.getPage(),

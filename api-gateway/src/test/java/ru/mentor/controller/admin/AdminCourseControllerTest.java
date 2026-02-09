@@ -46,17 +46,17 @@ class AdminCourseControllerTest {
                ))
                .thenReturn(new PageImpl<>(
                        List.of(dto),
-                       PageRequest.of(TestConstantHolder.pageNumber, TestConstantHolder.pageSize),
+                       PageRequest.of(TestConstantHolder.zero, TestConstantHolder.pageSize),
                        TestConstantHolder.totalElementsCount
                ));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/course/all")
                                               .param(
-                                                      "pageNumber",
-                                                      String.valueOf(TestConstantHolder.pageNumber)
+                                                      TestConstantHolder.pageNumberRequestParameter,
+                                                      String.valueOf(TestConstantHolder.zero)
                                               )
                                               .param(
-                                                      "pageSize",
+                                                      TestConstantHolder.pageSizeRequestParameter,
                                                       String.valueOf(TestConstantHolder.pageSize)
                                               )
                                               .contentType(MediaType.APPLICATION_JSON))

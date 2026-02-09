@@ -1,18 +1,17 @@
 package ru.mentor.testUtil;
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Timestamp;
-import java.time.ZoneOffset;
 import java.util.List;
+
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.AuthorResponse;
 import ru.mentor.common.CourseResponse;
-import ru.mentor.common.CourseTagResponse;
 import ru.mentor.common.CreateCourseGrpcRequest;
 import ru.mentor.common.CreateCourseTagGrpcRequest;
 import ru.mentor.common.CreateModuleGrpcRequest;
+import ru.mentor.common.CourseTagResponse;
 import ru.mentor.common.DeleteCourseRequest;
 import ru.mentor.common.DeleteCourseTagRequest;
 import ru.mentor.common.DeleteModuleRequest;
@@ -35,55 +34,153 @@ import ru.mentor.common.UserInfo;
 
 public class TestGrpcStubGenerator {
 
-    private static Header buildTestHeader() {
+    public static Header constructHeader() {
         return Header.newBuilder()
-                     .setRequestId(TestConstantHolder.requestId)
-                     .setNodeId(TestConstantHolder.nodeId)
-                     .setApiKey(TestConstantHolder.apiKey)
-                     .build();
+                .setRequestId(TestConstantHolder.requestId)
+                .setNodeId(TestConstantHolder.nodeId)
+                .setApiKey(TestConstantHolder.apiKey)
+                .build();
     }
 
     public static GetModuleRequest constructGetModuleRequest() {
         return GetModuleRequest.newBuilder()
-                               .setHeader(buildTestHeader())
-                               .setCourseId(TestConstantHolder.courseId)
-                               .setModuleOrderNumber(TestConstantHolder.moduleOrderNumber)
-                               .setModuleId(TestConstantHolder.moduleId)
-                               .build();
+                .setHeader(constructHeader())
+                .setModuleId(TestConstantHolder.moduleId)
+                .build();
     }
 
     public static AllModulesResponse constructAllModulesResponse() {
         return AllModulesResponse.newBuilder()
-                                 .setPageDetails(constructPageDetails())
-                                 .addAllModules(List.of(constructModuleResponse()))
-                                 .build();
+                .setPageDetails(constructPageDetails())
+                .addAllModules(List.of(constructModuleResponse()))
+                .build();
     }
 
     public static GrpcPageRequest constructGrpcPageRequest() {
         return GrpcPageRequest.newBuilder()
-                              .setHeader(buildTestHeader())
-                              .setPageNumber(TestConstantHolder.pageNumber)
-                              .setPageSize(TestConstantHolder.pageSize)
-                              .build();
+                .setHeader(constructHeader())
+                .setPageNumber(TestConstantHolder.zero)
+                .setPageSize(TestConstantHolder.pageSize)
+                .build();
     }
 
     public static GetAllModulesRequest constructGetAllModulesRequest() {
         return GetAllModulesRequest.newBuilder()
-                                   .setHeader(buildTestHeader())
-                                   .setCourseId(TestConstantHolder.courseId)
-                                   .build();
+                .setHeader(constructHeader())
+                .setCourseId(TestConstantHolder.courseId)
+                .build();
     }
 
     public static GetCourseRequest constructGetCourseRequest() {
         return GetCourseRequest.newBuilder()
-                               .setHeader(buildTestHeader())
-                               .setCourseId(TestConstantHolder.courseId)
-                               .build();
+                .setHeader(constructHeader())
+                .setCourseId(TestConstantHolder.courseId)
+                .build();
+    }
+
+    public static PageDetails constructPageDetails() {
+        return PageDetails.newBuilder()
+                .setPage(TestConstantHolder.zero)
+                .setSize(TestConstantHolder.pageSize)
+                .setTotalElements(TestConstantHolder.totalElementsCount)
+                .setTotalPages(TestConstantHolder.totalPagesCount)
+                .build();
+    }
+
+    public static ModuleResponse constructModuleResponse() {
+        return ModuleResponse.newBuilder()
+                .setModuleId(TestConstantHolder.moduleId)
+                .setTitle(TestConstantHolder.moduleTitle)
+                .setOrderNumber(TestConstantHolder.moduleOrderNumber)
+                .setContent(TestConstantHolder.moduleContent)
+                .setIsActive(TestConstantHolder.isActiveFalse)
+                .setCreatedAt(TestConstantHolder.createdAtTimestamp)
+                .setCourseId(TestConstantHolder.courseId)
+                .build();
+    }
+
+    public static AuthorResponse constructAuthorResponse() {
+        return AuthorResponse.newBuilder()
+                .setUserId(TestConstantHolder.mentorId)
+                .setUsername(TestConstantHolder.mentorName)
+                .setFirstName(TestConstantHolder.mentorFirstName)
+                .setLastName(TestConstantHolder.mentorLastName)
+                .setTgNickname(TestConstantHolder.mentorTgNickname)
+                .setTgChatId(TestConstantHolder.tgChatId)
+                .build();
+    }
+
+    public static AllCoursesResponse constructAllCoursesResponse() {
+        return AllCoursesResponse.newBuilder()
+                .setPageDetails(constructPageDetails())
+                .addCourses(constructCourseResponse())
+                .build();
+    }
+
+    public static CourseResponse constructCourseResponse() {
+        return CourseResponse.newBuilder()
+                .setCourseId(TestConstantHolder.courseId)
+                .setTitle(TestConstantHolder.courseTitle)
+                .setDescription(TestConstantHolder.courseDescription)
+                .setIsActive(TestConstantHolder.isActiveFalse)
+                .setCreatedAt(TestConstantHolder.createdAtTimestamp)
+                .setAuthor(constructAuthorResponse())
+                .build();
+    }
+
+    public static TimeSlotResponse constructTimeSlotResponse() {
+        return TimeSlotResponse.newBuilder()
+                .setRequestId(TestConstantHolder.requestId)
+                .setSlotId(TestConstantHolder.timeSlotId)
+                .setMentorId(TestConstantHolder.mentorId)
+                .setStartTime(TestConstantHolder.startTimestamp)
+                .setEndTime(TestConstantHolder.endTimestamp)
+                .setSlotType(TestConstantHolder.grpcSlotType)
+                .setSlotMeetingType(TestConstantHolder.grpcSlotMeetingType)
+                .setMaxParticipants(TestConstantHolder.maxParticipants)
+                .setMeetingLink(TestConstantHolder.meetingLink)
+                .setDescription(TestConstantHolder.slotDescription)
+                .setCreatedAt(TestConstantHolder.createdAtTimestamp)
+                .build();
+    }
+
+    public static UserInfo constructUserInfo(long userId) {
+        return UserInfo.newBuilder()
+                .setId(userId)
+                .setUsername(TestConstantHolder.username)
+                .setRole(Role.USER)
+                .setFirstName(TestConstantHolder.userFirstName)
+                .setLastName(TestConstantHolder.userLastName)
+                .setTgNickname(TestConstantHolder.userTgNickname)
+                .setTgChatId(TestConstantHolder.tgChatId)
+                .build();
+    }
+
+    public static MentorSlotInfo constructMentorSlotInfo() {
+        return MentorSlotInfo.newBuilder()
+                .setSlotInfo(constructTimeSlotResponse())
+                .addAllParticipants(
+                        List.of(
+                                constructUserInfo(TestConstantHolder.userId)))
+                .build();
+    }
+
+    public static AllTimeSlotsResponse constructAllTimeSlotsResponse() {
+        return AllTimeSlotsResponse.newBuilder()
+                .setPageDetails(constructPageDetails())
+                .addAllTimeSlots(List.of(constructMentorSlotInfo()))
+                .build();
+    }
+
+    public static MentorSlotsInfoResponse constructMentorSlotsInfoResponse() {
+        return MentorSlotsInfoResponse.newBuilder()
+                .addAllSlots(List.of(constructMentorSlotInfo()))
+                .build();
     }
 
     public static CreateCourseGrpcRequest constructCreateCourseGrpcRequest() {
         return CreateCourseGrpcRequest.newBuilder()
-                .setHeader(buildTestHeader())
+                .setHeader(constructHeader())
                 .setUserId(TestConstantHolder.userId)
                 .setCourseName(TestConstantHolder.courseTitle)
                 .setCourseDescription(TestConstantHolder.courseDescription)
@@ -92,7 +189,7 @@ public class TestGrpcStubGenerator {
 
     public static DeleteCourseRequest constructDeleteCourseRequest() {
         return DeleteCourseRequest.newBuilder()
-                .setHeader(buildTestHeader())
+                .setHeader(constructHeader())
                 .setSenderId(TestConstantHolder.userId)
                 .setCourseId(TestConstantHolder.courseId)
                 .build();
@@ -100,7 +197,7 @@ public class TestGrpcStubGenerator {
 
     public static CreateModuleGrpcRequest constructCreateModuleGrpcRequest() {
         return CreateModuleGrpcRequest.newBuilder()
-                .setHeader(buildTestHeader())
+                .setHeader(constructHeader())
                 .setCourseId(TestConstantHolder.courseId)
                 .setContent(TestConstantHolder.moduleContent)
                 .setTitle(TestConstantHolder.moduleTitle)
@@ -110,7 +207,7 @@ public class TestGrpcStubGenerator {
 
     public static ImportModuleFromFileRequest constructImportModuleFromFileGrpcRequest() {
         return ImportModuleFromFileRequest.newBuilder()
-                .setHeader(buildTestHeader())
+                .setHeader(constructHeader())
                 .setCourseId(TestConstantHolder.courseId)
                 .setContent(TestConstantHolder.moduleContent)
                 .setTitle(TestConstantHolder.moduleTitle)
@@ -121,7 +218,7 @@ public class TestGrpcStubGenerator {
 
     public static DeleteModuleRequest constructDeleteModuleRequest() {
         return DeleteModuleRequest.newBuilder()
-                .setHeader(buildTestHeader())
+                .setHeader(constructHeader())
                 .setSenderId(TestConstantHolder.userId)
                 .setCourseId(TestConstantHolder.courseId)
                 .setModuleId(TestConstantHolder.moduleId)
@@ -129,132 +226,26 @@ public class TestGrpcStubGenerator {
                 .build();
     }
 
-    public static PageDetails constructPageDetails() {
-        return PageDetails.newBuilder()
-                          .setPage(TestConstantHolder.pageNumber)
-                          .setSize(TestConstantHolder.pageSize)
-                          .setTotalElements(TestConstantHolder.totalElementsCount)
-                          .setTotalPages(TestConstantHolder.totalPagesCount)
-                          .build();
-    }
-
-    public static ModuleResponse constructModuleResponse() {
-        return ModuleResponse.newBuilder()
-                             .setModuleId(TestConstantHolder.moduleId)
-                             .setTitle(TestConstantHolder.moduleTitle)
-                             .setOrderNumber(TestConstantHolder.moduleOrderNumber)
-                             .setContent(TestConstantHolder.moduleContent)
-                             .setIsActive(TestConstantHolder.isActive)
-                             .setCreatedAt(constructCreatedAtTimestamp())
-                             .setCourseId(TestConstantHolder.courseId)
-                             .build();
-    }
-
-    public static AuthorResponse constructAuthorResponse() {
-        return AuthorResponse.newBuilder()
-                             .setUserId(TestConstantHolder.userId)
-                             .setUsername(TestConstantHolder.username)
-                             .setFirstName(TestConstantHolder.firstName)
-                             .setLastName(TestConstantHolder.lastName)
-                             .setTgNickname(TestConstantHolder.tgNickname)
-                             .setTgChatId(TestConstantHolder.tgChatId)
-                             .build();
-    }
-
-    public static AllCoursesResponse constructAllCoursesResponse() {
-        return AllCoursesResponse.newBuilder()
-                                 .setPageDetails(constructPageDetails())
-                                 .addCourses(constructCourseResponse())
-                                 .build();
-    }
-
-    public static CourseResponse constructCourseResponse() {
-        return CourseResponse.newBuilder()
-                             .setCourseId(TestConstantHolder.courseId)
-                             .setTitle(TestConstantHolder.courseTitle)
-                             .setDescription(TestConstantHolder.courseDescription)
-                             .setIsActive(TestConstantHolder.isActive)
-                             .setCreatedAt(TestConstantHolder.slotCreatedAtTimestamp)
-                             .setAuthor(constructAuthorResponse())
-                             .build();
-    }
-
-    public static Timestamp constructCreatedAtTimestamp() {
-        return Timestamp.newBuilder()
-                        .setSeconds(TestConstantHolder.createdAt.toEpochSecond(ZoneOffset.UTC))
-                        .build();
-    }
-
-    public static TimeSlotResponse constructTimeSlotResponse() {
-        return TimeSlotResponse.newBuilder()
-                               .setRequestId(TestConstantHolder.requestId)
-                               .setSlotId(TestConstantHolder.timeSlotId)
-                               .setMentorId(TestConstantHolder.mentorId)
-                               .setStartTime(TestConstantHolder.slotStartTimestamp)
-                               .setEndTime(TestConstantHolder.slotEndTimestamp)
-                               .setSlotType(TestConstantHolder.grpcSlotType)
-                               .setSlotMeetingType(TestConstantHolder.grpcSlotMeetingType)
-                               .setMaxParticipants(TestConstantHolder.maxParticipants)
-                               .setMeetingLink(TestConstantHolder.meetingLink)
-                               .setDescription(TestConstantHolder.slotDescription)
-                               .setCreatedAt(TestConstantHolder.slotCreatedAtTimestamp)
-                               .build();
-    }
-
-    public static UserInfo constructUserInfo(long userId) {
-        return UserInfo.newBuilder()
-                       .setId(userId)
-                       .setUsername(TestConstantHolder.username)
-                       .setRole(Role.USER)
-                       .setFirstName(TestConstantHolder.firstName)
-                       .setLastName(TestConstantHolder.lastName)
-                       .setTgNickname(TestConstantHolder.tgNickname)
-                       .setTgChatId(TestConstantHolder.tgChatId)
-                       .build();
-    }
-
-    public static MentorSlotInfo constructMentorSlotInfo() {
-        return MentorSlotInfo.newBuilder()
-                             .setSlotInfo(constructTimeSlotResponse())
-                             .addAllParticipants(
-                                     List.of(
-                                             constructUserInfo(TestConstantHolder.userId)))
-                             .build();
-    }
-
-    public static AllTimeSlotsResponse constructAllTimeSlotsResponse() {
-        return AllTimeSlotsResponse.newBuilder()
-                                   .setPageDetails(constructPageDetails())
-                                   .addAllTimeSlots(List.of(constructMentorSlotInfo()))
-                                   .build();
-    }
-
-    public static MentorSlotsInfoResponse constructMentorSlotsInfoResponse() {
-        return MentorSlotsInfoResponse.newBuilder()
-                                      .addAllSlots(List.of(constructMentorSlotInfo()))
-                                      .build();
-    }
-
     public static CreateCourseTagGrpcRequest constructCreateCourseTagGrpcRequest(){
         return CreateCourseTagGrpcRequest.newBuilder()
-                                         .setHeader(buildTestHeader())
-                                         .setSenderId(TestConstantHolder.userId)
-                                         .setName(TestConstantHolder.courseTagName)
-                                         .build();
+                .setHeader(constructHeader())
+                .setSenderId(TestConstantHolder.userId)
+                .setName(TestConstantHolder.courseTagName)
+                .build();
     }
 
     public static CourseTagResponse constructCourseTagResponse(){
         return CourseTagResponse.newBuilder()
-                                .setId(TestConstantHolder.courseTagId)
-                                .setName(TestConstantHolder.courseTagName)
-                                .setCreatedAt(TestConstantHolder.courseTagCreatedAtTimestamp)
-                                .setIsActive(TestConstantHolder.isActive)
-                                .build();
+                .setId(TestConstantHolder.courseTagId)
+                .setName(TestConstantHolder.courseTagName)
+                .setCreatedAt(TestConstantHolder.createdAtTimestamp)
+                .setIsActive(TestConstantHolder.isActiveTrue)
+                .build();
     }
 
     public static DeleteCourseTagRequest constructDeleteCourseTagGrpcRequest(){
         return DeleteCourseTagRequest.newBuilder()
-                .setHeader(buildTestHeader())
+                .setHeader(constructHeader())
                 .setSenderId(TestConstantHolder.userId)
                 .setTagId(TestConstantHolder.courseTagId)
                 .build();
@@ -262,7 +253,7 @@ public class TestGrpcStubGenerator {
 
     public static GetCourseTagRequest constructGetCourseTagGrpcRequest() {
         return GetCourseTagRequest.newBuilder()
-                .setHeader(buildTestHeader())
+                .setHeader(constructHeader())
                 .setSenderId(TestConstantHolder.userId)
                 .setTagId(TestConstantHolder.courseTagId)
                 .build();
@@ -270,9 +261,9 @@ public class TestGrpcStubGenerator {
 
     public static GetAllCourseTagsRequest constructGetAllCourseTagsRequest(){
         return GetAllCourseTagsRequest.newBuilder()
-                                      .setHeader(buildTestHeader())
-                                      .setSenderId(TestConstantHolder.userId)
-                                      .build();
+                .setHeader(constructHeader())
+                .setSenderId(TestConstantHolder.userId)
+                .build();
     }
 
     public static ListCourseTagsResponse constructAllCourseTagsResponse(){

@@ -46,12 +46,12 @@ class CourseServiceGrpcServerIT {
 
     public static String POSTGRES_IMAGE_VERSION = "postgres:15-alpine";
 
-    public static final Long COURSE_ID = 1L;
-    public static final long NEW_COURSE_ID = 2L;
-    private static final long AUTHOR_ID = 1L;
+    public final Long COURSE_ID = TestConstantHolder.COURSE_ID;
+    public final long NEW_COURSE_ID = COURSE_ID + 1;
+    private final long AUTHOR_ID = 1L;
 
-    private static final long INVALID_AUTHOR_ID = 4L;
-    private static final long INVALID_COURSE_ID = 111L;
+    private final long INVALID_AUTHOR_ID = 4L;
+    private final long INVALID_COURSE_ID = 111L;
 
     @Container
     @ServiceConnection
@@ -132,7 +132,7 @@ class CourseServiceGrpcServerIT {
         StepVerifier.create(courseServiceStub.getAllCourses(pageRequest))
                     .assertNext(response -> {
                         Assertions.assertEquals(1, response.getCoursesCount());
-                        CourseResponse course = response.getCoursesList().getFirst();
+                        CourseResponse course = response.getCoursesList().get(0);
                         Assertions.assertEquals(TestConstantHolder.COURSE_TITLE, course.getTitle());
                         Assertions.assertEquals(
                                 TestConstantHolder.COURSE_DESCRIPTION,

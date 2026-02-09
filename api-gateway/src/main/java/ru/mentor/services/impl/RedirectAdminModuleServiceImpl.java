@@ -1,8 +1,8 @@
 package ru.mentor.services.impl;
 
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.mentor.common.AllModulesResponse;
@@ -23,7 +23,6 @@ import ru.mentor.services.UserService;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleService {
 
     private final AdminModuleServiceGrpcClient moduleGrpcClient;
@@ -35,6 +34,19 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
     private final BaseMapper baseMapper;
 
     private final HeaderFactory headerFactory;
+
+    public RedirectAdminModuleServiceImpl(
+            AdminModuleServiceGrpcClient moduleGrpcClient,
+            UserService userService,
+            @Qualifier("adminModuleMapperImpl") AdminModuleMapper moduleMapper,
+            @Qualifier("baseMapperImpl") BaseMapper baseMapper,
+            HeaderFactory headerFactory) {
+        this.moduleGrpcClient = moduleGrpcClient;
+        this.userService = userService;
+        this.moduleMapper = moduleMapper;
+        this.baseMapper = baseMapper;
+        this.headerFactory = headerFactory;
+    }
 
     /**
      * Возвращает модуль с указанным ID.
@@ -57,9 +69,9 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
                 adminId
         );
 
-        GetModuleRequest grpcRequest = moduleMapper.constructGetModuleRequest(header, moduleId);
+        GetModuleRequest grpcRequest = moduleMapper.toGetModuleRequest(header, moduleId);
         ModuleResponse grpcModuleResponse = moduleGrpcClient.getModule(grpcRequest);
-        return moduleMapper.mapGrpcModuleResponseToModuleDto(grpcModuleResponse);
+        return moduleMapper.moduleResponseToModuleDto(grpcModuleResponse);
     }
 
     /**
@@ -84,13 +96,13 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
                 adminId
         );
 
-        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
+        GrpcPageRequest pageRequest = baseMapper.toGrpcPageRequest(
                 header,
                 pageNumber,
                 pageSize
         );
         AllModulesResponse allModules = moduleGrpcClient.getAllModules(pageRequest);
-        return moduleMapper.mapGrpcAllModulesResponseToModuleDtoPage(allModules);
+        return moduleMapper.allModulesResponseToModuleDtoPage(allModules);
     }
 
 }

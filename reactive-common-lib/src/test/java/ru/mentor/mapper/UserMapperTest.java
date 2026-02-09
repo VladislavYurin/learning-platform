@@ -2,6 +2,8 @@ package ru.mentor.mapper;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.mentor.common.AuthorResponse;
 import ru.mentor.common.Role;
 import ru.mentor.common.UserInfo;
@@ -9,16 +11,21 @@ import ru.mentor.entity.UserEntity;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 
+@SpringBootTest(classes = {
+        UserMapperImpl.class,
+        UtilMapperImpl.class
+})
 class UserMapperTest {
 
-    private final UserMapper mapper = new UserMapper();
+    @Autowired
+    private UserMapper userMapper;
 
     @Test
     void mapUserEntityToCourseAuthorResponse_returnsExpectedAuthor() {
         UserEntity userEntity = TestEntityStubGenerator.constructAuthorUserEntity();
         userEntity.setId(TestConstantHolder.COURSE_AUTHOR_ID);
 
-        AuthorResponse response = mapper.mapUserEntityToCourseAuthorResponse(userEntity);
+        AuthorResponse response = userMapper.userEntityToAuthorResponse(userEntity);
 
         Assertions.assertEquals(TestConstantHolder.MENTOR_ID, response.getUserId());
         Assertions.assertEquals(TestConstantHolder.USERNAME, response.getUsername());
@@ -32,7 +39,7 @@ class UserMapperTest {
     void mapUserEntityToUserInfo_returnsExpectedUserInfo() {
         UserEntity userEntity = TestEntityStubGenerator.constructParticipantEntity();
 
-        UserInfo userInfo = mapper.mapUserEntityToUserInfo(userEntity);
+        UserInfo userInfo = userMapper.userEntityToUserInfo(userEntity);
 
         Assertions.assertEquals(TestConstantHolder.USER_ID, userInfo.getId());
         Assertions.assertEquals(TestConstantHolder.USERNAME, userInfo.getUsername());

@@ -1,8 +1,11 @@
 package ru.mentor.mapper;
 
 import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
@@ -14,15 +17,22 @@ import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 
+@SpringBootTest(classes = {
+        AdminCourseMapper.class,
+        AdminModuleMapperImpl.class,
+        TagMapperImpl.class,
+        UserMapperImpl.class,
+        UtilMapperImpl.class
+})
 class AdminCourseMapperTest {
 
-    private final UserMapper userMapper = new UserMapper();
-    private final TagMapper tagMapper = new TagMapper();
-    private final AdminModuleMapper moduleMapper = new AdminModuleMapper();
-    private final AdminCourseMapper mapper = new AdminCourseMapper(userMapper, tagMapper, moduleMapper);
+    @Autowired
+    private AdminCourseMapper mapper;
 
     @Test
     void mapCourseEntityToGrpcCourseResponse_returnsExpectedResponse() {
+        final int TAGS_NUMBER = 4;
+        final int MODULES_COUNT = 1;
         CourseEntity courseEntity = TestEntityStubGenerator.constructCourseEntity();
         courseEntity.setId(TestConstantHolder.COURSE_ID);
 
@@ -33,11 +43,11 @@ class AdminCourseMapperTest {
         moduleEntity.setId(TestConstantHolder.MODULE_ID);
 
         List<CourseTagEntity> listOfTags =
-                TestEntityStubGenerator.constructCourseTagEntityList(4);
+                TestEntityStubGenerator.constructCourseTagEntityList(TAGS_NUMBER);
         List<ModuleEntity> listOfModules =
                 List.of(moduleEntity);
 
-        CourseResponse response = mapper.mapCourseEntityToGrpcCourseResponse(
+        CourseResponse response = mapper.toCourseResponse(
                 courseEntity,
                 courseAuthor,
                 listOfTags,
@@ -63,11 +73,11 @@ class AdminCourseMapperTest {
         );
         Assertions.assertEquals(TestConstantHolder.TG_CHAT_ID, response.getAuthor().getTgChatId());
 
-        Assertions.assertEquals(4, response.getTagsCount());
+        Assertions.assertEquals(TAGS_NUMBER, response.getTagsCount());
         Assertions.assertEquals("test-tag-1", response.getTags(0).getName());
-        Assertions.assertEquals(1, response.getModulesCount());
+        Assertions.assertEquals(MODULES_COUNT, response.getModulesCount());
         Assertions.assertEquals(TestConstantHolder.MODULE_TITLE,
-                                response.getModulesList().get(0).getTitle());
+                response.getModulesList().get(0).getTitle());
     }
 
     @Test

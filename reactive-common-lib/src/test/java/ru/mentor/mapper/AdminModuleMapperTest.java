@@ -2,6 +2,8 @@ package ru.mentor.mapper;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.ModuleResponse;
@@ -11,9 +13,14 @@ import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 
+@SpringBootTest(classes = {
+        AdminModuleMapperImpl.class,
+        UtilMapperImpl.class
+})
 class AdminModuleMapperTest {
 
-    private final AdminModuleMapper mapper = new AdminModuleMapper();
+    @Autowired
+    private AdminModuleMapper mapper;
 
     @Test
     void mapModuleEntityToModuleResponse_returnsExpectedResponse() {

@@ -2,11 +2,8 @@ package ru.mentor.mapper;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.GetModuleRequest;
@@ -19,94 +16,90 @@ import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = {
+        AdminModuleMapperImpl.class,
+        BaseMapperImpl.class,
+        UtilMapperImpl.class
+})
 class AdminModuleMapperTest {
 
-    @Spy
-    private BaseMapper baseMapper = new BaseMapper();
-
-    @InjectMocks
+    @Autowired
     private AdminModuleMapper adminModuleMapper;
 
     @Test
-    void constructGetModuleRequest_success() {
-        Header header = Header.newBuilder()
-                              .setRequestId(TestConstantHolder.requestId)
-                              .setNodeId(TestConstantHolder.nodeId)
-                              .setApiKey(TestConstantHolder.apiKey)
-                              .build();
+    void toGetModuleRequest_success() {
+        Header header = TestGrpcStubGenerator.constructHeader();
 
-        GetModuleRequest request = adminModuleMapper.constructGetModuleRequest(
+        GetModuleRequest request = adminModuleMapper.toGetModuleRequest(
                 header, TestConstantHolder.moduleId);
 
         Assertions.assertThat(request.getHeader().getRequestId())
-                  .isEqualTo(TestConstantHolder.requestId);
+                .isEqualTo(TestConstantHolder.requestId);
         Assertions.assertThat(request.getModuleId()).isEqualTo(TestConstantHolder.moduleId);
     }
 
     @Test
-    void mapGrpcModuleResponseToModuleDto_success() {
+    void moduleResponseToModuleDto_success() {
         ModuleResponse grpcResponse = TestGrpcStubGenerator.constructModuleResponse();
 
-        ModuleDto dto = adminModuleMapper.mapGrpcModuleResponseToModuleDto(grpcResponse);
+        ModuleDto dto = adminModuleMapper.moduleResponseToModuleDto(grpcResponse);
 
         Assertions.assertThat(dto.getId()).isEqualTo(TestConstantHolder.moduleId);
         Assertions.assertThat(dto.getModuleTitle()).isEqualTo(TestConstantHolder.moduleTitle);
         Assertions.assertThat(dto.getModuleOrderNumber())
-                  .isEqualTo(TestConstantHolder.moduleOrderNumber);
+                .isEqualTo(TestConstantHolder.moduleOrderNumber);
         Assertions.assertThat(dto.getModuleContent()).isEqualTo(TestConstantHolder.moduleContent);
-        Assertions.assertThat(dto.getIsActive()).isTrue();
+        Assertions.assertThat(dto.getIsActive()).isFalse();
         Assertions.assertThat(dto.getCreatedAt()).isEqualTo(TestConstantHolder.createdAt);
     }
 
     @Test
-    void mapGrpcAllModulesResponseToModuleDtoPage_success() {
+    void allModulesResponseToModuleDtoPage_success() {
         PageDetails pageDetails = TestGrpcStubGenerator.constructPageDetails();
         AllModulesResponse grpcResponse = TestGrpcStubGenerator.constructAllModulesResponse();
 
-        Page<ModuleDto> result = adminModuleMapper.mapGrpcAllModulesResponseToModuleDtoPage(
+        Page<ModuleDto> result = adminModuleMapper.allModulesResponseToModuleDtoPage(
                 grpcResponse);
 
         Assertions.assertThat(result.getContent()).hasSize(TestConstantHolder.totalPagesCount);
         Assertions.assertThat(result.getContent()
-                                    .get(TestConstantHolder.pageNumber)
-                                    .getModuleTitle())
-                  .isEqualTo(TestConstantHolder.moduleTitle);
+                        .get(TestConstantHolder.zero)
+                        .getModuleTitle())
+                .isEqualTo(TestConstantHolder.moduleTitle);
         Assertions.assertThat(result.getTotalElements())
-                  .isEqualTo(TestConstantHolder.totalElementsCount);
-        Mockito.verify(baseMapper).mapGrpcPageDetailsToPageRequest(pageDetails);
+                .isEqualTo(TestConstantHolder.totalElementsCount);
     }
 
     @Test
-    void mapModuleEntityToModuleResponse_success() {
+    void moduleEntityToModuleResponse_success() {
         ModuleEntity entity = TestEntityStubGenerator.constructModuleEntity();
 
-        ModuleResponse response = adminModuleMapper.mapModuleEntityToModuleResponse(entity);
+        ModuleResponse response = adminModuleMapper.moduleEntityToModuleResponse(entity);
 
         Assertions.assertThat(response.getModuleId()).isEqualTo(TestConstantHolder.moduleId);
         Assertions.assertThat(response.getTitle()).isEqualTo(TestConstantHolder.moduleTitle);
         Assertions.assertThat(response.getOrderNumber())
-                  .isEqualTo(TestConstantHolder.moduleOrderNumber);
+                .isEqualTo(TestConstantHolder.moduleOrderNumber);
         Assertions.assertThat(response.getContent()).isEqualTo(TestConstantHolder.moduleContent);
-        Assertions.assertThat(response.getIsActive()).isTrue();
+        Assertions.assertThat(response.getIsActive()).isFalse();
         Assertions.assertThat(response.getCourseId()).isEqualTo(TestConstantHolder.courseId);
     }
 
     @Test
-    void mapModuleEntityPageToGrpcAllModulesResponse_success() {
+    void moduleEntityPageToAllModulesResponse_success() {
         ModuleEntity moduleEntity = TestEntityStubGenerator.constructModuleEntity();
 
         Page<ModuleEntity> page = TestEntityStubGenerator.constructModuleEntityPage(moduleEntity);
 
         AllModulesResponse response =
-                adminModuleMapper.mapModuleEntityPageToGrpcAllModulesResponse(page);
+                adminModuleMapper.moduleEntityPageToAllModulesResponse(page);
 
         Assertions.assertThat(response.getModulesCount())
-                  .isEqualTo(TestConstantHolder.totalElementsCount);
+                .isEqualTo(TestConstantHolder.totalElementsCount);
         Assertions.assertThat(response.getModules(0).getTitle())
-                  .isEqualTo(TestConstantHolder.moduleTitle);
+                .isEqualTo(TestConstantHolder.moduleTitle);
         Assertions.assertThat(response.getPageDetails().getTotalElements())
-                  .isEqualTo(TestConstantHolder.totalElementsCount);
+                .isEqualTo(TestConstantHolder.totalElementsCount);
     }
 
 }

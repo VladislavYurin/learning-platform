@@ -3,12 +3,10 @@ package ru.mentor.facade.impl;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,33 +16,33 @@ import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.mapper.BaseMapper;
-import ru.mentor.mapper.TimeSlotMapper;
-import ru.mentor.mapper.UserMapper;
+import ru.mentor.mapper.TimeSlotMapperImpl;
+import ru.mentor.mapper.UserMapperImpl;
+import ru.mentor.mapper.UtilMapperImpl;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = {
+        CalendarFacadeImpl.class,
+        BaseMapper.class,
+        TimeSlotMapperImpl.class,
+        UserMapperImpl.class,
+        UtilMapperImpl.class})
 class CalendarFacadeImplTest {
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
 
-    @Mock
+    @MockBean
     private MentorTimeSlotRepository timeSlotRepository;
 
-    @Spy
-    private TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
+    @Autowired
+    private BaseMapper baseMapper = new BaseMapper();
 
-    @Spy
-    private final BaseMapper baseMapper = new BaseMapper();
-
-    @Spy
-    private final UserMapper userMapper = new UserMapper();
-
-    @InjectMocks
+    @Autowired
     private CalendarFacadeImpl calendarFacade;
 
     private GrpcPageRequest grpcPageRequestStub;

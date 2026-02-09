@@ -67,12 +67,12 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
         try (InputStream is = avatar.getInputStream()) {
             PutObjectArgs args = PutObjectArgs.builder()
-                                              .bucket(bucket)
-                                              .object(key)
-                                              .stream(is, avatar.getSize(), -1)
-                                              .contentType(avatar.getContentType())
-                                              .userMetadata(meta) // <-- добавили
-                                              .build();
+                    .bucket(bucket)
+                    .object(key)
+                    .stream(is, avatar.getSize(), -1)
+                    .contentType(avatar.getContentType())
+                    .userMetadata(meta) // <-- добавили
+                    .build();
 
             minioClient.putObject(args);
             log.info(
@@ -113,9 +113,9 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         try {
             StatObjectResponse stat = minioClient.statObject(
                     StatObjectArgs.builder()
-                                  .bucket(bucket)
-                                  .object(userAvatarKey)
-                                  .build()
+                            .bucket(bucket)
+                            .object(userAvatarKey)
+                            .build()
             );
 
             String contentType =
@@ -133,17 +133,17 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
             InputStream is = minioClient.getObject(
                     GetObjectArgs.builder()
-                                 .bucket(bucket)
-                                 .object(userAvatarKey)
-                                 .build()
+                            .bucket(bucket)
+                            .object(userAvatarKey)
+                            .build()
             );
 
             UserAvatarContentDto dto = UserAvatarContentDto.builder()
-                                                           .inputStream(is)
-                                                           .contentType(contentType)
-                                                           .filename(filename)
-                                                           .size(stat != null ? stat.size() : null)
-                                                           .build();
+                    .inputStream(is)
+                    .contentType(contentType)
+                    .filename(filename)
+                    .size(stat != null ? stat.size() : null)
+                    .build();
 
             return Optional.of(dto);
 
@@ -185,9 +185,9 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         try {
             minioClient.removeObject(
                     io.minio.RemoveObjectArgs.builder()
-                                             .bucket(bucket)
-                                             .object(userAvatarKey)
-                                             .build()
+                            .bucket(bucket)
+                            .object(userAvatarKey)
+                            .build()
             );
 
             log.info(
@@ -223,7 +223,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
 
         String contentType = avatar.getContentType();
         if (contentType == null || !userAvatarProperties.getAllowedContentTypes()
-                                                        .contains(contentType)) {
+                .contains(contentType)) {
             throw new UserAvatarValidationException(
                     "Недопустимый content-type файла: " + contentType);
         }
@@ -279,9 +279,9 @@ public class UserAvatarServiceImpl implements UserAvatarService {
             }
 
             name = name.replace("\"", "")
-                       .replace("\r", "")
-                       .replace("\n", "")
-                       .trim();
+                    .replace("\r", "")
+                    .replace("\n", "")
+                    .trim();
 
             if (name.isBlank()) {
                 name = DEFAULT_USER_AVATAR_FILENAME;

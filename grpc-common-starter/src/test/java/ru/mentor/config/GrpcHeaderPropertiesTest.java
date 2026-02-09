@@ -12,14 +12,14 @@ import ru.mentor.testUtil.TestConstantHolder;
 
 class GrpcHeaderPropertiesTest {
 
-    private static final String NODE_ID_FIELD = "nodeId";
-    private static final String API_KEY_FIELD = "apiKey";
+    private final String NODE_ID_FIELD = "nodeId";
+    private final String API_KEY_FIELD = "apiKey";
     private static Validator validator;
-    private static final String NO_VIOLATIONS_MSG = "Expected no constraint violations";
-    private static final String BLANK_NODE_ID_VIOLATIONS_MSG = "Expected violations for blank nodeId";
-    private static final String NODE_ID_VIOLATION_MSG = "Expected violation on nodeId";
-    private static final String BLANK_API_KEY_VIOLATIONS_MSG = "Expected violations for blank apiKey";
-    private static final String API_KEY_VIOLATION_MSG = "Expected violation on apiKey";
+    private final String NO_VIOLATIONS_MSG = "Expected no constraint violations";
+    private final String BLANK_NODE_ID_VIOLATIONS_MSG = "Expected violations for blank nodeId";
+    private final String NODE_ID_VIOLATION_MSG = "Expected violation on nodeId";
+    private final String BLANK_API_KEY_VIOLATIONS_MSG = "Expected violations for blank apiKey";
+    private final String API_KEY_VIOLATION_MSG = "Expected violation on apiKey";
 
     private GrpcHeaderProperties validProps() {
         GrpcHeaderProperties props = new GrpcHeaderProperties();

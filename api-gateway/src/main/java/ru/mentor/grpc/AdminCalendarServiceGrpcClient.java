@@ -1,5 +1,6 @@
 package ru.mentor.grpc;
 
+import io.grpc.StatusRuntimeException;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -21,9 +22,7 @@ public class AdminCalendarServiceGrpcClient {
     /**
      * Возвращает все слоты в соответствии с настройками страницы
      *
-     * @param pageRequest
-     *         настройки страницы (номер страницы и размер)
-     *
+     * @param pageRequest настройки страницы (номер страницы и размер)
      * @return {@link AllTimeSlotsResponse}
      */
     @Retryable(
@@ -34,6 +33,8 @@ public class AdminCalendarServiceGrpcClient {
     public AllTimeSlotsResponse getAllTimeSlots(GrpcPageRequest pageRequest) {
         try {
             return blockingStub.getAllTimeSlots(pageRequest);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(

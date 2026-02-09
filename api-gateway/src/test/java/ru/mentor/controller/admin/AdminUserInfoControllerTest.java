@@ -10,7 +10,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.mentor.constant.Role;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.services.JwtService;
 import ru.mentor.services.UserInfoService;
@@ -36,7 +35,7 @@ class AdminUserInfoControllerTest {
 
     @Test
     void getMyUserInfo_success() throws Exception {
-        UserInfoDto dto = TestEntityStubGenerator.constructUserInfoDtoWithRole(Role.USER);
+        UserInfoDto dto = TestEntityStubGenerator.getUserInfoDto();
         Mockito.when(userInfoService.getMyUserInfo()).thenReturn(dto);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/admin/user/me"))
@@ -46,7 +45,7 @@ class AdminUserInfoControllerTest {
 
     @Test
     void getOtherUserInfo_success() throws Exception {
-        UserInfoDto dto = TestEntityStubGenerator.constructUserInfoDtoWithRole(Role.USER);
+        UserInfoDto dto = TestEntityStubGenerator.getUserInfoDto();
         Mockito.when(userInfoService.getOtherUserInfo(ArgumentMatchers.anyLong())).thenReturn(dto);
 
         mockMvc.perform(MockMvcRequestBuilders.get(

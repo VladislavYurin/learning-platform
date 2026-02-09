@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +34,7 @@ public class TimeSlotController {
     /**
      * Создает новый слот
      *
-     * @param request
-     *         Данные для создания слота
-     *
+     * @param request Данные для создания слота
      * @return Созданный слот
      */
     @Operation(
@@ -61,9 +58,7 @@ public class TimeSlotController {
     /**
      * Бронирует слот
      *
-     * @param timeSlotId
-     *         ID слота
-     *
+     * @param timeSlotId ID слота
      * @return Забронированный слот
      */
     @Operation(
@@ -87,9 +82,7 @@ public class TimeSlotController {
     /**
      * Отмена слота
      *
-     * @param timeSlotId
-     *         ID слота
-     *
+     * @param timeSlotId ID слота
      * @return ОК
      */
     @Operation(

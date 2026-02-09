@@ -48,6 +48,7 @@
     <kafka.spring.version>4.0.0-M3</kafka.spring.version>
     <liquibase.maven.version>4.4.2</liquibase.maven.version>
     <project.reactor.version>3.7.11</project.reactor.version>
+    <testcontainers.version>2.0.2</testcontainers.version>
 
     <docker.tag>local</docker.tag>
     <docker.java-image>openjdk:21</docker.java-image>
@@ -321,18 +322,21 @@
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
+      <artifactId>testcontainers-junit-jupiter</artifactId>
       <scope>test</scope>
+      <version>${testcontainers.version}</version>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
+      <artifactId>testcontainers-postgresql</artifactId>
       <scope>test</scope>
+      <version>${testcontainers.version}</version>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>kafka</artifactId>
+      <artifactId>testcontainers-kafka</artifactId>
       <scope>test</scope>
+      <version>${testcontainers.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.kafka</groupId>

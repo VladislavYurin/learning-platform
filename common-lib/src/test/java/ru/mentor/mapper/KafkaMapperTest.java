@@ -3,6 +3,8 @@ package ru.mentor.mapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.constant.NotificationTypeEnum;
@@ -12,26 +14,29 @@ import ru.mentor.dto.kafka.NotificationPayload;
 import ru.mentor.dto.kafka.StudentReminderNotificationPayload;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestDataGenerator;
 
 import java.util.Set;
 
 class KafkaMapperTest {
 
+    @Mock
+    private UtilMapper utilMapper;
     private KafkaMapper kafkaMapper;
-    private BaseMapper baseMapper;
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
         kafkaMapper = new KafkaMapper();
-        baseMapper = new BaseMapper();
     }
 
     @Test
     void createKafkaNotificationDto_validData_success() {
         NotificationTypeEnum notificationType = NotificationTypeEnum.STUDENT_CALENDAR_SLOT_REMINDER;
-        UserInfoDto userInfoDto = baseMapper.mapUserDto(TestDataGenerator.getTestParticipantUser());
-        NotificationPayload payload = new NotificationPayload() {};
+        UserInfoDto userInfoDto = utilMapper.userEntityToUserInfoDto(TestDataGenerator.getUserEntity());
+        NotificationPayload payload = new NotificationPayload() {
+        };
 
         KafkaNotificationDto result = kafkaMapper.createKafkaNotificationDto(notificationType,
                 userInfoDto, payload);
@@ -43,18 +48,21 @@ class KafkaMapperTest {
 
     @Test
     void createStudentReminderNotificationPayload() {
-        UserEntity student = TestDataGenerator.getTestParticipantUser();
-        MentorTimeSlotEntity mentorTimeSlotEntity = TestDataGenerator.createTestSlot(1L, Set.of(student), true);
+        UserEntity student = TestDataGenerator.getUserEntity();
+        MentorTimeSlotEntity mentorTimeSlotEntity = TestDataGenerator.createTestSlot(
+                TestConstantHolder.mentorId,
+                TestConstantHolder.isActiveTrue,
+                Set.of(student));
 
         StudentReminderNotificationPayload result =
                 kafkaMapper.createStudentReminderNotificationPayload(mentorTimeSlotEntity, student);
 
-        Assertions.assertEquals(TestDataGenerator.TEST_USER_FIRST_NAME, result.getStudentName());
-        Assertions.assertEquals(TestDataGenerator.DEFAULT_START_TIME, result.getCalendarSlotTime());
-        Assertions.assertEquals(TestDataGenerator.TEST_MENTOR_FIRST_NAME, result.getMentorName());
+        Assertions.assertEquals(TestConstantHolder.userFirstName, result.getStudentName());
+        Assertions.assertEquals(TestConstantHolder.startTime, result.getCalendarSlotTime());
+        Assertions.assertEquals(TestConstantHolder.mentorFirstName, result.getMentorName());
         Assertions.assertEquals(CalendarSlotMeetingType.COMMUNICATION.toString(), result.getSlotMeetingType());
         Assertions.assertEquals(CalendarSlotType.INDIVIDUAL.toString(), result.getSlotType());
-        Assertions.assertEquals(TestDataGenerator.TEST_DESCRIPTION, result.getDescription());
-        Assertions.assertEquals(TestDataGenerator.TEST_LINK, result.getMeetingLink());
+        Assertions.assertEquals(TestConstantHolder.slotDescription, result.getDescription());
+        Assertions.assertEquals(TestConstantHolder.meetingLink, result.getMeetingLink());
     }
 }

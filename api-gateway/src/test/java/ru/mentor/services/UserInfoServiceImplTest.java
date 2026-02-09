@@ -7,13 +7,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.mentor.constant.Role;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.UserEntity;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.UtilMapper;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.services.impl.UserInfoServiceImpl;
 import ru.mentor.services.impl.UserServiceImpl;
+import ru.mentor.testUtil.TestDataGenerator;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,7 +26,7 @@ public class UserInfoServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
-    private BaseMapper baseMapper;
+    private UtilMapper utilMapper;
 
     @InjectMocks
     private UserInfoServiceImpl userInfoService;
@@ -35,26 +35,32 @@ public class UserInfoServiceImplTest {
 
     @Test
     public void updateMyUserInfo() {
-        UserInfoDto updateDto = TestEntityStubGenerator.constructUserInfoDtoWithRole(Role.USER);
+        UserInfoDto updateDto = TestEntityStubGenerator.getUserInfoDto();
         updateDto.setFirstName(UPDATED_FIRST_NAME);
 
-        UserEntity currentUser = TestEntityStubGenerator.constructUserEntityWithRole(Role.USER);
-
-        UserEntity updateEntity = TestEntityStubGenerator.constructUserEntityWithRole(Role.USER);
-        updateEntity.setFirstName(UPDATED_FIRST_NAME);
+        UserEntity currentUser = TestDataGenerator.getUserEntity();
+        UserEntity updatedEntity = TestDataGenerator.getUserEntity();
+        updatedEntity.setFirstName(UPDATED_FIRST_NAME);
 
         Mockito.when(userService.getCurrentUser()).thenReturn(currentUser);
-        Mockito.when(baseMapper.mapUserEntity(updateDto)).thenReturn(updateEntity);
-        Mockito.when(userRepository.save(updateEntity)).thenReturn(updateEntity);
-        Mockito.when(baseMapper.mapUserDto(updateEntity)).thenReturn(updateDto);
+
+        Mockito.doAnswer(invocation -> {
+            currentUser.setFirstName(UPDATED_FIRST_NAME);
+            return null;
+        }).when(utilMapper).updateUserFromDto(updateDto, currentUser);
+
+        Mockito.when(userRepository.save(Mockito.any(UserEntity.class)))
+                .thenReturn(updatedEntity);
+        Mockito.when(utilMapper.userEntityToUserInfoDto(updatedEntity))
+                .thenReturn(updateDto);
 
         UserInfoDto result = userInfoService.updateMyUserInfo(updateDto);
 
         Assertions.assertEquals(updateDto, result);
 
         Mockito.verify(userService).getCurrentUser();
-        Mockito.verify(baseMapper).mapUserEntity(updateDto);
-        Mockito.verify(userRepository).save(updateEntity);
-        Mockito.verify(baseMapper).mapUserDto(updateEntity);
+        Mockito.verify(utilMapper).updateUserFromDto(updateDto, currentUser);
+        Mockito.verify(userRepository).save(Mockito.any(UserEntity.class));
+        Mockito.verify(utilMapper).userEntityToUserInfoDto(updatedEntity);
     }
 }

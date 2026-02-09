@@ -1,5 +1,6 @@
 package ru.mentor.grpc;
 
+import io.grpc.StatusRuntimeException;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -23,9 +24,7 @@ public class AdminCourseServiceGrpcClient {
     /**
      * Возвращает запрошенный курс
      *
-     * @param request
-     *         объект, содержащий данные для запроса
-     *
+     * @param request объект, содержащий данные для запроса
      * @return {@link CourseResponse}
      */
     @Retryable(
@@ -36,6 +35,8 @@ public class AdminCourseServiceGrpcClient {
     public CourseResponse getCourse(GetCourseRequest request) {
         try {
             return blockingStub.getCourse(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -55,6 +56,8 @@ public class AdminCourseServiceGrpcClient {
     public AllCoursesResponse getAllCourses(GrpcPageRequest request) {
         try {
             return blockingStub.getAllCourses(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(

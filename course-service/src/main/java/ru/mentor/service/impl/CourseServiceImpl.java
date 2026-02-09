@@ -140,10 +140,10 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Mono<AllActiveCoursesResponse> getAllActiveCoursesPreview(GetAllActiveCoursesPreviewRequest request) {
         return courseFacade.findAllActiveCoursesPreview(request)
-                           .map(list ->
-                               AllActiveCoursesResponse.newBuilder()
-                                                       .addAllCourses(list)
-                                                       .build());
+                .map(list ->
+                        AllActiveCoursesResponse.newBuilder()
+                                .addAllCourses(list)
+                                .build());
     }
 
     /**
@@ -158,43 +158,43 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Mono<CourseResponse> getCourseById(GetCourseRequest request) {
         return userRepository
-            .findByIdOrThrow(request.getSenderId())
-            .flatMap(user ->
-                courseRepository
-                    .findByIdOrThrow(request.getCourseId())
-                    .flatMap(course ->
-                        accessChecker.hasAccessToCourse(user.getId(), course.getId())
-                            .flatMap(hasAccess -> {
-                                Mono<List<ModuleEntity>> modules;
-                                if (Role.checkIsMentor(user) &&
-                                    user.getId().equals(course.getAuthorId())) {
-                                        modules = moduleRepository.findAllByCourseId(course.getId())
-                                                                  .collectList();
-                                } else if (hasAccess) {
-                                    modules = userModuleAccessRepository
-                                            .findAllByUserIdAndCourseId(user.getId(), course.getId())
-                                            .flatMap(link ->
-                                                moduleRepository.findById(link.getModuleId()))
-                                            .collectList();
-                                } else {
-                                    return Mono.error(
-                                        Status.PERMISSION_DENIED
-                                              .withDescription(String.format(
-                                                  "Юзер с [ ID = %d ] не имеет доступа к курсу с [ ID = %d ]",
-                                                  user.getId(),
-                                                  request.getCourseId()
-                                              ))
-                                              .asRuntimeException()
-                                    );
-                                }
-                                return userRepository.findByIdOrThrow(course.getAuthorId())
-                                    .flatMap(author ->
-                                        modules.flatMap(modulesList ->
-                                            courseFacade.getCourse(course, author, modulesList)
-                                        )
-                                    );
-                            })
-                    )
+                .findByIdOrThrow(request.getSenderId())
+                .flatMap(user ->
+                        courseRepository
+                                .findByIdOrThrow(request.getCourseId())
+                                .flatMap(course ->
+                                        accessChecker.hasAccessToCourse(user.getId(), course.getId())
+                                                .flatMap(hasAccess -> {
+                                                    Mono<List<ModuleEntity>> modules;
+                                                    if (Role.checkIsMentor(user) &&
+                                                            user.getId().equals(course.getAuthorId())) {
+                                                        modules = moduleRepository.findAllByCourseId(course.getId())
+                                                                .collectList();
+                                                    } else if (hasAccess) {
+                                                        modules = userModuleAccessRepository
+                                                                .findAllByUserIdAndCourseId(user.getId(), course.getId())
+                                                                .flatMap(link ->
+                                                                        moduleRepository.findById(link.getModuleId()))
+                                                                .collectList();
+                                                    } else {
+                                                        return Mono.error(
+                                                                Status.PERMISSION_DENIED
+                                                                        .withDescription(String.format(
+                                                                                "Юзер с [ ID = %d ] не имеет доступа к курсу с [ ID = %d ]",
+                                                                                user.getId(),
+                                                                                request.getCourseId()
+                                                                        ))
+                                                                        .asRuntimeException()
+                                                        );
+                                                    }
+                                                    return userRepository.findByIdOrThrow(course.getAuthorId())
+                                                            .flatMap(author ->
+                                                                    modules.flatMap(modulesList ->
+                                                                            courseFacade.getCourse(course, author, modulesList)
+                                                                    )
+                                                            );
+                                                })
+                                )
                 );
     }
 }

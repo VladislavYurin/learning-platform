@@ -1,5 +1,6 @@
 package ru.mentor.grpc;
 
+import io.grpc.StatusRuntimeException;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -35,6 +36,7 @@ public class CalendarServiceGrpcClient {
     /**
      * Создаёт тайм-слот наставника в Calendar Service.
      * Выполняет RPC-вызов {@code createMentorTimeSlot}.
+     *
      * @param request запрос на создание тайм-слота (должен содержать корректный {@code rqUid})
      * @return Calendar Service с данными созданного тайм-слота
      * @throws GrpcRetryException при ошибке отправки/выполнения RPC будет перехвачен ретраем
@@ -49,6 +51,8 @@ public class CalendarServiceGrpcClient {
     ) {
         try {
             return blockingStub.createMentorTimeSlot(request);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -62,9 +66,7 @@ public class CalendarServiceGrpcClient {
     /**
      * Бронирует слот.
      *
-     * @param bookTimeSlotRequest
-     *         объект, содержащий данные для бронирования
-     *
+     * @param bookTimeSlotRequest объект, содержащий данные для бронирования
      * @return {@link TimeSlotResponse}
      */
     @Retryable(
@@ -75,6 +77,8 @@ public class CalendarServiceGrpcClient {
     public TimeSlotResponse bookTimeSlot(BookTimeSlotRequest bookTimeSlotRequest) {
         try {
             return blockingStub.bookTimeslot(bookTimeSlotRequest);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
@@ -87,8 +91,9 @@ public class CalendarServiceGrpcClient {
 
     /**
      * Возвращает пустой gRPC-ответ в случае отмены слота.
+     *
      * @param cancelTimeSlotRequest {@link CancelTimeSlotRequest} сгенерированный из proto класс запроса
-     * @return {@link Empty} сгенерированный класс ответа
+     * @return {@link CancelTimeSlotResponse} сгенерированный класс ответа
      */
     @Retryable(
             retryFor = GrpcRetryException.class,
@@ -98,22 +103,22 @@ public class CalendarServiceGrpcClient {
     public CancelTimeSlotResponse cancelTimeSlot(CancelTimeSlotRequest cancelTimeSlotRequest) {
         try {
             return blockingStub.cancelTimeSlot(cancelTimeSlotRequest);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                        "[ RqUId = %s ] Ошибка отправки gRPC запроса. Ошибка: %s",
-                        cancelTimeSlotRequest.getHeader().getRequestId(),
-                        e.getMessage()
-            ), cancelTimeSlotRequest.getHeader().getRequestId());
+                            "[ RqUId = %s ] Ошибка отправки gRPC запроса. Ошибка: %s",
+                            cancelTimeSlotRequest.getHeader().getRequestId(),
+                            e.getMessage()
+                    ), cancelTimeSlotRequest.getHeader().getRequestId());
         }
     }
 
     /**
      * Возвращает gRPC-ответ с данными о слотах ментора и участниках в этих слотах
      *
-     * @param mentorSlotsInfoRequest
-     *         {@link MentorSlotsInfoRequest} сгенерированный из proto класс запроса
-     *
+     * @param mentorSlotsInfoRequest {@link MentorSlotsInfoRequest} сгенерированный из proto класс запроса
      * @return {@link MentorSlotsInfoResponse} сгенерированный класс ответа
      */
     @Retryable(
@@ -124,6 +129,8 @@ public class CalendarServiceGrpcClient {
     public MentorSlotsInfoResponse getMentorSlotsInfo(MentorSlotsInfoRequest mentorSlotsInfoRequest) {
         try {
             return blockingStub.getMentorSlots(mentorSlotsInfoRequest);
+        } catch (StatusRuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
