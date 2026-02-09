@@ -16,6 +16,7 @@ import ru.mentor.common.CreateModuleGrpcRequest;
 import ru.mentor.common.DeleteCourseRequest;
 import ru.mentor.common.DeleteCourseTagRequest;
 import ru.mentor.common.DeleteModuleRequest;
+import ru.mentor.common.GetAllCourseTagsRequest;
 import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GetCourseTagRequest;
@@ -265,6 +266,13 @@ public class TestGrpcStubGenerator {
                 .setSenderId(TestConstantHolder.userId)
                 .setTagId(TestConstantHolder.courseTagId)
                 .build();
+    }
+
+    public static GetAllCourseTagsRequest constructGetAllCourseTagsRequest(){
+        return GetAllCourseTagsRequest.newBuilder()
+                                      .setHeader(buildTestHeader())
+                                      .setSenderId(TestConstantHolder.userId)
+                                      .build();
     }
 
     public static ListCourseTagsResponse constructAllCourseTagsResponse(){

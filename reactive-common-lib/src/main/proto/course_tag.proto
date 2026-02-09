@@ -23,6 +23,12 @@ message ListCourseTagsResponse {
   repeated CourseTagResponse tags = 1;
 }
 
+// Запрос на получение списка всех тегов
+message GetAllCourseTagsRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+}
+
 // Запрос на получение тега по ID
 message GetCourseTagRequest {
   Header header = 1;
@@ -76,8 +82,8 @@ service CourseTagsService {
   /**
  * Получить список всех тегов.
  *
- * @param Empty пустой запрос
+ * @param GetAllCourseTags запрос на получение списка всех тегов
  * @return ListTagsResponse список тегов
  */
-  rpc GetAllTags(Empty) returns (ListCourseTagsResponse);
+  rpc GetAllTags(GetAllCourseTagsRequest) returns (ListCourseTagsResponse);
 }

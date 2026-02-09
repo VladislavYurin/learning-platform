@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentor.common.CourseTagResponse;
 import ru.mentor.common.CreateCourseTagGrpcRequest;
 import ru.mentor.common.DeleteCourseTagRequest;
+import ru.mentor.common.GetAllCourseTagsRequest;
 import ru.mentor.common.GetCourseTagRequest;
 import ru.mentor.common.ListCourseTagsResponse;
 import ru.mentor.dto.tag.CourseTagDto;
@@ -93,30 +94,66 @@ class RedirectCourseTagServiceImplTest {
 
     @Test
     void getAllTags_success() {
+        GetAllCourseTagsRequest getAllCourseTagsRequest = TestGrpcStubGenerator.constructGetAllCourseTagsRequest();
         ListCourseTagsResponse listCourseTagsResponse = TestGrpcStubGenerator.constructAllCourseTagsResponse();
-        CourseTagResponse courseTagResponse = TestGrpcStubGenerator.constructCourseTagResponse();
-        List<CourseTagDto> dtoList = TestEntityStubGenerator.constructCourseTagDtoListRequest();
-        CourseTagDto dto = TestEntityStubGenerator.constructCourseTagDto();
-        Mockito.when(client.getAllTags())
+        int expectedCount = listCourseTagsResponse.getTagsList().size();
+
+        Mockito.when(courseTagsMapper.constructAllCourseTagsRequest(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.eq(TestConstantHolder.userId)
+        )).thenReturn(getAllCourseTagsRequest);
+
+        Mockito.when(client.getAllTags(ArgumentMatchers.any(GetAllCourseTagsRequest.class)))
                .thenReturn(listCourseTagsResponse);
-        Mockito.when(tagGrpcMapper.fromGrpc(courseTagResponse))
-               .thenReturn(dto);
+
+        Mockito.when(userService.getCurrentUserId())
+               .thenReturn(TestConstantHolder.userId);
+
+        CourseTagDto mockDto = Mockito.mock(CourseTagDto.class);
+        Mockito.when(tagGrpcMapper.fromGrpc(ArgumentMatchers.any(CourseTagResponse.class)))
+               .thenReturn(mockDto);
 
         List<CourseTagDto> result = redirectCourseTagService.getAllTags();
-        Assertions.assertThat(result).isEqualTo(dtoList);
-        Mockito.verify(tagGrpcMapper).fromGrpc(courseTagResponse);
+
+        Assertions.assertThat(result)
+                  .isNotNull()
+                  .hasSize(expectedCount);
+
+        for (CourseTagDto dto : result) {
+            Assertions.assertThat(dto).isSameAs(mockDto);
+        }
+
+        Mockito.verify(courseTagsMapper).constructAllCourseTagsRequest(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.eq(TestConstantHolder.userId)
+        );
+        Mockito.verify(client).getAllTags(ArgumentMatchers.any(GetAllCourseTagsRequest.class));
+        Mockito.verify(tagGrpcMapper, Mockito.times(expectedCount))
+               .fromGrpc(ArgumentMatchers.any(CourseTagResponse.class));
     }
 
     @Test
     void getAllTags_failure() {
-        Mockito.when(client.getAllTags())
+        GetAllCourseTagsRequest getAllCourseTagsRequest = TestGrpcStubGenerator.constructGetAllCourseTagsRequest();
+
+        Mockito.when(courseTagsMapper.constructAllCourseTagsRequest(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.eq(TestConstantHolder.userId)
+        )).thenReturn(getAllCourseTagsRequest);
+
+        Mockito.when(client.getAllTags(ArgumentMatchers.eq(getAllCourseTagsRequest)))
                .thenAnswer(invocation -> {
-                   throw new GrpcRetryException(TestConstantHolder.grpcExceptionText);
+                   GetAllCourseTagsRequest request = invocation.getArgument(0, GetAllCourseTagsRequest.class);
+                   throw new GrpcRetryException(TestConstantHolder.grpcExceptionText, request.getHeader().getRequestId());
                });
-        Assertions.assertThatThrownBy(() -> redirectCourseTagService.getAllTags())
+
+        Mockito.when(userService.getCurrentUserId()).thenReturn(TestConstantHolder.userId);
+
+        Assertions.assertThatThrownBy(()-> redirectCourseTagService.getAllTags())
                   .isInstanceOf(GrpcRetryException.class)
                   .hasMessageContaining(TestConstantHolder.grpcExceptionText);
-        Mockito.verify(client).getAllTags();
+
+        Mockito.verify(client).getAllTags(ArgumentMatchers.eq(getAllCourseTagsRequest));
     }
 
     @Test

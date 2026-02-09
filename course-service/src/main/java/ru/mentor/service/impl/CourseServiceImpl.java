@@ -18,7 +18,6 @@ import ru.mentor.common.GetCourseRequest;
 import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.constant.Role;
 import ru.mentor.entity.ModuleEntity;
-import ru.mentor.entity.UserEntity;
 import ru.mentor.facade.CourseFacade;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.ModuleRepository;
@@ -115,6 +114,19 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Mono<AllCoursesResponse> getAllCourses(GrpcPageRequest request) {
         return courseFacade.findAllCourses(request);
+    }
+
+    /**
+     * Вызывает метод фасада для получения данных всех активных курсов
+     *
+     * @param request - параметры пагинации
+     *
+     * @return Mono с gRPC-ответом, содержащим список курсов
+     */
+
+    @Override
+    public Mono<AllCoursesResponse> getAllActiveCourses(GrpcPageRequest request) {
+        return courseFacade.findAllActiveCourses(request);
     }
 
     /**

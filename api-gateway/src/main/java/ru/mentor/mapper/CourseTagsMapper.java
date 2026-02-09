@@ -3,6 +3,7 @@ package ru.mentor.mapper;
 import org.springframework.stereotype.Component;
 import ru.mentor.common.CreateCourseTagGrpcRequest;
 import ru.mentor.common.DeleteCourseTagRequest;
+import ru.mentor.common.GetAllCourseTagsRequest;
 import ru.mentor.common.GetCourseTagRequest;
 import ru.mentor.common.Header;
 import ru.mentor.dto.tag.CreateCourseTagRequest;
@@ -37,5 +38,12 @@ public class CourseTagsMapper {
                                   .setSenderId(userId)
                                   .setTagId(tagId)
                                   .build();
+    }
+
+    public GetAllCourseTagsRequest constructAllCourseTagsRequest(Header header, Long userId){
+        return GetAllCourseTagsRequest.newBuilder()
+                                      .setHeader(header)
+                                      .setSenderId(userId)
+                                      .build();
     }
 }

@@ -95,8 +95,8 @@ public class CourseController {
             }
     )
     @GetMapping("/all/active")
-    public ResponseEntity<Page<CourseDto>> getAllActiveCourses(@RequestParam int pageNumber,
-                                                               @RequestParam int pageSize) {
+    public ResponseEntity<Page<CourseDto>> getAllActiveCourses(@RequestParam (defaultValue = "0") int pageNumber,
+                                                               @RequestParam (defaultValue = "10") int pageSize) {
         return ResponseEntity.ok().body(redirectCourseService.getAllActiveCourses(pageNumber, pageSize));
     }
 
@@ -110,8 +110,8 @@ public class CourseController {
             }
     )
     @GetMapping("/all")
-    public ResponseEntity<Page<CourseDto>> getAllCourses(@RequestParam int pageNumber,
-                                                         @RequestParam int pageSize) {
+    public ResponseEntity<Page<CourseDto>> getAllCourses(@RequestParam(defaultValue = "0") int pageNumber,
+                                                         @RequestParam (defaultValue = "10") int pageSize) {
         return ResponseEntity.ok().body(redirectCourseService.getAllCourses(pageNumber, pageSize));
     }
 

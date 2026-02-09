@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.mentor.common.CourseTagResponse;
 import ru.mentor.common.CreateCourseTagGrpcRequest;
 import ru.mentor.common.DeleteCourseTagRequest;
+import ru.mentor.common.GetAllCourseTagsRequest;
 import ru.mentor.common.GetCourseTagRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.ListCourseTagsResponse;
@@ -116,8 +117,9 @@ public class RedirectCourseTagServiceImpl implements RedirectCourseTagService {
                 "[ requestId = {} ] Получен запрос на получение всех тегов от юзера [ ID = {} ]",
                 requestId, userId
         );
+        GetAllCourseTagsRequest request = courseTagsMapper.constructAllCourseTagsRequest(header, userId);
         try {
-            ListCourseTagsResponse response = client.getAllTags();
+            ListCourseTagsResponse response = client.getAllTags(request);
             return response.getTagsList().stream()
                            .map(tagGrpcMapper::fromGrpc)
                            .toList();

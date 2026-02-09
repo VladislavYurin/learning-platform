@@ -166,7 +166,7 @@ public class RedirectCourseServiceImpl implements RedirectCourseService {
         String requestId = RqGenerator.generateRqId();
         Header header = headerFactory.create(requestId);
         log.info("[ requestId = {} ] Получен запрос на получение всех активных курсов"
-                         + "юзером [ ID = {} ].",
+                         + " юзером [ ID = {} ].",
                  requestId,
                  userId);
         GrpcPageRequest request = courseMapper.constructGrpcPageRequest(header, pageNumber,

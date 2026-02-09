@@ -1,6 +1,5 @@
 package ru.mentor.service;
 
-import java.util.List;
 import reactor.core.publisher.Mono;
 import ru.mentor.common.AllActiveCoursesResponse;
 import ru.mentor.common.AllCoursesResponse;
@@ -23,6 +22,8 @@ public interface CourseService {
     Mono<DeleteCourseResponse> deleteCourse(DeleteCourseRequest request);
 
     Mono<AllCoursesResponse> getAllCourses(GrpcPageRequest request);
+
+    Mono<AllCoursesResponse> getAllActiveCourses(GrpcPageRequest request);
 
     Mono<CourseResponse> getCourseById(GetCourseRequest request);
 
