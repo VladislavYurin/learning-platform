@@ -45,7 +45,7 @@ public class CourseServiceGrpcServer extends CourseServiceImplBase {
             "[ requestId = {} ] Поступил запрос на удаление курса [ ID = {} ]"
                     + " от пользователя с [ ID = {} ]";
     public static final String GET_ALL_COURSES_PREVIEW_REQUEST_LOG_TEXT =
-            "[ requestId = {} ] Поступил запрос  на получение данных обо всех курсах"
+            "[ requestId = {} ] Поступил запрос на получение превью всех активных курсов"
                     + " от пользователя с [ ID = {} ]";
 
     private final CourseService courseService;
