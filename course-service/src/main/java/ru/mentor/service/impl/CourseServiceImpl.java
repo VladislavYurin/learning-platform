@@ -133,7 +133,7 @@ public class CourseServiceImpl implements CourseService {
      * Вызывает метод фасада для получения данных обо всех активных курсах
      * без информации о модулях
      *
-     * @param request - параметры пагинации
+     * @param request - gRPC запрос превью всех активных курсов
      *
      * @return Mono с gRPC-ответом, содержащим список курсов
      */

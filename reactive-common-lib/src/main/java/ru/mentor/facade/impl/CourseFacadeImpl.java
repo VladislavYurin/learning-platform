@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.mentor.cache.CacheAdapter;
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.CreateCourseGrpcRequest;
@@ -57,9 +58,13 @@ public class CourseFacadeImpl implements CourseFacade {
 
     private final CourseAccessResolver courseAccessResolver;
 
+    private final CacheAdapter<String, List<CourseResponse>> cache;
+
+    private static final String ACTIVE_PREVIEWS_CACHE_KEY = "active_previews";
+
     /**
      * Создает сущность курса из {@link CreateCourseGrpcRequest}, сущности {@link UserEntity}, и
-     * сохраняет в базу данных
+     * сохраняет в базу данных. Инвалидирует кэш со списком превью курсов.
      *
      * @param request
      *         - gRPC запрос с данными курса
@@ -123,6 +128,7 @@ public class CourseFacadeImpl implements CourseFacade {
                                                                  tuple.getT2(),
                                                                  null)
             )
+            .flatMap(response -> cache.invalidate(ACTIVE_PREVIEWS_CACHE_KEY).thenReturn(response))
         );
     }
 
@@ -245,33 +251,37 @@ public class CourseFacadeImpl implements CourseFacade {
 
     /**
      * Находит все активные курсы и возвращает их без информации о модулях. Предназначен для превью.
-     *
+     * Сначала проверяет кэш, если кэш пуст - загружает из БД.
      * @param request - DTO запроса курсов
      *
      * @return - Mono со списком DTO курсов без модулей
      */
     @Override
     public Mono<List<CourseResponse>> findAllActiveCoursesPreview(GetAllActiveCoursesPreviewRequest request) {
-        return courseRepository.findAllByIsActiveTrue()
-                .flatMap(course ->
-                    userRepository.findByIdOrThrow(course.getAuthorId())
-                        .flatMap(author ->
-                            courseTagRepository.findAllByCourseId(course.getId())
-                                               .collectList()
-                                    .flatMap(tags ->
-                                        Mono.just(courseMapper.mapCourseEntityToGrpcCourseResponse(
-                                                course,
-                                                author,
-                                                tags,
-                                                null
-                                        ))
-                                    )
-                        )
-                ).collectList();
+        return cache.get(ACTIVE_PREVIEWS_CACHE_KEY, key -> loadActivePreviewsFromDb()
+                .doOnNext(list -> log.info("Loaded {} active previews from DB", list.size())));
     }
 
     /**
-     * Удаляет курс по его ID в таблице courses, а также связанные с ним записи в других таблицах БД
+     * Загружает активные курсы для превью из БД и добавляет их в кэш.
+     * @return - Mono со списком DTO курсов без модулей
+     */
+    private Mono<List<CourseResponse>> loadActivePreviewsFromDb(){
+        return courseRepository.findAllByIsActiveTrue()
+                               .flatMap(course ->
+                               userRepository.findByIdOrThrow(course.getAuthorId())
+                                             .flatMap(author -> courseTagRepository
+                                                              .findAllByCourseId(course.getId())
+                                                              .collectList()
+                                                              .flatMap(tags -> Mono.just(
+                                                                      courseMapper.mapCourseEntityToGrpcCourseResponse(
+                                                                              course, author, tags, null))
+                                                              ))
+                               ).collectList();
+    }
+
+    /**
+     * Удаляет курс по его ID в таблице courses, а также связанные с ним записи в других таблицах БД и инвалидирует кэш.
      *
      * @param courseId - ID курса, который нужно удалить
      *
@@ -279,6 +289,7 @@ public class CourseFacadeImpl implements CourseFacade {
      */
     public Mono<DeleteCourseResponse> deleteCourse(Long courseId) {
         return courseRepository.deleteById(courseId)
+                               .then(cache.invalidate(ACTIVE_PREVIEWS_CACHE_KEY))
                                .thenReturn(DeleteCourseResponse.newBuilder().build());
     }
 

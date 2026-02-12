@@ -1,5 +1,6 @@
 package ru.mentor.controller;
 
+import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import ru.mentor.security.JwtAuthenticationFilter;
 import ru.mentor.services.impl.RedirectCourseServiceImpl;
 import ru.mentor.testUtil.TestEntityStubGenerator;
 
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 
@@ -58,7 +58,7 @@ class CourseControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         "$[0].isActive").value(courseDto.getIsActive()))
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].createdAt").value(courseDto.getCreatedAt().truncatedTo(ChronoUnit.MILLIS).toString()))
+                        "$[0].createdAt").value(courseDto.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         "$[0].author.id").value(courseDto.getAuthor().getId()))
                 .andExpect(MockMvcResultMatchers.jsonPath(

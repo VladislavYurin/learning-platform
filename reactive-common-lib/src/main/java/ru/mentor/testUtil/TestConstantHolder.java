@@ -92,4 +92,5 @@ public final class TestConstantHolder {
                              MODULE_CREATED_AT_EPOCH_SECONDS)
                      .build();
 
+    public static final String ACTIVE_PREVIEWS_CACHE_KEY = "active_previews";
 }

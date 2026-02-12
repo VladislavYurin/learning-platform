@@ -131,6 +131,33 @@ public final class TestGrpcStubGenerator {
                              .build();
     }
 
+    public static CourseResponse constructCoursePreviewResponse() {
+        return CourseResponse.newBuilder()
+                             .setCourseId(TestConstantHolder.COURSE_ID)
+                             .setTitle(TestConstantHolder.COURSE_TITLE)
+                             .setDescription(TestConstantHolder.COURSE_DESCRIPTION)
+                             .setIsActive(TestConstantHolder.IS_ACTIVE_COURSE)
+                             .setCreatedAt(Timestamp.newBuilder()
+                                                    .setSeconds(TestConstantHolder.CREATED_AT_EPOCH_SECONDS)
+                                                    .build())
+                             .addAllTags(constructCourseTagsListResponse())
+                             .setAuthor(constructCourseAuthorResponse())
+                             .build();
+    }
+
+    public static CourseResponse constructCreatedCourseResponse() {
+        return CourseResponse.newBuilder()
+                             .setCourseId(TestConstantHolder.COURSE_ID)
+                             .setTitle(TestConstantHolder.COURSE_TITLE)
+                             .setDescription(TestConstantHolder.COURSE_DESCRIPTION)
+                             .setIsActive(TestConstantHolder.IS_ACTIVE_COURSE)
+                             .setCreatedAt(Timestamp.newBuilder()
+                                                    .setSeconds(TestConstantHolder.CREATED_AT_EPOCH_SECONDS)
+                                                    .build())
+                             .setAuthor(constructCourseAuthorResponse())
+                             .build();
+    }
+
     public static AuthorResponse constructCourseAuthorResponse() {
         return AuthorResponse.newBuilder()
                              .setUserId(TestConstantHolder.MENTOR_ID)
