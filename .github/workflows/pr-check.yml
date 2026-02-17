@@ -23,7 +23,7 @@ env:
 jobs:
   java-build:
     name: Build & Test — ${{ matrix.svc.name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
