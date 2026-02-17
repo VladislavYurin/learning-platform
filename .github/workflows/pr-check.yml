@@ -45,13 +45,13 @@ jobs:
           java-version: '21'
           cache: maven
 
-      # Собираем только указанный модуль + его зависимости (-am)
-      - name: Maven verify
-        run: mvn -B -ntp -pl ${{ matrix.svc.module }} -am clean verify
-
       - name: Force docker-java API version
         run: |
           echo "api.version=1.44" >> ~/.docker-java.properties
+
+      # Собираем только указанный модуль + его зависимости (-am)
+      - name: Maven verify
+        run: mvn -B -ntp -pl ${{ matrix.svc.module }} -am clean verify
 
       - name: Upload surefire reports
         if: always()
