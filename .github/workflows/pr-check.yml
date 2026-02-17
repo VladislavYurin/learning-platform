@@ -49,6 +49,10 @@ jobs:
       - name: Maven verify
         run: mvn -B -ntp -pl ${{ matrix.svc.module }} -am clean verify
 
+      - name: Force docker-java API version
+        run: |
+          echo "api.version=1.44" >> ~/.docker-java.properties
+
       - name: Upload surefire reports
         if: always()
         uses: actions/upload-artifact@v4
