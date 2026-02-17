@@ -9,7 +9,7 @@ import java.util.UUID;
 public class RqGenerator {
 
     /**
-     * Генерирует новый RqId в формате UUID v4.
+     * Генерирует новый RqId в формате UUID v4 test.
      * @return строка UUID
      */
     public static String generateRqId() {
