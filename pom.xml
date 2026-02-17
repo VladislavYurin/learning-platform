@@ -48,6 +48,7 @@
     <kafka.spring.version>4.0.0-M3</kafka.spring.version>
     <liquibase.maven.version>4.4.2</liquibase.maven.version>
     <project.reactor.version>3.7.11</project.reactor.version>
+    <testcontainers.version>1.20.4</testcontainers.version>
 
     <docker.tag>local</docker.tag>
     <docker.java-image>openjdk:21</docker.java-image>
@@ -162,6 +163,14 @@
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-openfeign</artifactId>
         <version>${openfeign.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
