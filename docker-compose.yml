@@ -1,11 +1,4 @@
 services:
-  common-lib:
-    profiles:
-      - lib.build
-    build:
-      context: .
-      dockerfile: ./reactive-common-lib/Dockerfile
-    image: mentor/common-lib:local
 
   api-gateway-migrations:
     image: mentor/api-gateway:local
@@ -194,10 +187,10 @@ services:
     container_name: minio
     env_file:
       - .env.docker.example
-    command: server /data --console-address ":9001"
+    command: server /data --console-address ":9000"
     ports:
       - "9000:9000"
-      - "9001:9001"
+#      - "9001:9001"
     volumes:
       - minio-data:/data
     networks:
