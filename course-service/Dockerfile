@@ -1,4 +1,4 @@
-FROM mentor/common-lib:local AS build
+FROM maven:3.9.11-eclipse-temurin-21 AS build
 WORKDIR /opt/app
 
 COPY ./pom.xml ./
@@ -11,10 +11,13 @@ COPY ./mentor-service/pom.xml ./mentor-service/
 COPY ./notification-service/pom.xml ./notification-service/
 COPY ./calendar-service/pom.xml ./calendar-service/
 COPY ./admin-service/pom.xml ./admin-service/
+
+COPY ./common-lib/src ./common-lib/src
+COPY ./reactive-common-lib/src ./reactive-common-lib/src
+COPY ./grpc-common-starter/src ./grpc-common-starter/src
 COPY ./course-service/src ./course-service/src
 
-RUN --mount=type=cache,target=/root/.m2,id=m2cache \
-    mvn -B -ntp -pl course-service package -DskipTests
+RUN mvn -B -ntp clean install -pl course-service -am -DskipTests
 
 FROM eclipse-temurin:21-jre AS layers
 WORKDIR /opt/app
