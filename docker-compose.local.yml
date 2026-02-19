@@ -44,8 +44,8 @@ services:
       - .env.docker.example
     container_name: course-service
     image: mentor/course-service:local
-    expose:
-      - "8081"
+    ports:
+      - "8081:8081"
     networks:
       - backend
     depends_on:
@@ -64,8 +64,8 @@ services:
       - .env.docker.example
     container_name: mentor-service
     image: mentor/mentor-service:local
-    expose:
-      - "8082"
+    ports:
+      - "8082:8082"
     networks:
       - backend
     depends_on:
@@ -84,8 +84,8 @@ services:
       - .env.docker.example
     container_name: notification-service
     image: mentor/notification-service:local
-    expose:
-      - "8083"
+    ports:
+      - "8083:8083"
     networks:
       - backend
     depends_on:
@@ -104,8 +104,8 @@ services:
       - .env.docker.example
     container_name: calendar-service
     image: mentor/calendar-service:local
-    expose:
-      - "8084"
+    ports:
+      - "8084:8084"
     networks:
       - backend
     depends_on:
@@ -124,8 +124,8 @@ services:
       - .env.docker.example
     container_name: admin-service
     image: mentor/admin-service:local
-    expose:
-      - "8085"
+    ports:
+      - "8085:8085"
     networks:
       - backend
     depends_on:
@@ -147,8 +147,8 @@ services:
       timeout: 3s
       retries: 10
       start_period: 20s
-    expose:
-      - "5432"
+    ports:
+      - "5432:5432"
     volumes:
       - mentor-database:/var/lib/postgres/data
     networks:
@@ -164,15 +164,15 @@ services:
       timeout: 5s
       retries: 10
       start_period: 40s
-    expose:
-      - "9092"
+    ports:
+      - "9092:9092"
     networks:
       - backend
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    expose:
-      - "8080"
+    ports:
+      - "8086:8080"
     environment:
       - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka-1:9092
     networks:
@@ -188,9 +188,9 @@ services:
     env_file:
       - .env.docker.example
     command: server /data --console-address ":9999"
-    expose:
-      - "9000"
-      - "9999"
+    ports:
+      - "9000:9000"
+      - "9999:9999"
     volumes:
       - minio-data:/data
     networks:
