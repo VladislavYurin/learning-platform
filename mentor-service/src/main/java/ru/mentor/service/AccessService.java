@@ -1,6 +1,7 @@
 package ru.mentor.service;
 
 import reactor.core.publisher.Mono;
+import ru.mentor.dto.*;
 
 
 /**
@@ -10,12 +11,12 @@ import reactor.core.publisher.Mono;
  */
 public interface AccessService {
 
-    Mono<Void> getCourseAccessToUser(String requestId, CourseAccessRequest request);
+    Mono<Void> grantCourseAccess(String requestId, GrantCourseAccessRequestDto request);
 
-    Mono<Void> getModuleAccessToUser(String requestId, ModuleAccessRequest request);
+    Mono<Void> grantModuleAccessToUser(String requestId, GrantModuleAccessRequest request);
 
-    Mono<Void> deleteCourseAccessToUser(String requestId, CourseAccessRequest request);
+    Mono<Void> revokeCourseAccessFromUser(String requestId, RevokeCourseAccessRequest request);
 
-    Mono<Void> deleteModuleAccessToUser(String requestId, ModuleAccessRequest request);
+    Mono<Void> revokeModuleAccessFromUser(String requestId, RevokeModuleAccessRequest request);
 
 }

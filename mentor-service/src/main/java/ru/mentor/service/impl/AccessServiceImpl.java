@@ -1,28 +1,23 @@
 package ru.mentor.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.mentor.constant.Role;
-import ru.mentor.dto.GetAccessRequest;
-import ru.mentor.entity.CourseEntity;
-import ru.mentor.entity.ModuleEntity;
-import ru.mentor.entity.UserCourseAccessEntity;
-import ru.mentor.entity.UserEntity;
-import ru.mentor.entity.UserModuleAccessEntity;
-import ru.mentor.exception.CustomAccessDeniedException;
+import reactor.core.publisher.Mono;
+import ru.mentor.AccessChecker;
+
+
+import ru.mentor.dto.*;
+import ru.mentor.entity.*;
 import ru.mentor.exception.EntityAlreadyExistsException;
 import ru.mentor.exception.EntityNotFoundException;
-import ru.mentor.kafka.KafkaFacade;
-import ru.mentor.repository.CourseRepository;
-import ru.mentor.repository.ModuleRepository;
-import ru.mentor.repository.UserCourseAccessRepository;
-import ru.mentor.repository.UserModuleAccessRepository;
-import ru.mentor.repository.UserRepository;
+import ru.mentor.grpc.MentorAccessValidator;
+import ru.mentor.repository.*;
 import ru.mentor.service.AccessService;
-import ru.mentor.util.AccessChecker;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
+
 
 /**
  * Реализация сервиса управления доступом к курсам и модулям.
@@ -33,57 +28,96 @@ import ru.mentor.util.AccessChecker;
 @RequiredArgsConstructor
 public class AccessServiceImpl implements AccessService {
 
+    //private final CourseFacade courseFacade; переделать на методы с ним
     private final CourseRepository courseRepository;
-
-    private final ModuleRepository moduleRepository;
-
     private final UserRepository userRepository;
-
+    ModuleRepository moduleRepository;
     private final AccessChecker accessChecker;
-
+    private final MentorAccessValidator mentorAccessValidator;
+    //добавить Kafka
+    //kafkaFacade.sendCourseAccessGrantedMessage() должен вернуть Mono<Void> добавить в reactive-common-lib
     private final UserCourseAccessRepository userCourseAccessRepository;
-
     private final UserModuleAccessRepository userModuleAccessRepository;
-
-    private final KafkaFacade kafkaFacade;
 
     /**
      * Предоставляет пользователю доступ к курсу.
      *
-     * @param requestId
-     *         Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request
-     *         Запрос, содержащий идентификаторы наставника, пользователя и курса.
-     *
-     * @throws EntityAlreadyExistsException
-     *         Если у пользователя уже имеется доступ к курсу.
+     * @param requestId Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request   Запрос, содержащий идентификаторы наставника, пользователя и курса.
+     * @throws EntityAlreadyExistsException Если у пользователя уже имеется доступ к курсу.
      */
     @Override
-    public void getCourseAccessToUser(String requestId, GetAccessRequest request) {
-        UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
-        UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
-        CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
-        checkUserIsAuthorOrAdmin(requestId, mentor, course);
+    public Mono<Void> grantCourseAccess(String requestId, GrantCourseAccessRequestDto request) {
 
-        // Проверяем, имеет ли пользователь доступ к курсу
-        if (!accessChecker.hasAccessToCourse(user.getId(), course.getId())) {
-            UserCourseAccessEntity access = UserCourseAccessEntity.builder()
-                                                                  .user(user)
-                                                                  .course(course)
-                                                                  .accessGrantedBy(mentor)
-                                                                  .build();
-            UserCourseAccessEntity savedAccess = userCourseAccessRepository.save(access);
-            kafkaFacade.sendCourseAccessGrantedMessage(user, mentor, course, savedAccess);
-        } else {
-            // Если пользователь уже имеет доступ к курсу, выбрасываем исключение
-            throw new EntityAlreadyExistsException(
-                    String.format(
-                            "Юзер с ID = %d уже имеет доступ к курсу %d",
-                            user.getId(),
-                            course.getId()
-                    ), requestId
-            );
-        }
+        Mono<UserEntity> mentorMono = getUserOrError(request.getMentorId(), requestId);
+        Mono<UserEntity> userMono = getUserOrError(request.getUserId(), requestId);
+        Mono<CourseEntity> courseMono = getCourseOrError(request.getCourseId(), requestId);
+
+        return Mono.zip(mentorMono, userMono, courseMono)
+                .flatMap(tuple -> {
+                    UserEntity mentor = tuple.getT1();
+                    UserEntity user = tuple.getT2();
+                    CourseEntity course = tuple.getT3();
+
+                    // Проверяем, является пользователь автором курса или администратором
+                    return mentorAccessValidator.checkUserIsAuthorOrAdmin(requestId, mentor, course)
+
+                            //Проверяем, имеет ли пользователь доступ к курсу
+                                                .then(checkUserHasNoAccessToCourse(user, course, requestId))
+                                                .then(grantAccess(user, course, mentor)
+                                                        // сюда добавить отправку в кафку
+                    )
+                            .then();
+                });
+    }
+
+    private Mono<UserEntity> getUserOrError(Long id, String requestId) {
+        return userRepository.findById(id)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException(
+                        String.format(
+                                "Пользователь с ID = %d не найден",
+                                id
+                        ),
+                        requestId)));
+    }
+
+    private Mono<CourseEntity> getCourseOrError(Long id, String requestId) {
+        return courseRepository.findByIdOrThrow(id)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException(
+                        String.format(
+                                "Курс с ID = %d не найден",
+                                id),
+                        requestId)));
+    }
+
+    private Mono<Void> checkUserHasNoAccessToCourse(UserEntity user, CourseEntity course, String requestId) {
+        return accessChecker.hasAccessToCourse(user.getId(), course.getId())
+                .flatMap(hasAccess -> {
+                    if (hasAccess) {
+                        return Mono.error(new EntityAlreadyExistsException(
+                                String.format(
+                                        "Юзер с ID = %d уже имеет доступ к курсу %d",
+                                        user.getId(),
+                                        course.getId()
+                                ),
+                                requestId
+                        ));
+                    }
+                    return Mono.empty();
+                });
+    }
+
+    private Mono<UserCourseAccessEntity> grantAccess(
+            UserEntity user,
+            CourseEntity course,
+            UserEntity mentor
+    ){
+        UserCourseAccessEntity access = UserCourseAccessEntity.builder()
+                                                              .userId(user.getId())
+                                                              .courseId(course.getId())
+                                                              .accessGrantedByUserId(mentor.getId())
+                                                              .build();
+        return userCourseAccessRepository.save(access);
     }
 
     /**
@@ -100,45 +134,95 @@ public class AccessServiceImpl implements AccessService {
      *         Если у пользователя нет доступа к курсу.
      */
     @Override
-    public void getModuleAccessToUser(String requestId, GetAccessRequest request) {
-        UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
-        UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
-        CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
-        ModuleEntity module = moduleRepository.findByIdOrThrow(request.getModuleId());
-        checkUserIsAuthorOrAdmin(requestId, mentor, course);
-        checkModuleIsInCourse(requestId, course, module);
+    public Mono<Void> grantModuleAccessToUser(String requestId, GrantModuleAccessRequest request) {
+        Mono<UserEntity> mentorMono = getUserOrError(request.getMentorId(), requestId);
+        Mono<UserEntity> userMono = getUserOrError(request.getUserId(), requestId);
+        Mono<CourseEntity> courseMono = getCourseOrError(request.getCourseId(), requestId);
+        Mono<ModuleEntity> moduleMono = getModuleOrError(request.getModuleId(), requestId);
 
-        // Проверяем, имеет ли пользователь доступ к модулю
-        if (accessChecker.hasAccessToModule(user.getId(), module.getId())) {
-            throw new EntityAlreadyExistsException(
-                    String.format(
-                            "Юзер с ID = %d уже имеет доступ к модулю %d",
-                            user.getId(),
-                            module.getId()
-                    ), requestId
-            );
-        }
+        return Mono.zip(mentorMono, userMono, courseMono, moduleMono)
+                .flatMap(tuple -> {
+                    UserEntity mentor = tuple.getT1();
+                    UserEntity user = tuple.getT2();
+                    CourseEntity course = tuple.getT3();
+                    ModuleEntity module = tuple.getT4();
 
-        // Проверяем, имеет ли пользователь доступ к курсу
-        if (!accessChecker.hasAccessToCourse(user.getId(), course.getId())) {
-            throw new EntityNotFoundException(
-                    String.format(
-                            "Юзер с ID = %d не имеет доступа к курсу %d",
-                            user.getId(),
-                            course.getId()
-                    ), requestId
-            );
-        }
+                    // Проверяем, является пользователь автором курса или администратором
+                    return mentorAccessValidator.checkUserIsAuthorOrAdmin(requestId, mentor, course)
+                            // Проверяем, имеет ли пользователь доступ к модулю
+                            .then(checkUserHasNoAccessToModule(user, module, requestId))
+                            //Удостоверяемся, что пользователь имеет доступ к курсу
+                            .then(checkUserHasAccessToCourse(user, course, requestId))
+                            //Даем доступ к модулю
+                            .then(grantAccessToModule(user, course, module, mentor)
+                                    // сюда добавить отправку в кафку
+                            ).then();
+                });
 
+    }
+
+    private Mono<ModuleEntity> getModuleOrError(Long moduleId, String requestId) {
+        return moduleRepository.findByIdOrThrow(moduleId)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException(
+                        String.format(
+                                "Модуль с ID = %d не найден",
+                                moduleId
+                        ),
+                        requestId
+                        )
+                ));
+    }
+
+    private Mono<UserModuleAccessEntity> grantAccessToModule(
+            UserEntity user,
+            CourseEntity course,
+            ModuleEntity module,
+            UserEntity mentor
+    ) {
         UserModuleAccessEntity access = UserModuleAccessEntity.builder()
-                                                              .user(user)
-                                                              .course(course)
-                                                              .module(module)
-                                                              .accessGrantedBy(mentor)
-                                                              .build();
-        UserModuleAccessEntity savedAccess = userModuleAccessRepository.save(access);
-        kafkaFacade.sendModuleAccessGrantedMessage(user, mentor, course, module, savedAccess);
+                .userId(user.getId())
+                .courseId(course.getId())
+                .moduleId(module.getId())
+                .accessGrantedByUserId(mentor.getId())
+                .build();
+        return userModuleAccessRepository.save(access);
+    }
 
+    private Mono<Void> checkUserHasAccessToCourse(
+            UserEntity user,
+            CourseEntity course,
+            String requestId
+    ) {
+        return accessChecker.hasAccessToCourse(user.getId(), course.getId())
+                .flatMap(hasAccess -> {
+                    if (!hasAccess) {
+                        return Mono.error(new EntityNotFoundException(
+                                String.format(
+                                        "Юзер с ID = %d не имеет доступа к курсу %d",
+                                        user.getId(),
+                                        course.getId()
+                                ),
+                                requestId
+                        ));
+                    }
+                    return Mono.empty();
+                });
+    }
+    private Mono<Void> checkUserHasNoAccessToModule(UserEntity user, ModuleEntity module, String requestId) {
+        return accessChecker.hasAccessToModule(user.getId(), module.getId())
+                .flatMap(hasAccess -> {
+                    if (hasAccess) {
+                        return Mono.error(new EntityAlreadyExistsException(
+                                String.format(
+                                        "Пользователь с ID = %d уже имеет доступ к модулю %d",
+                                        user.getId(),
+                                        module.getId()
+                                ),
+                                requestId
+                        ));
+                    }
+                    return Mono.empty();
+                });
     }
 
     /**
@@ -149,40 +233,40 @@ public class AccessServiceImpl implements AccessService {
      * @param request
      *         Запрос, содержащий идентификаторы наставника, пользователя и курса.
      *
-     * @throws CustomAccessDeniedException
+     * @throws //CustomAccessDeniedException
      *         Если наставник не имеет прав на удаление доступа к курсу.
      */
-
     @Override
     @Transactional
-    public void deleteCourseAccessToUser(String requestId, GetAccessRequest request) {
-        UserEntity mentor = userRepository.findByIdOrThrow(request.getMentorId());
-        UserEntity user = userRepository.findByIdOrThrow(request.getUserId());
-        CourseEntity course = courseRepository.findByIdOrThrow(request.getCourseId());
-        checkUserIsAuthorOrAdmin(requestId, mentor, course);
-        accessChecker.hasAccessToCourse(request.getUserId(), request.getCourseId());
+    public Mono<Void> revokeCourseAccessFromUser(String requestId, RevokeCourseAccessRequest request) {
+        Mono<UserEntity> mentorMono = getUserOrError(request.getMentorId(), requestId);
+        Mono<UserEntity> userMono = getUserOrError(request.getUserId(), requestId);
+        Mono<CourseEntity> courseMono = getCourseOrError(request.getCourseId(), requestId);
 
-        UserCourseAccessEntity access = userCourseAccessRepository
-                .findByUserIdAndCourseId(request.getUserId(), request.getCourseId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format(
-                                "Доступ пользователя %d к курсу %d не найден",
-                                request.getUserId(), request.getCourseId()
-                        ), requestId
-                ));
+        return Mono.zip(mentorMono, userMono, courseMono)
+                .flatMap(tuple -> {
+                    UserEntity mentor = tuple.getT1();
+                    UserEntity user = tuple.getT2();
+                    CourseEntity course = tuple.getT3();
+                    LocalDateTime accessRevokedAt = LocalDateTime.now();
 
-        LocalDateTime accessRevokedAt = LocalDateTime.now();
+                    // Проверяем, является пользователь автором курса или администратором
+                    return mentorAccessValidator.checkUserIsAuthorOrAdmin(requestId, mentor, course)
+                            .then(checkUserHasAccessToCourse(user, course, requestId))
+                            .then(revokeAccess(user, course))
+                            .then();
+                });
+    }
 
-        userCourseAccessRepository.deleteByUserIdAndCourseId(
-                request.getUserId(),
-                request.getCourseId()
-        );
-        userModuleAccessRepository.deleteAllByUserIdAndCourseId(
-                request.getUserId(),
-                request.getCourseId()
-        );
 
-        kafkaFacade.sendCourseAccessRevokedMessage(user, mentor, course, accessRevokedAt);
+    private Mono<Void> revokeAccess(UserEntity user, CourseEntity course) {
+        return userCourseAccessRepository
+                .deleteByUserIdAndCourseId(user.getId(), course.getId())
+                .then(
+                        userModuleAccessRepository
+                                .deleteAllByUserIdAndCourseId(user.getId(), course.getId())
+                                .then()
+                );
     }
 
     /**
@@ -193,11 +277,68 @@ public class AccessServiceImpl implements AccessService {
      * @param request
      *         Запрос, содержащий идентификаторы наставника, пользователя, курса и модуля.
      *
-     * @throws CustomAccessDeniedException
+     * @throws //CustomAccessDeniedException
      *         Если наставник не имеет прав на удаление доступа к модулю.
      * @throws EntityNotFoundException
      *         Если у пользователя нет доступа к курсу или модулю.
      */
+    @Override
+    public Mono<Void> revokeModuleAccessFromUser(String requestId, RevokeModuleAccessRequest request) {
+        Mono<UserEntity> mentorMono = getUserOrError(request.getMentorId(), requestId);
+        Mono<UserEntity> userMono = getUserOrError(request.getUserId(), requestId);
+        Mono<CourseEntity> courseMono = getCourseOrError(request.getCourseId(), requestId);
+        Mono<ModuleEntity> moduleMono = getModuleOrError(request.getModuleId(), requestId);
+
+        return Mono.zip(mentorMono, userMono, courseMono, moduleMono)
+                .flatMap(tuple -> {
+                    UserEntity mentor = tuple.getT1();
+                    UserEntity user = tuple.getT2();
+                    CourseEntity course = tuple.getT3();
+                    ModuleEntity module = tuple.getT4();
+
+                    return mentorAccessValidator.checkUserIsAuthorOrAdmin(requestId, mentor, course)
+                            // проверить принадлежность модуля к курсу
+                            .then(checkModuleIsInCourse(requestId, course, module))
+                            //проверить доступ к курсу,
+                            .then(checkUserHasAccessToCourse(user, course, requestId))
+                            // проверить доступ пользователя к модулю
+                            .then(checkUserHasAccessToModule(user, course, module, requestId))
+
+                            // далее найти сущность доступа в репозитории и удалить ее
+
+
+
+
+
+                            .then();
+                });
+    }
+
+    private Mono<Void> checkUserHasAccessToModule(
+            UserEntity user,
+            CourseEntity course,
+            ModuleEntity module,
+            String requestId
+    ) {
+        return accessChecker.hasAccessToModule(user.getId(), module.getId())
+                .flatMap(hasAccess -> {
+                    if(!hasAccess) {
+                        return Mono.error(new EntityNotFoundException(
+                                String.format(
+                                        "Пользователь с ID = %d не имеет доступа к модулю %d в курсе %d",
+                                        user.getId(),
+                                        module.getId(),
+                                        course.getId()
+                                        ),
+                                requestId
+                        ));
+                    }
+                    return  Mono.empty();
+                });
+    }
+
+
+    /*
     @Override
     @Transactional
     public void deleteModuleAccessToUser(String requestId, GetAccessRequest request) {
@@ -233,43 +374,7 @@ public class AccessServiceImpl implements AccessService {
         kafkaFacade.sendModuleAccessRevokedMessage(user, mentor, course, module, accessRevokedAt);
     }
 
-    /**
-     * Проверяет, что пользователь является автором курса или администратором.
-     *
-     * @param requestId
-     *         Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param mentor
-     *         Наставник, запрашивающий доступ.
-     * @param course
-     *         Курс, для которого требуется доступ.
-     *
-     * @throws CustomAccessDeniedException
-     *         Если у наставника нет прав на выдачу доступа к курсу.
-     */
-    private void checkUserIsAuthorOrAdmin(
-            String requestId,
-            UserEntity mentor,
-            CourseEntity course) {
-
-        // Проверяем, что юзер является автором курса
-        if (Role.checkIsAdmin(mentor)) {
-            return;
-        }
-
-        // Проверяем, что юзер является автором курса
-        if (Role.checkIsMentor(mentor) && Role.checkMentorIsAuthorOfCourse(mentor, course)) {
-            return;
-        }
-
-        // Если юзер не является автором курса, выбрасываем исключение
-        throw new CustomAccessDeniedException(
-                String.format(
-                        "Юзер с ID = %d не имеет доступа к выдаче доступа к курсу %d",
-                        mentor.getId(),
-                        course.getId()
-                ), requestId
-        );
-    }
+*/
 
     /**
      * Проверяет, что модуль принадлежит указанному курсу.
@@ -284,14 +389,14 @@ public class AccessServiceImpl implements AccessService {
      * @throws EntityNotFoundException
      *         Если модуль не принадлежит курсу.
      */
-    private void checkModuleIsInCourse(
+    private Mono<Void> checkModuleIsInCourse(
             String requestId,
             CourseEntity course,
             ModuleEntity moduleEntity) {
 
         // Проверяем, что модуль принадлежит курсу
-        if (Objects.equals(moduleEntity.getCourse().getId(), course.getId())) {
-            return;
+        if (Objects.equals(moduleEntity.getCourseId(), course.getId())) {
+            return Mono.empty();
         }
         // Если модуль не принадлежит курсу, выбрасываем исключение
         throw new EntityNotFoundException(

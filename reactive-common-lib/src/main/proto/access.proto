@@ -4,9 +4,6 @@ package access;
 
 import "google/protobuf/empty.proto";
 import "common.proto";
-import "course.proto";
-import "module.proto";
-import "user.proto";
 
 option java_multiple_files = true;
 option java_package = "ru.mentor.access.grpc";
@@ -14,35 +11,62 @@ option java_outer_classname = "AccessProto";
 
 service AccessService {
 
-  rpc GrantCourseAccess (CourseAccessRequest)
+  rpc GrantCourseAccess (GrantCourseAccessRequest)
       returns (google.protobuf.Empty);
 
-  rpc RevokeCourseAccess (CourseAccessRequest)
+  rpc RevokeCourseAccess (RevokeCourseAccessRequest)
       returns (google.protobuf.Empty);
 
-  rpc HasCourseAccess (CourseAccessRequest)
+  rpc HasCourseAccess (HasCourseAccessRequest)
       returns (HasAccessResponse);
 
-  rpc GrantModuleAccess (ModuleAccessRequest)
+  rpc GrantModuleAccess (GrantModuleAccessRequest)
       returns (google.protobuf.Empty);
 
-  rpc RevokeModuleAccess (ModuleAccessRequest)
+  rpc RevokeModuleAccess (RevokeModuleAccessRequest)
       returns (google.protobuf.Empty);
 
-  rpc HasModuleAccess (ModuleAccessRequest)
+  rpc HasModuleAccess (HasModuleAccessRequest)
       returns (HasAccessResponse);
 }
 
-message CourseAccessRequest {
+message GrantCourseAccessRequest {
   Header header = 1;
-  uint64 sender_id = 2;
+  uint64 user_id = 2;
   uint64 course_id = 3;
 }
 
-message ModuleAccessRequest {
+message RevokeCourseAccessRequest {
   Header header = 1;
-  uint64 sender_id = 2;
-  uint64 module_id = 3;
+  uint64 user_id = 2;
+  uint64 course_id = 3;
+}
+
+message HasCourseAccessRequest {
+  Header header = 1;
+  uint64 user_id = 2;
+  uint64 course_id = 3;
+}
+
+message GrantModuleAccessRequest {
+  Header header = 1;
+  uint64 user_id = 2;
+  uint64 course_id = 3;
+  uint64 module_id = 4;
+}
+
+message RevokeModuleAccessRequest {
+  Header header = 1;
+  uint64 user_id = 2;
+  uint64 course_id = 3;
+  uint64 module_id = 4;
+}
+
+message HasModuleAccessRequest {
+  Header header = 1;
+  uint64 user_id = 2;
+  uint64 course_id = 3;
+  uint64 module_id = 4;
 }
 
 message HasAccessResponse {

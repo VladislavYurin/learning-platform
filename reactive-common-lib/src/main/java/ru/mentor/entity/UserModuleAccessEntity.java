@@ -1,19 +1,16 @@
 package ru.mentor.entity;
 
-import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDateTime;
+
 
 /**
- * Сущность доступа пользователя к курсу.
- * Представляет собой запись о предоставленном доступе пользователя к определенному курсу.
+ * Сущность доступа пользователя к модулю.
+ * Представляет собой запись о предоставленном доступе пользователя к определенному модулю курса.
  */
 
 @Getter
@@ -21,8 +18,8 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user_course_access")
-public class UserCourseAccessEntity {
+@Table(name = "user_module_access")
+public class UserModuleAccessEntity {
 
     /**
      * Уникальный идентификатор записи доступа.
@@ -38,20 +35,27 @@ public class UserCourseAccessEntity {
     private Long userId;
 
     /**
-     * Курс, к которому предоставлен доступ.
+     * Курс, к которому относится модуль.
      */
     @Column("course_id")
     private Long courseId;
 
     /**
-     * Пользователь, который предоставил доступ.
-     * Содержит Id того, кто дал право доступа к курсу.
+     * Модуль, к которому предоставлен доступ.
+     */
+    @Column("module_id")
+    private Long moduleId;
+
+
+    /**
+     * Пользователь, который предоставил доступ к модулю.
+     * Содержит Id того, кто дал право доступа к модулю курса.
      */
     @Column("access_granted_by")
     private Long accessGrantedByUserId;
 
     /**
-     * Дата и время предоставления доступа к курсу.
+     * Дата и время предоставления доступа к модулю курса.
      * Автоматически устанавливается при создании записи о доступе.
      */
     @Column("access_granted_at")

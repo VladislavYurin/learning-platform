@@ -1,35 +1,61 @@
 syntax = "proto3";
 
+package mentor;
+
 import "google/protobuf/empty.proto";
 import "common.proto";
-import "course.proto";
-import "module.proto";
 import "access.proto";
 
 option java_multiple_files = true;
-option java_package = "ru.mentor.mentor";
+option java_package = "ru.mentor.mentor.grpc";
 option java_outer_classname = "MentorProto";
 
-// Сервис для управления доступом к курсам от имени наставника
+// Сервис для управления доступом к курсам и модулям от имени наставника
 service MentorCourseAccessService {
 
   // Выдать пользователю доступ к курсу
-  rpc GrantCourseAccess (access.CourseAccessRequest)
+  rpc GrantCourseAccess (MentorGrantCourseAccessRequest)
       returns (google.protobuf.Empty);
 
   // Отозвать у пользователя доступ к курсу
-  rpc RevokeCourseAccess (access.CourseAccessRequest)
+  rpc RevokeCourseAccess (MentorRevokeCourseAccessRequest)
       returns (google.protobuf.Empty);
-}
-
-// Сервис для управления доступом к модулям от имени наставника
-service MentorModuleAccessService {
 
   // Выдать пользователю доступ к модулю
-  rpc GrantModuleAccess (access.ModuleAccessRequest)
+  rpc GrantModuleAccess (MentorGrantModuleAccessRequest)
       returns (google.protobuf.Empty);
 
   // Отозвать у пользователя доступ к модулю
-  rpc RevokeModuleAccess (access.ModuleAccessRequest)
+  rpc RevokeModuleAccess (MentorRevokeModuleAccessRequest)
       returns (google.protobuf.Empty);
+}
+
+message MentorGrantCourseAccessRequest {
+  Header header = 1;
+  uint64 mentor_id = 2;
+  uint64 user_id = 3;
+  uint64 course_id = 4;
+}
+
+message MentorRevokeCourseAccessRequest{
+  Header header = 1;
+  uint64 mentor_id = 2;
+  uint64 user_id = 3;
+  uint64 course_id = 4;
+}
+
+message MentorGrantModuleAccessRequest{
+  Header header = 1;
+  uint64 mentor_id = 2;
+  uint64 user_id = 3;
+  uint64 course_id = 4;
+  uint64 module_id = 5;
+}
+
+message MentorRevokeModuleAccessRequest{
+  Header header = 1;
+  uint64 mentor_id = 2;
+  uint64 user_id = 3;
+  uint64 course_id = 4;
+  uint64 module_id = 5;
 }

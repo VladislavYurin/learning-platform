@@ -1,5 +1,6 @@
 package ru.mentor.constant;
 
+import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.UserEntity;
 
 /**
@@ -34,15 +35,15 @@ public enum Role {
         return user.getRole().equals(Role.MENTOR);
     }
 
-//    /**
-//     * Проверяет, является ли пользователь автором указанного курса.
-//     *
-//     * @param user   объект пользователя для проверки
-//     * @param course объект курса для проверки авторства
-//     * @return true, если пользователь является автором курса, иначе false
-//     */
-//    public static Boolean checkMentorIsAuthorOfCourse(UserEntity user, CourseEntity course) {
-//        return course.getAuthor().equals(user);
-//    }
+    /**
+     * Проверяет, является ли пользователь автором указанного курса.
+     *
+     * @param user   объект пользователя для проверки
+     * @param course объект курса для проверки авторства
+     * @return true, если пользователь является автором курса, иначе false
+     */
+    public static Boolean checkMentorIsAuthorOfCourse(UserEntity user, CourseEntity course) {
+        return course.getAuthorId().equals(user);
+    }
 
 }

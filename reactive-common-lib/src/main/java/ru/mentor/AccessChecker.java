@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import ru.mentor.repository.UserCourseAccessRepository;
+import ru.mentor.repository.UserModuleAccessRepository;
 
 
 /**
@@ -22,7 +23,8 @@ public class AccessChecker {
     /**
      * Репозиторий для работы с доступом пользователей к модулям.
      */
-    //private final UserModuleAccessRepository userModuleAccessRepository;
+
+    private final UserModuleAccessRepository userModuleAccessRepository;
 
     /**
      * Проверяет, имеет ли пользователь доступ к указанному курсу.
@@ -35,15 +37,15 @@ public class AccessChecker {
         return userCourseAccessRepository.existsByUserIdAndCourseId(userId, courseId);
     }
 
-//    /**
-//     * Проверяет, имеет ли пользователь доступ к указанному модулю.
-//     *
-//     * @param userId идентификатор пользователя
-//     * @param moduleId идентификатор модуля
-//     * @return true, если пользователь имеет доступ к модулю, иначе false
-//     */
-//    public boolean hasAccessToModule(Long userId, Long moduleId) {
-//        return userModuleAccessRepository.existsByUserIdAndModuleId(userId, moduleId);
-//    }
+    /**
+     * Проверяет, имеет ли пользователь доступ к указанному модулю.
+     *
+     * @param userId идентификатор пользователя
+     * @param moduleId идентификатор модуля
+     * @return true, если пользователь имеет доступ к модулю, иначе false
+     */
+    public Mono<Boolean> hasAccessToModule(Long userId, Long moduleId) {
+        return userModuleAccessRepository.existsByUserIdAndModuleId(userId, moduleId);
+    }
 
 }
