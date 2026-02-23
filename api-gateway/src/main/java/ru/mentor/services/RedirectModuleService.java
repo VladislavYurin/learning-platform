@@ -3,6 +3,7 @@ package ru.mentor.services;
 import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.front.CreateModuleRequest;
+import ru.mentor.dto.front.UpdateModuleRequest;
 
 /**
  * Сервис редиректов/интеграции для операций с модулями курса.
@@ -20,6 +21,13 @@ public interface RedirectModuleService {
      * @return созданный модуль
      */
     ModuleDto createModule(CreateModuleRequest request);
+
+    /**
+     * Выполняет полное обновление модуля.
+     * @param request запрос на обновление модуля
+     * @return DTO обновленного модуля
+     */
+    ModuleDto updateModule(UpdateModuleRequest request);
 
     /**
      * Возвращает модуль по идентификатору курса и модуля.

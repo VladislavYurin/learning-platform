@@ -13,6 +13,7 @@ import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.ImportModuleFromFileRequest;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.ReactorModuleServiceGrpc.ModuleServiceImplBase;
+import ru.mentor.common.UpdateModuleGrpcRequest;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.service.ModuleService;
 
@@ -31,6 +32,9 @@ public class ModuleServiceGrpcServer extends ModuleServiceImplBase {
     public static final String GET_MODULE_REQUEST_LOG_TEXT =
             "[ rqUID = {} ] Поступил запрос на получение данных о модуле"
                     + " [ number = {} ] от пользователя с [ ID = {} ]";
+    public static final String UPDATE_MODULE_REQUEST_LOG_TEXT =
+            "[ rqUID = {} ] Поступил запрос на обновление модуля [ moduleId = {} ]"
+                   + " в курсе [ ID = {} ] от пользователя с [ ID = {} ]";
     public static final String DELETE_MODULE_REQUEST_LOG_TEXT =
             "[ rqUID = {} ] Поступил запрос на удаление модуля c"
                     + " [ number = {} ] из курса [ ID = {} ] от пользователя с [ ID = {} ]";
@@ -66,6 +70,14 @@ public class ModuleServiceGrpcServer extends ModuleServiceImplBase {
         return request
                 .doOnNext(this::logGetModuleRequest)
                 .flatMap(moduleService::getModule)
+                .onErrorMap(EntityNotFoundException.class, convertToRuntimeException());
+    }
+
+    @Override
+    public Mono<ModuleResponse> updateModule(Mono<UpdateModuleGrpcRequest> request) {
+        return request
+                .doOnNext(this::logUpdateModuleRequest)
+                .flatMap(moduleService::updateModule)
                 .onErrorMap(EntityNotFoundException.class, convertToRuntimeException());
     }
 
@@ -112,6 +124,14 @@ public class ModuleServiceGrpcServer extends ModuleServiceImplBase {
                  request.getHeader().getRequestId(),
                  request.getModuleOrderNumber(),
                  request.getSenderId());
+    }
+
+    private void logUpdateModuleRequest(UpdateModuleGrpcRequest request) {
+        log.info(UPDATE_MODULE_REQUEST_LOG_TEXT,
+                request.getHeader().getRequestId(),
+                request.getModuleId(),
+                request.getCourseId(),
+                request.getSenderId());
     }
 
     private void logDeleteModuleRequest(DeleteModuleRequest request) {

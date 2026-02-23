@@ -10,8 +10,10 @@ import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.ImportModuleFromFileRequest;
 import ru.mentor.common.ModuleResponse;
+import ru.mentor.common.UpdateModuleGrpcRequest;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.front.CreateModuleRequest;
+import ru.mentor.dto.front.UpdateModuleRequest;
 
 import java.io.IOException;
 
@@ -85,6 +87,22 @@ public class ModuleMapper {
                                   .setCourseId(courseId)
                                   .setModuleOrderNumber(moduleOrderNum)
                                   .build();
+    }
+
+    public UpdateModuleGrpcRequest constructGrpcUpdateRequest(
+            Header header,
+            Long userId,
+            UpdateModuleRequest request) {
+        return UpdateModuleGrpcRequest.newBuilder()
+                .setHeader(header)
+                .setSenderId(userId)
+                .setCourseId(request.getCourseId())
+                .setModuleId(request.getModuleId())
+                .setTitle(request.getModuleTitle())
+                .setOrderNumber(request.getModuleOrderNumber())
+                .setContent(request.getModuleContentDescription())
+                .setIsActive(request.getIsActive())
+                .build();
     }
 
     public DeleteModuleRequest constructGrpcDeleteRequest(

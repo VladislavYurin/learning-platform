@@ -7,6 +7,7 @@ import ru.mentor.common.DeleteModuleResponse;
 import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.ImportModuleFromFileRequest;
 import ru.mentor.common.ModuleResponse;
+import ru.mentor.common.UpdateModuleGrpcRequest;
 
 /**
  * Сервис для работы с модулями.
@@ -15,6 +16,8 @@ import ru.mentor.common.ModuleResponse;
 public interface ModuleService {
 
     Mono<ModuleResponse> createModule(CreateModuleGrpcRequest request);
+
+    Mono<ModuleResponse> updateModule(UpdateModuleGrpcRequest request);
 
     Mono<DeleteModuleResponse> deleteModule(DeleteModuleRequest request);
 

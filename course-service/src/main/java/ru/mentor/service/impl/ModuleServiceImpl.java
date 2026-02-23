@@ -12,6 +12,7 @@ import ru.mentor.common.DeleteModuleResponse;
 import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.ImportModuleFromFileRequest;
 import ru.mentor.common.ModuleResponse;
+import ru.mentor.common.UpdateModuleGrpcRequest;
 import ru.mentor.facade.ModuleFacade;
 import ru.mentor.repository.ModuleRepository;
 import ru.mentor.service.ModuleService;
@@ -109,6 +110,58 @@ public class ModuleServiceImpl implements ModuleService {
                 }
             });
     }
+
+    /**
+     * Обновляет модуль курса, если пользователь имеет право обновлять модули
+     *
+     * @param request - gRPC-запрос с данными обновляемого курса
+     * @return - Mono с gRPC-ответом, содержащим данные обновленного курса
+     */
+    @Override
+    @Transactional
+    public Mono<ModuleResponse> updateModule(UpdateModuleGrpcRequest request) {
+        return accessChecker
+                .isCourseAuthor(request.getSenderId(), request.getCourseId())
+                .flatMap(isAuthor -> {
+                    if (isAuthor) {
+                        return moduleRepository.findByIdOrThrow(request.getModuleId())
+                                .flatMap(module -> {
+                                    if (!module.getCourseId().equals(request.getCourseId())) {
+                                        return Mono.error(
+                                                Status.NOT_FOUND
+                                                        .withDescription(String.format(
+                                                                "Модуль [ ID = %d ] не найден в курсе [ ID = %d ]",
+                                                                request.getModuleId(),
+                                                                request.getCourseId()
+                                                        ))
+                                                        .asRuntimeException()
+                                        );
+                                    }
+
+                                    module.setModuleTitle(request.getTitle());
+                                    module.setModuleOrderNumber(request.getOrderNumber());
+                                    module.setModuleContent(request.getContent());
+                                    module.setIsActive(request.getIsActive());
+
+                                    return moduleRepository.save(module)
+                                            .flatMap(saved -> moduleFacade.findModuleResponseById(saved.getId()));
+                                });
+                    } else {
+                        return Mono.error(
+                                Status.PERMISSION_DENIED
+                                        .withDescription(String.format(
+                                                "Юзер с [ ID = %d ] не имеет доступа к обновлению модуля [ ID = %d ] "
+                                                         + "курса [ ID = %d ]",
+                                                request.getSenderId(),
+                                                request.getModuleId(),
+                                                request.getCourseId()
+                                        ))
+                                        .asRuntimeException()
+                        );
+                    }
+                });
+    }
+
 
     /**
      * Удаляет модуль из курса, если пользователь является автором курса

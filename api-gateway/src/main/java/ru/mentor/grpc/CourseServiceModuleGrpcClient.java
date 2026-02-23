@@ -14,6 +14,7 @@ import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.ImportModuleFromFileRequest;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.common.ModuleServiceGrpc.ModuleServiceBlockingStub;
+import ru.mentor.common.UpdateModuleGrpcRequest;
 import ru.mentor.exception.GrpcRetryException;
 
 /**
@@ -108,6 +109,28 @@ public class CourseServiceModuleGrpcClient {
     public ModuleResponse createModule(CreateModuleGrpcRequest request) {
         try {
             return moduleServiceBlockingStub.createModule(request);
+        } catch (Exception e) {
+            throw new GrpcRetryException(
+                    String.format(
+                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
+                            request.getHeader().getRequestId()
+                    ),
+                    request.getHeader().getRequestId()
+            );
+        }
+    }
+
+    /**
+     * Отправляет gRPC-запрос для обновления модуля в курсе
+     *
+     * @param request
+     *         - ДТО с данными запроса
+     *
+     * @return - ДТО с данными обновленного модуля
+     */
+    public ModuleResponse updateModule(UpdateModuleGrpcRequest request) {
+        try {
+            return moduleServiceBlockingStub.updateModule(request);
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
