@@ -62,6 +62,7 @@ public class SecurityConfig {
                     ).permitAll()
                     .requestMatchers("/access/**").hasAnyRole("ADMIN", "MENTOR")
                     .requestMatchers("/progress/**").hasAnyRole("ADMIN", "MENTOR")
+                    .requestMatchers("/mentors/**").hasAnyRole("ADMIN", "MENTOR")
                     .requestMatchers("/course/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .requestMatchers("/module/**").hasAnyRole("ADMIN", "USER", "MENTOR")
                     .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER", "MENTOR")

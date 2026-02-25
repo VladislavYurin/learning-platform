@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.EntityNotFoundException;
-
+import java.util.List;
+import ru.mentor.constant.Role;
 /**
  * Репозиторий для работы с сущностями пользователей.
  * Предоставляет методы для выполнения CRUD операций и дополнительные методы
@@ -29,6 +30,13 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
      * @return Optional с сущностью пользователя или пустой Optional, если пользователь не найден
      */
     Optional<UserEntity> findByUsername(String username);
+
+    /**
+     * Находит всех пользователей с указанной ролью.
+     * @param role роль пользователей
+     * @return список сущностей пользователей
+     */
+    List<UserEntity> findAllByRole(Role role);
 
     /**
      * Находит пользователя по имени пользователя или выбрасывает исключение, если пользователь не найден.
