@@ -13,7 +13,7 @@ echo "--------"
 echo "------"
 echo "----"
 echo "--"
-docker compose build common-lib
+docker compose -f docker-compose.local.yml build common-lib
 echo "--"
 echo "----"
 echo "------"
@@ -36,7 +36,7 @@ echo "--------"
 echo "------"
 echo "----"
 echo "--"
-docker compose build
+docker compose -f docker-compose.local.yml build
 echo "--"
 echo "----"
 echo "------"
@@ -59,7 +59,7 @@ echo "--------"
 echo "------"
 echo "----"
 echo "--"
-docker compose up -d
+docker compose -f docker-compose.local.yml up -d
 echo "--"
 echo "----"
 echo "------"
