@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AmplicodePersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="admin-service" name="Default">
+        <packages>
+          <package value="ru.mentor" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="grpc-common-starter" name="Default" />
+      <persistence-unit moduleName="api-gateway" name="Default">
+        <packages>
+          <package value="ru.mentor" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="common-lib" name="Default" />
+      <persistence-unit moduleName="calendar-service" name="Default">
+        <packages>
+          <package value="ru.mentor" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="course-service" name="Default">
+        <packages>
+          <package value="ru.mentor" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="mentor-service" name="Default">
+        <packages>
+          <package value="ru.mentor" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="notification-service" name="Default">
+        <packages>
+          <package value="ru.mentor" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>
