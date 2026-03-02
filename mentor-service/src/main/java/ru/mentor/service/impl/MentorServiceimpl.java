@@ -11,6 +11,10 @@ import ru.mentor.service.MentorService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для работы с менторами
+ * Инкапсулирует логику получения менторов из репозитория.
+ */
 @Service
 @RequiredArgsConstructor
 public class MentorServiceimpl implements MentorService {
@@ -18,6 +22,12 @@ public class MentorServiceimpl implements MentorService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    /**
+     * Получает из репозитория всех пользователей с ролью {@link Role#MENTOR}
+     * и преобразует их в DTO.
+     *
+     * @return список DTO с информацией о менторах
+     */
     @Override
     public List<UserInfoDto> getAllMentors() {
         return userRepository.findAllByRole(Role.MENTOR).stream()

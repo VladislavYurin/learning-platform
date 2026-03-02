@@ -13,6 +13,11 @@ import ru.mentor.service.MentorService;
 
 import java.util.List;
 
+/**
+ * Контроллер для работы с менторами
+ * Предоставляет REST-эндпоинт для получения списка всех менторов
+ */
+
 @RestController
 @RequestMapping("/mentors")
 @RequiredArgsConstructor
@@ -22,6 +27,11 @@ public class MentorsController {
 
     private final MentorService mentorService;
 
+    /**
+     * Возвращает список всех менторов.
+     * @param requestId идентификатор запроса, используемый для трассировки логов
+     * @return HTTP-ответ со списком менторов
+     */
     @GetMapping
     public ResponseEntity<List<UserInfoDto>> getAllMentors(
             @RequestHeader("requestId") String requestId) {
