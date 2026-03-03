@@ -51,6 +51,9 @@
 
     <docker.tag>local</docker.tag>
     <docker.java-image>openjdk:21</docker.java-image>
+
+    <!-- Задаётся jacoco-maven-plugin (prepare-agent); здесь — чтобы IDE не ругалась на @{argLine} -->
+    <argLine></argLine>
   </properties>
 
   <profiles>
@@ -199,8 +202,33 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
-            <argLine>--add-opens java.base/java.nio=ALL-UNNAMED</argLine>
+            <argLine>@{argLine} --add-opens java.base/java.nio=ALL-UNNAMED</argLine>
           </configuration>
+        </plugin>
+
+        <!-- JaCoCo: замер покрытия тестами (отчёт в target/site/jacoco после mvn test) -->
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.11</version>
+          <executions>
+            <execution>
+              <id>prepare-agent</id>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+              <configuration>
+                <propertyName>argLine</propertyName>
+              </configuration>
+            </execution>
+            <execution>
+              <id>report</id>
+              <phase>test</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
 
         <!-- Checkstyle -->
@@ -267,6 +295,11 @@
     </pluginManagement>
 
     <plugins>
+      <!-- Конфигурация executions наследуется из pluginManagement выше — без дублирования -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

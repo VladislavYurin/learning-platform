@@ -1,9 +1,11 @@
 package ru.mentor.mapper;
 
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import ru.mentor.common.AllModulesResponse;
+import ru.mentor.common.CreateModuleGrpcRequest;
 import ru.mentor.common.ModuleResponse;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.ModuleEntity;
@@ -77,6 +79,39 @@ class AdminModuleMapperTest {
                 TestConstantHolder.MODULE_CREATED_AT_EPOCH_SECONDS,
                 response.getCreatedAt().getSeconds()
         );
+    }
+
+    @Test
+    void mapModuleEntityListToModuleResponseList_mapsEachElement() {
+        ModuleEntity m1 = TestEntityStubGenerator.constructModuleEntity();
+        m1.setId(101L);
+        ModuleEntity m2 = TestEntityStubGenerator.constructModuleEntity();
+        m2.setId(102L);
+
+        List<ModuleResponse> list = mapper.mapModuleEntityListToModuleResponseList(List.of(m1, m2));
+
+        Assertions.assertEquals(2, list.size());
+        Assertions.assertEquals(101L, list.get(0).getModuleId());
+        Assertions.assertEquals(102L, list.get(1).getModuleId());
+    }
+
+    @Test
+    void mapCreateModuleGrpcRequestToModuleEntity_setsFieldsFromRequest() {
+        CreateModuleGrpcRequest grpc = CreateModuleGrpcRequest.newBuilder()
+                .setTitle("T")
+                .setContent("content")
+                .setOrderNumber(3)
+                .setCourseId(9L)
+                .build();
+
+        ModuleEntity entity = mapper.mapCreateModuleGrpcRequestToModuleEntity(grpc);
+
+        Assertions.assertEquals("T", entity.getModuleTitle());
+        Assertions.assertEquals("content", entity.getModuleContent());
+        Assertions.assertEquals(3, entity.getModuleOrderNumber());
+        Assertions.assertEquals(9L, entity.getCourseId());
+        Assertions.assertTrue(entity.getIsActive());
+        Assertions.assertNotNull(entity.getCreatedAt());
     }
 
 }
