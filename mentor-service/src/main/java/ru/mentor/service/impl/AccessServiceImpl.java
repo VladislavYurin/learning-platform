@@ -63,10 +63,10 @@ public class AccessServiceImpl implements AccessService {
                     return mentorAccessValidator.checkUserIsAuthorOrAdmin(requestId, mentor, course)
 
                             //Проверяем, имеет ли пользователь доступ к курсу
-                                                .then(checkUserHasNoAccessToCourse(user, course, requestId))
-                                                .then(grantAccess(user, course, mentor)
-                                                        // сюда добавить отправку в кафку
-                    )
+                            .then(checkUserHasNoAccessToCourse(user, course, requestId))
+                            .then(grantAccess(user, course, mentor)
+                                    // сюда добавить отправку в кафку
+                            )
                             .then();
                 });
     }
@@ -82,7 +82,7 @@ public class AccessServiceImpl implements AccessService {
     }
 
     private Mono<CourseEntity> getCourseOrError(Long id, String requestId) {
-        return courseRepository.findByIdOrThrow(id)
+        return courseRepository.findById(id)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException(
                         String.format(
                                 "Курс с ID = %d не найден",
@@ -111,27 +111,22 @@ public class AccessServiceImpl implements AccessService {
             UserEntity user,
             CourseEntity course,
             UserEntity mentor
-    ){
+    ) {
         UserCourseAccessEntity access = UserCourseAccessEntity.builder()
-                                                              .userId(user.getId())
-                                                              .courseId(course.getId())
-                                                              .accessGrantedByUserId(mentor.getId())
-                                                              .build();
+                .userId(user.getId())
+                .courseId(course.getId())
+                .accessGrantedByUserId(mentor.getId())
+                .build();
         return userCourseAccessRepository.save(access);
     }
 
     /**
      * Предоставляет пользователю доступ к модулю.
      *
-     * @param requestId
-     *         Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request
-     *         Запрос, содержащий идентификаторы наставника, пользователя, курса и модуля.
-     *
-     * @throws EntityAlreadyExistsException
-     *         Если у пользователя уже имеется доступ к модулю.
-     * @throws EntityNotFoundException
-     *         Если у пользователя нет доступа к курсу.
+     * @param requestId Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request   Запрос, содержащий идентификаторы наставника, пользователя, курса и модуля.
+     * @throws EntityAlreadyExistsException Если у пользователя уже имеется доступ к модулю.
+     * @throws EntityNotFoundException      Если у пользователя нет доступа к курсу.
      */
     @Override
     public Mono<Void> grantModuleAccessToUser(String requestId, GrantModuleAccessRequest request) {
@@ -162,13 +157,13 @@ public class AccessServiceImpl implements AccessService {
     }
 
     private Mono<ModuleEntity> getModuleOrError(Long moduleId, String requestId) {
-        return moduleRepository.findByIdOrThrow(moduleId)
+        return moduleRepository.findById(moduleId)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException(
-                        String.format(
-                                "Модуль с ID = %d не найден",
-                                moduleId
-                        ),
-                        requestId
+                                String.format(
+                                        "Модуль с ID = %d не найден",
+                                        moduleId
+                                ),
+                                requestId
                         )
                 ));
     }
@@ -208,6 +203,7 @@ public class AccessServiceImpl implements AccessService {
                     return Mono.empty();
                 });
     }
+
     private Mono<Void> checkUserHasNoAccessToModule(UserEntity user, ModuleEntity module, String requestId) {
         return accessChecker.hasAccessToModule(user.getId(), module.getId())
                 .flatMap(hasAccess -> {
@@ -228,13 +224,9 @@ public class AccessServiceImpl implements AccessService {
     /**
      * Удаляет доступ пользователя к курсу.
      *
-     * @param requestId
-     *         Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request
-     *         Запрос, содержащий идентификаторы наставника, пользователя и курса.
-     *
-     * @throws //CustomAccessDeniedException
-     *         Если наставник не имеет прав на удаление доступа к курсу.
+     * @param requestId Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request   Запрос, содержащий идентификаторы наставника, пользователя и курса.
+     * @throws //CustomAccessDeniedException Если наставник не имеет прав на удаление доступа к курсу.
      */
     @Override
     @Transactional
@@ -272,15 +264,10 @@ public class AccessServiceImpl implements AccessService {
     /**
      * Удаляет доступ пользователя к модулю.
      *
-     * @param requestId
-     *         Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param request
-     *         Запрос, содержащий идентификаторы наставника, пользователя, курса и модуля.
-     *
-     * @throws //CustomAccessDeniedException
-     *         Если наставник не имеет прав на удаление доступа к модулю.
-     * @throws EntityNotFoundException
-     *         Если у пользователя нет доступа к курсу или модулю.
+     * @param requestId Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param request   Запрос, содержащий идентификаторы наставника, пользователя, курса и модуля.
+     * @throws //CustomAccessDeniedException Если наставник не имеет прав на удаление доступа к модулю.
+     * @throws EntityNotFoundException       Если у пользователя нет доступа к курсу или модулю.
      */
     @Override
     public Mono<Void> revokeModuleAccessFromUser(String requestId, RevokeModuleAccessRequest request) {
@@ -295,6 +282,7 @@ public class AccessServiceImpl implements AccessService {
                     UserEntity user = tuple.getT2();
                     CourseEntity course = tuple.getT3();
                     ModuleEntity module = tuple.getT4();
+                    LocalDateTime accessRevokedAt = LocalDateTime.now();
 
                     return mentorAccessValidator.checkUserIsAuthorOrAdmin(requestId, mentor, course)
                             // проверить принадлежность модуля к курсу
@@ -305,9 +293,10 @@ public class AccessServiceImpl implements AccessService {
                             .then(checkUserHasAccessToModule(user, course, module, requestId))
 
                             // далее найти сущность доступа в репозитории и удалить ее
-
-
-
+                            .then(userModuleAccessRepository.deleteAllByUserIdAndCourseId(
+                                    user.getId(),
+                                    course.getId()
+                            ))
 
 
                             .then();
@@ -322,18 +311,18 @@ public class AccessServiceImpl implements AccessService {
     ) {
         return accessChecker.hasAccessToModule(user.getId(), module.getId())
                 .flatMap(hasAccess -> {
-                    if(!hasAccess) {
+                    if (!hasAccess) {
                         return Mono.error(new EntityNotFoundException(
                                 String.format(
                                         "Пользователь с ID = %d не имеет доступа к модулю %d в курсе %d",
                                         user.getId(),
                                         module.getId(),
                                         course.getId()
-                                        ),
+                                ),
                                 requestId
                         ));
                     }
-                    return  Mono.empty();
+                    return Mono.empty();
                 });
     }
 
@@ -379,15 +368,10 @@ public class AccessServiceImpl implements AccessService {
     /**
      * Проверяет, что модуль принадлежит указанному курсу.
      *
-     * @param requestId
-     *         Идентификатор запроса, ассоциированный с текущей сессией.
-     * @param course
-     *         Курс, к которому принадлежит модуль.
-     * @param moduleEntity
-     *         Модуль для проверки.
-     *
-     * @throws EntityNotFoundException
-     *         Если модуль не принадлежит курсу.
+     * @param requestId    Идентификатор запроса, ассоциированный с текущей сессией.
+     * @param course       Курс, к которому принадлежит модуль.
+     * @param moduleEntity Модуль для проверки.
+     * @throws EntityNotFoundException Если модуль не принадлежит курсу.
      */
     private Mono<Void> checkModuleIsInCourse(
             String requestId,
