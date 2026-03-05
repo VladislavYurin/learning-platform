@@ -94,7 +94,10 @@ public class UserAvatarServiceImpl implements UserAvatarService {
      * @param userAvatarKey
      *         ключ аватара в MinIO
      *
-     * @return Optional с {@link UserAvatarContentDto}; empty, если ключ не задан
+     * @return Optional с {@link UserAvatarContentDto}; empty, если у пользователя не задан ключ аватара
+     *
+     * @throws UserAvatarServiceException
+     *         если ключ задан, но объект в MinIO не найден или произошла ошибка хранилища
      */
     @Override
     public Optional<UserAvatarContentDto> getUserAvatarFromStorage(String userAvatarKey) {
