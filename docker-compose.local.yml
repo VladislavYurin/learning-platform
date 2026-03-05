@@ -1,5 +1,13 @@
 services:
 
+  common-lib:
+    profiles:
+      - lib.build
+    build:
+      context: .
+      dockerfile: ./reactive-common-lib/Dockerfile
+    image: mentor/common-lib:local
+
   api-gateway-migrations:
     image: mentor/api-gateway:local
     env_file:
@@ -18,7 +26,7 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: ./api-gateway/Dockerfile
+      dockerfile: ./api-gateway/Dockerfile.local
     env_file:
       - .env.docker.example
     container_name: api-gateway
@@ -39,7 +47,7 @@ services:
   course-service:
     build:
       context: .
-      dockerfile: ./course-service/Dockerfile
+      dockerfile: ./course-service/Dockerfile.local
     env_file:
       - .env.docker.example
     container_name: course-service
@@ -59,7 +67,7 @@ services:
   mentor-service:
     build:
       context: .
-      dockerfile: ./mentor-service/Dockerfile
+      dockerfile: ./mentor-service/Dockerfile.local
     env_file:
       - .env.docker.example
     container_name: mentor-service
@@ -79,7 +87,7 @@ services:
   notification-service:
     build:
       context: .
-      dockerfile: ./notification-service/Dockerfile
+      dockerfile: ./notification-service/Dockerfile.local
     env_file:
       - .env.docker.example
     container_name: notification-service
@@ -99,7 +107,7 @@ services:
   calendar-service:
     build:
       context: .
-      dockerfile: ./calendar-service/Dockerfile
+      dockerfile: ./calendar-service/Dockerfile.local
     env_file:
       - .env.docker.example
     container_name: calendar-service
@@ -119,7 +127,7 @@ services:
   admin-service:
     build:
       context: .
-      dockerfile: ./admin-service/Dockerfile
+      dockerfile: ./admin-service/Dockerfile.local
     env_file:
       - .env.docker.example
     container_name: admin-service
