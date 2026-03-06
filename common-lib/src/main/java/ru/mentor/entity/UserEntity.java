@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -120,6 +121,13 @@ public class UserEntity implements UserDetails {
     @Builder.Default
     @ManyToMany(mappedBy = "meetingParticipants")
     private Set<MentorTimeSlotEntity> timeSlots = new HashSet<>();
+
+    /**
+     * Список тегов ментора. ТОЛЬКО ДЛЯ МЕНТОРОВ.
+     */
+    @Builder.Default
+    @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<MentorTagLinkEntity> mentorTags = new ArrayList<>();
 
     /**
      * Возвращает список ролей пользователя.

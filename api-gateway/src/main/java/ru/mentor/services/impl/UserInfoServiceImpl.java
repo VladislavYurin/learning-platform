@@ -49,7 +49,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 requestId,
                 user.getId()
         ));
-        return baseMapper.mapUserDto(user);
+        return baseMapper.mapUserDtoWithOptionalMentorTags(user);
     }
 
     /**
@@ -70,7 +70,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 userId,
                 user.getId()
         ));
-        return baseMapper.mapUserDto(user);
+        return baseMapper.mapUserDtoWithOptionalMentorTags(user);
     }
 
     /**
@@ -89,7 +89,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         ));
         user.setRole(Role.MENTOR);
         UserEntity savedUser = userRepository.save(user);
-        return baseMapper.mapUserDto(savedUser);
+        return baseMapper.mapUserDtoWithOptionalMentorTags(savedUser);
     }
 
     /**
@@ -114,7 +114,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         UserEntity updatedUser = baseMapper.mapUserEntity(updateDto);
         updatedUser.setPassword(currentUser.getPassword());
         updatedUser.setUserAvatarKey(currentUser.getUserAvatarKey());
-        return baseMapper.mapUserDto(userRepository.save(updatedUser));
+        return baseMapper.mapUserDtoWithOptionalMentorTags(userRepository.save(updatedUser));
 
     }
 

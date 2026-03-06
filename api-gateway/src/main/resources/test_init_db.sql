@@ -192,3 +192,8 @@ VALUES
     ('COURSE_ACCESS_GRANTED', 3, 'ERROR', 'EMAIL', 'test exception text'),
     ('SLOT_BOOKED_MENTOR', 2, 'OK', 'EMAIL', null),
     ('SLOT_BOOKED_MENTOR', 2, 'ERROR', 'TELEGRAM', 'test exception text');
+
+INSERT INTO mentor_tag_link (id_mentor, id_tag)
+VALUES (5, 1),
+       (5, 3),
+       (5, 22);

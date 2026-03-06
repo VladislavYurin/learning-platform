@@ -1,10 +1,12 @@
 package ru.mentor.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.mentor.constant.Role;
+import ru.mentor.dto.mentorTag.MentorTagDto;
 
 /**
  * DTO для передачи информации о пользователе.
@@ -51,5 +53,10 @@ public class UserInfoDto {
      * Идентификатор чата Telegram пользователя.
      */
     private Long tgChatId;
+
+    /**
+     * Тэги ментора.
+     */
+    private List<MentorTagDto> mentorTags;
 
 }

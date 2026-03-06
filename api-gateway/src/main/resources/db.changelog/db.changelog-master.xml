@@ -30,4 +30,10 @@
             endDelimiter=";"/>
   </changeSet>
 
+  <changeSet id="5" author="vladislav yurin">
+    <sqlFile path="sql/lepl-22_create_mentor_tags.sql"
+      relativeToChangelogFile="true"
+      endDelimiter=";"/>
+  </changeSet>
+
 </databaseChangeLog>

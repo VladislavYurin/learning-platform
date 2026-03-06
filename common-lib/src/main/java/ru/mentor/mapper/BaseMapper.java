@@ -9,13 +9,17 @@ import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.PageDetails;
+import ru.mentor.constant.Role;
 import ru.mentor.dto.CourseDto;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.UserInfoDto;
+import ru.mentor.dto.mentorTag.MentorTagDto;
 import ru.mentor.dto.tag.CourseTagDto;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.entity.CourseTagLinkEntity;
+import ru.mentor.entity.MentorTagEntity;
+import ru.mentor.entity.MentorTagLinkEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 
@@ -84,6 +88,18 @@ public class BaseMapper {
                         .build();
     }
 
+    public UserInfoDto mapUserDtoWithOptionalMentorTags(UserEntity entity) {
+        return UserInfoDto.builder()
+                          .id(entity.getId())
+                          .username(entity.getUsername())
+                          .role(entity.getRole())
+                          .firstName(entity.getFirstName())
+                          .lastName(entity.getLastName())
+                          .tgNickname(entity.getTgNickname())
+                          .mentorTags(Role.MENTOR.equals(entity.getRole()) ? mapMentorTags(entity.getMentorTags()) : null)
+                          .build();
+    }
+
     public UserInfoDto mapUserDto(UserEntity entity) {
         return UserInfoDto.builder()
                           .id(entity.getId())
@@ -93,7 +109,6 @@ public class BaseMapper {
                           .lastName(entity.getLastName())
                           .tgNickname(entity.getTgNickname())
                           .build();
-
     }
 
     /**
@@ -159,11 +174,11 @@ public class BaseMapper {
             int pageSize,
             long senderId) {
         return GrpcPageRequest.newBuilder()
-                .setHeader(header)
-                .setPageNumber(pageNumber)
-                .setPageSize(pageSize)
-                .setSenderId(senderId)
-                .build();
+                              .setHeader(header)
+                              .setPageNumber(pageNumber)
+                              .setPageSize(pageSize)
+                              .setSenderId(senderId)
+                              .build();
     }
 
     /**
@@ -210,4 +225,19 @@ public class BaseMapper {
                          })
                          .toList();
     }
+
+    private List<MentorTagDto> mapMentorTags(List<MentorTagLinkEntity> mentorTagLinkEntities) {
+        return mentorTagLinkEntities.stream()
+                                    .map(mentorTagLinkEntity -> {
+                                        MentorTagEntity mentorTag = mentorTagLinkEntity.getTag();
+                                        return MentorTagDto.builder()
+                                                           .id(mentorTag.getId())
+                                                           .mentorTagName(mentorTag.getMentorTagName())
+                                                           .createdAt(mentorTag.getCreatedAt())
+                                                           .isActive(mentorTag.getIsActive())
+                                                           .build();
+                                    })
+                                    .toList();
+    }
+
 }
