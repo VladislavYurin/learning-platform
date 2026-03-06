@@ -103,8 +103,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      */
     @Override
     public UserInfoDto updateMyUserInfo(UserInfoDto updateDto) {
-        UserEntity myUser = userService.getCurrentUser();
-
+        UserEntity currentUser = userService.getCurrentUser();
         String requestId = RqGenerator.generateRqId();
         log.info(String.format(
                 "[ requestId = %s ] Получен запрос на изменение своей информации юзером [ ID = %d ].",
@@ -112,10 +111,11 @@ public class UserInfoServiceImpl implements UserInfoService {
                 updateDto.getId()
         ));
 
-        UserEntity updateMyUser = baseMapper.mapUserEntity(updateDto);
-        updateMyUser.setPassword(myUser.getPassword());
-        UserEntity savedUpdateMyUser = userRepository.save(updateMyUser);
-        return baseMapper.mapUserDto(savedUpdateMyUser);
+        UserEntity updatedUser = baseMapper.mapUserEntity(updateDto);
+        updatedUser.setPassword(currentUser.getPassword());
+        updatedUser.setUserAvatarKey(currentUser.getUserAvatarKey());
+        return baseMapper.mapUserDto(userRepository.save(updatedUser));
+
     }
 
     /**

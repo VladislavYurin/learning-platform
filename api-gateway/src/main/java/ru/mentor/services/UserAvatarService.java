@@ -5,30 +5,23 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.dto.avatar.UserAvatarContentDto;
 
 /**
- * Сервис предоставляет функционал для загрузки аватара и генерации ссылки на файл
+ * Сервис для работы с аватарами пользователей в MinIO.
  */
 public interface UserAvatarService {
 
     /**
-     * Загружает файл в хранилище
-     *
-     * @param avatar
-     *         файл аватара
-     *
-     * @return ключ сохранённого файла
+     * Загружает аватар в хранилище.
      */
     String uploadUserAvatar(MultipartFile avatar);
 
     /**
-     * Возвращает ресурс аватара по его ключу в хранилище.
-     *
-     * @param avatarKey
-     *         ключ объекта в хранилище (MinIO)
-     *
-     * @return Resource c содержимым файла
+     * Получает аватар по ключу из хранилища.
      */
-    Optional<UserAvatarContentDto> getUserAvatarFromStorage(String avatarKey);
+    Optional<UserAvatarContentDto> getUserAvatarFromStorage(String userAvatarKey);
 
+    /**
+     * Удаляет аватар по ключу из хранилища.
+     */
     void deleteUserAvatarFromStorage(String userAvatarKey);
 
 }
