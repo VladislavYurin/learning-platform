@@ -11,7 +11,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -44,7 +45,7 @@ public class UserInfoControllerIntegrationTest {
     @Test
     void searchUsers_byTelegram_shouldReturnUser() throws Exception {
         mockMvc.perform(get("/user/search")
-                        .param("query", "vladislavyurin")) // убрали '@'
+                        .param("query", "vladislavyurin"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tgNickname").value("vladislavyurin"))
                 .andExpect(jsonPath("$[0].username").value("mentor@gmail.com"));
