@@ -75,19 +75,19 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
      *
      * @param courseId
      *         идентификатор курса
-     * @param moduleOrderNum
-     *         порядковый номер модуля курса
+     * @param moduleId
+     *         идентификатор модуля курса
      *
      * @return найденный модуль
      */
     @Override
-    public ModuleDto getModuleByOrderNum(Long courseId, Integer moduleOrderNum) {
+    public ModuleDto getModuleById(Long courseId, Long moduleId) {
         Long userId = userService.getCurrentUserId();
         String requestId = RqGenerator.generateRqId();
         Header header = headerFactory.create(requestId);
         log.info(
                 "[ requestId = {} ] Получен запрос на получение модуля [ ID = {} ] из курса "
-                        + "[ ID = {} ] юзером [ ID = {} ].", requestId, moduleOrderNum,
+                        + "[ ID = {} ] юзером [ ID = {} ].", requestId, moduleId,
                 courseId, userId
         );
 
@@ -95,7 +95,7 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
                 header,
                 userId,
                 courseId,
-                moduleOrderNum
+                moduleId
         );
         try {
             ModuleResponse moduleResponse = moduleGrpcClient.getModule(request);
@@ -148,24 +148,24 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
      *
      * @param courseId
      *         идентификатор курса, из которого нужно удалить модуль
-     * @param moduleOrderNum
-     *         порядковый номер модуля в курсе
+     * @param moduleId
+     *         идентификатор модуля в курсе
      */
     @Override
-    public void deleteModule(Long courseId, Integer moduleOrderNum) {
+    public void deleteModule(Long courseId, Long moduleId) {
         Long userId = userService.getCurrentUserId();
         String requestId = RqGenerator.generateRqId();
         Header header = headerFactory.create(requestId);
         log.info(
-                "[ RqUId = {} ] Получен запрос на удаление модуля [ num = {} ] в курсе [ ID = {} ] "
+                "[ RqUId = {} ] Получен запрос на удаление модуля [ ID = {} ] в курсе [ ID = {} ] "
                         + "от юзера [ ID = {} ].",
                 requestId,
-                moduleOrderNum,
+                moduleId,
                 courseId,
                 userId
         );
         DeleteModuleRequest request = moduleMapper.constructGrpcDeleteRequest(
-                header, userId, courseId, moduleOrderNum);
+                header, userId, courseId, moduleId);
         try {
             moduleGrpcClient.deleteModule(request);
         } catch (StatusRuntimeException e) {

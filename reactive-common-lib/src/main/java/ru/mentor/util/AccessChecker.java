@@ -39,10 +39,9 @@ public class AccessChecker {
      *
      * @param userId - ID пользователя
      * @param courseId - ID курса
-     * @param moduleOrderNumber - порядковый номер модуля курса
      * @return - Mono c  Boolean значением true, если пользователь имеет доступ к модулю
      */
-    public Mono<Boolean> hasAccessToModule(Long userId, Long courseId, Integer moduleOrderNumber) {
+    public Mono<Boolean> hasAccessToModule(Long userId, Long courseId) {
         return userRepository
             .findByIdOrThrow(userId)
             .flatMap(user ->
@@ -50,8 +49,8 @@ public class AccessChecker {
                     .findByIdOrThrow(courseId)
                     .flatMap(course ->
                         userModuleAccessRepository
-                            .existsByUserIdAndCourseIdAndModuleOrderNum(
-                                userId, courseId, moduleOrderNumber)
+                            .existsByUserIdAndCourseId(
+                                userId, courseId)
                             .map(hasAccess ->
                                              (hasAccess || (Role.checkIsMentor(user) && course.getAuthorId().equals(userId)))
                             )
