@@ -64,12 +64,12 @@ public class ModuleController {
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен")
             }
     )
-    @DeleteMapping("/{courseId}/{moduleOrderNum}")
+    @DeleteMapping("/{courseId}/{moduleId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
     public ResponseEntity<Void> deleteModule(
             @PathVariable Long courseId,
-            @PathVariable Integer moduleOrderNum) {
-        redirectModuleService.deleteModule(courseId, moduleOrderNum);
+            @PathVariable Long moduleId) {
+        redirectModuleService.deleteModule(courseId, moduleId);
         return ResponseEntity.noContent().build();
     }
 
@@ -84,12 +84,12 @@ public class ModuleController {
                     @ApiResponse(responseCode = "403", description = "Доступ запрещен")
             }
     )
-    @GetMapping("/{courseId}/{moduleOrderNum}")
+    @GetMapping("/{courseId}/{moduleId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR') or hasRole('USER')")
-    public ModuleDto getModuleByOrderNum(
+    public ResponseEntity<ModuleDto> getModuleById(
             @PathVariable Long courseId,
-            @PathVariable Integer moduleOrderNum) {
-        return redirectModuleService.getModuleByOrderNum(courseId, moduleOrderNum);
+            @PathVariable Long moduleId) {
+        return ResponseEntity.ok().body(redirectModuleService.getModuleById(courseId, moduleId));
     }
 
     @Operation(

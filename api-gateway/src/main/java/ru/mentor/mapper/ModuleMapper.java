@@ -23,12 +23,12 @@ public class ModuleMapper {
 
     public GetModuleRequest constructGrpcGetRequest(
             Header header, Long senderId, Long courseId,
-            Integer moduleOrderNum) {
+            Long moduleId) {
         return GetModuleRequest.newBuilder()
                                .setHeader(header)
                                .setSenderId(senderId)
                                .setCourseId(courseId)
-                               .setModuleOrderNumber(moduleOrderNum)
+                               .setModuleId(moduleId)
                                .build();
     }
 
@@ -78,12 +78,12 @@ public class ModuleMapper {
 
     public DeleteModuleRequest constructGrpcDeleteRequest(
             Header header, Long userId, Long courseId,
-            Integer moduleOrderNum) {
+            Long moduleId) {
         return DeleteModuleRequest.newBuilder()
                                   .setHeader(header)
                                   .setSenderId(userId)
                                   .setCourseId(courseId)
-                                  .setModuleOrderNumber(moduleOrderNum)
+                                  .setModuleId(moduleId)
                                   .build();
     }
 

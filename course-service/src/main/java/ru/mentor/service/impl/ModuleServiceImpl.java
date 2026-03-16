@@ -34,29 +34,27 @@ public class ModuleServiceImpl implements ModuleService {
     /**
      * Возвращает модуль курса, если у пользователя есть к нему доступ
      *
-     * @param request - gRPC запрос, содержит id курса и порядковый номер модуля
+     * @param request - gRPC запрос, содержит id курса и id модуля
      * @return - Mono с gRPC-ответом, содержащим данные модуля
      */
     @Override
     public Mono<ModuleResponse> getModule(GetModuleRequest request) {
         return accessChecker
-                .hasAccessToModule(request.getSenderId(), request.getCourseId(), request.getModuleOrderNumber())
+                .hasAccessToModule(request.getSenderId(), request.getCourseId())
                 .flatMap(hasAccess -> {
                     if (hasAccess) {
                         return moduleFacade
-                                .findModuleResponseByCourseIdAndModuleOrderNum(
-                                    request.getCourseId(),
-                                    request.getModuleOrderNumber());
+                                .findModuleResponseById(request.getModuleId());
                     } else {
                         return Mono.error(
                             Status.PERMISSION_DENIED
                                 .withDescription(
                                     String.format(
                                         "Юзер с [ ID = %d ] не имеет доступа к модулю "
-                                        + "[ num = %d ] курса [ ID = %d ]"
+                                        + "[ ID = %d ] курса [ ID = %d ]"
                                         + "или такого модуля не существует",
                                         request.getSenderId(),
-                                        request.getModuleOrderNumber(),
+                                        request.getModuleId(),
                                         request.getCourseId()
                                     )).asRuntimeException());
                     }
@@ -113,7 +111,7 @@ public class ModuleServiceImpl implements ModuleService {
     /**
      * Удаляет модуль из курса, если пользователь является автором курса
      *
-     * @param request - gRPC-запрос, содержащий id курса и порядковый номер модуля
+     * @param request - gRPC-запрос, содержащий id курса и id модуля
      * @return Mono с пустым gRPC-ответом
      */
     @Override
@@ -123,18 +121,15 @@ public class ModuleServiceImpl implements ModuleService {
                 .flatMap(isAuthor -> {
                     if (isAuthor) {
                         return moduleFacade
-                                .findModuleResponseByCourseIdAndModuleOrderNum(
-                                        request.getCourseId(), request.getModuleOrderNumber())
-                                .map(ModuleResponse::getModuleId)
-                                .flatMap(moduleFacade::deleteModuleById);
+                                .deleteModuleById(request.getModuleId());
                     } else {
                         return Mono.error(
                                 Status.PERMISSION_DENIED
                                         .withDescription(String.format(
                                                 "Юзер с [ ID = %d ] не имеет доступа к модулю с"
-                                                        + "[ num = %d ] курса [ ID = %d ] ",
+                                                        + "[ ID = %d ] курса [ ID = %d ] ",
                                                 request.getSenderId(),
-                                                request.getModuleOrderNumber(),
+                                                request.getModuleId(),
                                                 request.getCourseId()
                                         )).asRuntimeException()
                         );

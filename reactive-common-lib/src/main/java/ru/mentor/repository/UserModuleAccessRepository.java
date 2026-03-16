@@ -27,7 +27,6 @@ public interface UserModuleAccessRepository
      *
      * @param userId - ID пользователя в таблице users
      * @param courseId - ID курса в таблице courses
-     * @param moduleOrderNum - порядковый номер модуля курса
      *
      * @return - Mono с true, если доступ есть, иначе false
      */
@@ -36,12 +35,10 @@ public interface UserModuleAccessRepository
             SELECT 1 FROM user_module_access uma
                     JOIN modules m ON m.id_module = uma.module_id
                     WHERE uma.user_id = :userId
-                      AND uma.course_id = :courseId
-                      AND m.module_number = :moduleOrderNum)
+                      AND uma.course_id = :courseId)
             """)
-    Mono<Boolean> existsByUserIdAndCourseIdAndModuleOrderNum(
+    Mono<Boolean> existsByUserIdAndCourseId(
             Long userId,
-            Long courseId,
-            Integer moduleOrderNum);
+            Long courseId);
 
 }

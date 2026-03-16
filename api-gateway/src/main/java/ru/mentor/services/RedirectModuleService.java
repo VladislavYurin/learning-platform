@@ -24,10 +24,10 @@ public interface RedirectModuleService {
     /**
      * Возвращает модуль по идентификатору курса и модуля.
      * @param courseId идентификатор курса
-     * @param moduleOrderNum порядковый номер модуля внутри курса
+     * @param moduleId идентификатор модуля внутри курса
      * @return найденный модуль
      */
-    ModuleDto getModuleByOrderNum(Long courseId, Integer moduleOrderNum);
+    ModuleDto getModuleById(Long courseId, Long moduleId);
 
     /**
      * Импортирует модуль из загруженного файла (например, Markdown) с дополнительными параметрами запроса.
@@ -40,8 +40,8 @@ public interface RedirectModuleService {
     /**
      * Удаляет модуль из курса.
      * @param courseId идентификатор курса
-     * @param moduleOrderNum порядковый номер модуля внутри курса
+     * @param moduleId идентификатор модуля внутри курса
      */
-    void deleteModule(Long courseId, Integer moduleOrderNum);
+    void deleteModule(Long courseId, Long moduleId);
 
 }

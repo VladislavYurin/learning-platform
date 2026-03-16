@@ -151,7 +151,7 @@ class RedirectModuleServiceImplTest {
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TestConstantHolder.userId),
                         ArgumentMatchers.eq(TestConstantHolder.courseId),
-                        ArgumentMatchers.eq(TestConstantHolder.moduleOrderNumber)
+                        ArgumentMatchers.eq(TestConstantHolder.moduleId)
                 ))
                 .thenReturn(getModuleRequest);
         Mockito.when(moduleGrpcClient.getModule(ArgumentMatchers.eq(getModuleRequest)))
@@ -162,15 +162,15 @@ class RedirectModuleServiceImplTest {
         Mockito.when(userService.getCurrentUserId())
                 .thenReturn(TestConstantHolder.userId);
 
-        ModuleDto result = redirectModuleService.getModuleByOrderNum(
-                TestConstantHolder.courseId, TestConstantHolder.moduleOrderNumber);
+        ModuleDto result = redirectModuleService.getModuleById(
+                TestConstantHolder.courseId, TestConstantHolder.moduleId);
 
         Assertions.assertThat(result).isEqualTo(dto);
         Mockito.verify(moduleMapper).constructGrpcGetRequest(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(TestConstantHolder.userId),
                 ArgumentMatchers.eq(TestConstantHolder.courseId),
-                ArgumentMatchers.eq(TestConstantHolder.moduleOrderNumber)
+                ArgumentMatchers.eq(TestConstantHolder.moduleId)
         );
         Mockito.verify(moduleGrpcClient).getModule(ArgumentMatchers.eq(getModuleRequest));
         Mockito.verify(moduleMapper).mapGrpcModuleResponseToModuleDto(grpcResponse);
@@ -184,7 +184,7 @@ class RedirectModuleServiceImplTest {
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TestConstantHolder.userId),
                         ArgumentMatchers.eq(TestConstantHolder.courseId),
-                        ArgumentMatchers.eq(TestConstantHolder.moduleOrderNumber)
+                        ArgumentMatchers.eq(TestConstantHolder.moduleId)
                 ))
                 .thenReturn(getModuleRequest);
         Mockito.when(moduleGrpcClient.getModule(ArgumentMatchers.any(GetModuleRequest.class)))
@@ -196,8 +196,8 @@ class RedirectModuleServiceImplTest {
         Mockito.when(userService.getCurrentUserId())
                 .thenReturn(TestConstantHolder.userId);
 
-        Assertions.assertThatThrownBy(() -> redirectModuleService.getModuleByOrderNum(TestConstantHolder.courseId,
-                                                                                      TestConstantHolder.moduleOrderNumber))
+        Assertions.assertThatThrownBy(() -> redirectModuleService.getModuleById(TestConstantHolder.courseId,
+                                                                                      TestConstantHolder.moduleId))
                 .isInstanceOf(GrpcRetryException.class)
                 .hasMessageContaining(TestConstantHolder.grpcExceptionText);
 
@@ -212,19 +212,19 @@ class RedirectModuleServiceImplTest {
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TestConstantHolder.userId),
                         ArgumentMatchers.eq(TestConstantHolder.courseId),
-                        ArgumentMatchers.eq(TestConstantHolder.moduleOrderNumber)
+                        ArgumentMatchers.eq(TestConstantHolder.moduleId)
                 )).thenReturn(deleteModuleRequest);
 
         Mockito.when(userService.getCurrentUserId())
                 .thenReturn(TestConstantHolder.userId);
 
-        redirectModuleService.deleteModule(TestConstantHolder.courseId, TestConstantHolder.moduleOrderNumber);
+        redirectModuleService.deleteModule(TestConstantHolder.courseId, TestConstantHolder.moduleId);
 
         Mockito.verify(moduleMapper).constructGrpcDeleteRequest(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(TestConstantHolder.userId),
                 ArgumentMatchers.eq(TestConstantHolder.courseId),
-                ArgumentMatchers.eq(TestConstantHolder.moduleOrderNumber)
+                ArgumentMatchers.eq(TestConstantHolder.moduleId)
         );
 
         Mockito.verify(moduleGrpcClient).deleteModule(ArgumentMatchers.eq(deleteModuleRequest));
