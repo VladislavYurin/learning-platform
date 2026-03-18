@@ -69,7 +69,8 @@ public interface MentorTimeSlotRepository
 
     @Modifying
     @Query(nativeQuery = true, value = """
-            DELETE FROM mentor_time_slot__users slotUsers WHERE slotUsers.user_id = :userId   
+            DELETE FROM mentor_time_slot__users slotUsers 
+                   WHERE slotUsers.time_slot_id = :slotId AND slotUsers.user_id = :userId
     """)
-    int deleteParticipantById(@Param("userId") Long userId);
+    int deleteParticipantById(@Param("slotId") Long slotId, @Param("userId") Long userId);
 }

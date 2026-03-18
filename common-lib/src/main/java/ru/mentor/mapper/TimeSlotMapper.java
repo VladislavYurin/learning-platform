@@ -81,6 +81,7 @@ public class TimeSlotMapper {
                                 .meetingLink(grpcResponse.getMeetingLink())
                                 .description(grpcResponse.getDescription())
                                 .createdAt(createdAt)
+                                .isActive(grpcResponse.getIsActive())
                                 .build();
     }
 
@@ -194,6 +195,7 @@ public class TimeSlotMapper {
                                .setMeetingLink(timeSlotEntity.getMeetingLink())
                                .setDescription(timeSlotEntity.getDescription())
                                .setCreatedAt(createdAt)
+                               .setIsActive(timeSlotEntity.getIsActive())
                                .build();
     }
 
@@ -221,7 +223,7 @@ public class TimeSlotMapper {
     /**
      * Маппит уникальный ID запроса, слота и пользователя в объект запроса на отмену слота для отправки по gRPC.
      *
-     * @param rqUid UUID запроса на бронирование слота
+     * @param header заголовок gRPC-запроса (requestId/nodeId/apiKey)
      * @param slotId ID слота, который бронируется
      * @param userId ID пользователя, который бронирует
      * @return {@link CancelTimeSlotRequest}

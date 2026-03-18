@@ -581,7 +581,6 @@ class CalendarServiceServerTest {
     @Test
     void bookTimeSlot_SlotNotFound_throwException() {
         BookTimeSlotRequest request = BookTimeSlotRequest.newBuilder()
-                                                         //                                                         .setRqUid(requestUUID)
                                                          .setHeader(buildTestHeader())
                                                          .setSlotId(timeSlotId)
                                                          .setUserId(userId)
@@ -698,12 +697,12 @@ class CalendarServiceServerTest {
         StreamObserver<CancelTimeSlotResponse> responseObserver = Mockito.mock(StreamObserver.class);
 
         Mockito.when(mentorTimeSlotRepository.findByIdWithParticipantsOrThrow(timeSlotId)).thenReturn(originTimeSlot);
-        Mockito.when(mentorTimeSlotRepository.deleteParticipantById(userId)).thenReturn(1);
+        Mockito.when(mentorTimeSlotRepository.deleteParticipantById(timeSlotId, userId)).thenReturn(1);
 
         calendarServiceServer.cancelTimeSlot(cancelRequest, responseObserver);
 
         Mockito.verify(mentorTimeSlotRepository).findByIdWithParticipantsOrThrow(timeSlotId);
-        Mockito.verify(mentorTimeSlotRepository).deleteParticipantById(ArgumentMatchers.any());
+        Mockito.verify(mentorTimeSlotRepository).deleteParticipantById(ArgumentMatchers.any(), ArgumentMatchers.any());
 
         ArgumentCaptor<CancelTimeSlotResponse> responseCaptor = ArgumentCaptor.forClass(CancelTimeSlotResponse.class);
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());

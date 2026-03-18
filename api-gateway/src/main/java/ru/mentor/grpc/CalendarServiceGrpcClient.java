@@ -6,7 +6,6 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-//import ru.mentor.calendar.BookTimeSlotRequest;
 import ru.mentor.calendar.CalendarServiceGrpc.CalendarServiceBlockingStub;
 import ru.mentor.common.BookTimeSlotRequest;
 import ru.mentor.common.CancelTimeSlotRequest;
@@ -88,7 +87,7 @@ public class CalendarServiceGrpcClient {
     /**
      * Возвращает пустой gRPC-ответ в случае отмены слота.
      * @param cancelTimeSlotRequest {@link CancelTimeSlotRequest} сгенерированный из proto класс запроса
-     * @return {@link Empty} сгенерированный класс ответа
+     * @return {@link CancelTimeSlotResponse} сгенерированный класс ответа
      */
     @Retryable(
             retryFor = GrpcRetryException.class,

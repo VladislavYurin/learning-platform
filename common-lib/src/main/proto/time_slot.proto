@@ -76,4 +76,5 @@ message TimeSlotResponse {
   string meeting_link = 9;                   // Ссылка на встречу
   string description = 10;                   // Описание
   google.protobuf.Timestamp created_at = 11; // Время создания
+  bool isActive = 12;                        // Флаг активности слота
 }
