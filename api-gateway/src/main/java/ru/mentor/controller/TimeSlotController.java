@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,8 +21,6 @@ import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
 import ru.mentor.dto.MentorTimeSlotInfoForUserDto;
 import ru.mentor.services.RedirectCalendarService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/slot")
@@ -105,7 +103,7 @@ public class TimeSlotController {
     @PostMapping("/cancel")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "BearerAuthentication")
-    public ResponseEntity cancelSlot(@RequestParam long timeSlotId) {
+    public ResponseEntity<String> cancelSlot(@RequestParam long timeSlotId) {
         return ResponseEntity.ok().body(redirectCalendarService.cancelTimeSlot(timeSlotId));
     }
 

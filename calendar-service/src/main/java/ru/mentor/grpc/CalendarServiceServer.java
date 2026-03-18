@@ -4,9 +4,6 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -207,7 +204,7 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
         try {
             MentorTimeSlotEntity mentorTimeSlotEntity = mentorTimeSlotRepository.findByIdWithParticipantsOrThrow(slotId);
 
-            if(mentorTimeSlotRepository.deleteParticipantById(userId) <= 0){
+            if(mentorTimeSlotRepository.deleteParticipantById(mentorTimeSlotEntity.getId(), userId) <= 0){
                 throw new UserException("Пользователь не участвует в данной встрече");
             }
 
@@ -293,10 +290,4 @@ public class CalendarServiceServer extends CalendarServiceGrpc.CalendarServiceIm
         );
     }
 
-    private Set<UserEntity> removeUserById(MentorTimeSlotEntity mentorTimeSlotEntity, Long userId) {
-        Set<UserEntity> filtredSet = mentorTimeSlotEntity.getMeetingParticipants()
-                .stream().filter(user -> userId != user.getId()).collect(Collectors.toSet());
-
-        return filtredSet;
-    }
 }
