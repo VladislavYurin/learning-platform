@@ -62,6 +62,18 @@ message ImportModuleFromFileRequest {
   bytes fileContent = 8;
 }
 
+//Запрос для обновления модуля
+message UpdateModuleGrpcRequest {
+  Header header = 1;
+  uint64 sender_id = 2;
+  uint64 course_id = 3;
+  uint64 module_id = 4;
+  string title = 5;
+  string content = 6;
+  uint32 order_number = 7;
+  bool is_active = 8;
+}
+
 // Запрос для удаления модуля
 message DeleteModuleRequest {
   Header header = 1;
@@ -85,6 +97,9 @@ service ModuleService {
 
   // Создать модуль
   rpc CreateModule (CreateModuleGrpcRequest) returns (ModuleResponse);
+
+  // Обновить модуль
+  rpc UpdateModule (UpdateModuleGrpcRequest) returns (ModuleResponse);
 
   // Удалить модуль
   rpc DeleteModule (DeleteModuleRequest) returns (DeleteModuleResponse);

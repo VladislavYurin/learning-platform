@@ -11,8 +11,10 @@ import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.ImportModuleFromFileRequest;
 import ru.mentor.common.ModuleResponse;
+import ru.mentor.common.UpdateModuleGrpcRequest;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.front.CreateModuleRequest;
+import ru.mentor.dto.front.UpdateModuleRequest;
 import ru.mentor.exception.GrpcExceptionMapper;
 import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.CourseServiceModuleGrpcClient;
@@ -139,6 +141,37 @@ public class RedirectModuleServiceImpl implements RedirectModuleService {
             throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * Создаёт gRPC-запрос для обновления модуля в составе курса и передает gRPC-клиенту
+     * для передачи серверу.
+     *
+     * @param request
+     *         ДТО запроса для обновления модуля
+     *
+     * @return ДТО обновленного модуля
+     */
+    @Override
+    public ModuleDto updateModule(UpdateModuleRequest request) {
+        Long userId = userService.getCurrentUserId();
+        String requestId = RqGenerator.generateRqId();
+        Header header = headerFactory.create(requestId);
+        log.info(
+                "[ requestId = {} ] Получен запрос на обновление модуля [ ID = {} ] в курсе [ ID = {} ] юзером [ ID = {} ].",
+                requestId, request.getModuleId(), request.getCourseId(), userId
+        );
+
+        UpdateModuleGrpcRequest updateRequest =
+                moduleMapper.constructGrpcUpdateRequest(header, userId, request);
+
+        try {
+            ModuleResponse moduleResponse = moduleGrpcClient.updateModule(updateRequest);
+            return moduleMapper.mapGrpcModuleResponseToModuleDto(moduleResponse);
+        } catch (StatusRuntimeException e) {
+            throw exceptionMapper.mapGrpcExceptionToRuntimeException(e, requestId);
         }
     }
 

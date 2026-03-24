@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.dto.front.CreateModuleRequest;
+import ru.mentor.dto.front.UpdateModuleRequest;
 import ru.mentor.services.RedirectModuleService;
 import ru.mentor.validation.ValidMarkdownFile;
 
@@ -51,6 +53,23 @@ public class ModuleController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
     public ResponseEntity<?> createModule(@RequestBody CreateModuleRequest request) {
         return ResponseEntity.ok().body(redirectModuleService.createModule(request));
+    }
+
+    @Operation(
+            summary = "Обновить модуль",
+            description = "Позволяет обновить модуль. Требуются права ADMIN или MENTOR",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Модуль успешно обновлен",
+                            content = @Content(schema = @Schema(implementation = ModuleDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Невалидные входные данные"),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
+                    @ApiResponse(responseCode = "403", description = "Доступ запрещен")
+            }
+    )
+    @PutMapping("/update")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MENTOR')")
+    public ResponseEntity<?> updateModule(@RequestBody UpdateModuleRequest request) {
+        return ResponseEntity.ok().body(redirectModuleService.updateModule(request));
     }
 
     @Operation(
