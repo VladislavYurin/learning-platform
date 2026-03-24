@@ -153,4 +153,52 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
     }
 
+    @ExceptionHandler(SearchQueryEmptyException.class)
+    public ResponseEntity<ProblemDetail> handleSearchQueryEmptyException(SearchQueryEmptyException e) {
+        String rqId = RqGenerator.generateRqId();
+        log.error("[requestId = {} ] Пустой поисковый запрос", rqId, e);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                e.getMessage()
+        );
+        problem.setTitle("Bad Request");
+        problem.setProperty("errorCode", "SEARCH_QUERY_EMPTY");
+        problem.setProperty("requestId", rqId);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
+    @ExceptionHandler(UsersNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleUsersNotFoundException(UsersNotFoundException e) {
+        String rqId = RqGenerator.generateRqId();
+        log.error("[requestId = {} ] Пользователи не найдены", rqId, e);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                e.getMessage()
+        );
+        problem.setTitle("Not Found");
+        problem.setProperty("errorCode", "USERS_NOT_FOUND");
+        problem.setProperty("requestId", rqId);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException e) {
+        String rqId = RqGenerator.generateRqId();
+        log.error("[requestId = {} ] Некорректный аргумент", rqId, e);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                e.getMessage()
+        );
+        problem.setTitle("Bad Request");
+        problem.setProperty("errorCode", "ILLEGAL_ARGUMENT");
+        problem.setProperty("requestId", rqId);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
+    }
+
 }

@@ -1,7 +1,10 @@
 package ru.mentor.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.EntityNotFoundException;
@@ -63,5 +66,15 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
                            )
                    ));
     }
-
+    /**
+     * Гибкий поиск пользователей по строке запроса
+     * @param searchQuery Строка для поиска (email, telegram, имя, фамилия)
+     * @return Список найденных пользователей
+     */
+    @Query("SELECT u FROM UserEntity u WHERE " +
+            "LOWER(u.username) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR " +
+            "LOWER(u.tgNickname) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR " +
+            "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR " +
+            "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :searchQuery, '%'))")
+    List<UserEntity> searchUsers(@Param("searchQuery") String searchQuery);
 }

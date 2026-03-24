@@ -48,6 +48,23 @@ jobs:
       - name: Force docker-java API version
         run: |
           echo "api.version=1.44" >> ~/.docker-java.properties
+      # === НОВЫЕ ШАГИ ДЛЯ ЗАПУСКА СЕРВИСОВ (только для api-gateway) ===
+      - name: Start dependencies (api-gateway)
+        if: matrix.svc.name == 'api-gateway'
+        run: docker compose -f docker-compose.yml up -d database kafka-1 minio
+
+      - name: Wait for database
+        if: matrix.svc.name == 'api-gateway'
+        run: timeout 30s sh -c 'until docker compose exec -T database pg_isready -U user -d mentor; do sleep 2; done'
+
+      - name: Wait for Kafka
+        if: matrix.svc.name == 'api-gateway'
+        run: timeout 60s sh -c 'until nc -z localhost 9092; do sleep 2; done'
+
+      - name: Wait for MinIO
+        if: matrix.svc.name == 'api-gateway'
+        run: timeout 30s sh -c 'until curl -f http://localhost:9000/minio/health/live; do sleep 2; done'
+      # =============================================================
 
       # Собираем только указанный модуль + его зависимости (-am)
       - name: Maven verify

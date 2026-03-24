@@ -14,6 +14,10 @@ import ru.mentor.services.UserInfoService;
 import ru.mentor.services.UserService;
 import ru.mentor.util.RqGenerator;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Реализация сервиса для работы с пользовательской информацией и аватаром.
  * <p>
@@ -35,6 +39,11 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     private final UserAvatarService userAvatarService;
 
+    /**
+     * Возвращает данные текущего (аутентифицированного) пользователя.
+     *
+     * @return DTO с информацией о текущем пользователе
+     */
     /**
      * Возвращает данные текущего (аутентифицированного) пользователя.
      *
@@ -101,6 +110,12 @@ public class UserInfoServiceImpl implements UserInfoService {
      *
      * @return DTO с актуальными данными текущего пользователя
      */
+    /**
+     * Изменяет данные текущего (аутентифицированного) пользователя.
+     * Идентификатор пользователя берётся из контекста безопасности.
+     * @param updateDto обновляемые данные текущего пользователя
+     * @return DTO с актуальными данными текущего пользователя
+     */
     @Override
     public UserInfoDto updateMyUserInfo(UserInfoDto updateDto) {
         UserEntity currentUser = userService.getCurrentUser();
@@ -142,6 +157,45 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (oldKey != null && !oldKey.isBlank()) {
             userAvatarService.deleteUserAvatarFromStorage(oldKey);
         }
+    }
+
+    /**
+     * Поиск пользователей по строке запроса.
+     *
+     * @param searchQuery строка для поиска (может быть null)
+     * @return список найденных пользователей или пустой список,
+     *         если запрос пустой или пользователи не найдены
+     *
+     * @implNote Поиск регистронезависимый, частичный, по всем полям пользователя.
+     *           Возвращает пустой список при null, пустой строке или отсутствии результатов.
+     */
+    @Override
+    public List<UserInfoDto> searchUsers(String searchQuery) {
+        String requestId = RqGenerator.generateRqId();
+        if (searchQuery == null || searchQuery.trim().isEmpty()) {
+            log.info("[requestId = {}] Пустой поисковый запрос, возвращаем пустой список", requestId);
+            return Collections.emptyList();
+        }
+        String trimmedQuery = searchQuery.trim();
+        log.info("[requestId = {}] Начало поиска пользователей по запросу: '{}'",
+                requestId, trimmedQuery);
+        if (trimmedQuery.length() == 1) {
+            log.warn("[requestId = {}] Поиск по одному символу может вернуть много результатов: '{}'",
+                    requestId, trimmedQuery);
+        }
+        List<UserEntity> users = userRepository.searchUsers(trimmedQuery);
+        if (users.isEmpty()) {
+            log.info("[requestId = {}] Пользователи не найдены по запросу: '{}'",
+                    requestId, trimmedQuery);
+            return Collections.emptyList();
+        }
+
+        log.info("[requestId = {}] Найдено {} пользователей по запросу: '{}'",
+                requestId, users.size(), trimmedQuery);
+
+        return users.stream()
+                .map(baseMapper::mapUserDto)
+                .collect(Collectors.toList());
     }
 
 }

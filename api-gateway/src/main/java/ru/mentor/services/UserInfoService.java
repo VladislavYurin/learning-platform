@@ -1,7 +1,12 @@
 package ru.mentor.services;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.dto.UserInfoDto;
+import ru.mentor.entity.UserEntity;
+
+import java.util.List;
 
 /**
  * Сервисный интерфейс для работы с пользовательской информацией и аватаром.
@@ -32,7 +37,6 @@ public interface UserInfoService {
     /**
      * Назначает текущему пользователю роль наставника (MENTOR)
      * и возвращает обновлённые данные профиля.
-     *
      * @return DTO с актуальными данными пользователя после назначения роли
      */
     UserInfoDto assignMentorRole();
@@ -47,4 +51,6 @@ public interface UserInfoService {
      */
     void updateMyUserAvatar(MultipartFile avatar);
 
+
+    List<UserInfoDto> searchUsers(String searchQuery);
 }
