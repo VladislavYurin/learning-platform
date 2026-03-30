@@ -34,7 +34,8 @@ public class CalendarServiceGrpcClient {
     /**
      * Создаёт тайм-слот наставника в Calendar Service.
      * Выполняет RPC-вызов {@code createMentorTimeSlot}.
-     * @param request запрос на создание тайм-слота (должен содержать корректный {@code rqUid})
+     *
+     * @param request запрос на создание тайм-слота (должен содержать корректный {@code requestId})
      * @return Calendar Service с данными созданного тайм-слота
      * @throws GrpcRetryException при ошибке отправки/выполнения RPC будет перехвачен ретраем
      */
@@ -51,8 +52,8 @@ public class CalendarServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в calendar-service при создании слота. cause=%s",
+                            e.getMessage()
                     ), request.getHeader().getRequestId()
             );
         }
@@ -77,8 +78,8 @@ public class CalendarServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            bookTimeSlotRequest.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в calendar-service при бронировании слота. cause=%s",
+                            e.getMessage()
                     ), bookTimeSlotRequest.getHeader().getRequestId()
             );
         }
@@ -86,6 +87,7 @@ public class CalendarServiceGrpcClient {
 
     /**
      * Возвращает пустой gRPC-ответ в случае отмены слота.
+     *
      * @param cancelTimeSlotRequest {@link CancelTimeSlotRequest} сгенерированный из proto класс запроса
      * @return {@link CancelTimeSlotResponse} сгенерированный класс ответа
      */
@@ -100,10 +102,10 @@ public class CalendarServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                        "[ RqUId = %s ] Ошибка отправки gRPC запроса. Ошибка: %s",
-                        cancelTimeSlotRequest.getHeader().getRequestId(),
-                        e.getMessage()
-            ), cancelTimeSlotRequest.getHeader().getRequestId());
+                            "Ошибка отправки gRPC запроса в calendar-service при отмене слота. cause=%s",
+                            e.getMessage()
+                    ), cancelTimeSlotRequest.getHeader().getRequestId()
+            );
         }
     }
 
@@ -126,8 +128,8 @@ public class CalendarServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            mentorSlotsInfoRequest.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в calendar-service при получении информации о слотах ментора. cause=%s",
+                            e.getMessage()
                     ), mentorSlotsInfoRequest.getHeader().getRequestId()
             );
         }

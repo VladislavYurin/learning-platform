@@ -37,12 +37,11 @@ public class AdminCalendarServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            pageRequest.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в admin-calendar-service при получении всех слотов. cause=%s",
+                            e.getMessage()
                     ),
                     pageRequest.getHeader().getRequestId()
             );
         }
     }
-
 }

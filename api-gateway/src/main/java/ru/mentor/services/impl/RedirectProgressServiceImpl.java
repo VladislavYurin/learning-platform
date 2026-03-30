@@ -1,16 +1,18 @@
 package ru.mentor.services.impl;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
+import ru.mentor.constant.MdcKeys;
 import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.MenteeProgressDto;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.feign.MentorClient;
 import ru.mentor.services.RedirectProgressService;
 import ru.mentor.services.UserService;
-import ru.mentor.util.RqGenerator;
 
 /**
  * Реализация сервиса редиректов/агрегации прогресса по курсам.
@@ -21,7 +23,6 @@ import ru.mentor.util.RqGenerator;
 public class RedirectProgressServiceImpl implements RedirectProgressService {
 
     private final MentorClient mentorClient;
-
     private final UserService userService;
 
     /**
@@ -35,14 +36,35 @@ public class RedirectProgressServiceImpl implements RedirectProgressService {
     @Override
     public CourseProgressResponse getCourseProgressByMentor(Long courseId) {
         UserEntity user = userService.getCurrentUser();
-        String requestId = RqGenerator.generateRqId();
-        log.info(String.format(
-                "[ requestId = %s ] Получен запрос на получение прогресса учеников в курсе [ ID = %d ] юзером [ ID = %d ].",
-                requestId,
-                courseId,
-                user.getId()
-        ));
-        return mentorClient.getCourseProgressByMentor(requestId, user.getId(), courseId).getBody();
+        Long userId = user.getId();
+        String requestId = Optional.ofNullable(MDC.get(MdcKeys.REQUEST_ID)).orElse("");
+
+        log.debug(
+                "[userId={}] Получен запрос на получение прогресса учеников в курсе [courseId={}].",
+                userId,
+                courseId
+        );
+
+        try {
+            CourseProgressResponse response =
+                    mentorClient.getCourseProgressByMentor(requestId, userId, courseId).getBody();
+
+            log.debug(
+                    "[userId={}] Успешно получен ответ от mentor-service на получение прогресса учеников в курсе [courseId={}].",
+                    userId,
+                    courseId
+            );
+
+            return response;
+        } catch (Exception e) {
+            log.error(
+                    "[userId={}] Ошибка при вызове mentor-service во время получения прогресса учеников в курсе [courseId={}].",
+                    userId,
+                    courseId,
+                    e
+            );
+            throw e;
+        }
     }
 
     /**
@@ -56,14 +78,34 @@ public class RedirectProgressServiceImpl implements RedirectProgressService {
     @Override
     public List<MenteeProgressDto> getAllUsersAtCourse(Long courseId) {
         UserEntity user = userService.getCurrentUser();
-        String requestId = RqGenerator.generateRqId();
-        log.info(String.format(
-                "[ requestId = %s ] Получен запрос на получение всех учеников в курсе [ ID = %d ] юзером [ ID = %d ].",
-                requestId,
-                courseId,
-                user.getId()
-        ));
-        return mentorClient.getAllUsersAtCourse(requestId, user.getId(), courseId).getBody();
-    }
+        Long userId = user.getId();
+        String requestId = Optional.ofNullable(MDC.get(MdcKeys.REQUEST_ID)).orElse("");
 
+        log.debug(
+                "[userId={}] Получен запрос на получение всех учеников в курсе [courseId={}].",
+                userId,
+                courseId
+        );
+
+        try {
+            List<MenteeProgressDto> response =
+                    mentorClient.getAllUsersAtCourse(requestId, userId, courseId).getBody();
+
+            log.debug(
+                    "[userId={}] Успешно получен ответ от mentor-service на получение всех учеников в курсе [courseId={}].",
+                    userId,
+                    courseId
+            );
+
+            return response;
+        } catch (Exception e) {
+            log.error(
+                    "[userId={}] Ошибка при вызове mentor-service во время получения всех учеников в курсе [courseId={}].",
+                    userId,
+                    courseId,
+                    e
+            );
+            throw e;
+        }
+    }
 }

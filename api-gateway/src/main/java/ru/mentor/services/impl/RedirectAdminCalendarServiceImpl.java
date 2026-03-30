@@ -1,9 +1,10 @@
 package ru.mentor.services.impl;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,7 @@ import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.PageDetails;
+import ru.mentor.constant.MdcKeys;
 import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminCalendarServiceGrpcClient;
@@ -52,14 +54,15 @@ public class RedirectAdminCalendarServiceImpl implements RedirectAdminCalendarSe
     @Override
     public Page<MentorSlotInfoDto> getAllMentorTimeSlots(int pageNumber, int pageSize) {
 
-        String requestId = UUID.randomUUID().toString();
+        String requestId = Optional.ofNullable(MDC.get(MdcKeys.REQUEST_ID)).orElse("");
         Long currentUserId = userService.getCurrentUserId();
         Header header = headerFactory.create(requestId);
 
-        log.info(
-                "[ requestId = {} ] Получен запрос от администратора [ ID = {} ] на извлечение всех слотов",
-                requestId,
-                currentUserId
+        log.debug(
+                "[userId={}] [pageNumber={}] [pageSize={}] Получен запрос на извлечение всех слотов.",
+                currentUserId,
+                pageNumber,
+                pageSize
         );
 
         GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
@@ -67,17 +70,36 @@ public class RedirectAdminCalendarServiceImpl implements RedirectAdminCalendarSe
                 pageNumber,
                 pageSize
         );
-        AllTimeSlotsResponse allTimeSlots = calendarServiceGrpcClient.getAllTimeSlots(pageRequest);
 
-        List<MentorSlotInfoDto> mentorSlotInfoDtoList =
-                timeSlotMapper.mapGrpcAllTimeSlotsResponseToMentorSlotInfoDtoList(allTimeSlots);
+        try {
+            AllTimeSlotsResponse allTimeSlots = calendarServiceGrpcClient.getAllTimeSlots(pageRequest);
 
-        PageDetails pageDetails = allTimeSlots.getPageDetails();
-        return new PageImpl<>(
-                mentorSlotInfoDtoList,
-                baseMapper.mapGrpcPageDetailsToPageRequest(pageDetails),
-                pageDetails.getTotalElements()
-        );
+            log.debug(
+                    "[userId={}] [pageNumber={}] [pageSize={}] Успешно получен ответ от calendar-service на извлечение всех слотов.",
+                    currentUserId,
+                    pageNumber,
+                    pageSize
+            );
+
+            List<MentorSlotInfoDto> mentorSlotInfoDtoList =
+                    timeSlotMapper.mapGrpcAllTimeSlotsResponseToMentorSlotInfoDtoList(allTimeSlots);
+
+            PageDetails pageDetails = allTimeSlots.getPageDetails();
+
+            return new PageImpl<>(
+                    mentorSlotInfoDtoList,
+                    baseMapper.mapGrpcPageDetailsToPageRequest(pageDetails),
+                    pageDetails.getTotalElements()
+            );
+        } catch (Exception e) {
+            log.error(
+                    "[userId={}] [pageNumber={}] [pageSize={}] Ошибка при вызове calendar-service во время извлечения всех слотов.",
+                    currentUserId,
+                    pageNumber,
+                    pageSize,
+                    e
+            );
+            throw e;
+        }
     }
-
 }

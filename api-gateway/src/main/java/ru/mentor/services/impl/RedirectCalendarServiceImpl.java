@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import ru.mentor.common.BookTimeSlotRequest;
 import ru.mentor.common.CancelTimeSlotRequest;
@@ -13,6 +14,7 @@ import ru.mentor.common.Header;
 import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.common.MentorSlotsInfoRequest;
 import ru.mentor.common.TimeSlotResponse;
+import ru.mentor.constant.MdcKeys;
 import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
@@ -23,7 +25,6 @@ import ru.mentor.grpc.CalendarServiceGrpcClient;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.services.RedirectCalendarService;
 import ru.mentor.services.UserService;
-import ru.mentor.util.RqGenerator;
 
 /**
  * Сервис редиректа запросов в микросервис calendar-service
@@ -34,11 +35,8 @@ import ru.mentor.util.RqGenerator;
 public class RedirectCalendarServiceImpl implements RedirectCalendarService {
 
     private final UserService userService;
-
     private final CalendarServiceGrpcClient calendarServiceClient;
-
     private final TimeSlotMapper timeSlotMapper;
-
     private final HeaderFactory headerFactory;
 
     /**
@@ -53,21 +51,36 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
     public MentorTimeSlotDto createTimeSlot(MentorTimeSlotCreateRequest createRequest) {
 
         UserEntity user = userService.getCurrentUser();
-        String requestId = RqGenerator.generateRqId();
+        Long userId = user.getId();
+        String requestId = Optional.ofNullable(MDC.get(MdcKeys.REQUEST_ID)).orElse("");
         Header header = headerFactory.create(requestId);
-        log.info(
-                "[ requestId = {} ] Получен запрос на создание слота ментором [ ID = {} ].",
-                requestId,
-                user.getId()
+
+        log.debug(
+                "[userId={}] Получен запрос на создание слота ментором.",
+                userId
         );
 
         CreateTimeSlotRequest createTimeSlotGrpcRequest =
                 timeSlotMapper.requestCreateToGrpcDto(createRequest, header, user);
 
-        TimeSlotResponse timeSlotGrpcResponse = calendarServiceClient
-                .createMentorTimeSlot(createTimeSlotGrpcRequest);
+        try {
+            TimeSlotResponse timeSlotGrpcResponse =
+                    calendarServiceClient.createMentorTimeSlot(createTimeSlotGrpcRequest);
 
-        return timeSlotMapper.grpcResponseToDto(timeSlotGrpcResponse);
+            log.debug(
+                    "[userId={}] Успешно получен ответ от calendar-service на создание слота.",
+                    userId
+            );
+
+            return timeSlotMapper.grpcResponseToDto(timeSlotGrpcResponse);
+        } catch (Exception e) {
+            log.error(
+                    "[userId={}] Ошибка при вызове calendar-service во время создания слота.",
+                    userId,
+                    e
+            );
+            throw e;
+        }
     }
 
     /**
@@ -82,86 +95,140 @@ public class RedirectCalendarServiceImpl implements RedirectCalendarService {
     public MentorTimeSlotDto bookTimeSlot(long timeSlotId) {
 
         UserEntity user = userService.getCurrentUser();
-        String requestId = RqGenerator.generateRqId();
+        Long userId = user.getId();
+        String requestId = Optional.ofNullable(MDC.get(MdcKeys.REQUEST_ID)).orElse("");
         Header header = headerFactory.create(requestId);
-        log.info(
-                "[ requestId = {} ] Получен запрос на бронирование слота [ ID = {}] учеником [ ID = {} ].",
-                requestId,
-                timeSlotId,
-                user.getId()
+
+        log.debug(
+                "[userId={}] Получен запрос на бронирование слота [timeSlotId={}].",
+                userId,
+                timeSlotId
         );
 
         BookTimeSlotRequest bookTimeSlotRequest = timeSlotMapper
-                .toGrpcBookTimeSlotRequest(header, timeSlotId, user.getId());
+                .toGrpcBookTimeSlotRequest(header, timeSlotId, userId);
 
-        TimeSlotResponse timeSlotGrpcResponse = calendarServiceClient
-                .bookTimeSlot(bookTimeSlotRequest);
+        try {
+            TimeSlotResponse timeSlotGrpcResponse =
+                    calendarServiceClient.bookTimeSlot(bookTimeSlotRequest);
 
-        return timeSlotMapper.grpcResponseToDto(timeSlotGrpcResponse);
+            log.debug(
+                    "[userId={}] Успешно получен ответ от calendar-service на бронирование слота [timeSlotId={}].",
+                    userId,
+                    timeSlotId
+            );
+
+            return timeSlotMapper.grpcResponseToDto(timeSlotGrpcResponse);
+        } catch (Exception e) {
+            log.error(
+                    "[userId={}] Ошибка при вызове calendar-service во время бронирования слота [timeSlotId={}].",
+                    userId,
+                    timeSlotId,
+                    e
+            );
+            throw e;
+        }
     }
 
+    @Override
     public String cancelTimeSlot(long timeSlotId) {
 
         Long userId = userService.getCurrentUser().getId();
-        String rqUId = RqGenerator.generateRqId();
-        Header header = headerFactory.create(rqUId);
-        log.info("[ RqUId = {} ] Получен запрос на отмену бронирования слота [ ID = {}] учеником [ ID = {} ].",
-                rqUId,
-                timeSlotId,
-                userId);
+        String requestId = Optional.ofNullable(MDC.get(MdcKeys.REQUEST_ID)).orElse("");
+        Header header = headerFactory.create(requestId);
+
+        log.debug(
+                "[userId={}] Получен запрос на отмену бронирования слота [timeSlotId={}].",
+                userId,
+                timeSlotId
+        );
 
         CancelTimeSlotRequest cancelTimeSlotRequest =
                 timeSlotMapper.toGrpcCancelTimeSlotRequest(header, timeSlotId, userId);
 
-        CancelTimeSlotResponse cancelTimeSlotResponse = calendarServiceClient.cancelTimeSlot(cancelTimeSlotRequest);
-        return timeSlotMapper.grpcCancelTimeSlotResponseToDto(cancelTimeSlotResponse);
+        try {
+            CancelTimeSlotResponse cancelTimeSlotResponse =
+                    calendarServiceClient.cancelTimeSlot(cancelTimeSlotRequest);
+
+            log.debug(
+                    "[userId={}] Успешно получен ответ от calendar-service на отмену бронирования слота [timeSlotId={}].",
+                    userId,
+                    timeSlotId
+            );
+
+            return timeSlotMapper.grpcCancelTimeSlotResponseToDto(cancelTimeSlotResponse);
+        } catch (Exception e) {
+            log.error(
+                    "[userId={}] Ошибка при вызове calendar-service во время отмены бронирования слота [timeSlotId={}].",
+                    userId,
+                    timeSlotId,
+                    e
+            );
+            throw e;
+        }
     }
 
     /**
-     * Отправляет запрос для получения информации о слотах текущего ментора и участниках в этих
-     * слотах
+     * Отправляет запрос для получения информации о слотах текущего ментора и участниках в этих слотах
      *
      * @return список ДТО {@link List<MentorSlotInfoDto>}
      */
     @Override
     public List<MentorSlotInfoDto> getMentorSlotsInfoForMentor() {
-
         return timeSlotMapper.toSlotInfoDtoList(
-                this.getMentorSlotsInfoRequest(Optional.empty()));
+                this.getMentorSlotsInfoRequest(Optional.empty())
+        );
     }
 
     /**
      * Отправляет запрос для получения информации о слотах ментора с ID = mentorId
      *
      * @param mentorId
-     *         - ID ментора, слоты которого нужно вернуть
+     *         ID ментора, слоты которого нужно вернуть
      *
      * @return список ДТО {@link List<MentorTimeSlotInfoForUserDto>}
      */
     @Override
     public List<MentorTimeSlotInfoForUserDto> getMentorSlotsInfoForUser(Long mentorId) {
-
         return timeSlotMapper.toSlotInfoForUserList(
-                this.getMentorSlotsInfoRequest(Optional.of(mentorId)));
+                this.getMentorSlotsInfoRequest(Optional.of(mentorId))
+        );
     }
 
     public List<MentorSlotInfo> getMentorSlotsInfoRequest(Optional<Long> mentorId) {
 
         Long userId = userService.getCurrentUser().getId();
-        String requestId = RqGenerator.generateRqId();
+        Long mentorIdValue = mentorId.orElse(userId);
+        String requestId = Optional.ofNullable(MDC.get(MdcKeys.REQUEST_ID)).orElse("");
         Header header = headerFactory.create(requestId);
 
-        log.info(
-                "[ requestId = {} ] Получен запрос от пользователя [ ID = {} ] на извлечение информации о слотах ментора [ ID = {} ].",
-                requestId,
+        log.debug(
+                "[userId={}] Получен запрос на извлечение информации о слотах ментора [mentorId={}].",
                 userId,
-                mentorId.orElse(userId)
+                mentorIdValue
         );
 
         MentorSlotsInfoRequest request =
-                timeSlotMapper.toMentorSlotsInfoGrpcRequest(mentorId.orElse(userId), header);
+                timeSlotMapper.toMentorSlotsInfoGrpcRequest(mentorIdValue, header);
 
-        return calendarServiceClient.getMentorSlotsInfo(request).getSlotsList();
+        try {
+            List<MentorSlotInfo> slots = calendarServiceClient.getMentorSlotsInfo(request).getSlotsList();
+
+            log.debug(
+                    "[userId={}] Успешно получен ответ от calendar-service на извлечение информации о слотах ментора [mentorId={}].",
+                    userId,
+                    mentorIdValue
+            );
+
+            return slots;
+        } catch (Exception e) {
+            log.error(
+                    "[userId={}] Ошибка при вызове calendar-service во время извлечения информации о слотах ментора [mentorId={}].",
+                    userId,
+                    mentorIdValue,
+                    e
+            );
+            throw e;
+        }
     }
-
 }

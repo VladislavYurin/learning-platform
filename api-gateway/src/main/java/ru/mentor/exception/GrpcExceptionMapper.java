@@ -22,8 +22,14 @@ public class GrpcExceptionMapper {
                 return new EntityAlreadyExistsException(e.getStatus().getDescription(), requestId);
             }
             default -> {
-                return new GrpcRetryException("[ requestId = {} ] Ошибка отправки gRPC запроса.",
-                                              requestId);
+                return new GrpcRetryException(
+                        String.format(
+                                "Ошибка при вызове внутреннего gRPC-сервиса. grpcStatusCode=%s, grpcDescription=%s",
+                                e.getStatus().getCode(),
+                                e.getStatus().getDescription()
+                        ),
+                        requestId
+                );
             }
         }
     }

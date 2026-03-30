@@ -44,8 +44,8 @@ public class CourseServiceCourseGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в course-service при создании курса. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
@@ -66,8 +66,8 @@ public class CourseServiceCourseGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в course-service при получении курса. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
@@ -88,8 +88,8 @@ public class CourseServiceCourseGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в course-service при удалении курса. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
@@ -110,40 +110,55 @@ public class CourseServiceCourseGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в course-service при получении всех курсов. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
         }
     }
 
+    /**
+     * Отправляет в course-service gRPC-запрос для получения всех активных курсов
+     *
+     * @param request
+     *         - gRPC-запрос с данными для получения активных курсов
+     *
+     * @return - gRPC-ответ с активными курсами
+     */
     public AllCoursesResponse getAllActiveCourses(GrpcPageRequest request) {
         try {
             return courseServiceBlockingStub.getAllActiveCourses(request);
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в course-service при получении всех активных курсов. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
         }
     }
 
+    /**
+     * Отправляет в course-service gRPC-запрос для получения превью всех активных курсов
+     *
+     * @param request
+     *         - gRPC-запрос с данными для получения превью активных курсов
+     *
+     * @return - gRPC-ответ с превью активных курсов
+     */
     public AllActiveCoursesResponse getAllActiveCoursesPreview(GetAllActiveCoursesPreviewRequest request) {
         try {
             return courseServiceBlockingStub.getAllActiveCoursesPreview(request);
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в course-service при получении превью активных курсов. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
         }
     }
-
 }

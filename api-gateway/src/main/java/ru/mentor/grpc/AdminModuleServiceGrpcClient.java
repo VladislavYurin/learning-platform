@@ -39,8 +39,8 @@ public class AdminModuleServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в admin-module-service при получении модуля. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
@@ -66,12 +66,11 @@ public class AdminModuleServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в admin-module-service при получении всех модулей. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
         }
     }
-
 }

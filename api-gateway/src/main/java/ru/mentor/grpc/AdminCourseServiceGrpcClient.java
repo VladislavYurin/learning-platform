@@ -39,14 +39,22 @@ public class AdminCourseServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в admin-course-service при получении курса. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
         }
     }
 
+    /**
+     * Возвращает список всех курсов в соответствии с настройками страницы.
+     *
+     * @param request
+     *         настройки страницы (номер страницы и размер)
+     *
+     * @return {@link AllCoursesResponse}
+     */
     @Retryable(
             retryFor = GrpcRetryException.class,
             maxAttemptsExpression = "${grpc.retry.max-attempts}",
@@ -58,12 +66,11 @@ public class AdminCourseServiceGrpcClient {
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в admin-course-service при получении всех курсов. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
         }
     }
-
 }
