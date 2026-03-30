@@ -11,6 +11,7 @@ import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.facade.CalendarFacade;
 import ru.mentor.grpc.error.GrpcErrorText;
+import ru.mentor.util.GrpcRequestLogContext;
 
 /**
  * gRPC-сервис для работы со слотами для админов
@@ -36,18 +37,44 @@ public class AdminCalendarServiceServer extends
     public Mono<AllTimeSlotsResponse> getAllTimeSlots(Mono<GrpcPageRequest> requestMono) {
         return requestMono
                 .switchIfEmpty(Mono.error(Status.INVALID_ARGUMENT
-                                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
-                                                  .asRuntimeException()))
-                .doOnNext(grpcPageRequest ->
-                                  log.info(
-                                          "[requestId={}] Поступил запрос на получение страницы слотов:"
-                                                  + " pageNumber={}, pageSize={} от администратора [ ID = {} ]",
-                                          grpcPageRequest.getHeader().getRequestId(),
-                                          grpcPageRequest.getPageNumber(),
-                                          grpcPageRequest.getPageSize(),
-                                          grpcPageRequest.getSenderId()
-                                  ))
-                .flatMap(calendarFacade::findAllTimeSlotsResponseByGrpcPageRequest)
+                        .withDescription(GrpcErrorText.EMPTY_REQUEST)
+                        .asRuntimeException()))
+                .flatMap(grpcPageRequest -> {
+                    String requestId = grpcPageRequest.getHeader().getRequestId();
+
+                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                            log.debug(
+                                    "Получен gRPC запрос на получение страницы слотов: [pageNumber={}] [pageSize={}] [senderId={}]",
+                                    grpcPageRequest.getPageNumber(),
+                                    grpcPageRequest.getPageSize(),
+                                    grpcPageRequest.getSenderId()
+                            )
+                    );
+
+                    return calendarFacade.findAllTimeSlotsResponseByGrpcPageRequest(grpcPageRequest)
+                            .doOnSuccess(response ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.debug(
+                                                    "Успешно обработан gRPC запрос на получение страницы слотов: [pageNumber={}] [pageSize={}] [senderId={}]",
+                                                    grpcPageRequest.getPageNumber(),
+                                                    grpcPageRequest.getPageSize(),
+                                                    grpcPageRequest.getSenderId()
+                                            )
+                                    )
+                            )
+                            .doOnError(error ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.error(
+                                                    "Ошибка обработки gRPC запроса на получение страницы слотов: [pageNumber={}] [pageSize={}] [senderId={}] [cause={}]",
+                                                    grpcPageRequest.getPageNumber(),
+                                                    grpcPageRequest.getPageSize(),
+                                                    grpcPageRequest.getSenderId(),
+                                                    GrpcRequestLogContext.buildErrorDescription(error),
+                                                    error
+                                            )
+                                    )
+                            );
+                })
                 .onErrorMap(
                         EntityNotFoundException.class,
                         e -> Status.NOT_FOUND
@@ -55,5 +82,4 @@ public class AdminCalendarServiceServer extends
                                 .asRuntimeException()
                 );
     }
-
 }

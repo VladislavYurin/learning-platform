@@ -16,6 +16,7 @@ import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.facade.ModuleFacade;
 import ru.mentor.grpc.error.GrpcErrorText;
 import ru.mentor.mapper.BaseMapper;
+import ru.mentor.util.GrpcRequestLogContext;
 
 /**
  * gRPC-сервис для работы с модулями для админов
@@ -25,13 +26,6 @@ import ru.mentor.mapper.BaseMapper;
 @RequiredArgsConstructor
 public class AdminModuleServiceServer extends
         ReactorAdminModuleServiceGrpc.AdminModuleServiceImplBase {
-
-    public static final String GET_MODULE_REQUEST_LOG_TEXT =
-            "[ requestId = {} ] Поступил запрос на получение модуля [ ID = {} ] от администратора [ ID = {} ]";
-
-    public static final String GET_ALL_MODULES_REQUEST_LOG_TEXT = """
-            [ requestId = {} ] Поступил запрос на получение страницы модулей \
-            [ страница={} ], [ размер={} ] от администратора [ ID = {} ]""";
 
     private final ModuleFacade moduleFacade;
 
@@ -47,8 +41,39 @@ public class AdminModuleServiceServer extends
     public Mono<ModuleResponse> getModule(Mono<GetModuleRequest> request) {
         return request
                 .switchIfEmpty(toInvalidArgumentError())
-                .doOnNext(this::recordGetModuleRequestToLog)
-                .flatMap(req -> moduleFacade.findModuleResponseById(req.getModuleId()))
+                .flatMap(getModuleRequest -> {
+                    String requestId = getModuleRequest.getHeader().getRequestId();
+
+                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                            log.debug(
+                                    "Получен gRPC запрос на получение модуля: [moduleId={}] [senderId={}]",
+                                    getModuleRequest.getModuleId(),
+                                    getModuleRequest.getSenderId()
+                            )
+                    );
+
+                    return moduleFacade.findModuleResponseById(getModuleRequest.getModuleId())
+                            .doOnSuccess(response ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.debug(
+                                                    "Успешно обработан gRPC запрос на получение модуля: [moduleId={}] [senderId={}]",
+                                                    getModuleRequest.getModuleId(),
+                                                    getModuleRequest.getSenderId()
+                                            )
+                                    )
+                            )
+                            .doOnError(error ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.error(
+                                                    "Ошибка обработки gRPC запроса на получение модуля: [moduleId={}] [senderId={}] [cause={}]",
+                                                    getModuleRequest.getModuleId(),
+                                                    getModuleRequest.getSenderId(),
+                                                    GrpcRequestLogContext.buildErrorDescription(error),
+                                                    error
+                                            )
+                                    )
+                            );
+                })
                 .onErrorMap(
                         EntityNotFoundException.class,
                         convertToRuntimeException()
@@ -64,38 +89,54 @@ public class AdminModuleServiceServer extends
     @Override
     public Mono<AllModulesResponse> getAllModules(Mono<GrpcPageRequest> pageRequest) {
         return pageRequest.switchIfEmpty(toInvalidArgumentError())
-                          .doOnNext(this::recordGetAllModulesRequestToLog)
-                          .map(baseMapper::mapGrpcPageRequestToPageRequest)
-                          .flatMap(moduleFacade::findAllModulesResponse)
-                          .onErrorMap(
-                                  EntityNotFoundException.class,
-                                  convertToRuntimeException()
-                          );
+                .flatMap(grpcPageRequest -> {
+                    String requestId = grpcPageRequest.getHeader().getRequestId();
+
+                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                            log.debug(
+                                    "Получен gRPC запрос на получение страницы модулей: [pageNumber={}] [pageSize={}] [senderId={}]",
+                                    grpcPageRequest.getPageNumber(),
+                                    grpcPageRequest.getPageSize(),
+                                    grpcPageRequest.getSenderId()
+                            )
+                    );
+
+                    return Mono.just(grpcPageRequest)
+                            .map(baseMapper::mapGrpcPageRequestToPageRequest)
+                            .flatMap(moduleFacade::findAllModulesResponse)
+                            .doOnSuccess(response ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.debug(
+                                                    "Успешно обработан gRPC запрос на получение страницы модулей: [pageNumber={}] [pageSize={}] [senderId={}]",
+                                                    grpcPageRequest.getPageNumber(),
+                                                    grpcPageRequest.getPageSize(),
+                                                    grpcPageRequest.getSenderId()
+                                            )
+                                    )
+                            )
+                            .doOnError(error ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.error(
+                                                    "Ошибка обработки gRPC запроса на получение страницы модулей: [pageNumber={}] [pageSize={}] [senderId={}] [cause={}]",
+                                                    grpcPageRequest.getPageNumber(),
+                                                    grpcPageRequest.getPageSize(),
+                                                    grpcPageRequest.getSenderId(),
+                                                    GrpcRequestLogContext.buildErrorDescription(error),
+                                                    error
+                                            )
+                                    )
+                            );
+                })
+                .onErrorMap(
+                        EntityNotFoundException.class,
+                        convertToRuntimeException()
+                );
     }
 
     private <T> Mono<T> toInvalidArgumentError() {
         return Mono.error(Status.INVALID_ARGUMENT
-                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
-                                  .asRuntimeException());
-    }
-
-    private void recordGetModuleRequestToLog(GetModuleRequest getModuleRequest) {
-        log.info(
-                GET_MODULE_REQUEST_LOG_TEXT,
-                getModuleRequest.getHeader().getRequestId(),
-                getModuleRequest.getModuleId(),
-                getModuleRequest.getSenderId()
-        );
-    }
-
-    private void recordGetAllModulesRequestToLog(GrpcPageRequest grpcPageRequest) {
-        log.info(
-                GET_ALL_MODULES_REQUEST_LOG_TEXT,
-                grpcPageRequest.getHeader().getRequestId(),
-                grpcPageRequest.getPageNumber(),
-                grpcPageRequest.getPageSize(),
-                grpcPageRequest.getSenderId()
-        );
+                .withDescription(GrpcErrorText.EMPTY_REQUEST)
+                .asRuntimeException());
     }
 
     private Function<EntityNotFoundException, Throwable> convertToRuntimeException() {

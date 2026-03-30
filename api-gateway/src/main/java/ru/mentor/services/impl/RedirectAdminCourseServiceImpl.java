@@ -60,7 +60,7 @@ public class RedirectAdminCourseServiceImpl implements RedirectAdminCourseServic
                 courseId
         );
 
-        GetCourseRequest getCourseRequest = courseMapper.constructGetCourseRequest(header, courseId);
+        GetCourseRequest getCourseRequest = courseMapper.constructGetCourseRequest(header, userId, courseId);
 
         try {
             CourseResponse courseResponse = courseServiceClient.getCourse(getCourseRequest);
@@ -107,7 +107,7 @@ public class RedirectAdminCourseServiceImpl implements RedirectAdminCourseServic
                 pageSize
         );
 
-        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(header, pageNumber, pageSize);
+        GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(header, pageNumber, pageSize, userId);
 
         try {
             AllCoursesResponse allCoursesResponse = courseServiceClient.getAllCourses(pageRequest);

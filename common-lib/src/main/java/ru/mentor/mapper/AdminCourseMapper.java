@@ -56,15 +56,15 @@ public class AdminCourseMapper {
                         .toList();
 
         return CourseDto.builder()
-                        .id(response.getCourseId())
-                        .courseTitle(response.getTitle())
-                        .courseDescription(response.getDescription())
-                        .isActive(response.getIsActive())
-                        .createdAt(createdAtDateTime)
-                        .author(authorInfo)
-                        .modules(moduleDtoList)
-                        .tags(tagsList)
-                        .build();
+                .id(response.getCourseId())
+                .courseTitle(response.getTitle())
+                .courseDescription(response.getDescription())
+                .isActive(response.getIsActive())
+                .createdAt(createdAtDateTime)
+                .author(authorInfo)
+                .modules(moduleDtoList)
+                .tags(tagsList)
+                .build();
     }
 
     /**
@@ -97,17 +97,17 @@ public class AdminCourseMapper {
      */
     public CourseResponse mapCourseEntityToGrpcCourseResponse(CourseEntity courseEntity) {
         Timestamp createdAtTimestamp = Timestamp.newBuilder()
-                                                .setSeconds(courseEntity.getCreatedAt()
-                                                                        .toEpochSecond(ZoneOffset.UTC))
-                                                .build();
+                .setSeconds(courseEntity.getCreatedAt()
+                        .toEpochSecond(ZoneOffset.UTC))
+                .build();
         return CourseResponse.newBuilder()
-                             .setCourseId(courseEntity.getId())
-                             .setTitle(courseEntity.getCourseTitle())
-                             .setDescription(courseEntity.getDescription())
-                             .setIsActive(courseEntity.getIsActive())
-                             .setCreatedAt(createdAtTimestamp)
-                             .setAuthor(getAuthorFromCourseEntity(courseEntity))
-                             .build();
+                .setCourseId(courseEntity.getId())
+                .setTitle(courseEntity.getCourseTitle())
+                .setDescription(courseEntity.getDescription())
+                .setIsActive(courseEntity.getIsActive())
+                .setCreatedAt(createdAtTimestamp)
+                .setAuthor(getAuthorFromCourseEntity(courseEntity))
+                .build();
     }
 
     /**
@@ -122,12 +122,12 @@ public class AdminCourseMapper {
     (Page<CourseEntity> coursesPage) {
 
         List<CourseResponse> courseResponses = coursesPage.getContent().stream()
-                                                          .map(this::mapCourseEntityToGrpcCourseResponse)
-                                                          .toList();
+                .map(this::mapCourseEntityToGrpcCourseResponse)
+                .toList();
         return AllCoursesResponse.newBuilder()
-                                 .setPageDetails(extractPageDetailsFromCourseEntityPage(coursesPage))
-                                 .addAllCourses(courseResponses)
-                                 .build();
+                .setPageDetails(extractPageDetailsFromCourseEntityPage(coursesPage))
+                .addAllCourses(courseResponses)
+                .build();
     }
 
     /**
@@ -142,18 +142,39 @@ public class AdminCourseMapper {
      */
     public GetCourseRequest constructGetCourseRequest(Header header, long courseId) {
         return GetCourseRequest.newBuilder()
-                               .setHeader(header)
-                               .setCourseId(courseId)
-                               .build();
+                .setHeader(header)
+                .setCourseId(courseId)
+                .build();
+    }
+
+    /**
+     * Создает gRPC-объект запроса курса {@link GetCourseRequest}
+     * с идентификатором отправителя.
+     *
+     * @param header
+     *         заголовок gRPC-запроса (requestId/nodeId/apiKey)
+     * @param senderId
+     *         идентификатор отправителя запроса
+     * @param courseId
+     *         ID курса
+     *
+     * @return {@link GetCourseRequest}
+     */
+    public GetCourseRequest constructGetCourseRequest(Header header, long senderId, long courseId) {
+        return GetCourseRequest.newBuilder()
+                .setHeader(header)
+                .setSenderId(senderId)
+                .setCourseId(courseId)
+                .build();
     }
 
     private PageDetails extractPageDetailsFromCourseEntityPage(Page<CourseEntity> coursesPage) {
         return PageDetails.newBuilder()
-                          .setPage(coursesPage.getNumber())
-                          .setSize(coursesPage.getSize())
-                          .setTotalElements(coursesPage.getTotalElements())
-                          .setTotalPages(coursesPage.getTotalPages())
-                          .build();
+                .setPage(coursesPage.getNumber())
+                .setSize(coursesPage.getSize())
+                .setTotalElements(coursesPage.getTotalElements())
+                .setTotalPages(coursesPage.getTotalPages())
+                .build();
     }
 
     private AuthorResponse getAuthorFromCourseEntity(CourseEntity courseEntity) {
@@ -162,8 +183,8 @@ public class AdminCourseMapper {
 
     private List<CourseDto> getDtoListFromAllCoursesResponse(AllCoursesResponse grpcCoursesResponse) {
         return grpcCoursesResponse.getCoursesList().stream()
-                                  .map(this::mapGrpcCourseResponseToCourseDto)
-                                  .toList();
+                .map(this::mapGrpcCourseResponseToCourseDto)
+                .toList();
     }
 
     private PageRequest constructPageRequest(AllCoursesResponse grpcCoursesResponse) {

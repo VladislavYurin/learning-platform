@@ -68,7 +68,8 @@ public class RedirectAdminCalendarServiceImpl implements RedirectAdminCalendarSe
         GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
                 header,
                 pageNumber,
-                pageSize
+                pageSize,
+                currentUserId
         );
 
         try {

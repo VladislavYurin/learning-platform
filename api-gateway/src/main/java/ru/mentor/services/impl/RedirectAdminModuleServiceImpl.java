@@ -59,7 +59,7 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
                 moduleId
         );
 
-        GetModuleRequest grpcRequest = moduleMapper.constructGetModuleRequest(header, moduleId);
+        GetModuleRequest grpcRequest = moduleMapper.constructGetModuleRequest(header, userId, moduleId);
 
         try {
             ModuleResponse grpcModuleResponse = moduleGrpcClient.getModule(grpcRequest);
@@ -109,7 +109,8 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
         GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
                 header,
                 pageNumber,
-                pageSize
+                pageSize,
+                userId
         );
 
         try {

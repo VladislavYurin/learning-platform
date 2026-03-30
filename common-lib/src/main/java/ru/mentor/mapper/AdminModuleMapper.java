@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.List;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,7 +19,6 @@ import ru.mentor.entity.ModuleEntity;
 
 @Component
 @RequiredArgsConstructor
-@NoArgsConstructor(force = true)
 public class AdminModuleMapper {
 
     private final BaseMapper baseMapper;
@@ -37,9 +35,29 @@ public class AdminModuleMapper {
      */
     public GetModuleRequest constructGetModuleRequest(Header header, long moduleId) {
         return GetModuleRequest.newBuilder()
-                               .setHeader(header)
-                               .setModuleId(moduleId)
-                               .build();
+                .setHeader(header)
+                .setModuleId(moduleId)
+                .build();
+    }
+
+    /**
+     * Создает gRPC-объект.
+     *
+     * @param header
+     *         заголовок gRPC-запроса (requestId/nodeId/apiKey)
+     * @param senderId
+     *         ID отправителя запроса
+     * @param moduleId
+     *         ID модуля
+     *
+     * @return gRPC-объект {@link GetModuleRequest}
+     */
+    public GetModuleRequest constructGetModuleRequest(Header header, long senderId, long moduleId) {
+        return GetModuleRequest.newBuilder()
+                .setHeader(header)
+                .setSenderId(senderId)
+                .setModuleId(moduleId)
+                .build();
     }
 
     /**
@@ -60,13 +78,13 @@ public class AdminModuleMapper {
             );
         }
         return ModuleDto.builder()
-                        .id(grpcModuleResponse.getModuleId())
-                        .moduleTitle(grpcModuleResponse.getTitle())
-                        .moduleOrderNumber(grpcModuleResponse.getOrderNumber())
-                        .moduleContent(grpcModuleResponse.getContent())
-                        .isActive(grpcModuleResponse.getIsActive())
-                        .createdAt(createdAtDateTime)
-                        .build();
+                .id(grpcModuleResponse.getModuleId())
+                .moduleTitle(grpcModuleResponse.getTitle())
+                .moduleOrderNumber(grpcModuleResponse.getOrderNumber())
+                .moduleContent(grpcModuleResponse.getContent())
+                .isActive(grpcModuleResponse.getIsActive())
+                .createdAt(createdAtDateTime)
+                .build();
     }
 
     /**
@@ -79,11 +97,12 @@ public class AdminModuleMapper {
      */
     public Page<ModuleDto> mapGrpcAllModulesResponseToModuleDtoPage(AllModulesResponse allModules) {
         List<ModuleDto> moduleResponses = allModules.getModulesList().stream()
-                                                    .map(this::mapGrpcModuleResponseToModuleDto)
-                                                    .toList();
+                .map(this::mapGrpcModuleResponseToModuleDto)
+                .toList();
         PageDetails grpcPageDetails = allModules.getPageDetails();
         return new PageImpl<>(
-                moduleResponses, baseMapper.mapGrpcPageDetailsToPageRequest(grpcPageDetails),
+                moduleResponses,
+                baseMapper.mapGrpcPageDetailsToPageRequest(grpcPageDetails),
                 grpcPageDetails.getTotalElements()
         );
     }
@@ -98,18 +117,18 @@ public class AdminModuleMapper {
      */
     public ModuleResponse mapModuleEntityToModuleResponse(ModuleEntity moduleEntity) {
         Timestamp createdAtTimestamp = Timestamp.newBuilder()
-                                                .setSeconds(moduleEntity.getCreatedAt()
-                                                                        .toEpochSecond(ZoneOffset.UTC))
-                                                .build();
+                .setSeconds(moduleEntity.getCreatedAt()
+                        .toEpochSecond(ZoneOffset.UTC))
+                .build();
         return ModuleResponse.newBuilder()
-                             .setModuleId(moduleEntity.getId())
-                             .setTitle(moduleEntity.getModuleTitle())
-                             .setOrderNumber(moduleEntity.getModuleOrderNumber())
-                             .setContent(moduleEntity.getModuleContent())
-                             .setIsActive(moduleEntity.getIsActive())
-                             .setCreatedAt(createdAtTimestamp)
-                             .setCourseId(moduleEntity.getCourse().getId())
-                             .build();
+                .setModuleId(moduleEntity.getId())
+                .setTitle(moduleEntity.getModuleTitle())
+                .setOrderNumber(moduleEntity.getModuleOrderNumber())
+                .setContent(moduleEntity.getModuleContent())
+                .setIsActive(moduleEntity.getIsActive())
+                .setCreatedAt(createdAtTimestamp)
+                .setCourseId(moduleEntity.getCourse().getId())
+                .build();
     }
 
     /**
@@ -120,16 +139,15 @@ public class AdminModuleMapper {
      *
      * @return {@link AllModulesResponse}
      */
-    public AllModulesResponse mapModuleEntityPageToGrpcAllModulesResponse
-    (Page<ModuleEntity> modulesPage) {
+    public AllModulesResponse mapModuleEntityPageToGrpcAllModulesResponse(Page<ModuleEntity> modulesPage) {
 
         List<ModuleResponse> moduleResponses = modulesPage.getContent().stream()
-                                                          .map(this::mapModuleEntityToModuleResponse)
-                                                          .toList();
+                .map(this::mapModuleEntityToModuleResponse)
+                .toList();
         return AllModulesResponse.newBuilder()
-                                 .setPageDetails(extractPageDetailsFromModuleEntityPage(modulesPage))
-                                 .addAllModules(moduleResponses)
-                                 .build();
+                .setPageDetails(extractPageDetailsFromModuleEntityPage(modulesPage))
+                .addAllModules(moduleResponses)
+                .build();
     }
 
     public List<ModuleDto> toModuleDtoList(List<ModuleResponse> moduleResponses) {
@@ -143,11 +161,11 @@ public class AdminModuleMapper {
 
     private PageDetails extractPageDetailsFromModuleEntityPage(Page<ModuleEntity> modulesPage) {
         return PageDetails.newBuilder()
-                          .setPage(modulesPage.getNumber())
-                          .setSize(modulesPage.getSize())
-                          .setTotalElements(modulesPage.getTotalElements())
-                          .setTotalPages(modulesPage.getTotalPages())
-                          .build();
+                .setPage(modulesPage.getNumber())
+                .setSize(modulesPage.getSize())
+                .setTotalElements(modulesPage.getTotalElements())
+                .setTotalPages(modulesPage.getTotalPages())
+                .build();
     }
 
 }

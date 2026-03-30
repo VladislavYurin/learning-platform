@@ -14,6 +14,7 @@ import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.error.GrpcErrorText;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.facade.CourseFacade;
+import ru.mentor.util.GrpcRequestLogContext;
 
 /**
  * gRPC-сервис для работы с курсами для админов
@@ -23,13 +24,6 @@ import ru.mentor.facade.CourseFacade;
 @RequiredArgsConstructor
 public class AdminCourseServiceServer extends
         ReactorAdminCourseServiceGrpc.AdminCourseServiceImplBase {
-
-    public static final String GET_COURSE_REQUEST_LOG_TEXT =
-            "[ requestId = {} ] Поступил запрос на получение данных о курсе"
-                    + " [ ID = {} ] от администратора [ ID = {} ]";
-    public static final String GET_ALL_COURSES_REQUEST_LOG_TEXT =
-            "[ requestId = {} ] Поступил запрос  на получение данных обо всех курсах"
-                    + " от администратора [ ID = {} ]";
 
     private final CourseFacade courseFacade;
 
@@ -43,9 +37,39 @@ public class AdminCourseServiceServer extends
     public Mono<CourseResponse> getCourse(Mono<GetCourseRequest> request) {
         return request
                 .switchIfEmpty(toInvalidArgumentError())
-                .doOnNext(this::logGetCourseRequest)
-                .map(GetCourseRequest::getCourseId)
-                .flatMap(courseFacade::findCourseById)
+                .flatMap(getCourseRequest -> {
+                    String requestId = getCourseRequest.getHeader().getRequestId();
+
+                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                            log.debug(
+                                    "Получен gRPC запрос на получение курса: [courseId={}] [senderId={}]",
+                                    getCourseRequest.getCourseId(),
+                                    getCourseRequest.getSenderId()
+                            )
+                    );
+
+                    return courseFacade.findCourseById(getCourseRequest.getCourseId())
+                            .doOnSuccess(response ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.debug(
+                                                    "Успешно обработан gRPC запрос на получение курса: [courseId={}] [senderId={}]",
+                                                    getCourseRequest.getCourseId(),
+                                                    getCourseRequest.getSenderId()
+                                            )
+                                    )
+                            )
+                            .doOnError(error ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.error(
+                                                    "Ошибка обработки gRPC запроса на получение курса: [courseId={}] [senderId={}] [cause={}]",
+                                                    getCourseRequest.getCourseId(),
+                                                    getCourseRequest.getSenderId(),
+                                                    GrpcRequestLogContext.buildErrorDescription(error),
+                                                    error
+                                            )
+                                    )
+                            );
+                })
                 .onErrorMap(EntityNotFoundException.class, convertToRuntimeException());
     }
 
@@ -57,11 +81,44 @@ public class AdminCourseServiceServer extends
      */
     @Override
     public Mono<AllCoursesResponse> getAllCourses(Mono<GrpcPageRequest> requestMono) {
-
         return requestMono
                 .switchIfEmpty(emptyGrpcPageRequestCheck())
-                .doOnNext(this::logAllCoursesGrpcPageRequest)
-                .flatMap(courseFacade::findAllCourses)
+                .flatMap(grpcPageRequest -> {
+                    String requestId = grpcPageRequest.getHeader().getRequestId();
+
+                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                            log.debug(
+                                    "Получен gRPC запрос на получение страницы курсов: [pageNumber={}] [pageSize={}] [senderId={}]",
+                                    grpcPageRequest.getPageNumber(),
+                                    grpcPageRequest.getPageSize(),
+                                    grpcPageRequest.getSenderId()
+                            )
+                    );
+
+                    return courseFacade.findAllCourses(grpcPageRequest)
+                            .doOnSuccess(response ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.debug(
+                                                    "Успешно обработан gRPC запрос на получение страницы курсов: [pageNumber={}] [pageSize={}] [senderId={}]",
+                                                    grpcPageRequest.getPageNumber(),
+                                                    grpcPageRequest.getPageSize(),
+                                                    grpcPageRequest.getSenderId()
+                                            )
+                                    )
+                            )
+                            .doOnError(error ->
+                                    GrpcRequestLogContext.withRequestId(requestId, () ->
+                                            log.error(
+                                                    "Ошибка обработки gRPC запроса на получение страницы курсов: [pageNumber={}] [pageSize={}] [senderId={}] [cause={}]",
+                                                    grpcPageRequest.getPageNumber(),
+                                                    grpcPageRequest.getPageSize(),
+                                                    grpcPageRequest.getSenderId(),
+                                                    GrpcRequestLogContext.buildErrorDescription(error),
+                                                    error
+                                            )
+                                    )
+                            );
+                })
                 .onErrorMap(EntityNotFoundException.class, convertToRuntimeException());
     }
 
@@ -73,32 +130,13 @@ public class AdminCourseServiceServer extends
 
     private Mono<? extends GrpcPageRequest> emptyGrpcPageRequestCheck() {
         return Mono.error(Status.INVALID_ARGUMENT
-                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
-                                  .asRuntimeException());
-    }
-
-    private void logAllCoursesGrpcPageRequest(GrpcPageRequest request) {
-        log.info(
-                GET_ALL_COURSES_REQUEST_LOG_TEXT,
-                request.getHeader().getRequestId(),
-                request.getSenderId()
-        );
-    }
-
-    private void logGetCourseRequest(GetCourseRequest request) {
-        log.info(
-                GET_COURSE_REQUEST_LOG_TEXT,
-                request.getHeader().getRequestId(),
-                request.getCourseId(),
-                request.getSenderId()
-        );
+                .withDescription(GrpcErrorText.EMPTY_REQUEST)
+                .asRuntimeException());
     }
 
     private Mono<? extends GetCourseRequest> toInvalidArgumentError() {
         return Mono.error(Status.INVALID_ARGUMENT
-                                  .withDescription(GrpcErrorText.EMPTY_REQUEST)
-                                  .asRuntimeException());
-
+                .withDescription(GrpcErrorText.EMPTY_REQUEST)
+                .asRuntimeException());
     }
-
 }
