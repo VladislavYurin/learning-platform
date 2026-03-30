@@ -22,7 +22,6 @@ import ru.mentor.dto.avatar.UserAvatarContentDto;
 import ru.mentor.exception.useravatar.UserAvatarServiceException;
 import ru.mentor.exception.useravatar.UserAvatarValidationException;
 import ru.mentor.services.UserAvatarService;
-import ru.mentor.util.RqGenerator;
 
 /**
  * Сервис предоставляет функционал для работы с аватаром пользователя в MinIO:
@@ -37,72 +36,57 @@ public class UserAvatarServiceImpl implements UserAvatarService {
     private static final char EXTENSION_SEPARATOR = '.';
     private static final String META_ORIGINAL_FILENAME = "original-filename";
     private static final String DEFAULT_USER_AVATAR_FILENAME = "userAvatar";
+
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
     private final UserAvatarProperties userAvatarProperties;
 
-    /**
-     * Загружает файл аватара в MinIO и возвращает ключ сохранённого объекта.
-     *
-     * @param avatar
-     *         файл аватара
-     *
-     * @return ключ сохранённого аватара
-     */
     @Override
     public String uploadUserAvatar(MultipartFile avatar) {
-        String requestId = RqGenerator.generateRqId();
-        log.info(
-                "[ requestId = {} ] Поступил запрос на загрузку файла в MinIO",
-                requestId
-        );
+
+        log.debug("Получен запрос на загрузку аватара в MinIO.");
 
         String bucket = minioProperties.getBucket();
         ensureBucketExists(bucket);
         validate(avatar);
 
         String key = USER_AVATAR_KEY_PREFIX + UUID.randomUUID();
-
         Map<String, String> meta = buildUserAvatarMetadata(avatar);
 
         try (InputStream is = avatar.getInputStream()) {
             PutObjectArgs args = PutObjectArgs.builder()
-                                              .bucket(bucket)
-                                              .object(key)
-                                              .stream(is, avatar.getSize(), -1)
-                                              .contentType(avatar.getContentType())
-                                              .userMetadata(meta) // <-- добавили
-                                              .build();
+                    .bucket(bucket)
+                    .object(key)
+                    .stream(is, avatar.getSize(), -1)
+                    .contentType(avatar.getContentType())
+                    .userMetadata(meta)
+                    .build();
 
             minioClient.putObject(args);
-            log.info(
-                    "[ requestId = {} ] Файл загружен в MinIO: bucket={}, key={}, size={}",
-                    requestId,
+
+            log.debug(
+                    "Успешно загружен аватар в MinIO: [bucket={}] [key={}] [size={}]",
                     bucket,
                     key,
                     avatar.getSize()
             );
+
             return key;
         } catch (Exception e) {
+            log.error(
+                    "Ошибка при загрузке аватара в MinIO: [bucket={}] [key={}]",
+                    bucket,
+                    key,
+                    e
+            );
             throw new UserAvatarServiceException("Ошибка загрузки файла", e);
         }
     }
 
-    /**
-     * Возвращает DTO с содержимым аватара по ключу из MinIO.
-     *
-     * @param userAvatarKey
-     *         ключ аватара в MinIO
-     *
-     * @return Optional с {@link UserAvatarContentDto}; empty, если у пользователя не задан ключ аватара
-     *
-     * @throws UserAvatarServiceException
-     *         если ключ задан, но объект в MinIO не найден или произошла ошибка хранилища
-     */
     @Override
     public Optional<UserAvatarContentDto> getUserAvatarFromStorage(String userAvatarKey) {
-        String requestId = RqGenerator.generateRqId();
-        log.info("[ requestId = {} ] Поступил запрос на получение аватара из MinIO.", requestId);
+
+        log.debug("Получен запрос на получение аватара из MinIO.");
 
         if (userAvatarKey == null || userAvatarKey.isBlank()) {
             return Optional.empty();
@@ -113,9 +97,9 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         try {
             StatObjectResponse stat = minioClient.statObject(
                     StatObjectArgs.builder()
-                                  .bucket(bucket)
-                                  .object(userAvatarKey)
-                                  .build()
+                            .bucket(bucket)
+                            .object(userAvatarKey)
+                            .build()
             );
 
             String contentType =
@@ -127,34 +111,57 @@ public class UserAvatarServiceImpl implements UserAvatarService {
             if (stat != null && stat.userMetadata() != null) {
                 metaName = stat.userMetadata().get(META_ORIGINAL_FILENAME);
             }
+
             String filename = (metaName != null && !metaName.isBlank())
                     ? metaName
                     : DEFAULT_USER_AVATAR_FILENAME;
 
             InputStream is = minioClient.getObject(
                     GetObjectArgs.builder()
-                                 .bucket(bucket)
-                                 .object(userAvatarKey)
-                                 .build()
+                            .bucket(bucket)
+                            .object(userAvatarKey)
+                            .build()
             );
 
             UserAvatarContentDto dto = UserAvatarContentDto.builder()
-                                                           .inputStream(is)
-                                                           .contentType(contentType)
-                                                           .filename(filename)
-                                                           .size(stat != null ? stat.size() : null)
-                                                           .build();
+                    .inputStream(is)
+                    .contentType(contentType)
+                    .filename(filename)
+                    .size(stat != null ? stat.size() : null)
+                    .build();
+
+            log.debug(
+                    "Успешно получен аватар из MinIO: [bucket={}] [key={}]",
+                    bucket,
+                    userAvatarKey
+            );
 
             return Optional.of(dto);
 
         } catch (io.minio.errors.ErrorResponseException e) {
             String code = e.errorResponse() != null ? e.errorResponse().code() : null;
+
+            log.error(
+                    "Ошибка хранилища при получении аватара из MinIO: [bucket={}] [key={}] [code={}]",
+                    bucket,
+                    userAvatarKey,
+                    code,
+                    e
+            );
+
             throw new UserAvatarServiceException(
                     "Ошибка хранилища при получении файла. key=" + userAvatarKey
                             + (code != null ? ", code=" + code : ""),
                     e
             );
         } catch (Exception e) {
+            log.error(
+                    "Внутренняя ошибка при получении аватара из MinIO: [bucket={}] [key={}]",
+                    bucket,
+                    userAvatarKey,
+                    e
+            );
+
             throw new UserAvatarServiceException(
                     "Внутренняя ошибка при получении файла. key=" + userAvatarKey,
                     e
@@ -162,19 +169,10 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         }
     }
 
-    /**
-     * Удаляет аватар из MinIO по ключу.
-     *
-     * @param userAvatarKey
-     *         ключ аватара в MinIO
-     */
     @Override
     public void deleteUserAvatarFromStorage(String userAvatarKey) {
-        String requestId = RqGenerator.generateRqId();
-        log.info(
-                "[ requestId = {} ] Поступил запрос на удаление аватара из MinIO.",
-                requestId
-        );
+
+        log.debug("Получен запрос на удаление аватара из MinIO.");
 
         if (userAvatarKey == null || userAvatarKey.isBlank()) {
             return;
@@ -185,26 +183,41 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         try {
             minioClient.removeObject(
                     io.minio.RemoveObjectArgs.builder()
-                                             .bucket(bucket)
-                                             .object(userAvatarKey)
-                                             .build()
+                            .bucket(bucket)
+                            .object(userAvatarKey)
+                            .build()
             );
 
-            log.info(
-                    "[ requestId = {} ] Аватар удалён из MinIO: bucket={}, key={}",
-                    requestId,
+            log.debug(
+                    "Успешно удален аватар из MinIO: [bucket={}] [key={}]",
                     bucket,
                     userAvatarKey
             );
 
         } catch (io.minio.errors.ErrorResponseException e) {
             String code = e.errorResponse() != null ? e.errorResponse().code() : null;
+
+            log.error(
+                    "Ошибка хранилища при удалении аватара из MinIO: [bucket={}] [key={}] [code={}]",
+                    bucket,
+                    userAvatarKey,
+                    code,
+                    e
+            );
+
             throw new UserAvatarServiceException(
                     "Ошибка хранилища при удалении файла. key=" + userAvatarKey
                             + (code != null ? ", code=" + code : ""),
                     e
             );
         } catch (Exception e) {
+            log.error(
+                    "Внутренняя ошибка при удалении аватара из MinIO: [bucket={}] [key={}]",
+                    bucket,
+                    userAvatarKey,
+                    e
+            );
+
             throw new UserAvatarServiceException(
                     "Внутренняя ошибка при удалении файла. key=" + userAvatarKey,
                     e
@@ -222,10 +235,10 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         }
 
         String contentType = avatar.getContentType();
-        if (contentType == null || !userAvatarProperties.getAllowedContentTypes()
-                                                        .contains(contentType)) {
+        if (contentType == null || !userAvatarProperties.getAllowedContentTypes().contains(contentType)) {
             throw new UserAvatarValidationException(
-                    "Недопустимый content-type файла: " + contentType);
+                    "Недопустимый content-type файла: " + contentType
+            );
         }
 
         String ext = extractExtension(avatar.getOriginalFilename());
@@ -247,11 +260,14 @@ public class UserAvatarServiceImpl implements UserAvatarService {
                 minioClient.makeBucket(
                         MakeBucketArgs.builder().bucket(bucket).build()
                 );
-                log.info("Создан bucket в MinIO: {}", bucket);
+                log.debug("Создан bucket в MinIO: [bucket={}]", bucket);
             }
         } catch (Exception e) {
+            log.error("Ошибка проверки/создания bucket в MinIO: [bucket={}]", bucket, e);
             throw new UserAvatarServiceException(
-                    "Ошибка проверки/создания bucket в MinIO: " + bucket, e);
+                    "Ошибка проверки/создания bucket в MinIO: " + bucket,
+                    e
+            );
         }
     }
 
@@ -266,7 +282,7 @@ public class UserAvatarServiceImpl implements UserAvatarService {
         return filename.substring(dotIndex + 1).toLowerCase(Locale.ROOT).trim();
     }
 
-    private java.util.Map<String, String> buildUserAvatarMetadata(MultipartFile avatar) {
+    private Map<String, String> buildUserAvatarMetadata(MultipartFile avatar) {
         String name = avatar.getOriginalFilename();
 
         if (name == null || name.isBlank()) {
@@ -279,18 +295,17 @@ public class UserAvatarServiceImpl implements UserAvatarService {
             }
 
             name = name.replace("\"", "")
-                       .replace("\r", "")
-                       .replace("\n", "")
-                       .trim();
+                    .replace("\r", "")
+                    .replace("\n", "")
+                    .trim();
 
             if (name.isBlank()) {
                 name = DEFAULT_USER_AVATAR_FILENAME;
             }
         }
 
-        java.util.Map<String, String> meta = new java.util.HashMap<>();
+        Map<String, String> meta = new java.util.HashMap<>();
         meta.put(META_ORIGINAL_FILENAME, name);
         return meta;
     }
-
 }

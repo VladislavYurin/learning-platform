@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.mentor.config.CommonFeignConfig.CustomErrorDecoder.FeignClientExceptionWithResponse;
 import ru.mentor.exception.useravatar.UserAvatarServiceException;
 import ru.mentor.exception.useravatar.UserAvatarValidationException;
-import ru.mentor.util.RqGenerator;
 
 /**
  * Глобальный обработчик исключений.
@@ -30,6 +29,7 @@ public class GlobalExceptionHandler {
     private static final String ENTITY_NOT_FOUND_PROBLEM_TITLE = "Not Found";
     private static final String ENTITY_ALREADY_EXISTS_PROBLEM_TITLE = "Already exists";
     private static final String INTERNAL_SERVER_ERROR_PROBLEM_TITLE = "Internal Server Error";
+    private static final String INVALID_REFRESH_TOKEN_PROBLEM_TITLE = "Invalid Refresh Token";
 
     /**
      * Преобразует {@link FeignClientExceptionWithResponse} в HTTP-ответ.
@@ -43,16 +43,27 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleFeignClientExceptionWithResponse(
             FeignClientExceptionWithResponse ex) {
 
+        log.error(
+                "[exceptionType={}] [status={}] Ошибка при вызове внешнего сервиса через Feign.",
+                ex.getClass().getSimpleName(),
+                ex.getStatus(),
+                ex
+        );
+
         return ResponseEntity.status(ex.getStatus())
-                             .contentType(MediaType.APPLICATION_JSON)
-                             .body(ex.getBody());
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(ex.getBody());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ProblemDetail> handleAccessDeniedException(AccessDeniedException e) {
 
-        String requestId = RqGenerator.generateRqId();
-        log.error("[ requestId = {} ] {}", requestId, e.getMessage());
+        log.error(
+                "[exceptionType={}] [errorCode=ACCESS_DENIED] {}",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                e
+        );
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.FORBIDDEN,
@@ -68,8 +79,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleCustomAccessDeniedException(
             CustomAccessDeniedException e) {
 
-        String requestId = e.getRequestId() != null ? e.getRequestId() : RqGenerator.generateRqId();
-        log.error("[RequestUid = {} ] {}", requestId, e.getMessage());
+        log.error(
+                "[exceptionType={}] [errorCode=ACCESS_DENIED] {}",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                e
+        );
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.FORBIDDEN,
@@ -83,8 +98,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleEntityNotFoundException(EntityNotFoundException e) {
-        String requestId = e.getRequestId() != null ? e.getRequestId() : RqGenerator.generateRqId();
-        log.info("[RequestUid = {} ] {}", requestId, e.getMessage());
+
+        log.error(
+                "[exceptionType={}] [errorCode=ENTITY_NOT_FOUND] {}",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                e
+        );
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
@@ -98,9 +118,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<ProblemDetail> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
-        String requestId = e.getRequestId() != null ? e.getRequestId() : RqGenerator.generateRqId();
 
-        log.info("[ RequestUid = {} ] {}", requestId, e.getMessage());
+        log.error(
+                "[exceptionType={}] [errorCode=ENTITY_ALREADY_EXISTS] {}",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                e
+        );
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT,
@@ -118,7 +142,12 @@ public class GlobalExceptionHandler {
 
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
-        log.warn("Ошибка валидации файла: {}", e.getMessage());
+        log.error(
+                "[exceptionType={}] [errorCode=USER_AVATAR_VALIDATION] {}",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                e
+        );
 
         ProblemDetail problem = ProblemDetail.forStatus(status);
         problem.setTitle("Ошибка валидации файла");
@@ -132,7 +161,12 @@ public class GlobalExceptionHandler {
 
         HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
 
-        log.error("Ошибка при работе с хранилищем: {}", e.getMessage(), e);
+        log.error(
+                "[exceptionType={}] [errorCode=USER_AVATAR_SERVICE_ERROR] {}",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                e
+        );
 
         ProblemDetail problem = ProblemDetail.forStatus(status);
         problem.setTitle("Ошибка получения файла");
@@ -141,10 +175,44 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(problem);
     }
 
+    /**
+     * Обрабатывает исключение, возникающее при передаче невалидного refresh-токена.
+     *
+     * @param e
+     *         исключение невалидного refresh-токена
+     *
+     * @return HTTP-ответ со статусом 401 Unauthorized и описанием ошибки
+     */
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidRefreshTokenException(
+            InvalidRefreshTokenException e) {
+
+        log.error(
+                "[exceptionType={}] [errorCode=INVALID_REFRESH_TOKEN] {}",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                e
+        );
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                e.getMessage()
+        );
+        problem.setTitle(INVALID_REFRESH_TOKEN_PROBLEM_TITLE);
+        problem.setProperty("errorCode", "INVALID_REFRESH_TOKEN");
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problem);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleInternalServerError(Exception e) {
-        String requestId = RqGenerator.generateRqId();
-        log.error("[requestId = {} ] {}", requestId, e.getMessage());
+
+        log.error(
+                "[exceptionType={}] [errorCode=INTERNAL_SERVER_ERROR] {}",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                e
+        );
 
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         problem.setTitle(INTERNAL_SERVER_ERROR_PROBLEM_TITLE);
@@ -152,5 +220,4 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
     }
-
 }

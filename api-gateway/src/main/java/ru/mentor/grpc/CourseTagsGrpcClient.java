@@ -28,83 +28,59 @@ public class CourseTagsGrpcClient {
     @GrpcClient("course-tag-client")
     private CourseTagsServiceGrpc.CourseTagsServiceBlockingStub stub;
 
-    /**
-     * Отправляет gRPC-запрос для создания нового тега
-     *
-     * @param request
-     *         - ДТО с данными запроса
-     *
-     * @return - ДТО созданного тега
-     */
     public CourseTagResponse createCourseTag(CreateCourseTagGrpcRequest request) {
         try {
             return stub.createCourseTag(request);
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в course-tag-service при создании тега. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
         }
     }
 
-    /**
-     * Отправляет gRPC-запрос для удаления тега
-     *
-     * @param request
-     *         - ДТО с данными запроса
-     *
-     * @return - пустой gRPC-ответ
-     */
     public DeleteCourseTagResponse deleteCourseTag(DeleteCourseTagRequest request) {
         try {
             return stub.deleteCourseTag(request);
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в course-tag-service при удалении тега. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
         }
     }
 
-    /**
-     * Отправляет gRPC-запрос для получения тега
-     *
-     * @param request
-     *         - ДТО с данными запроса
-     *
-     * @return - ДТО тега
-     */
     public CourseTagResponse getCourseTag(GetCourseTagRequest request) {
         try {
             return stub.getCourseTag(request);
         } catch (Exception e) {
             throw new GrpcRetryException(
                     String.format(
-                            "[ requestId = %s ] Ошибка отправки gRPC запроса.",
-                            request.getHeader().getRequestId()
+                            "Ошибка отправки gRPC запроса в course-tag-service при получении тега. cause=%s",
+                            e.getMessage()
                     ),
                     request.getHeader().getRequestId()
             );
         }
     }
 
-    /**
-     * Отправляет gRPC-запрос для получения всех существующих тегов
-     *
-     * @return - список ДТО тегов
-     */
     public ListCourseTagsResponse getAllTags(GetAllCourseTagsRequest request) {
         try {
             return stub.getAllTags(request);
         } catch (Exception e) {
-            throw new GrpcRetryException("Ошибка отправки gRPC запроса.");
+            throw new GrpcRetryException(
+                    String.format(
+                            "Ошибка отправки gRPC запроса в course-tag-service при получении всех тегов. cause=%s",
+                            e.getMessage()
+                    ),
+                    request.getHeader().getRequestId()
+            );
         }
     }
-
 }

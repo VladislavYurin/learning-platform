@@ -21,6 +21,8 @@ services:
       dockerfile: ./api-gateway/Dockerfile
     env_file:
       - .env.docker.example
+    environment:
+      LOG_LEVEL_ROOT: debug
     container_name: api-gateway
     image: mentor/api-gateway:local
     ports:

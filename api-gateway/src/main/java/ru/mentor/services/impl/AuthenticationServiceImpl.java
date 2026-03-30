@@ -13,6 +13,7 @@ import ru.mentor.dto.auth.AuthRequest;
 import ru.mentor.dto.auth.JwtAuthResponse;
 import ru.mentor.dto.auth.RegRequest;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.exception.InvalidRefreshTokenException;
 import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.services.AuthenticationService;
 import ru.mentor.services.JwtService;
@@ -46,25 +47,45 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     @Override
     public JwtAuthResponse registration(RegRequest request, MultipartFile userAvatar) {
-        String userAvatarKey = null;
 
-        if (userAvatar != null) {
-            userAvatarKey = userAvatarService.uploadUserAvatar(userAvatar);
+        log.debug(
+                "[username={}] Получен запрос на регистрацию пользователя.",
+                request.getUsername()
+        );
+
+        try {
+            String userAvatarKey = null;
+
+            if (userAvatar != null) {
+                userAvatarKey = userAvatarService.uploadUserAvatar(userAvatar);
+            }
+
+            UserEntity user = userService.create(UserEntity.builder()
+                    .username(request.getUsername())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .tgNickname(request.getTgNickname())
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .role(Role.USER)
+                    .userAvatarKey(userAvatarKey)
+                    .build());
+
+            kafkaFacade.sendUserRegistrationMessage(user);
+
+            log.debug(
+                    "[userId={}] Успешно завершена регистрация пользователя.",
+                    user.getId()
+            );
+
+            return generateTokens(user);
+        } catch (Exception e) {
+            log.error(
+                    "[username={}] Ошибка во время регистрации пользователя.",
+                    request.getUsername(),
+                    e
+            );
+            throw e;
         }
-
-        UserEntity user = userService.create(UserEntity.builder()
-                                                       .username(request.getUsername())
-                                                       .password(passwordEncoder.encode(request.getPassword()))
-                                                       .tgNickname(request.getTgNickname())
-                                                       .firstName(request.getFirstName())
-                                                       .lastName(request.getLastName())
-                                                       .role(Role.USER)
-                                                       .userAvatarKey(userAvatarKey)
-                                                       .build());
-
-        kafkaFacade.sendUserRegistrationMessage(user);
-        return generateTokens(user);
-
     }
 
     /**
@@ -77,14 +98,34 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     @Override
     public JwtAuthResponse authentication(AuthRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                request.getUsername(),
-                request.getPassword()
-        ));
 
-        UserEntity user = userService.getByUsername(request.getUsername());
-        return generateTokens(user);
+        log.debug(
+                "[username={}] Получен запрос на аутентификацию пользователя.",
+                request.getUsername()
+        );
 
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    request.getUsername(),
+                    request.getPassword()
+            ));
+
+            UserEntity user = userService.getByUsername(request.getUsername());
+
+            log.debug(
+                    "[userId={}] Успешно выполнена аутентификация пользователя.",
+                    user.getId()
+            );
+
+            return generateTokens(user);
+        } catch (Exception e) {
+            log.error(
+                    "[username={}] Ошибка во время аутентификации пользователя.",
+                    request.getUsername(),
+                    e
+            );
+            throw e;
+        }
     }
 
     /**
@@ -96,23 +137,46 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      *
      * @return объект с новым JWT-токеном
      *
-     * @throws RuntimeException
-     *         если токен недействителен
+     * @throws InvalidRefreshTokenException
+     *          если refresh-токен недействителен
      */
     @Override
     public JwtAuthResponse refreshToken(String refreshToken) {
-        String username = jwtService.extractUserName(refreshToken);
-        UserDetails user = userService.userDetailsService().loadUserByUsername(username);
 
-        if (!jwtService.isTokenValid(refreshToken, user)) {
-            throw new RuntimeException("Невалидный refresh-токен");
+        try {
+            String username = jwtService.extractUserName(refreshToken);
+
+            log.debug(
+                    "[username={}] Получен запрос на обновление JWT-токена.",
+                    username
+            );
+
+            UserDetails user = userService.userDetailsService().loadUserByUsername(username);
+
+            if (!jwtService.isTokenValid(refreshToken, user)) {
+                log.error(
+                        "[username={}] Получен невалидный refresh-токен.",
+                        username
+                );
+                throw new InvalidRefreshTokenException("Невалидный refresh-токен");
+            }
+
+            log.debug(
+                    "[username={}] Успешно обновлен JWT-токен.",
+                    username
+            );
+
+            return JwtAuthResponse.builder()
+                    .accessToken(jwtService.generateToken(user))
+                    .refreshToken(jwtService.generateRefreshToken(user))
+                    .build();
+        } catch (Exception e) {
+            log.error(
+                    "Ошибка во время обновления JWT-токена.",
+                    e
+            );
+            throw e;
         }
-
-        return JwtAuthResponse.builder()
-                              .accessToken(jwtService.generateToken(user))
-                              .refreshToken(jwtService.generateRefreshToken(user))
-                              .build();
-
     }
 
     /**
@@ -125,10 +189,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     private JwtAuthResponse generateTokens(UserEntity user) {
         return JwtAuthResponse.builder()
-                              .accessToken(jwtService.generateToken(user))
-                              .refreshToken(jwtService.generateRefreshToken(user))
-                              .role(user.getRole())
-                              .build();
+                .accessToken(jwtService.generateToken(user))
+                .refreshToken(jwtService.generateRefreshToken(user))
+                .role(user.getRole())
+                .build();
     }
-
 }

@@ -3,7 +3,6 @@ package ru.mentor.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -25,6 +24,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import ru.mentor.security.JwtAuthenticationFilter;
 import ru.mentor.services.UserService;
+import ru.mentor.filter.UsernameMdcFilter;
 
 /**
  * Настройка бинов для управления безопасностью
@@ -37,6 +37,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
+    private final UsernameMdcFilter usernameMdcFilter;
 
     /**
      * Создание фильтра безопасности
@@ -73,7 +74,8 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(usernameMdcFilter, JwtAuthenticationFilter.class);
         return http.exceptionHandling(ex -> ex
                 .accessDeniedHandler(accessDeniedHandler)
                 .authenticationEntryPoint(authenticationEntryPoint)).build();

@@ -9,8 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,6 +28,7 @@ import ru.mentor.services.UserService;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String HEADER_NAME = "Authorization";
@@ -55,10 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // Получаем токен из заголовка
             var authHeader = request.getHeader(HEADER_NAME);
-            if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(
-                    authHeader,
-                    BEARER_PREFIX
-            )) {
+            if (StringUtils.isEmpty(authHeader) || !authHeader.startsWith(BEARER_PREFIX)) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -90,8 +88,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException ex) {
+            log.error(
+                    "[method={}] [path={}] Ошибка при обработке JWT-токена. [reason=JWT token expired]",
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    ex
+            );
             handleJwtException(response, "JWT token expired");
         } catch (JwtException | IllegalArgumentException ex) {
+            log.error(
+                    "[method={}] [path={}] Ошибка при обработке JWT-токена. [reason=Invalid JWT token]",
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    ex
+            );
             handleJwtException(response, "Invalid JWT token");
         }
     }

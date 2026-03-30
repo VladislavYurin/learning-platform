@@ -1,8 +1,9 @@
 package ru.mentor.services.impl;
 
-import java.util.UUID;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.mentor.common.AllModulesResponse;
@@ -10,6 +11,7 @@ import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.Header;
 import ru.mentor.common.ModuleResponse;
+import ru.mentor.constant.MdcKeys;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminModuleServiceGrpcClient;
@@ -47,19 +49,37 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
     @Override
     public ModuleDto getModuleById(Long moduleId) {
 
-        String requestId = UUID.randomUUID().toString();
+        String requestId = Optional.ofNullable(MDC.get(MdcKeys.REQUEST_ID)).orElse("");
+        Long userId = userService.getCurrentUserId();
         Header header = headerFactory.create(requestId);
-        Long adminId = userService.getCurrentUserId();
-        log.info(
-                "[ requestId = {} ] Получен запрос на извлечение модуля [ ID = {} ] от администратора [ ID = {} ]",
-                requestId,
-                moduleId,
-                adminId
+
+        log.debug(
+                "[userId={}] Получен запрос на извлечение модуля [moduleId={}].",
+                userId,
+                moduleId
         );
 
         GetModuleRequest grpcRequest = moduleMapper.constructGetModuleRequest(header, moduleId);
-        ModuleResponse grpcModuleResponse = moduleGrpcClient.getModule(grpcRequest);
-        return moduleMapper.mapGrpcModuleResponseToModuleDto(grpcModuleResponse);
+
+        try {
+            ModuleResponse grpcModuleResponse = moduleGrpcClient.getModule(grpcRequest);
+
+            log.debug(
+                    "[userId={}] Успешно получен ответ от module-service на извлечение модуля [moduleId={}].",
+                    userId,
+                    moduleId
+            );
+
+            return moduleMapper.mapGrpcModuleResponseToModuleDto(grpcModuleResponse);
+        } catch (Exception e) {
+            log.error(
+                    "[userId={}] Ошибка при вызове module-service во время извлечения модуля [moduleId={}].",
+                    userId,
+                    moduleId,
+                    e
+            );
+            throw e;
+        }
     }
 
     /**
@@ -75,13 +95,15 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
     @Override
     public Page<ModuleDto> getAllModules(Integer pageNumber, Integer pageSize) {
 
-        String requestId = UUID.randomUUID().toString();
+        String requestId = Optional.ofNullable(MDC.get(MdcKeys.REQUEST_ID)).orElse("");
+        Long userId = userService.getCurrentUserId();
         Header header = headerFactory.create(requestId);
-        Long adminId = userService.getCurrentUserId();
-        log.info(
-                "[ requestId = {} ] Получен запрос на извлечение всех модулей от администратора [ ID = {} ]",
-                requestId,
-                adminId
+
+        log.debug(
+                "[userId={}] [pageNumber={}] [pageSize={}] Получен запрос на извлечение всех модулей.",
+                userId,
+                pageNumber,
+                pageSize
         );
 
         GrpcPageRequest pageRequest = baseMapper.constructGrpcPageRequest(
@@ -89,8 +111,27 @@ public class RedirectAdminModuleServiceImpl implements RedirectAdminModuleServic
                 pageNumber,
                 pageSize
         );
-        AllModulesResponse allModules = moduleGrpcClient.getAllModules(pageRequest);
-        return moduleMapper.mapGrpcAllModulesResponseToModuleDtoPage(allModules);
-    }
 
+        try {
+            AllModulesResponse allModules = moduleGrpcClient.getAllModules(pageRequest);
+
+            log.debug(
+                    "[userId={}] [pageNumber={}] [pageSize={}] Успешно получен ответ от module-service на извлечение всех модулей.",
+                    userId,
+                    pageNumber,
+                    pageSize
+            );
+
+            return moduleMapper.mapGrpcAllModulesResponseToModuleDtoPage(allModules);
+        } catch (Exception e) {
+            log.error(
+                    "[userId={}] [pageNumber={}] [pageSize={}] Ошибка при вызове module-service во время извлечения всех модулей.",
+                    userId,
+                    pageNumber,
+                    pageSize,
+                    e
+            );
+            throw e;
+        }
+    }
 }
