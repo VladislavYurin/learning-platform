@@ -14,7 +14,7 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 
 class TimeSlotMapperTest {
 
-    private final TimeSlotMapper mapper = new TimeSlotMapper();
+    private final TimeSlotMapper mapper = new TimeSlotMapperImpl();
 
     @Test
     void entityToGrpcResponse_returnsExpectedResponse() {

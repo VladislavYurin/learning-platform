@@ -25,7 +25,7 @@ import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.facade.CourseFacade;
 import ru.mentor.mapper.AdminCourseMapper;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.ReactiveBaseMapper;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.CourseTagLinkRepository;
 import ru.mentor.repository.CourseTagRepository;
@@ -52,7 +52,7 @@ public class CourseFacadeImpl implements CourseFacade {
 
     private final AdminCourseMapper courseMapper;
 
-    private final BaseMapper baseMapper;
+    private final ReactiveBaseMapper reactiveBaseMapper;
 
     private final CourseTagLinkRepository courseTagLinkRepository;
 
@@ -173,7 +173,7 @@ public class CourseFacadeImpl implements CourseFacade {
      */
     public Mono<AllCoursesResponse> findAllCourses(GrpcPageRequest request) {
         PageRequest pageRequest =
-                baseMapper.mapGrpcPageRequestToPageRequest(request);
+                reactiveBaseMapper.mapGrpcPageRequestToPageRequest(request);
 
         return userRepository
                 .findByIdOrThrow(request.getSenderId())
@@ -239,7 +239,7 @@ public class CourseFacadeImpl implements CourseFacade {
     @Override
     public Mono<AllCoursesResponse> findAllActiveCourses(GrpcPageRequest request) {
         PageRequest pageRequest =
-                baseMapper.mapGrpcPageRequestToPageRequest(request);
+                reactiveBaseMapper.mapGrpcPageRequestToPageRequest(request);
         return userRepository.findByIdOrThrow(request.getSenderId())
                              .flatMap(user -> {
                                  Flux<CourseEntity> courseEntityFlux = courseAccessResolver

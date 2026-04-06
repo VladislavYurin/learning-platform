@@ -21,15 +21,17 @@ import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.BaseMapperImpl;
 import ru.mentor.mapper.TimeSlotMapper;
+import ru.mentor.mapper.TimeSlotMapperImpl;
 
 import java.util.List;
 import java.util.Set;
 
 public class TestEntityStubGenerator {
 
-    private static final TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
-    private static final BaseMapper baseMapper = new BaseMapper();
+    private static final TimeSlotMapper timeSlotMapper = new TimeSlotMapperImpl();
+    private static final BaseMapper baseMapper = new BaseMapperImpl();
 
     public static Page<ModuleEntity> constructModuleEntityPage(ModuleEntity moduleEntity) {
         return new PageImpl<>(

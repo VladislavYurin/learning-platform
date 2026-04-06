@@ -12,7 +12,7 @@ import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.facade.CalendarFacade;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.ReactiveBaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
 import ru.mentor.mapper.UserMapper;
 import ru.mentor.repository.MentorTimeSlotRepository;
@@ -27,7 +27,7 @@ import ru.mentor.repository.UserRepository;
 @RequiredArgsConstructor
 public class CalendarFacadeImpl implements CalendarFacade {
 
-    private final BaseMapper baseMapper;
+    private final ReactiveBaseMapper reactiveBaseMapper;
 
     private final MentorTimeSlotRepository timeSlotRepository;
 
@@ -54,7 +54,7 @@ public class CalendarFacadeImpl implements CalendarFacade {
         return Mono.just(grpcPageRequest)
                    .flatMap(request -> {
                        PageRequest pageRequest =
-                               baseMapper.mapGrpcPageRequestToPageRequest(request);
+                               reactiveBaseMapper.mapGrpcPageRequestToPageRequest(request);
                        Mono<List<MentorSlotInfo>> mentorSlotInfoListMono =
                                findMentorSlotInfoList(
                                        pageRequest,

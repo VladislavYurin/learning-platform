@@ -15,6 +15,7 @@ import ru.mentor.common.ModuleResponse;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.mapper.AdminModuleMapper;
+import ru.mentor.mapper.AdminModuleMapperImpl;
 import ru.mentor.repository.ModuleRepository;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
@@ -27,7 +28,7 @@ class ModuleFacadeImplTest {
     private ModuleRepository moduleRepository;
 
     @Spy
-    private AdminModuleMapper moduleMapper;
+    private AdminModuleMapper moduleMapper = new AdminModuleMapperImpl();
 
     @InjectMocks
     private ModuleFacadeImpl moduleFacade;

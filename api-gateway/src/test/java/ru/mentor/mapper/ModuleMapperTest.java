@@ -32,7 +32,7 @@ class ModuleMapperTest {
     private AdminModuleMapper adminModuleMapper;
 
     @InjectMocks
-    private ModuleMapper moduleMapper;
+    private ModuleMapper moduleMapper = new ModuleMapperImpl();
 
     private static final Long SENDER_ID = 1L;
     private static final Long COURSE_ID = 10L;

@@ -38,7 +38,7 @@ class KafkaMapperTest {
 
     @BeforeEach
     void setUp() {
-        kafkaMapper = new KafkaMapper();
+        kafkaMapper = new KafkaMapperImpl();
     }
 
     private static UserInfoDto sampleUser() {

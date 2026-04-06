@@ -23,7 +23,7 @@ class BaseMapperTest {
 
     private static final LocalDateTime FIXED_TIME = LocalDateTime.of(2026, 4, 2, 12, 0);
 
-    private final BaseMapper mapper = new BaseMapper();
+    private final BaseMapper mapper = new BaseMapperImpl();
 
     @Test
     void mapModule_whenContentNotNeeded_setsModuleContentNull() {

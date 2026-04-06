@@ -11,7 +11,7 @@ import ru.mentor.common.GrpcPageRequest;
  */
 @Component
 @RequiredArgsConstructor
-public class BaseMapper {
+public class ReactiveBaseMapper {
 
     /**
      * Преобразовать gRPC-объект в {@link PageRequest}

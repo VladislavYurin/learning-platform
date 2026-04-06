@@ -31,6 +31,12 @@
     <dependency>
       <groupId>ru.mentor</groupId>
       <artifactId>reactive-common-lib</artifactId>
+        <exclusions>
+            <exclusion>
+                <groupId>ru.mentor</groupId>
+                <artifactId>common-lib</artifactId>
+            </exclusion>
+        </exclusions>
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>

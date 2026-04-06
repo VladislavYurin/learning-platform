@@ -1,12 +1,16 @@
 package ru.mentor.mapper;
 
-import com.google.protobuf.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+
+import org.mapstruct.CollectionMappingStrategy;
+import org.mapstruct.IterableMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Component;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.CreateModuleGrpcRequest;
 import ru.mentor.common.ModuleResponse;
@@ -17,37 +21,32 @@ import ru.mentor.entity.ModuleEntity;
 /**
  * Converters between module entities and gRPC responses for admin flows.
  */
-@Slf4j
-@Component
-public class AdminModuleMapper {
+@Mapper(componentModel = "spring",
+        uses = UtilMapper.class,
+        imports = LocalDateTime.class,
+        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface AdminModuleMapper {
 
-    public ModuleResponse mapModuleEntityToModuleResponse(ModuleEntity moduleEntity) {
-        Timestamp createdAtTimestamp = Timestamp.newBuilder()
-                                                .setSeconds(moduleEntity.getCreatedAt()
-                                                                        .toEpochSecond(ZoneOffset.UTC))
-                                                .build();
-        return ModuleResponse.newBuilder()
-                             .setModuleId(moduleEntity.getId())
-                             .setTitle(moduleEntity.getModuleTitle())
-                             .setOrderNumber(moduleEntity.getModuleOrderNumber())
-                             .setContent(moduleEntity.getModuleContent())
-                             .setIsActive(moduleEntity.getIsActive())
-                             .setCreatedAt(createdAtTimestamp)
-                             .setCourseId(moduleEntity.getCourseId())
-                             .build();
-    }
+    @Named("mapModuleEntityToModuleResponse")
+    @Mapping(target = "moduleId", source = "id")
+    @Mapping(target = "title", source = "moduleTitle")
+    @Mapping(target = "orderNumber", source = "moduleOrderNumber")
+    @Mapping(target = "content", source = "moduleContent")
+    @Mapping(target = "createdAt",
+             qualifiedByName = "buildTimestamp")
+    ModuleResponse mapModuleEntityToModuleResponse(ModuleEntity moduleEntity);
 
-    public List<ModuleResponse> mapModuleEntityListToModuleResponseList(List<ModuleEntity> moduleEntityList) {
-        return moduleEntityList.stream()
-                               .map(this::mapModuleEntityToModuleResponse)
-                               .toList();
-    }
+    @Named("mapModuleEntityListToModuleResponseList")
+    @IterableMapping(qualifiedByName = "mapModuleEntityToModuleResponse")
+    List<ModuleResponse> mapModuleEntityListToModuleResponseList(List<ModuleEntity> moduleEntityList);
 
-    public AllModulesResponse mapModuleResponsePageToAllModulesResponse(Page<ModuleResponse> moduleResponsesPage) {
+    default AllModulesResponse mapModuleResponsePageToAllModulesResponse(Page<ModuleResponse> moduleResponsesPage) {
         return AllModulesResponse.newBuilder()
                                  .setPageDetails(extractPageDetailsFromModuleResponsePage(
                                          moduleResponsesPage))
-                                 .addAllModules(moduleResponsesPage)
+                                 .addAllModules(moduleResponsesPage.getContent())
                                  .build();
     }
 
@@ -61,33 +60,24 @@ public class AdminModuleMapper {
     }
 
     // TODO: Дублирует логику метода из этого класса, но неправильно
-    public ModuleResponse mapModuleEntityToGrpcModuleResponse(
+    @Mapping(target = "moduleId", source = "moduleEntity.id")
+    @Mapping(target = "title", source = "moduleEntity.moduleTitle")
+    @Mapping(target = "orderNumber", source = "moduleEntity.moduleOrderNumber")
+    @Mapping(target = "content", source = "moduleEntity.moduleContent")
+    @Mapping(target = "isActive", source = "moduleEntity.isActive")
+    @Mapping(target = "createdAt", source = "moduleEntity.createdAt",
+             qualifiedByName = "buildTimestamp")
+    @Mapping(target = "courseId", source = "courseEntity.id")
+    ModuleResponse mapModuleEntityToGrpcModuleResponse(
             CourseEntity courseEntity,
-            ModuleEntity moduleEntity) {
-        Timestamp createdAtTimestamp = Timestamp.newBuilder()
-                                                .setSeconds(moduleEntity.getCreatedAt()
-                                                                        .toEpochSecond(ZoneOffset.UTC))
-                                                .build();
-        return ModuleResponse.newBuilder()
-                             .setModuleId(moduleEntity.getId())
-                             .setTitle(moduleEntity.getModuleTitle())
-                             .setOrderNumber(moduleEntity.getModuleOrderNumber())
-                             .setContent(moduleEntity.getModuleContent())
-                             .setIsActive(moduleEntity.getIsActive())
-                             .setCreatedAt(createdAtTimestamp)
-                             .setCourseId(courseEntity.getId())
-                             .build();
-    }
+            ModuleEntity moduleEntity);
 
-    public ModuleEntity mapCreateModuleGrpcRequestToModuleEntity(CreateModuleGrpcRequest request) {
-        return ModuleEntity.builder()
-                           .moduleTitle(request.getTitle())
-                           .moduleContent(request.getContent())
-                           .moduleOrderNumber(request.getOrderNumber())
-                           .courseId(request.getCourseId())
-                           .isActive(true)
-                           .createdAt(LocalDateTime.now())
-                           .build();
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "moduleTitle", source = "title")
+    @Mapping(target = "moduleOrderNumber", source = "orderNumber")
+    @Mapping(target = "moduleContent", source = "content")
+    @Mapping(target = "isActive", constant = "true")
+    @Mapping(target = "createdAt", expression = "java(LocalDateTime.now())")
+    ModuleEntity mapCreateModuleGrpcRequestToModuleEntity(CreateModuleGrpcRequest request);
 
 }

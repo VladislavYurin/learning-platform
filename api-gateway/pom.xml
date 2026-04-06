@@ -17,6 +17,8 @@
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <mapstruct.version>1.6.3</mapstruct.version>
+    <protobuf-spi.version>1.47</protobuf-spi.version>
   </properties>
 
   <build>
@@ -31,6 +33,37 @@
         <configuration>
           <propertyFile>src/main/resources/liquibase.properties</propertyFile>
           <changeLogFile>src/main/resources/db.changelog/db.changelog-master.xml</changeLogFile>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>21</source>
+          <target>21</target>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${mapstruct.version}</version>
+            </path>
+            <path>
+              <groupId>no.entur.mapstruct.spi</groupId>
+              <artifactId>protobuf-spi-impl</artifactId>
+              <version>${protobuf-spi.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>1.18.32</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok-mapstruct-binding</artifactId>
+              <version>0.2.0</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
     </plugins>
@@ -151,6 +184,28 @@
           <artifactId>logback-classic</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct-processor</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok-mapstruct-binding</artifactId>
+      <version>0.2.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>no.entur.mapstruct.spi</groupId>
+      <artifactId>protobuf-spi-impl</artifactId>
+      <version>${protobuf-spi.version}</version>
     </dependency>
   </dependencies>
 </project>

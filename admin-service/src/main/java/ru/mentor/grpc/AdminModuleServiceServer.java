@@ -15,7 +15,7 @@ import ru.mentor.common.ModuleResponse;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.facade.ModuleFacade;
 import ru.mentor.grpc.error.GrpcErrorText;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.ReactiveBaseMapper;
 
 /**
  * gRPC-сервис для работы с модулями для админов
@@ -35,7 +35,7 @@ public class AdminModuleServiceServer extends
 
     private final ModuleFacade moduleFacade;
 
-    private final BaseMapper baseMapper;
+    private final ReactiveBaseMapper reactiveBaseMapper;
 
     /**
      * Возвращает модуль по ID
@@ -65,7 +65,7 @@ public class AdminModuleServiceServer extends
     public Mono<AllModulesResponse> getAllModules(Mono<GrpcPageRequest> pageRequest) {
         return pageRequest.switchIfEmpty(toInvalidArgumentError())
                           .doOnNext(this::recordGetAllModulesRequestToLog)
-                          .map(baseMapper::mapGrpcPageRequestToPageRequest)
+                          .map(reactiveBaseMapper::mapGrpcPageRequestToPageRequest)
                           .flatMap(moduleFacade::findAllModulesResponse)
                           .onErrorMap(
                                   EntityNotFoundException.class,

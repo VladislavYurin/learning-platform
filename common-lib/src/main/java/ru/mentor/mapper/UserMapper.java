@@ -1,35 +1,28 @@
 package ru.mentor.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 import ru.mentor.common.AuthorResponse;
-import ru.mentor.constant.Role;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.entity.UserEntity;
 
-@Component
-public class UserMapper {
+@Mapper(componentModel = "spring",
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface UserMapper {
 
-    public UserInfoDto mapGrpcAuthorResponseToUserInfoDto(AuthorResponse author) {
-        return UserInfoDto.builder()
-                          .id(author.getUserId())
-                          .username(author.getUsername())
-                          .role(Role.MENTOR)
-                          .firstName(author.getFirstName())
-                          .lastName(author.getLastName())
-                          .tgNickname(author.getTgNickname())
-                          .tgChatId(author.getTgChatId())
-                          .build();
-    }
+    @Named("mapGrpcAuthorResponseToUserInfoDto")
+    @Mapping(target = "id", source = "userId")
+    @Mapping(target = "role", expression = "java(ru.mentor.constant.Role.MENTOR)")
+    @Mapping(target = "tgChatId", expression = "java(author.getTgChatId() != 0 ? author.getTgChatId() : null)")
+    UserInfoDto mapGrpcAuthorResponseToUserInfoDto(AuthorResponse author);
 
-    public AuthorResponse mapUserEntityToCourseAuthorResponse(UserEntity userEntity) {
-        return AuthorResponse.newBuilder()
-                                   .setUserId(userEntity.getId())
-                                   .setUsername(userEntity.getUsername())
-                                   .setFirstName(userEntity.getFirstName())
-                                   .setLastName(userEntity.getLastName())
-                                   .setTgNickname(userEntity.getTgNickname())
-                                   .setTgChatId(userEntity.getTgChatId())
-                                   .build();
-    }
+    @Named("mapUserEntityToCourseAuthorResponse")
+    @Mapping(target = "userId", source = "id")
+    @Mapping(target = "tgChatId", expression = "java(userEntity.getTgChatId() != null ? userEntity.getTgChatId() : 0L)")
+    AuthorResponse mapUserEntityToCourseAuthorResponse(UserEntity userEntity);
 
 }

@@ -52,6 +52,8 @@
     <docker.tag>local</docker.tag>
     <docker.java-image>openjdk:21</docker.java-image>
 
+    <testcontainers.version>1.21.4</testcontainers.version>
+
     <!-- Задаётся jacoco-maven-plugin (prepare-agent); здесь — чтобы IDE не ругалась на @{argLine} -->
     <argLine></argLine>
   </properties>

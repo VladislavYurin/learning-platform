@@ -15,6 +15,7 @@ import ru.mentor.entity.NotificationEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.mapper.KafkaMapper;
+import ru.mentor.mapper.KafkaMapperImpl;
 import ru.mentor.repository.NotificationRepository;
 import ru.mentor.service.EmailSenderService;
 import ru.mentor.service.NotificationTemplateService;
@@ -49,7 +50,7 @@ class DefaultNotificationServiceImplTest {
     BaseMapper baseMapper;
 
     @Spy
-    KafkaMapper kafkaMapper;
+    KafkaMapper kafkaMapper = new KafkaMapperImpl();
 
     @BeforeEach
     void setUp() {

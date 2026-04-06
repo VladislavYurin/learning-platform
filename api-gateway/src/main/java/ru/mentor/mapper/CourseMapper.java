@@ -4,9 +4,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import org.mapstruct.CollectionMappingStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Component;
 import ru.mentor.common.AllActiveCoursesResponse;
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
@@ -23,47 +27,45 @@ import ru.mentor.dto.tag.CourseTagDto;
 /**
  * Маппер для формирования внутреннего запроса на создание курса и модуля.
  */
-@Component
-@RequiredArgsConstructor
-public class CourseMapper {
-    private final BaseMapper baseMapper;
+@Mapper(componentModel = "spring",
+        uses = {AdminCourseMapper.class,
+                BaseMapper.class,
+                TagGrpcMapper.class,
+                UserMapper.class},
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED)
+public abstract class CourseMapper {
+    @Autowired
+    protected BaseMapper baseMapper;
 
-    private final AdminCourseMapper adminCourseMapper;
-    private final TagGrpcMapper tagGrpcMapper;
-    private final UserMapper userMapper;
+    @Autowired
+    protected AdminCourseMapper adminCourseMapper;
+    @Autowired
+    protected TagGrpcMapper tagGrpcMapper;
+    @Autowired
+    protected UserMapper userMapper;
 
-    public CreateCourseGrpcRequest constructGrpcCreateRequest(Header header, Long userId, CreateCourseRequest request) {
-        return CreateCourseGrpcRequest.newBuilder()
-                .setHeader(header)
-                .setUserId(userId)
-                .setCourseName(request.getCourseName())
-                .setCourseDescription(request.getCourseDescription())
-                .addAllTagIds(request.getTagIds())
-                .build();
-    }
+    @Mapping(target = "header", source = "header")
+    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "courseName", source = "request.courseName")
+    @Mapping(target = "courseDescription", source = "request.courseDescription")
+    @Mapping(target = "tagIds", source = "request.tagIds")
+    public abstract CreateCourseGrpcRequest constructGrpcCreateRequest(Header header, Long userId, CreateCourseRequest request);
 
-    public GetCourseRequest constructGrpcGetRequest(Header header, Long userId, Long courseId) {
-        return GetCourseRequest.newBuilder()
-                .setHeader(header)
-                .setSenderId(userId)
-                .setCourseId(courseId)
-                .build();
-    }
+    @Mapping(target = "header", source = "header")
+    @Mapping(target = "senderId", source = "userId")
+    @Mapping(target = "courseId", source = "courseId")
+    public abstract GetCourseRequest constructGrpcGetRequest(Header header, Long userId, Long courseId);
 
-    public GetAllActiveCoursesPreviewRequest constructGetAllActiveCoursesPreviewRequest(Header header, Long userId) {
-        return GetAllActiveCoursesPreviewRequest.newBuilder()
-                .setHeader(header)
-                .setSenderId(userId)
-                .build();
-    }
+    @Mapping(target = "header", source = "header")
+    @Mapping(target = "senderId", source = "userId")
+    public abstract GetAllActiveCoursesPreviewRequest constructGetAllActiveCoursesPreviewRequest(Header header, Long userId);
 
-    public DeleteCourseRequest constructGrpcDeleteRequest(Header header, Long userId, Long courseId) {
-        return DeleteCourseRequest.newBuilder()
-                .setHeader(header)
-                .setSenderId(userId)
-                .setCourseId(courseId)
-                .build();
-    }
+    @Mapping(target = "header", source = "header")
+    @Mapping(target = "senderId", source = "userId")
+    @Mapping(target = "courseId", source = "courseId")
+    public abstract DeleteCourseRequest constructGrpcDeleteRequest(Header header, Long userId, Long courseId);
 
     public GrpcPageRequest constructGrpcPageRequest(Header header, int pageNumber, int pageSize, Long userId) {
         return baseMapper.constructGrpcPageRequest(header, pageNumber, pageSize, userId);

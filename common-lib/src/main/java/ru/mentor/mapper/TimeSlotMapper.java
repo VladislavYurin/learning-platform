@@ -1,20 +1,14 @@
 package ru.mentor.mapper;
 
-import static ru.mentor.mapper.UtilMapper.buildTimestamp;
-import static ru.mentor.mapper.UtilMapper.calendarSlotMeetingTypeToSlotMeetingType;
-import static ru.mentor.mapper.UtilMapper.calendarSlotTypeToSlotType;
-import static ru.mentor.mapper.UtilMapper.slotMeetingTypeToCalendarSlotMeetingType;
-import static ru.mentor.mapper.UtilMapper.slotTypeToCalendarSlotType;
-import static ru.mentor.mapper.UtilMapper.timestampToLocalDateTime;
-import static ru.mentor.mapper.UtilMapper.userEntityRoleToUserInfoRole;
-import static ru.mentor.mapper.UtilMapper.userInfoRoleToUserInfoDtoRole;
-
-import com.google.protobuf.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Component;
 import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.BookTimeSlotRequest;
 import ru.mentor.common.CancelTimeSlotRequest;
@@ -25,12 +19,8 @@ import ru.mentor.common.MentorSlotInfo;
 import ru.mentor.common.MentorSlotsInfoRequest;
 import ru.mentor.common.MentorSlotsInfoResponse;
 import ru.mentor.common.PageDetails;
-import ru.mentor.common.SlotMeetingType;
-import ru.mentor.common.SlotType;
 import ru.mentor.common.TimeSlotResponse;
 import ru.mentor.common.UserInfo;
-import ru.mentor.constant.CalendarSlotMeetingType;
-import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.dto.MentorTimeSlotCreateRequest;
 import ru.mentor.dto.MentorTimeSlotDto;
@@ -42,9 +32,11 @@ import ru.mentor.entity.UserEntity;
 /**
  * Маппер для {@link MentorTimeSlotEntity}
  */
-@Component
-@RequiredArgsConstructor
-public class TimeSlotMapper {
+@Mapper(componentModel = "spring",
+        uses = UtilMapper.class,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface TimeSlotMapper {
 
     /**
      * Преобразовывает объект, полученный через gRPC в DTO для отправки клиенту.
@@ -54,36 +46,19 @@ public class TimeSlotMapper {
      *
      * @return {@link MentorTimeSlotDto}
      */
-    public MentorTimeSlotDto grpcResponseToDto(TimeSlotResponse grpcResponse) {
-
-        Timestamp grpcStartTime = grpcResponse.getStartTime();
-        LocalDateTime startTime = timestampToLocalDateTime(grpcStartTime);
-
-        Timestamp grpcEndTime = grpcResponse.getEndTime();
-        LocalDateTime endTime = timestampToLocalDateTime(grpcEndTime);
-
-        CalendarSlotType slotType = slotTypeToCalendarSlotType(grpcResponse.getSlotType());
-        CalendarSlotMeetingType slotMeetingType = slotMeetingTypeToCalendarSlotMeetingType(
-                grpcResponse.getSlotMeetingType());
-
-        Timestamp grpcCreatedAt = grpcResponse.getCreatedAt();
-        LocalDateTime createdAt = timestampToLocalDateTime(grpcCreatedAt);
-
-        return MentorTimeSlotDto.builder()
-                                .requestId(grpcResponse.getRequestId())
-                                .id(grpcResponse.getSlotId())
-                                .mentorId(grpcResponse.getMentorId())
-                                .startTime(startTime)
-                                .endTime(endTime)
-                                .slotType(slotType)
-                                .slotMeetingType(slotMeetingType)
-                                .maxParticipants(grpcResponse.getMaxParticipants())
-                                .meetingLink(grpcResponse.getMeetingLink())
-                                .description(grpcResponse.getDescription())
-                                .createdAt(createdAt)
-                                .isActive(grpcResponse.getIsActive())
-                                .build();
-    }
+    @Named("grpcResponseToDto")
+    @Mapping(target = "id", source = "slotId")
+    @Mapping(target = "startTime",
+            qualifiedByName = "timestampToLocalDateTime")
+    @Mapping(target = "endTime",
+            qualifiedByName = "timestampToLocalDateTime")
+    @Mapping(target = "slotType",
+            qualifiedByName = "slotTypeToCalendarSlotType")
+    @Mapping(target = "slotMeetingType",
+            qualifiedByName = "slotMeetingTypeToCalendarSlotMeetingType")
+    @Mapping(target = "createdAt",
+            qualifiedByName = "timestampToLocalDateTime")
+    MentorTimeSlotDto grpcResponseToDto(TimeSlotResponse grpcResponse);
 
     /**
      * Преобразовывает объект, полученный от клиента в DTO для отправки по gRPC.
@@ -97,30 +72,22 @@ public class TimeSlotMapper {
      *
      * @return {@link CreateTimeSlotRequest}
      */
-    public CreateTimeSlotRequest requestCreateToGrpcDto(
+    @Mapping(target = "header", source = "header")
+    @Mapping(target = "mentorId", source = "user.id")
+    @Mapping(target = "startTime", source = "createRequest.startTime",
+            qualifiedByName = "buildTimestamp")
+    @Mapping(target = "endTime", source = "createRequest.endTime",
+            qualifiedByName = "buildTimestamp")
+    @Mapping(target = "slotType", source = "createRequest.slotType",
+            qualifiedByName = "calendarSlotTypeToSlotType")
+    @Mapping(target = "slotMeetingType", source = "createRequest.slotMeetingType",
+            qualifiedByName = "calendarSlotMeetingTypeToSlotMeetingType")
+    @Mapping(target = "maxParticipants", source = "createRequest.maxParticipants")
+    @Mapping(target = "meetingLink", source = "createRequest.meetingLink")
+    @Mapping(target = "description", source = "createRequest.description")
+    CreateTimeSlotRequest requestCreateToGrpcDto(
             MentorTimeSlotCreateRequest createRequest,
-            Header header, UserEntity user) {
-
-        Timestamp startTime = buildTimestamp(createRequest.getStartTime());
-
-        Timestamp endTime = buildTimestamp(createRequest.getEndTime());
-
-        SlotType slotType = calendarSlotTypeToSlotType(createRequest.getSlotType());
-
-        SlotMeetingType slotMeetingType = calendarSlotMeetingTypeToSlotMeetingType(createRequest.getSlotMeetingType());
-
-        return CreateTimeSlotRequest.newBuilder()
-                                    .setHeader(header)
-                                    .setMentorId(user.getId())
-                                    .setStartTime(startTime)
-                                    .setEndTime(endTime)
-                                    .setSlotType(slotType)
-                                    .setSlotMeetingType(slotMeetingType)
-                                    .setMaxParticipants(createRequest.getMaxParticipants())
-                                    .setMeetingLink(createRequest.getMeetingLink())
-                                    .setDescription(createRequest.getDescription())
-                                    .build();
-    }
+            Header header, UserEntity user);
 
     /**
      * Преобразовывает DTO, полученный по rRPC в доменную сущность.
@@ -132,32 +99,26 @@ public class TimeSlotMapper {
      *
      * @return {@link MentorTimeSlotEntity}
      */
-    public MentorTimeSlotEntity grpcCreateRequestToEntity(
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(target = "mentor", source = "mentor")
+    @Mapping(target = "startTime", source = "request.startTime",
+            qualifiedByName = "timestampToLocalDateTime")
+    @Mapping(target = "endTime", source = "request.endTime",
+            qualifiedByName = "timestampToLocalDateTime")
+    @Mapping(target = "slotType", source = "request.slotType",
+            qualifiedByName = "slotTypeToCalendarSlotType")
+    @Mapping(target = "slotMeetingType", source = "request.slotMeetingType",
+            qualifiedByName = "slotMeetingTypeToCalendarSlotMeetingType")
+    @Mapping(target = "maxParticipants", source = "request.maxParticipants")
+    @Mapping(target = "isActive", constant = "true")
+    @Mapping(target = "meetingLink", source = "request.meetingLink")
+    @Mapping(target = "description", source = "request.description")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "meetingParticipants", ignore = true)
+    MentorTimeSlotEntity grpcCreateRequestToEntity(
             CreateTimeSlotRequest request,
-            UserEntity mentor) {
-
-        Timestamp startTimestamp = request.getStartTime();
-        LocalDateTime startTime = timestampToLocalDateTime(startTimestamp);
-
-        Timestamp endTimestamp = request.getEndTime();
-        LocalDateTime endTime = timestampToLocalDateTime(endTimestamp);
-
-        CalendarSlotType slotType = slotTypeToCalendarSlotType(request.getSlotType());
-
-        CalendarSlotMeetingType slotMeetingType = slotMeetingTypeToCalendarSlotMeetingType(request.getSlotMeetingType());
-
-        return MentorTimeSlotEntity.builder()
-                                   .mentor(mentor)
-                                   .startTime(startTime)
-                                   .endTime(endTime)
-                                   .description(request.getDescription())
-                                   .slotType(slotType)
-                                   .slotMeetingType(slotMeetingType)
-                                   .maxParticipants(request.getMaxParticipants())
-                                   .meetingLink(request.getMeetingLink())
-                                   .isActive(true)
-                                   .build();
-    }
+            UserEntity mentor);
 
     /**
      * Преобразовывает доменную сущность в DTO для ответа по gRPC.
@@ -169,35 +130,27 @@ public class TimeSlotMapper {
      *
      * @return {@link TimeSlotResponse}
      */
-    public TimeSlotResponse entityToGrpcResponse(
+    @Named("entityToGrpcResponse")
+    @Mapping(target = "requestId", source = "requestId")
+    @Mapping(target = "slotId", source = "timeSlotEntity.id")
+    @Mapping(target = "mentorId", source = "timeSlotEntity.mentor.id")
+    @Mapping(target = "startTime", source = "timeSlotEntity.startTime",
+            qualifiedByName = "buildTimestamp")
+    @Mapping(target = "endTime", source = "timeSlotEntity.endTime",
+            qualifiedByName = "buildTimestamp")
+    @Mapping(target = "slotType", source = "timeSlotEntity.slotType",
+            qualifiedByName = "calendarSlotTypeToSlotType")
+    @Mapping(target = "slotMeetingType", source = "timeSlotEntity.slotMeetingType",
+            qualifiedByName = "calendarSlotMeetingTypeToSlotMeetingType")
+    @Mapping(target = "maxParticipants", source = "timeSlotEntity.maxParticipants")
+    @Mapping(target = "meetingLink", source = "timeSlotEntity.meetingLink")
+    @Mapping(target = "description", source = "timeSlotEntity.description")
+    @Mapping(target = "createdAt", source = "timeSlotEntity.createdAt",
+            qualifiedByName = "buildTimestamp")
+    @Mapping(target = "isActive", source = "timeSlotEntity.isActive")
+    TimeSlotResponse entityToGrpcResponse(
             MentorTimeSlotEntity timeSlotEntity,
-            String requestId) {
-
-        Timestamp startTime = buildTimestamp(timeSlotEntity.getStartTime());
-
-        Timestamp endTime = buildTimestamp(timeSlotEntity.getEndTime());
-
-        SlotType slotType = calendarSlotTypeToSlotType(timeSlotEntity.getSlotType());
-
-        SlotMeetingType slotMeetingType = calendarSlotMeetingTypeToSlotMeetingType(timeSlotEntity.getSlotMeetingType());
-
-        Timestamp createdAt = buildTimestamp(timeSlotEntity.getCreatedAt());
-
-        return TimeSlotResponse.newBuilder()
-                               .setRequestId(requestId)
-                               .setSlotId(timeSlotEntity.getId())
-                               .setMentorId(timeSlotEntity.getMentor().getId())
-                               .setStartTime(startTime)
-                               .setEndTime(endTime)
-                               .setSlotType(slotType)
-                               .setSlotMeetingType(slotMeetingType)
-                               .setMaxParticipants(timeSlotEntity.getMaxParticipants())
-                               .setMeetingLink(timeSlotEntity.getMeetingLink())
-                               .setDescription(timeSlotEntity.getDescription())
-                               .setCreatedAt(createdAt)
-                               .setIsActive(timeSlotEntity.getIsActive())
-                               .build();
-    }
+            String requestId);
 
     /**
      * Маппит уникальный ID запроса, слота и пользователя в объект запроса на бронирование сбота для
@@ -212,13 +165,10 @@ public class TimeSlotMapper {
      *
      * @return {@link BookTimeSlotRequest}
      */
-    public BookTimeSlotRequest toGrpcBookTimeSlotRequest(Header header, long slotId, long userId) {
-        return BookTimeSlotRequest.newBuilder()
-                                  .setHeader(header)
-                                  .setSlotId(slotId)
-                                  .setUserId(userId)
-                                  .build();
-    }
+    @Mapping(target = "header", source = "header")
+    @Mapping(target = "slotId", source = "slotId")
+    @Mapping(target = "userId", source = "userId")
+    BookTimeSlotRequest toGrpcBookTimeSlotRequest(Header header, long slotId, long userId);
 
     /**
      * Маппит уникальный ID запроса, слота и пользователя в объект запроса на отмену слота для отправки по gRPC.
@@ -228,13 +178,10 @@ public class TimeSlotMapper {
      * @param userId ID пользователя, который бронирует
      * @return {@link CancelTimeSlotRequest}
      */
-    public CancelTimeSlotRequest toGrpcCancelTimeSlotRequest(Header header , Long slotId, Long userId) {
-        return CancelTimeSlotRequest.newBuilder()
-                .setHeader(header)
-                .setSlotId(slotId)
-                .setUserId(userId)
-                .build();
-    }
+    @Mapping(target = "header", source = "header")
+    @Mapping(target = "slotId", source = "slotId")
+    @Mapping(target = "userId", source = "userId")
+    CancelTimeSlotRequest toGrpcCancelTimeSlotRequest(Header header , Long slotId, Long userId);
 
     /**
      * Маппит уникальный ID запроса, в gRPC-ответ.
@@ -242,14 +189,10 @@ public class TimeSlotMapper {
      * @param rqUid UUID запроса на отмену слота
      * @return {@link CancelTimeSlotResponse}
      */
-    public CancelTimeSlotResponse toGrpcCancelTimeSlotResponse(String rqUid) {
-        return CancelTimeSlotResponse.newBuilder()
-                .setRqUid(rqUid)
-                .build();
-    }
+    CancelTimeSlotResponse toGrpcCancelTimeSlotResponse(String rqUid);
 
 
-    public String grpcCancelTimeSlotResponseToDto(CancelTimeSlotResponse cancelTimeSlotResponse) {
+    default String grpcCancelTimeSlotResponseToDto(CancelTimeSlotResponse cancelTimeSlotResponse) {
         return cancelTimeSlotResponse.getRqUid();
     }
 
@@ -261,22 +204,10 @@ public class TimeSlotMapper {
      *
      * @return - ДТО {@link UserInfo} участник встречи
      */
-    public UserInfo toUserInfoGrpcResponse(UserEntity userEntity) {
-
-        UserInfo.Builder builder = UserInfo.newBuilder()
-                                           .setId(userEntity.getId())
-                                           .setUsername(userEntity.getUsername())
-                                           .setRole(userEntityRoleToUserInfoRole(userEntity))
-                                           .setFirstName(userEntity.getFirstName())
-                                           .setLastName(userEntity.getLastName())
-                                           .setTgNickname(userEntity.getTgNickname());
-
-        if (userEntity.getTgChatId() != null) {
-            builder.setTgChatId(userEntity.getTgChatId());
-        }
-
-        return builder.build();
-    }
+    @Named("toUserInfoGrpcResponse")
+    @Mapping(target = "role", source = "userEntity",
+            qualifiedByName = "userEntityRoleToUserInfoRole")
+    UserInfo toUserInfoGrpcResponse(UserEntity userEntity);
 
     /**
      * Преобразует сущность {@link MentorTimeSlotEntity} в ДТО {@link MentorSlotInfo} для
@@ -289,7 +220,7 @@ public class TimeSlotMapper {
      *
      * @return {@link MentorSlotInfo} - ДТО с данными слота и данными участников встречи
      */
-    public MentorSlotInfo entityMentorTimeSlotToMentorSlotInfo(
+    default MentorSlotInfo entityMentorTimeSlotToMentorSlotInfo(
             MentorTimeSlotEntity mentorTimeSlotEntity,
             String requestId) {
 
@@ -314,7 +245,7 @@ public class TimeSlotMapper {
      *
      * @return - ДТО для контроллера
      */
-    public MentorSlotInfoDto toDtoMentorSlotInfo(MentorSlotInfo mentorSlotInfo) {
+    default MentorSlotInfoDto toDtoMentorSlotInfo(MentorSlotInfo mentorSlotInfo) {
 
         MentorTimeSlotDto mentorTimeSlotDto =
                 grpcResponseToDto(mentorSlotInfo.getSlotInfo());
@@ -336,12 +267,9 @@ public class TimeSlotMapper {
      *
      * @return - объект запроса {@link MentorSlotsInfoRequest}
      */
-    public MentorSlotsInfoRequest toMentorSlotsInfoGrpcRequest(Long mentorId, Header header) {
-        return MentorSlotsInfoRequest.newBuilder()
-                                     .setHeader(header)
-                                     .setMentorId(mentorId)
-                                     .build();
-    }
+    @Mapping(target = "header", source = "header")
+    @Mapping(target = "mentorId", source = "mentorId")
+    MentorSlotsInfoRequest toMentorSlotsInfoGrpcRequest(Long mentorId, Header header);
 
     /**
      * Преобразует список из gRPC-сущностей слотов менторов в список ДТО слотов
@@ -351,7 +279,7 @@ public class TimeSlotMapper {
      *
      * @return - список ДТО {@link MentorSlotInfoDto}
      */
-    public List<MentorSlotInfoDto> toSlotInfoDtoList(List<MentorSlotInfo> mentorSlotsList) {
+    default List<MentorSlotInfoDto> toSlotInfoDtoList(List<MentorSlotInfo> mentorSlotsList) {
         return mentorSlotsList.stream()
                               .map(this::toDtoMentorSlotInfo)
                               .toList();
@@ -365,17 +293,10 @@ public class TimeSlotMapper {
      *
      * @return - {@link UserInfoDto}
      */
-    public UserInfoDto grpcToUserInfoDto(UserInfo userInfo) {
-        return UserInfoDto.builder()
-                .id(userInfo.getId())
-                .username(userInfo.getUsername())
-                .role(userInfoRoleToUserInfoDtoRole(userInfo))
-                .firstName(userInfo.getFirstName())
-                .lastName(userInfo.getLastName())
-                .tgNickname(userInfo.getTgNickname())
-                .tgChatId(userInfo.hasTgChatId() ? userInfo.getTgChatId() : null)
-                .build();
-    }
+    @Named("grpcToUserInfoDto")
+    @Mapping(target = "role", source = "userInfo",
+            qualifiedByName = "userInfoRoleToUserInfoDtoRole")
+    UserInfoDto grpcToUserInfoDto(UserInfo userInfo);
 
     /**
      * Конвертирует список сущностей {@link MentorTimeSlotEntity} в gRPC-ответ
@@ -388,7 +309,7 @@ public class TimeSlotMapper {
      *
      * @return готовый gRPC-ответ
      */
-    public MentorSlotsInfoResponse convertToMentorSlotsInfoResponse(
+    default MentorSlotsInfoResponse convertToMentorSlotsInfoResponse(
             List<MentorTimeSlotEntity> mentorSlots,
             String requestId) {
         List<MentorSlotInfo> mentorSlotsWithUsersInfo = mentorSlots.stream()
@@ -413,7 +334,7 @@ public class TimeSlotMapper {
      *
      * @return gRPC-объект {@link AllTimeSlotsResponse}
      */
-    public AllTimeSlotsResponse mapMentorTimeSlotEntityPageToAllTimeSlotsResponse
+    default AllTimeSlotsResponse mapMentorTimeSlotEntityPageToAllTimeSlotsResponse
     (Page<MentorTimeSlotEntity> mentorTimeSlotEntities, String requestId) {
 
         return AllTimeSlotsResponse.newBuilder()
@@ -434,7 +355,7 @@ public class TimeSlotMapper {
      *
      * @return список {@link MentorSlotInfoDto}
      */
-    public List<MentorSlotInfoDto> mapGrpcAllTimeSlotsResponseToMentorSlotInfoDtoList
+    default List<MentorSlotInfoDto> mapGrpcAllTimeSlotsResponseToMentorSlotInfoDtoList
     (AllTimeSlotsResponse allTimeSlots) {
         return allTimeSlots.getTimeSlotsList().stream()
                            .map(this::toDtoMentorSlotInfo)
@@ -472,7 +393,7 @@ public class TimeSlotMapper {
      *
      * @return {@link List<MentorTimeSlotInfoForUserDto>} - список ДТО с информацией о слотах для ученика
      */
-    public List<MentorTimeSlotInfoForUserDto> toSlotInfoForUserList(List<MentorSlotInfo> slotsInfoList) {
+    default List<MentorTimeSlotInfoForUserDto> toSlotInfoForUserList(List<MentorSlotInfo> slotsInfoList) {
         return slotsInfoList.stream()
                             .map(slotInfo -> {
                                 return MentorTimeSlotInfoForUserDto.builder()

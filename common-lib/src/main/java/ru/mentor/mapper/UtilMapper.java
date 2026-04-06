@@ -1,9 +1,9 @@
 package ru.mentor.mapper;
 
+import org.mapstruct.Named;
 import com.google.protobuf.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import org.springframework.stereotype.Component;
 import ru.mentor.common.Role;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
@@ -12,38 +12,45 @@ import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
 import ru.mentor.entity.UserEntity;
 
-@Component
-public class UtilMapper {
+public final class UtilMapper {
 
-    public static Role userEntityRoleToUserInfoRole(UserEntity userEntity) {
+    @Named("userEntityRoleToUserInfoRole")
+    static Role userEntityRoleToUserInfoRole(UserEntity userEntity) {
         return Role.valueOf(userEntity.getRole().name());
     }
 
-    public static ru.mentor.constant.Role userInfoRoleToUserInfoDtoRole(UserInfo userInfo) {
+    @Named("userInfoRoleToUserInfoDtoRole")
+    static ru.mentor.constant.Role userInfoRoleToUserInfoDtoRole(UserInfo userInfo) {
         return ru.mentor.constant.Role.valueOf(userInfo.getRole().name());
     }
 
-    public static LocalDateTime timestampToLocalDateTime(Timestamp timestamp) {
+    @Named("timestampToLocalDateTime")
+    static LocalDateTime timestampToLocalDateTime(Timestamp timestamp) {
         return LocalDateTime.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos(), ZoneOffset.UTC);
     }
 
-    public static Timestamp buildTimestamp(LocalDateTime localDateTime) {
+    @Named("buildTimestamp")
+    static Timestamp buildTimestamp(LocalDateTime localDateTime) {
         return Timestamp.newBuilder().setSeconds(localDateTime.toEpochSecond(ZoneOffset.UTC)).build();
     }
 
-    public static SlotType calendarSlotTypeToSlotType(CalendarSlotType calendarSlotType) {
+    @Named("calendarSlotTypeToSlotType")
+    static SlotType calendarSlotTypeToSlotType(CalendarSlotType calendarSlotType) {
         return SlotType.valueOf(calendarSlotType.toString());
     }
 
-    public static SlotMeetingType calendarSlotMeetingTypeToSlotMeetingType(CalendarSlotMeetingType calendarSlotMeetingType) {
+    @Named("calendarSlotMeetingTypeToSlotMeetingType")
+    static SlotMeetingType calendarSlotMeetingTypeToSlotMeetingType(CalendarSlotMeetingType calendarSlotMeetingType) {
         return SlotMeetingType.valueOf(calendarSlotMeetingType.toString());
     }
 
-    public static CalendarSlotType slotTypeToCalendarSlotType(SlotType slotType) {
+    @Named("slotTypeToCalendarSlotType")
+    static CalendarSlotType slotTypeToCalendarSlotType(SlotType slotType) {
         return CalendarSlotType.valueOf(slotType.toString());
     }
 
-    public static CalendarSlotMeetingType slotMeetingTypeToCalendarSlotMeetingType(SlotMeetingType slotMeetingType) {
+    @Named("slotMeetingTypeToCalendarSlotMeetingType")
+    static CalendarSlotMeetingType slotMeetingTypeToCalendarSlotMeetingType(SlotMeetingType slotMeetingType) {
         return CalendarSlotMeetingType.valueOf(slotMeetingType.toString());
     }
 }

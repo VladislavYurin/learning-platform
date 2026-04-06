@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class AccessMapperTest {
 
-    private final AccessMapper accessMapper = new AccessMapper();
+    private final AccessMapper accessMapper = new AccessMapperImpl();
 
     @Test
     void mapToGetAccessRequest_courseRequest_success() {

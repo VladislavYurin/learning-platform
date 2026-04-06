@@ -20,7 +20,8 @@ import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.facade.ModuleFacade;
 import ru.mentor.grpc.error.GrpcErrorText;
 import ru.mentor.mapper.AdminModuleMapper;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.AdminModuleMapperImpl;
+import ru.mentor.mapper.ReactiveBaseMapper;
 import ru.mentor.repository.ModuleRepository;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestGrpcStubGenerator;
@@ -29,11 +30,11 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 class AdminModuleServiceServerTest {
 
     @Spy
-    private BaseMapper baseMapper = new BaseMapper();
+    private ReactiveBaseMapper reactiveBaseMapper = new ReactiveBaseMapper();
     @Mock
     private ModuleRepository moduleRepository;
     @Spy
-    private AdminModuleMapper moduleMapper = new AdminModuleMapper();
+    private AdminModuleMapper moduleMapper = new AdminModuleMapperImpl();
     @Mock
     private ModuleFacade moduleFacade;
     @InjectMocks

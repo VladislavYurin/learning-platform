@@ -22,6 +22,7 @@ import ru.mentor.entity.UserEntity;
 import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.CalendarServiceGrpcClient;
 import ru.mentor.mapper.TimeSlotMapper;
+import ru.mentor.mapper.TimeSlotMapperImpl;
 import ru.mentor.services.impl.RedirectCalendarServiceImpl;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestDataGenerator;
@@ -41,7 +42,7 @@ class RedirectCalendarServiceImplTest {
     private HeaderFactory headerFactory;
 
     @Spy
-    private TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
+    private TimeSlotMapper timeSlotMapper = new TimeSlotMapperImpl();
 
     @InjectMocks
     private RedirectCalendarServiceImpl redirectCalendarService;

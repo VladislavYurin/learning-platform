@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class ProtoTimeMapperTest {
 
-    private final ProtoTimeMapper mapper = new ProtoTimeMapper();
+    private final ProtoTimeMapper mapper = new ProtoTimeMapperImpl();
 
     @Test
     void toLocalDateTime_null_returnsNull() {

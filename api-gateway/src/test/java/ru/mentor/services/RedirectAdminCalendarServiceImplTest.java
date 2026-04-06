@@ -18,7 +18,9 @@ import ru.mentor.dto.MentorSlotInfoDto;
 import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminCalendarServiceGrpcClient;
 import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.BaseMapperImpl;
 import ru.mentor.mapper.TimeSlotMapper;
+import ru.mentor.mapper.TimeSlotMapperImpl;
 import ru.mentor.services.impl.RedirectAdminCalendarServiceImpl;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
@@ -34,9 +36,9 @@ class RedirectAdminCalendarServiceImplTest {
     @Mock
     private HeaderFactory headerFactory;
     @Spy
-    private TimeSlotMapper timeSlotMapper;
+    private TimeSlotMapper timeSlotMapper = new TimeSlotMapperImpl();
     @Spy
-    private BaseMapper baseMapper;
+    private BaseMapper baseMapper = new BaseMapperImpl();
 
     @InjectMocks
     private RedirectAdminCalendarServiceImpl redirectService;
