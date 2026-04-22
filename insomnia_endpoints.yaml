@@ -451,14 +451,6 @@ collection:
             headers:
               - name: User-Agent
                 value: insomnia/11.6.2
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
           - url: localhost:8080/user/me
             name: update my info
             meta:
@@ -494,6 +486,33 @@ collection:
                   eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiVVNFUiIsImlkIjo0LCJzdWIiOiIxMTEiLCJpYXQiOjE3NTQwMzc3NjUsImV4cCI6MTc1NTMzMzc2NX0.pRHNxs4RE0k_t6LvHlRYn5ueDw1_m6Eh_rbcxjNXfHk
               - name: Content-Type
                 value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{accessToken}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: localhost:8080/mentors
+            name: get all mentors
+            meta:
+              id: req_mentors_get_all_001
+              created: 1767006545988
+              modified: 1767006545988
+              isPrivate: false
+              description: ""
+              sortKey: -1767006544798
+            method: GET
+            headers:
+              - name: Authorization
+                value: Bearer
+                  "{{accessToken}}"
             authentication:
               type: bearer
               disabled: false

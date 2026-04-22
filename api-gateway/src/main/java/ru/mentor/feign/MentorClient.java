@@ -13,6 +13,7 @@ import ru.mentor.config.CommonFeignConfig;
 import ru.mentor.dto.CourseProgressResponse;
 import ru.mentor.dto.GetAccessRequest;
 import ru.mentor.dto.MenteeProgressDto;
+import ru.mentor.dto.UserInfoDto;
 
 /**
  * Клиент OpenFeign для управления доступом наставника во внешнем сервисе.
@@ -128,4 +129,17 @@ public interface MentorClient {
             @PathVariable Long mentorId,
             @PathVariable Long courseId);
 
+    /**
+     * Возвращаем список всех менторов.
+     * @param requestId
+     * @return
+     */
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = "/mentors",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    ResponseEntity<List<UserInfoDto>> getAllMentors(
+            @RequestHeader("requestId") String requestId);
 }
