@@ -2,9 +2,17 @@ package ru.mentor.testUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import ru.mentor.constant.MentorTagType;
 import ru.mentor.constant.Role;
+import ru.mentor.dto.mentorTag.MentorTagAttachResponseDto;
+import ru.mentor.dto.mentorTag.MentorTagDetachRequestDto;
+import ru.mentor.dto.mentorTag.MentorTagDetachResponseDto;
+import ru.mentor.dto.mentorTag.MentorTagDto;
+import ru.mentor.dto.mentorTag.MentorTagsAttachRequestDto;
 import ru.mentor.entity.CourseEntity;
 import ru.mentor.entity.CourseTagEntity;
+import ru.mentor.entity.MentorTagEntity;
+import ru.mentor.entity.MentorTagLinkEntity;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
@@ -33,27 +41,61 @@ public final class TestEntityStubGenerator {
 
         List<MentorTimeSlotEntity> listOfSlots = new ArrayList<>();
 
-                for (long i = TestConstantHolder.SLOT_ID; i <= TestConstantHolder.SLOT_ID + 1; i++) {
-                    listOfSlots.add(MentorTimeSlotEntity
-                                            .builder()
-                                            .id(i)
-                                            .mentorId(TestConstantHolder.MENTOR_ID)
-                                            .startTime(TestConstantHolder.SLOT_START_TIME.plusHours(1))
-                                            .endTime(TestConstantHolder.SLOT_END_TIME.plusHours(1))
-                                            .slotType(TestConstantHolder.SLOT_TYPE)
-                                            .slotMeetingType(TestConstantHolder.SLOT_MEETING_TYPE)
-                                            .maxParticipants(TestConstantHolder.MAX_PARTICIPANTS)
-                                            .meetingLink(TestConstantHolder.MEETING_LINK + i)
-                                            .description(TestConstantHolder.SLOT_DESCRIPTION + i)
-                                            .createdAt(TestConstantHolder.CREATED_AT.plusHours(i))
-                                            .build()
-                    );
-                }
+        for (long i = TestConstantHolder.SLOT_ID; i <= TestConstantHolder.SLOT_ID + 1; i++) {
+            listOfSlots.add(MentorTimeSlotEntity
+                                    .builder()
+                                    .id(i)
+                                    .mentorId(TestConstantHolder.MENTOR_ID)
+                                    .startTime(TestConstantHolder.SLOT_START_TIME.plusHours(1))
+                                    .endTime(TestConstantHolder.SLOT_END_TIME.plusHours(1))
+                                    .slotType(TestConstantHolder.SLOT_TYPE)
+                                    .slotMeetingType(TestConstantHolder.SLOT_MEETING_TYPE)
+                                    .maxParticipants(TestConstantHolder.MAX_PARTICIPANTS)
+                                    .meetingLink(TestConstantHolder.MEETING_LINK + i)
+                                    .description(TestConstantHolder.SLOT_DESCRIPTION + i)
+                                    .createdAt(TestConstantHolder.CREATED_AT.plusHours(i))
+                                    .build()
+            );
+        }
 
-                return listOfSlots;
+        return listOfSlots;
     }
 
     public static UserEntity constructMentorUserEntity() {
+        return UserEntity.builder()
+                         .id(TestConstantHolder.MENTOR_ID)
+                         .username(TestConstantHolder.USERNAME)
+                         .password(TestConstantHolder.PASSWORD)
+                         .role(Role.MENTOR)
+                         .firstName(TestConstantHolder.FIRST_NAME)
+                         .lastName(TestConstantHolder.LAST_NAME)
+                         .tgNickname(TestConstantHolder.TG_NICKNAME)
+                         .build();
+    }
+
+    public static UserEntity constructMentorUserEntityWithoutId() {
+        return UserEntity.builder()
+                         .username(TestConstantHolder.USERNAME)
+                         .password(TestConstantHolder.PASSWORD)
+                         .role(Role.MENTOR)
+                         .firstName(TestConstantHolder.FIRST_NAME)
+                         .lastName(TestConstantHolder.LAST_NAME)
+                         .tgNickname(TestConstantHolder.TG_NICKNAME)
+                         .build();
+    }
+
+    public static UserEntity constructRegularUserEntityWithoutId() {
+        return UserEntity.builder()
+                         .username(TestConstantHolder.USERNAME)
+                         .password(TestConstantHolder.PASSWORD)
+                         .role(Role.USER)
+                         .firstName(TestConstantHolder.FIRST_NAME)
+                         .lastName(TestConstantHolder.LAST_NAME)
+                         .tgNickname(TestConstantHolder.TG_NICKNAME)
+                         .build();
+    }
+
+    public static UserEntity constructMentorUserEntityWithTagLink(List<MentorTagLinkEntity> tagLinkEntity) {
         return UserEntity.builder()
                          .id(TestConstantHolder.MENTOR_ID)
                          .username(TestConstantHolder.USERNAME)
@@ -109,6 +151,7 @@ public final class TestEntityStubGenerator {
                            .courseId(TestConstantHolder.COURSE_ID)
                            .build();
     }
+
     public static CourseTagEntity constructActiveCourseTagEntity() {
         return CourseTagEntity.builder()
                               .id(TestConstantHolder.COURSE_TAG_ID)
@@ -118,19 +161,131 @@ public final class TestEntityStubGenerator {
                               .build();
     }
 
+    public static MentorTagEntity constructTestMentorTagEntity() {
+        return MentorTagEntity.builder()
+                              .id(TestConstantHolder.MENTOR_TAG_ID)
+                              .tagName(TestConstantHolder.MENTOR_TAG_NAME_DIRECTION)
+                              .type(TestConstantHolder.MENTOR_TAG_TYPE_DIRECTION)
+                              .build();
+    }
+
+    public static MentorTagEntity constructTestMentorTagEntityWithoutId() {
+        return MentorTagEntity.builder()
+                              .tagName(TestConstantHolder.MENTOR_TAG_NAME_DIRECTION)
+                              .type(TestConstantHolder.MENTOR_TAG_TYPE_DIRECTION)
+                              .build();
+    }
+
+    public static MentorTagEntity constructTestMentorTagEntity(
+            Long mentorTagId,
+            String tagName,
+            MentorTagType type) {
+        return MentorTagEntity.builder()
+                              .id(mentorTagId)
+                              .tagName(tagName)
+                              .type(type)
+                              .build();
+    }
+
+    public static MentorTagEntity constructTestMentorTagEntityBadge() {
+        return MentorTagEntity.builder()
+                              .id(TestConstantHolder.MENTOR_TAG_ID)
+                              .tagName(TestConstantHolder.MENTOR_TAG_NAME_BADGE)
+                              .type(TestConstantHolder.MENTOR_TAG_TYPE_BADGE)
+                              .build();
+    }
+
+    public static MentorTagDto constructMentorTagDto() {
+        return MentorTagDto.builder()
+                           .id(TestConstantHolder.MENTOR_TAG_ID)
+                           .tagName(TestConstantHolder.MENTOR_TAG_NAME_DIRECTION)
+                           .type(TestConstantHolder.MENTOR_TAG_TYPE_DIRECTION)
+                           .build();
+    }
+
+    public static MentorTagDto constructMentorTagDto(
+            Long mentorTagId,
+            String tagName,
+            MentorTagType type) {
+        return MentorTagDto.builder()
+                           .id(mentorTagId)
+                           .tagName(tagName)
+                           .type(type)
+                           .build();
+    }
+
+    public static ArrayList<MentorTagDto> constructListMentorTagDto() {
+        ArrayList<MentorTagDto> list = new ArrayList<>();
+        list.add(constructMentorTagDto());
+        list.add(constructMentorTagDto());
+        return list;
+    }
+
+    public static MentorTagAttachResponseDto constructMentorTagAttachResponseDto() {
+        return MentorTagAttachResponseDto.builder()
+                                         .rqUid(TestConstantHolder.REQUEST_ID)
+                                         .tagsIds(TestConstantHolder.MENTOR_TAGS_IDS)
+                                         .didntAttached(TestConstantHolder.MENTOR_TAGS_IDS)
+                                         .build();
+    }
+
+    public static MentorTagDetachResponseDto constructMentorTagDetachResponseDto() {
+        return MentorTagDetachResponseDto.builder()
+                                         .rqUid(TestConstantHolder.REQUEST_ID)
+                                         .mentorId(TestConstantHolder.MENTOR_ID)
+                                         .tagIds(TestConstantHolder.MENTOR_TAG_ID)
+                                         .build();
+    }
+
+    public static MentorTagsAttachRequestDto constructMentorTagsAttachRequestDto() {
+        return MentorTagsAttachRequestDto.builder()
+                                         .mentorId(TestConstantHolder.MENTOR_ID)
+                                         .tagsIds(TestConstantHolder.MENTOR_TAGS_IDS)
+                                         .build();
+    }
+
+    public static MentorTagLinkEntity constructMentorTagLinkEntity() {
+        return MentorTagLinkEntity.builder()
+                                  .id(TestConstantHolder.MENTOR_TAG_LINK_ID)
+                                  .mentorId(TestConstantHolder.MENTOR_ID)
+                                  .tagId(TestConstantHolder.MENTOR_TAG_ID)
+                                  .attachedAt(TestConstantHolder.CREATED_AT)
+                                  .build();
+    }
+
+    public static List<MentorTagLinkEntity> constructListMentorTagLinkEntity() {
+        ArrayList<MentorTagLinkEntity> list = new ArrayList<>();
+        list.add(constructMentorTagLinkEntity());
+        return list;
+    }
+
+    public static MentorTagDetachRequestDto constructMentorTagDetachRequestDto() {
+        return MentorTagDetachRequestDto.builder()
+                                        .mentorId(TestConstantHolder.MENTOR_ID)
+                                        .tagId(TestConstantHolder.MENTOR_TAG_ID)
+                                        .build();
+    }
+
     public static List<CourseTagEntity> constructCourseTagEntityList(int numberOfTags) {
         List<CourseTagEntity> listOfTestTags = new ArrayList<>(numberOfTags);
 
         for (long i = 1; i <= numberOfTags; i++) {
             listOfTestTags.add(CourseTagEntity.builder()
-                               .id(i)
-                               .tagName("test-tag-" + i)
-                               .createdAt(TestConstantHolder.CREATED_AT)
-                               .isActive(true)
-                               .build());
+                                              .id(i)
+                                              .tagName("test-tag-" + i)
+                                              .createdAt(TestConstantHolder.CREATED_AT)
+                                              .isActive(true)
+                                              .build());
         }
 
         return listOfTestTags;
     }
+
+    public static MentorTagEntity constructListMentorTagEntity(String tagName) {
+        return MentorTagEntity.builder()
+                              .type(TestConstantHolder.MENTOR_TAG_TYPE_DIRECTION)
+                              .tagName(tagName).build();
+    }
+
 }
 

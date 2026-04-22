@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+import "common.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.grpc.tags";
+option java_outer_classname = "MentorTagsProto";
+
+
+message CreateCustomMentorTagRequest {
+  Header header = 1;                             //Универсальный заголовок gRPC-запроса
+  string name = 2;                               //Имя-описание тэга
+}
+
+// Ответ на запрос создания тега
+message MentorTagResponse {
+  string rqUid = 1;
+  MentorTag mentorTag = 2;
+}
+
+// Запрос на получение всех тегов менторов
+message AllMentorTagsRequset {
+  Header header = 1;
+}
+
+// Ответ со всем справочником тегов
+message AllMentorTagsResponse {
+  string rqUid = 1;               // Уникальный идентификатор запроса
+  repeated MentorTag allMentorsTags = 2;     // список всех тегов
+}
+
+// Запрос на получение тегов конкретного ментора.
+message GetCurrentMentorTagsRequest {
+  Header header = 1;    // Уникальный идентификатор запроса
+  int64 mentor_id = 2;
+}
+
+// Теги ментора
+message MentorTagsResponse {
+  string rqUid = 1;                // Уникальный идентификатор запроса
+  repeated MentorTag mentorTags = 2;
+}
+
+// Запрос на привязку тегов к ментору.
+message AttachMentorTagsRequest {
+  Header header = 1;                // Уникальный идентификатор запроса
+  int64 mentor_id = 2;             // ID ментора
+  repeated int64 tag_ids = 3;      // ID тегов
+}
+
+/** Ответ на привязку тегов. */
+message AttachMentorTagsResponse {
+  string rqUid = 1;                           // Уникальный идентификатор запроса
+  repeated int64 attached_tag_ids = 2;        // Добавленные теги
+  repeated int64 not_attached_tag_ids = 3;                           // Несуществующие теги
+}
+
+/** Запрос на отвязку тега. */
+message DetachMentorTagRequest {
+  Header header = 1;                  // Уникальный идентификатор запроса
+  int64 mentor_id = 2;             // ID ментора
+  int64 tag_id = 3;                // ID тега
+}
+
+/** Ответ на отвязку тега. */
+message DetachMentorTagResponse {
+  string rqUid = 1;                  // Уникальный идентификатор запроса
+  int64 mentor_id = 2;
+  int64 tag_id = 3;
+}
+

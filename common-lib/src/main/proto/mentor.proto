@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "mentor_tags.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.mentor.mentor";
+option java_outer_classname = "MentorProto";
+
+service MentorService {
+  //ЗАПРОСЫ К ТЭГАМ МЕНТОРА
+  //Создать кастомный тэг
+  rpc CreateCustomMentorTag (CreateCustomMentorTagRequest) returns (MentorTagResponse);
+  // Получить полный справочник тегов
+  rpc ListMentorTags (AllMentorTagsRequset) returns (AllMentorTagsResponse);
+
+  // Получить теги конкретного ментора
+  rpc GetMentorTags (GetCurrentMentorTagsRequest) returns (MentorTagsResponse);
+
+  // Привязать теги к ментору
+  rpc AttachMentorTags (AttachMentorTagsRequest) returns (AttachMentorTagsResponse);
+
+  // Отвязать тег от ментора
+  rpc DetachMentorTag (DetachMentorTagRequest) returns (DetachMentorTagResponse);
+}

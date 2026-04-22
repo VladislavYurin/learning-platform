@@ -1,8 +1,13 @@
 package ru.mentor.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -11,6 +16,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.mentor.dto.UserInfoDto;
 import ru.mentor.dto.avatar.UserAvatarContentDto;
+import ru.mentor.dto.mentorTag.MentorTagDto;
 import ru.mentor.entity.UserEntity;
+import ru.mentor.services.RedirectMentorTagService;
 import ru.mentor.services.UserAvatarService;
 import ru.mentor.services.UserInfoService;
 import ru.mentor.services.UserService;
@@ -43,6 +51,7 @@ public class UserInfoController {
     private final UserInfoService userInfoService;
     private final UserService userService;
     private final UserAvatarService userAvatarService;
+    private final RedirectMentorTagService mentorTagService;
 
     @Operation(
             summary = "Получить свою информацию",
@@ -197,4 +206,18 @@ public class UserInfoController {
                 .body(resource);
     }
 
+    @Operation(
+            summary = "Получить теги ментора",
+            description = "Возвращает список всех тегов привязанных к ментору",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Список всех тегов ментора",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = MentorTagDto.class)))),
+                    @ApiResponse(responseCode = "401", description = "Не авторизован"),
+            }
+    )
+    @GetMapping("/{userId}/tags")
+    @SecurityRequirement(name = "BearerAuthentication")
+    ResponseEntity<List<MentorTagDto>> getMentorTags(@PathVariable Long userId) {
+        return ResponseEntity.ok(mentorTagService.getCurrentMentorTags(userId));
+    }
 }

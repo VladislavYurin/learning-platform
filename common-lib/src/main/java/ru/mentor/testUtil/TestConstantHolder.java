@@ -5,10 +5,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
+import ru.mentor.common.Header;
+import ru.mentor.common.MentorTag;
+import ru.mentor.common.MentorTagTypeProto;
 import ru.mentor.common.SlotMeetingType;
 import ru.mentor.common.SlotType;
 import ru.mentor.constant.CalendarSlotMeetingType;
 import ru.mentor.constant.CalendarSlotType;
+import ru.mentor.constant.MentorTagType;
 
 public class TestConstantHolder {
 
@@ -33,6 +37,17 @@ public class TestConstantHolder {
     public static Long tagId = 1L;
     public static long courseTagId = 1L;
     public static String courseTagName = "Test courseTagName";
+
+    public static Long mentorTagId = 1L;
+    public static Long mentorTagLinkId = 1L;
+    public static String mentorTagNameDirection = "Java";
+    public static String mentorTagNameBadge = "Учитель года села Алупки";
+    public static MentorTagType mentorTagTypeDirection = MentorTagType.DIRECTION;
+    public static MentorTagType mentorTagTypeBadge = MentorTagType.BADGE;
+    public static MentorTagTypeProto mentorTagTypeProtoDirection = MentorTagTypeProto.DIRECTION;
+    public static List<Long> mentorTagsIds = List.of(1L, 2L, 3L, 4L);
+    public static Header header = Header.newBuilder().setRequestId(requestId).build();
+
     public static Timestamp courseTagCreatedAtTimestamp = Timestamp.newBuilder()
                                                               .setSeconds(createdAt.toEpochSecond(ZoneOffset.UTC))
                                                               .build();

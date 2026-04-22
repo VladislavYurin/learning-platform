@@ -1,33 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="1" author="vladislav_yurin" runOnChange="false">
-    <sqlFile path="sql/init_tables.sql"
-             relativeToChangelogFile="true"
-             endDelimiter=";"/>
-  </changeSet>
-
-  <changeSet id="2" author="vladislav_yurin" runOnChange="false">
-    <sqlFile path="sql/lepl-16_create_course_tags_table.sql"
-             relativeToChangelogFile="true"
-             endDelimiter=";"/>
-  </changeSet>
-
-  <changeSet id="3" author="maksim belotelov" runOnChange="false">
-    <sqlFile path="/sql/lepl-20_insert_notification_templates.sql"
-             relativeToChangelogFile="true"
-             endDelimiter=";"/>
-  </changeSet>
-
-  <changeSet id="4" author="pavel stepanov">
-    <sqlFile path="sql/lepl-40_add_user_avatar_key_to_users.sql"
+    <changeSet id="1" author="vladislav_yurin" runOnChange="false">
+        <sqlFile path="sql/init_tables.sql"
             relativeToChangelogFile="true"
             endDelimiter=";"/>
-  </changeSet>
+    </changeSet>
+
+    <changeSet id="2" author="vladislav_yurin" runOnChange="false">
+        <sqlFile path="sql/lepl-16_insert_course_tags.sql"
+            relativeToChangelogFile="true"
+            endDelimiter=";"/>
+    </changeSet>
+
+    <changeSet id="3" author="maksim belotelov" runOnChange="false">
+        <sqlFile path="/sql/lepl-20_insert_notification_templates.sql"
+            relativeToChangelogFile="true"
+            endDelimiter=";"/>
+    </changeSet>
+
+    <changeSet id="4" author="pavel stepanov">
+        <sqlFile path="sql/lepl-40_add_user_avatar_key_to_users.sql"
+            relativeToChangelogFile="true"
+            endDelimiter=";"/>
+    </changeSet>
+
+    <changeSet id="5" author="valerij batukhtin" runOnChange="false">
+        <sqlFile path="sql/lepl-22_insert_mentor_tags.sql"
+            relativeToChangelogFile="true"
+            endDelimiter=";"/>
+    </changeSet>
 
 </databaseChangeLog>

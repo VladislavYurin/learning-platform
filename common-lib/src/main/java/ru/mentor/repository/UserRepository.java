@@ -3,6 +3,7 @@ package ru.mentor.repository;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import ru.mentor.constant.Role;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.exception.EntityNotFoundException;
 
@@ -63,5 +64,14 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
                            )
                    ));
     }
+
+    /**
+     * Проверяет, существует ли пользователь с указанным ID и ролью.
+     *
+     * @param userId идентификатор пользователя
+     * @param userRole роль (enum Role)
+     * @return true, если пользователь с такой ролью существует, иначе false
+     */
+    boolean existsByIdAndRole(Long userId, Role userRole);
 
 }

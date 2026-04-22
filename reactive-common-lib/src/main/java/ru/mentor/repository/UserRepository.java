@@ -76,4 +76,5 @@ public interface UserRepository extends R2dbcRepository<UserEntity, Long> {
                 ON users.id_user = slots_users.user_id
             WHERE slots_users.time_slot_id = :slotId""")
     Flux<UserEntity> findAllSlotParticipantsBySlotId(Long slotId);
+
 }

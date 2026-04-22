@@ -45,3 +45,16 @@ enum Role {
   ADMIN = 1;
   MENTOR = 2;
 }
+
+// Тип тега у ментора.
+enum MentorTagTypeProto {
+  DIRECTION = 0;
+  BADGE = 1;
+}
+
+// Тег из справочника менторов.
+message MentorTag {
+  int64 id = 1;                     // ID тэга ментора
+  string name = 2;                  // Имя-описание тэга ментора
+  MentorTagTypeProto type = 4;      //  Тип тэга ментора константа
+}
