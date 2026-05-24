@@ -11,7 +11,7 @@ import ru.mentor.testUtil.TestEntityStubGenerator;
 
 class UserMapperTest {
 
-    private final UserMapper mapper = new UserMapper();
+    private final UserMapper mapper = new UserMapperImpl();
 
     @Test
     void mapUserEntityToCourseAuthorResponse_returnsExpectedAuthor() {

@@ -43,6 +43,7 @@ import ru.mentor.kafka.KafkaFacade;
 import ru.mentor.mapper.BaseMapper;
 import ru.mentor.exception.UserException;
 import ru.mentor.mapper.TimeSlotMapper;
+import ru.mentor.mapper.TimeSlotMapperImpl;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
 
@@ -63,7 +64,7 @@ class CalendarServiceServerTest {
     private KafkaFacade kafkaFacade;
 
     @Spy
-    private TimeSlotMapper timeSlotMapper;
+    private TimeSlotMapper timeSlotMapper = new TimeSlotMapperImpl();
 
     @InjectMocks
     private CalendarServiceServer calendarServiceServer;

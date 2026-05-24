@@ -16,10 +16,10 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 
 class AdminCourseMapperTest {
 
-    private final UserMapper userMapper = new UserMapper();
-    private final TagMapper tagMapper = new TagMapper();
-    private final AdminModuleMapper moduleMapper = new AdminModuleMapper();
-    private final AdminCourseMapper mapper = new AdminCourseMapper(userMapper, tagMapper, moduleMapper);
+    private final UserMapper userMapper = new UserMapperImpl();
+    private final TagMapper tagMapper = new TagMapperImpl();
+    private final AdminModuleMapper moduleMapper = new AdminModuleMapperImpl();
+    private final AdminCourseMapper mapper = new AdminCourseMapperImpl(moduleMapper, tagMapper, userMapper);
 
     @Test
     void mapCourseEntityToGrpcCourseResponse_returnsExpectedResponse() {

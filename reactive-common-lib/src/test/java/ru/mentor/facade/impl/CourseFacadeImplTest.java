@@ -26,10 +26,14 @@ import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 import ru.mentor.mapper.AdminCourseMapper;
+import ru.mentor.mapper.AdminCourseMapperImpl;
 import ru.mentor.mapper.AdminModuleMapper;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.AdminModuleMapperImpl;
+import ru.mentor.mapper.ReactiveBaseMapper;
 import ru.mentor.mapper.TagMapper;
+import ru.mentor.mapper.TagMapperImpl;
 import ru.mentor.mapper.UserMapper;
+import ru.mentor.mapper.UserMapperImpl;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.CourseTagLinkRepository;
 import ru.mentor.repository.CourseTagRepository;
@@ -62,19 +66,19 @@ class CourseFacadeImplTest {
     private CourseAccessResolver courseAccessResolver;
 
     @Spy
-    private final UserMapper userMapper = new UserMapper();
+    private final UserMapper userMapper = new UserMapperImpl();
 
     @Spy
-    private final TagMapper tagMapper = new TagMapper();
+    private final TagMapper tagMapper = new TagMapperImpl();
 
     @Spy
-    private final BaseMapper baseMapper = new BaseMapper();
+    private final ReactiveBaseMapper reactiveBaseMapper = new ReactiveBaseMapper();
 
     @Spy
-    private final AdminModuleMapper moduleMapper = new AdminModuleMapper();
+    private final AdminModuleMapper moduleMapper = new AdminModuleMapperImpl();
 
     @Spy
-    private AdminCourseMapper courseMapper = new AdminCourseMapper(userMapper, tagMapper, moduleMapper);
+    private AdminCourseMapper courseMapper;
 
     @Mock
     private CacheAdapter<String, List<CourseResponse>> cache;
@@ -83,14 +87,14 @@ class CourseFacadeImplTest {
 
     @BeforeEach
     void setUp() {
-        AdminCourseMapper courseMapper = new AdminCourseMapper(userMapper, tagMapper, moduleMapper);
+        AdminCourseMapper courseMapper = new AdminCourseMapperImpl(moduleMapper, tagMapper, userMapper);
 
         courseFacade = new CourseFacadeImpl(courseRepository,
                                             userRepository,
                                             courseTagRepository,
                                             moduleRepository,
                                             courseMapper,
-                                            baseMapper,
+                reactiveBaseMapper,
                                             courseTagLinkRepository,
                                             courseAccessResolver,
                                             cache);

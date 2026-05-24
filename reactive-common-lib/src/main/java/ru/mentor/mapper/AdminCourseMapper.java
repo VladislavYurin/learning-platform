@@ -1,13 +1,14 @@
 package ru.mentor.mapper;
 
-import com.google.protobuf.Timestamp;
-import java.time.ZoneOffset;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import org.mapstruct.CollectionMappingStrategy;
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.data.domain.Page;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
-import ru.mentor.common.AllActiveCoursesResponse;
 import ru.mentor.common.AllCoursesResponse;
 import ru.mentor.common.CourseResponse;
 import ru.mentor.common.PageDetails;
@@ -19,51 +20,39 @@ import ru.mentor.entity.UserEntity;
 /**
  * Converters between course entities and gRPC responses used by admin flows.
  */
-@Component
-@RequiredArgsConstructor
-public class AdminCourseMapper {
+@Mapper(componentModel = "spring",
+        uses = {AdminModuleMapper.class,
+                TagMapper.class,
+                UserMapper.class,
+                UtilMapper.class},
+        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface AdminCourseMapper {
 
-    private final UserMapper userMapper;
-
-    private final TagMapper tagMapper;
-
-    private final AdminModuleMapper moduleMapper;
-
-    public CourseResponse mapCourseEntityToGrpcCourseResponse(
+    @Mapping(target = "courseId", source = "courseEntity.id")
+    @Mapping(target = "title", source = "courseEntity.courseTitle")
+    @Mapping(target = "description", source = "courseEntity.description")
+    @Mapping(target = "isActive", source = "courseEntity.isActive")
+    @Mapping(target = "createdAt", source = "courseEntity.createdAt",
+            qualifiedByName = "buildTimestamp")
+    @Mapping(target = "author", source = "courseAuthor",
+            qualifiedByName = "mapUserEntityToCourseAuthorResponse",
+            conditionExpression = "java(courseAuthor != null)")
+    @Mapping(target = "tags", source = "tagsList",
+            qualifiedByName = "toGrpcTagResponse",
+            conditionExpression = "java(tagsList != null)")
+    @Mapping(target = "modules", source = "modulesList",
+            qualifiedByName = "mapModuleEntityToModuleResponse",
+            conditionExpression = "java(modulesList != null)")
+    CourseResponse mapCourseEntityToGrpcCourseResponse(
             CourseEntity courseEntity,
             @Nullable UserEntity courseAuthor,
             @Nullable List<CourseTagEntity> tagsList,
-            @Nullable List<ModuleEntity> modulesList) {
-        Timestamp createdAtTimestamp = Timestamp.newBuilder()
-                                                .setSeconds(courseEntity.getCreatedAt()
-                                                                        .toEpochSecond(ZoneOffset.UTC))
-                                                .build();
-        CourseResponse.Builder builder = CourseResponse.newBuilder()
-                                                       .setCourseId(courseEntity.getId())
-                                                       .setTitle(courseEntity.getCourseTitle())
-                                                       .setDescription(courseEntity.getDescription())
-                                                       .setIsActive(courseEntity.getIsActive())
-                                                       .setCreatedAt(createdAtTimestamp);
+            @Nullable List<ModuleEntity> modulesList);
 
-        if (courseAuthor != null) {
-            builder.setAuthor(userMapper.mapUserEntityToCourseAuthorResponse(
-                    courseAuthor));
-        }
-        if (tagsList != null) {
-            builder.addAllTags(tagsList.stream()
-                                       .map(tagMapper::toGrpcTagResponse)
-                                       .toList());
-        }
-        if (modulesList != null) {
-            builder.addAllModules(modulesList.stream()
-                                             .map(moduleMapper::mapModuleEntityToModuleResponse)
-                                             .toList());
-        }
-
-        return builder.build();
-    }
-
-    public AllCoursesResponse mapCourseResponsePageToGrpcAllCoursesResponse(
+    default AllCoursesResponse mapCourseResponsePageToGrpcAllCoursesResponse(
             Page<CourseResponse> courseResponsePage) {
         return AllCoursesResponse.newBuilder()
                                  .setPageDetails(extractPageDetailsFromCourseResponsePage(

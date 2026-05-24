@@ -11,7 +11,6 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentor.common.CancelTimeSlotRequest;
 import ru.mentor.common.CancelTimeSlotResponse;
@@ -32,8 +31,7 @@ import ru.mentor.testUtil.TestDataGenerator;
 @ExtendWith(MockitoExtension.class)
 class TimeSlotMapperTest {
 
-    @InjectMocks
-    TimeSlotMapper timeSlotMapper;
+    TimeSlotMapper timeSlotMapper = new TimeSlotMapperImpl();
 
     @Test
     void grpcResponseToDto() {

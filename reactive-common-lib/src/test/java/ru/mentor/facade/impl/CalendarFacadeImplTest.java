@@ -17,9 +17,11 @@ import ru.mentor.common.AllTimeSlotsResponse;
 import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.entity.MentorTimeSlotEntity;
 import ru.mentor.entity.UserEntity;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.ReactiveBaseMapper;
 import ru.mentor.mapper.TimeSlotMapper;
+import ru.mentor.mapper.TimeSlotMapperImpl;
 import ru.mentor.mapper.UserMapper;
+import ru.mentor.mapper.UserMapperImpl;
 import ru.mentor.repository.MentorTimeSlotRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.testUtil.TestConstantHolder;
@@ -36,13 +38,13 @@ class CalendarFacadeImplTest {
     private MentorTimeSlotRepository timeSlotRepository;
 
     @Spy
-    private TimeSlotMapper timeSlotMapper = new TimeSlotMapper();
+    private TimeSlotMapper timeSlotMapper = new TimeSlotMapperImpl();
 
     @Spy
-    private final BaseMapper baseMapper = new BaseMapper();
+    private final ReactiveBaseMapper reactiveBaseMapper = new ReactiveBaseMapper();
 
     @Spy
-    private final UserMapper userMapper = new UserMapper();
+    private final UserMapper userMapper = new UserMapperImpl();
 
     @InjectMocks
     private CalendarFacadeImpl calendarFacade;
@@ -56,7 +58,7 @@ class CalendarFacadeImplTest {
         grpcPageRequestStub =
                 TestGrpcStubGenerator.constructGrpcPageRequest();
         pageRequestStub =
-                baseMapper.mapGrpcPageRequestToPageRequest(grpcPageRequestStub);
+                reactiveBaseMapper.mapGrpcPageRequestToPageRequest(grpcPageRequestStub);
     }
 
     @Test
@@ -104,7 +106,7 @@ class CalendarFacadeImplTest {
         GrpcPageRequest grpcPageRequestStub =
                 TestGrpcStubGenerator.constructGrpcPageRequest();
         PageRequest pageRequestStub =
-                baseMapper.mapGrpcPageRequestToPageRequest(grpcPageRequestStub);
+                reactiveBaseMapper.mapGrpcPageRequestToPageRequest(grpcPageRequestStub);
 
         Mockito.when(timeSlotRepository.findAllBy(pageRequestStub))
                .thenReturn(Flux.fromIterable(timeSlotEntityList));

@@ -22,10 +22,14 @@ import ru.mentor.entity.CourseTagEntity;
 import ru.mentor.exception.EntityNotFoundException;
 import ru.mentor.grpc.error.GrpcErrorText;
 import ru.mentor.mapper.AdminCourseMapper;
+import ru.mentor.mapper.AdminCourseMapperImpl;
 import ru.mentor.mapper.AdminModuleMapper;
-import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.AdminModuleMapperImpl;
+import ru.mentor.mapper.ReactiveBaseMapper;
 import ru.mentor.mapper.TagMapper;
+import ru.mentor.mapper.TagMapperImpl;
 import ru.mentor.mapper.UserMapper;
+import ru.mentor.mapper.UserMapperImpl;
 import ru.mentor.repository.CourseRepository;
 import ru.mentor.repository.UserRepository;
 import ru.mentor.facade.CourseFacade;
@@ -37,7 +41,7 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 class AdminCourseServiceServerTest {
 
     @Spy
-    private UserMapper userMapper = new UserMapper();
+    private UserMapper userMapper = new UserMapperImpl();
     @Mock
     private CourseRepository courseRepository;
     @Mock
@@ -45,13 +49,13 @@ class AdminCourseServiceServerTest {
     @Mock
     private CourseFacade courseFacade;
     @Spy
-    private BaseMapper baseMapper;
+    private ReactiveBaseMapper reactiveBaseMapper;
     @Spy
-    private TagMapper tagMapper;
+    private TagMapper tagMapper = new TagMapperImpl();
     @Spy
-    private AdminModuleMapper moduleMapper;
+    private AdminModuleMapper moduleMapper = new AdminModuleMapperImpl();
     @Spy
-    private final AdminCourseMapper courseMapper = new AdminCourseMapper(userMapper, tagMapper, moduleMapper);
+    private AdminCourseMapper courseMapper = new AdminCourseMapperImpl(moduleMapper, tagMapper, userMapper);
     @InjectMocks
     private AdminCourseServiceServer adminCourseServiceServer;
 

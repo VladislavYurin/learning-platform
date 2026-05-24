@@ -2,9 +2,13 @@ package ru.mentor.mapper;
 
 import java.util.Comparator;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import org.mapstruct.CollectionMappingStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Component;
 import ru.mentor.common.GetAllModulesRequest;
 import ru.mentor.common.GrpcPageRequest;
 import ru.mentor.common.Header;
@@ -19,11 +23,14 @@ import ru.mentor.entity.CourseTagLinkEntity;
 import ru.mentor.entity.ModuleEntity;
 import ru.mentor.entity.UserEntity;
 
-@Component
-@RequiredArgsConstructor
-public class BaseMapper {
+@Mapper(componentModel = "spring",
+        uses = UtilMapper.class,
+        collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface BaseMapper {
 
-    public List<CourseDto> mapCourses(
+    default List<CourseDto> mapCourses(
             List<CourseEntity> entities,
             Boolean isNeedToFetchModules,
             Boolean isNeedToFetchSubmodules,
@@ -39,7 +46,7 @@ public class BaseMapper {
                        .toList();
     }
 
-    public CourseDto mapCourse(
+    default CourseDto mapCourse(
             CourseEntity entity,
             UserEntity user,
             Boolean isNeedToFetchModules,
@@ -62,7 +69,7 @@ public class BaseMapper {
                         .build();
     }
 
-    public List<ModuleDto> mapModules(
+    default List<ModuleDto> mapModules(
             List<ModuleEntity> entities,
             Boolean isNeedToFetchModuleContent) {
         return entities.stream()
@@ -71,30 +78,17 @@ public class BaseMapper {
                        .toList();
     }
 
-    public ModuleDto mapModule(ModuleEntity entity, Boolean isNeedToFetchModuleContent) {
-        return ModuleDto.builder()
-                        .id(entity.getId())
-                        .moduleTitle(entity.getModuleTitle())
-                        .moduleOrderNumber(entity.getModuleOrderNumber())
-                        .moduleContent(
-                                isNeedToFetchModuleContent ? entity.getModuleContent() : null)
-                        .isActive(entity.getIsActive())
-                        .createdAt(entity.getCreatedAt())
-                        .createdAt(entity.getCreatedAt())
-                        .build();
-    }
+    @Mapping(target = "id", source = "entity.id")
+    @Mapping(target = "moduleTitle", source = "entity.moduleTitle")
+    @Mapping(target = "moduleOrderNumber", source = "entity.moduleOrderNumber")
+    @Mapping(target = "moduleContent",
+            expression = "java(Boolean.TRUE.equals(isNeedToFetchModuleContent) ? entity.getModuleContent() : null)")
+    @Mapping(target = "isActive", source = "entity.isActive")
+    @Mapping(target = "createdAt", source = "entity.createdAt")
+    ModuleDto mapModule(ModuleEntity entity, Boolean isNeedToFetchModuleContent);
 
-    public UserInfoDto mapUserDto(UserEntity entity) {
-        return UserInfoDto.builder()
-                          .id(entity.getId())
-                          .username(entity.getUsername())
-                          .role(entity.getRole())
-                          .firstName(entity.getFirstName())
-                          .lastName(entity.getLastName())
-                          .tgNickname(entity.getTgNickname())
-                          .build();
-
-    }
+    @Named("mapUserDto")
+    UserInfoDto mapUserDto(UserEntity entity);
 
     /**
      * Преобразует DTO информации о пользователе в сущность пользователя.
@@ -104,17 +98,8 @@ public class BaseMapper {
      *
      * @return сущность пользователя
      */
-    public UserEntity mapUserEntity(UserInfoDto userInfoDto) {
-        return UserEntity.builder()
-                         .id(userInfoDto.getId())
-                         .username(userInfoDto.getUsername())
-                         .role(userInfoDto.getRole())
-                         .firstName(userInfoDto.getFirstName())
-                         .lastName(userInfoDto.getLastName())
-                         .tgNickname(userInfoDto.getTgNickname())
-                         .tgChatId(userInfoDto.getTgChatId())
-                         .build();
-    }
+    @Named("mapUserEntity")
+    UserEntity mapUserEntity(UserInfoDto userInfoDto);
 
     /**
      * Создать gRPC-объект для запроса страницы любых объектов (аналог {@link PageRequest})
@@ -128,16 +113,11 @@ public class BaseMapper {
      *
      * @return gRPC-объект {@link GrpcPageRequest}
      */
-    public GrpcPageRequest constructGrpcPageRequest(
+    @Mapping(target = "senderId", ignore = true)
+    GrpcPageRequest constructGrpcPageRequest(
             Header header,
             int pageNumber,
-            int pageSize) {
-        return GrpcPageRequest.newBuilder()
-                              .setHeader(header)
-                              .setPageNumber(pageNumber)
-                              .setPageSize(pageSize)
-                              .build();
-    }
+            int pageSize);
 
     /**
      * Создать gRPC-объект для запроса страницы любых объектов (аналог {@link PageRequest})
@@ -153,18 +133,11 @@ public class BaseMapper {
      *
      * @return gRPC-объект {@link GrpcPageRequest}
      */
-    public GrpcPageRequest constructGrpcPageRequest(
+    GrpcPageRequest constructGrpcPageRequest(
             Header header,
             int pageNumber,
             int pageSize,
-            long senderId) {
-        return GrpcPageRequest.newBuilder()
-                .setHeader(header)
-                .setPageNumber(pageNumber)
-                .setPageSize(pageSize)
-                .setSenderId(senderId)
-                .build();
-    }
+            long senderId);
 
     /**
      * Преобразовать gRPC-объект в {@link PageRequest}
@@ -174,7 +147,7 @@ public class BaseMapper {
      *
      * @return {@link PageRequest}
      */
-    public PageRequest mapGrpcPageDetailsToPageRequest(PageDetails pageDetails) {
+    default PageRequest mapGrpcPageDetailsToPageRequest(PageDetails pageDetails) {
         return PageRequest.of(pageDetails.getPage(), pageDetails.getSize());
     }
 
@@ -186,16 +159,12 @@ public class BaseMapper {
      *
      * @return {@link PageRequest}
      */
-    public PageRequest mapGrpcPageRequestToPageRequest(GrpcPageRequest grpcPageRequest) {
+    default PageRequest mapGrpcPageRequestToPageRequest(GrpcPageRequest grpcPageRequest) {
         return PageRequest.of(grpcPageRequest.getPageNumber(), grpcPageRequest.getPageSize());
     }
 
-    public GetAllModulesRequest constructGetAllModulesRequest(Header header, long courseId) {
-        return GetAllModulesRequest.newBuilder()
-                                   .setHeader(header)
-                                   .setCourseId(courseId)
-                                   .build();
-    }
+    @Mapping(target = "senderId", ignore = true)
+    GetAllModulesRequest constructGetAllModulesRequest(Header header, long courseId);
 
     private List<CourseTagDto> mapTags(List<CourseTagLinkEntity> courseTags) {
         return courseTags.stream()

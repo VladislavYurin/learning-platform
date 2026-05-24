@@ -15,7 +15,7 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 
 class AdminModuleMapperTest {
 
-    private final AdminModuleMapper mapper = new AdminModuleMapper();
+    private final AdminModuleMapper mapper = new AdminModuleMapperImpl();
 
     @Test
     void mapModuleEntityToModuleResponse_returnsExpectedResponse() {

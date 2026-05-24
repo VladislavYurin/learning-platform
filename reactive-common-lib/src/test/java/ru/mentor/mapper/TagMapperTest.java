@@ -10,7 +10,7 @@ import ru.mentor.entity.CourseTagEntity;
 
 class TagMapperTest {
 
-    private final TagMapper mapper = new TagMapper();
+    private final TagMapper mapper = new TagMapperImpl();
 
     @Test
     void toGrpcTagResponse_mapsFields() {

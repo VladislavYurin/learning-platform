@@ -17,6 +17,8 @@
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <mapstruct.version>1.6.3</mapstruct.version>
+    <protobuf-spi.version>1.47</protobuf-spi.version>
   </properties>
 
   <dependencies>
@@ -136,18 +138,23 @@
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
-      <version>1.6.3</version>
+      <version>${mapstruct.version}</version>
     </dependency>
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct-processor</artifactId>
-      <version>1.6.3</version>
+      <version>${mapstruct.version}</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok-mapstruct-binding</artifactId>
       <version>0.2.0</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>no.entur.mapstruct.spi</groupId>
+      <artifactId>protobuf-spi-impl</artifactId>
+      <version>${protobuf-spi.version}</version>
     </dependency>
   </dependencies>
 
@@ -214,7 +221,12 @@
             <path>
               <groupId>org.mapstruct</groupId>
               <artifactId>mapstruct-processor</artifactId>
-              <version>1.5.5.Final</version>
+              <version>${mapstruct.version}</version>
+            </path>
+            <path>
+              <groupId>no.entur.mapstruct.spi</groupId>
+              <artifactId>protobuf-spi-impl</artifactId>
+              <version>${protobuf-spi.version}</version>
             </path>
             <path>
               <groupId>org.projectlombok</groupId>

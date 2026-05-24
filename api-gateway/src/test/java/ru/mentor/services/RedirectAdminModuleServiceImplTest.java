@@ -21,8 +21,9 @@ import ru.mentor.dto.ModuleDto;
 import ru.mentor.exception.GrpcRetryException;
 import ru.mentor.factory.HeaderFactory;
 import ru.mentor.grpc.AdminModuleServiceGrpcClient;
-import ru.mentor.mapper.AdminModuleMapper;
+import ru.mentor.mapper.AdminModuleMapperImpl;
 import ru.mentor.mapper.BaseMapper;
+import ru.mentor.mapper.BaseMapperImpl;
 import ru.mentor.services.impl.RedirectAdminModuleServiceImpl;
 import ru.mentor.testUtil.TestConstantHolder;
 import ru.mentor.testUtil.TestEntityStubGenerator;
@@ -41,10 +42,10 @@ class RedirectAdminModuleServiceImplTest {
     private HeaderFactory headerFactory;
 
     @Spy
-    private BaseMapper baseMapper = new BaseMapper();
+    private BaseMapper baseMapper = new BaseMapperImpl();
 
-    @Spy
-    private AdminModuleMapper moduleMapper = new AdminModuleMapper(baseMapper);
+    @InjectMocks
+    private AdminModuleMapperImpl moduleMapper;
 
     @InjectMocks
     private RedirectAdminModuleServiceImpl service;
@@ -57,12 +58,23 @@ class RedirectAdminModuleServiceImplTest {
                              .setRequestId(TestConstantHolder.requestId)
                              .build()
                );
+        service = new RedirectAdminModuleServiceImpl(
+                moduleGrpcClient,
+                userService,
+                moduleMapper,
+                baseMapper,
+                headerFactory
+        );
     }
 
     @Test
     void getModuleById_success() {
         ModuleResponse grpcResponse = TestGrpcStubGenerator.constructModuleResponse();
         ModuleDto expectedDto = TestEntityStubGenerator.constructModuleDto();
+        Header header = headerFactory.create(TestConstantHolder.requestId);
+
+        GetModuleRequest expectedRequest = moduleMapper.constructGetModuleRequest(
+                header, TestConstantHolder.moduleId);
 
         Mockito.when(userService.getCurrentUserId()).thenReturn(TestConstantHolder.userId);
         Mockito.when(moduleGrpcClient.getModule(ArgumentMatchers.any(GetModuleRequest.class)))
@@ -78,10 +90,16 @@ class RedirectAdminModuleServiceImplTest {
         GetModuleRequest actualRequest = captor.getValue();
         Assertions.assertThat(actualRequest.getModuleId()).isEqualTo(TestConstantHolder.moduleId);
         Assertions.assertThat(actualRequest.getHeader().getRequestId()).isNotBlank();
+        Assertions.assertThat(actualRequest).isEqualTo(expectedRequest);
     }
 
     @Test
     void getModuleById_failure() {
+        GetModuleRequest expectedRequest = GetModuleRequest.newBuilder()
+                .setHeader(Header.newBuilder().setRequestId(TestConstantHolder.requestId).build())
+                .setModuleId(TestConstantHolder.moduleId)
+                .build();
+
         Mockito.when(userService.getCurrentUserId()).thenReturn(TestConstantHolder.userId);
         Mockito.when(moduleGrpcClient.getModule(ArgumentMatchers.any(GetModuleRequest.class)))
                .thenAnswer(invocation -> {
@@ -102,16 +120,23 @@ class RedirectAdminModuleServiceImplTest {
         GetModuleRequest actualRequest = captor.getValue();
         Assertions.assertThat(actualRequest.getModuleId()).isEqualTo(TestConstantHolder.moduleId);
         Assertions.assertThat(actualRequest.getHeader().getRequestId()).isNotBlank();
+        Assertions.assertThat(actualRequest).isEqualTo(expectedRequest);
     }
 
     @Test
     void getAllModules_success() {
         AllModulesResponse grpcResponse = TestGrpcStubGenerator.constructAllModulesResponse();
         Page<ModuleDto> expectedPage = TestEntityStubGenerator.constructModuleDtoPage();
+        Header header = headerFactory.create(TestConstantHolder.requestId);
+
+        GrpcPageRequest expectedPageRequest = baseMapper.constructGrpcPageRequest(
+                header,
+                TestConstantHolder.pageNumber,
+                TestConstantHolder.pageSize);
 
         Mockito.when(userService.getCurrentUserId()).thenReturn(TestConstantHolder.userId);
         Mockito.when(moduleGrpcClient.getAllModules(ArgumentMatchers.any(GrpcPageRequest.class)))
-               .thenReturn(grpcResponse);
+                .thenReturn(grpcResponse);
 
         Page<ModuleDto> result = service.getAllModules(
                 TestConstantHolder.pageNumber,
@@ -127,9 +152,10 @@ class RedirectAdminModuleServiceImplTest {
 
         GrpcPageRequest actualRequest = captor.getValue();
         Assertions.assertThat(actualRequest.getPageNumber())
-                  .isEqualTo(TestConstantHolder.pageNumber);
+                .isEqualTo(TestConstantHolder.pageNumber);
         Assertions.assertThat(actualRequest.getPageSize()).isEqualTo(TestConstantHolder.pageSize);
         Assertions.assertThat(actualRequest.getHeader().getRequestId()).isNotBlank();
+        Assertions.assertThat(actualRequest).isEqualTo(expectedPageRequest);
     }
 
     @Test

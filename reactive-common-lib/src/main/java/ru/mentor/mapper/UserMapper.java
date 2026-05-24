@@ -1,43 +1,31 @@
 package ru.mentor.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 import ru.mentor.common.AuthorResponse;
 import ru.mentor.common.UserInfo;
 import ru.mentor.entity.UserEntity;
 
-@Component
-public class UserMapper {
+@Mapper(componentModel = "spring",
+        uses = UtilMapper.class,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface UserMapper {
 
-    public AuthorResponse mapUserEntityToCourseAuthorResponse(UserEntity userEntity) {
-        AuthorResponse.Builder builder = AuthorResponse.newBuilder()
-                                                       .setUserId(userEntity.getId())
-                                                       .setUsername(userEntity.getUsername())
-                                                       .setFirstName(userEntity.getFirstName())
-                                                       .setLastName(userEntity.getLastName())
-                                                       .setTgNickname(userEntity.getTgNickname());
+    @Named("mapUserEntityToCourseAuthorResponse")
+    @Mapping(target = "userId", source = "id")
+    @Mapping(target = "tgChatId",
+            conditionExpression = "java(userEntity.getTgChatId() != null)")
+    AuthorResponse mapUserEntityToCourseAuthorResponse(UserEntity userEntity);
 
-        if (userEntity.getTgChatId() != null) {
-            builder.setTgChatId(userEntity.getTgChatId());
-        }
-
-        return builder.build();
-    }
-
-    public UserInfo mapUserEntityToUserInfo(UserEntity userEntity) {
-        UserInfo.Builder builder = UserInfo.newBuilder()
-                                           .setId(userEntity.getId())
-                                           .setUsername(userEntity.getUsername())
-                                           .setRole(UtilMapper.userEntityRoleToUserInfoRole(
-                                                   userEntity))
-                                           .setFirstName(userEntity.getFirstName())
-                                           .setLastName(userEntity.getLastName())
-                                           .setTgNickname(userEntity.getTgNickname());
-
-        if (userEntity.getTgChatId() != null) {
-            builder.setTgChatId(userEntity.getTgChatId());
-        }
-
-        return builder.build();
-    }
+    @Named("mapUserEntityToUserInfo")
+    @Mapping(target = "role", source = "userEntity",
+            qualifiedByName = "userEntityRoleToUserInfoRole")
+    @Mapping(target = "tgChatId",
+            conditionExpression = "java(userEntity.getTgChatId() != null)")
+    UserInfo mapUserEntityToUserInfo(UserEntity userEntity);
 
 }

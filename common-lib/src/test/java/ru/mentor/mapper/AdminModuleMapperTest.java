@@ -23,10 +23,10 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 class AdminModuleMapperTest {
 
     @Spy
-    private BaseMapper baseMapper = new BaseMapper();
+    private BaseMapper baseMapper = new BaseMapperImpl();
 
     @InjectMocks
-    private AdminModuleMapper adminModuleMapper;
+    private AdminModuleMapperImpl adminModuleMapper;
 
     @Test
     void constructGetModuleRequest_success() {

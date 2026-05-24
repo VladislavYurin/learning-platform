@@ -1,15 +1,15 @@
 package ru.mentor.mapper;
 
-import com.google.protobuf.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Comparator;
 import java.util.List;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.stereotype.Component;
 import ru.mentor.common.AllModulesResponse;
 import ru.mentor.common.GetModuleRequest;
 import ru.mentor.common.Header;
@@ -18,12 +18,16 @@ import ru.mentor.common.PageDetails;
 import ru.mentor.dto.ModuleDto;
 import ru.mentor.entity.ModuleEntity;
 
-@Component
-@RequiredArgsConstructor
-@NoArgsConstructor(force = true)
-public class AdminModuleMapper {
+@Mapper(componentModel = "spring",
+        uses = {BaseMapper.class,
+                UtilMapper.class},
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class AdminModuleMapper {
 
-    private final BaseMapper baseMapper;
+    @Autowired
+    private BaseMapper baseMapper;
 
     /**
      * Создает gRPC-объект.
@@ -35,12 +39,10 @@ public class AdminModuleMapper {
      *
      * @return gRPC-объект {@link GetModuleRequest}
      */
-    public GetModuleRequest constructGetModuleRequest(Header header, long moduleId) {
-        return GetModuleRequest.newBuilder()
-                               .setHeader(header)
-                               .setModuleId(moduleId)
-                               .build();
-    }
+    @Mapping(target = "senderId", ignore = true)
+    @Mapping(target = "courseId", ignore = true)
+    @Mapping(target = "moduleOrderNumber", ignore = true)
+    public abstract GetModuleRequest constructGetModuleRequest(Header header, long moduleId);
 
     /**
      * Преобразует gRPC-объект запроса модуля в DTO.
@@ -50,24 +52,13 @@ public class AdminModuleMapper {
      *
      * @return {@link ModuleDto}
      */
-    public ModuleDto mapGrpcModuleResponseToModuleDto(ModuleResponse grpcModuleResponse) {
-        LocalDateTime createdAtDateTime = LocalDateTime.now();
-        if (grpcModuleResponse.hasCreatedAt()) {
-            createdAtDateTime = LocalDateTime.ofEpochSecond(
-                    grpcModuleResponse.getCreatedAt().getSeconds(),
-                    grpcModuleResponse.getCreatedAt().getNanos(),
-                    ZoneOffset.UTC
-            );
-        }
-        return ModuleDto.builder()
-                        .id(grpcModuleResponse.getModuleId())
-                        .moduleTitle(grpcModuleResponse.getTitle())
-                        .moduleOrderNumber(grpcModuleResponse.getOrderNumber())
-                        .moduleContent(grpcModuleResponse.getContent())
-                        .isActive(grpcModuleResponse.getIsActive())
-                        .createdAt(createdAtDateTime)
-                        .build();
-    }
+    @Mapping(target = "id", source = "moduleId")
+    @Mapping(target = "moduleTitle", source = "title")
+    @Mapping(target = "moduleOrderNumber", source = "orderNumber")
+    @Mapping(target = "moduleContent", source = "content")
+    @Mapping(target = "createdAt",
+            qualifiedByName = "timestampToLocalDateTime")
+    public abstract ModuleDto mapGrpcModuleResponseToModuleDto(ModuleResponse grpcModuleResponse);
 
     /**
      * Преобразовать gRPC-объект списка модулей в страницу DTO.
@@ -96,21 +87,16 @@ public class AdminModuleMapper {
      *
      * @return gRPC-объект {@link ModuleResponse}
      */
-    public ModuleResponse mapModuleEntityToModuleResponse(ModuleEntity moduleEntity) {
-        Timestamp createdAtTimestamp = Timestamp.newBuilder()
-                                                .setSeconds(moduleEntity.getCreatedAt()
-                                                                        .toEpochSecond(ZoneOffset.UTC))
-                                                .build();
-        return ModuleResponse.newBuilder()
-                             .setModuleId(moduleEntity.getId())
-                             .setTitle(moduleEntity.getModuleTitle())
-                             .setOrderNumber(moduleEntity.getModuleOrderNumber())
-                             .setContent(moduleEntity.getModuleContent())
-                             .setIsActive(moduleEntity.getIsActive())
-                             .setCreatedAt(createdAtTimestamp)
-                             .setCourseId(moduleEntity.getCourse().getId())
-                             .build();
-    }
+    @Mapping(target = "moduleId", source = "id")
+    @Mapping(target = "title", source = "moduleTitle")
+    @Mapping(target = "orderNumber", source = "moduleOrderNumber")
+    @Mapping(target = "content", source = "moduleContent")
+    @Mapping(target = "createdAt",
+            qualifiedByName = "buildTimestamp")
+    @Mapping(target = "courseId",
+            expression = "java(moduleEntity.getCourse() != null ? " +
+                    "moduleEntity.getCourse().getId() : 0)")
+    public abstract ModuleResponse mapModuleEntityToModuleResponse(ModuleEntity moduleEntity);
 
     /**
      * Преобразует страницу сущностей модулей в gRPC-объект со списком модулей.
@@ -132,14 +118,7 @@ public class AdminModuleMapper {
                                  .build();
     }
 
-    public List<ModuleDto> toModuleDtoList(List<ModuleResponse> moduleResponses) {
-        return moduleResponses
-                .stream()
-                .map(this::mapGrpcModuleResponseToModuleDto)
-                .sorted(Comparator.comparingInt(ModuleDto::getModuleOrderNumber))
-                .toList();
-
-    }
+    public abstract List<ModuleDto> toModuleDtoList(List<ModuleResponse> moduleResponses);
 
     private PageDetails extractPageDetailsFromModuleEntityPage(Page<ModuleEntity> modulesPage) {
         return PageDetails.newBuilder()

@@ -24,16 +24,16 @@ import ru.mentor.testUtil.TestGrpcStubGenerator;
 class AdminCourseMapperTest {
 
     @Spy
-    private UserMapper userMapper;
+    private UserMapper userMapper = new UserMapperImpl();
 
     @Spy
-    private AdminModuleMapper moduleMapper;
+    private AdminModuleMapper moduleMapper = new AdminModuleMapperImpl();
 
     @Spy
-    private TagGrpcMapper tagGrpcMapper;
+    private TagGrpcMapper tagGrpcMapper = new TagGrpcMapperImpl();
 
     @InjectMocks
-    private AdminCourseMapper adminCourseMapper;
+    private AdminCourseMapper adminCourseMapper = new AdminCourseMapperImpl(moduleMapper, tagGrpcMapper, userMapper);
 
     @Test
     void mapGrpcCourseResponseToCourseDto_success() {

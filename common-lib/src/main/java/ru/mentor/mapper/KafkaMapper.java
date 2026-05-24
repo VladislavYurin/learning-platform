@@ -1,7 +1,13 @@
 package ru.mentor.mapper;
 
 import java.time.LocalDateTime;
-import org.springframework.stereotype.Component;
+import java.util.List;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 import ru.mentor.constant.NotificationDestination;
 import ru.mentor.constant.NotificationStatus;
 import ru.mentor.constant.NotificationTypeEnum;
@@ -28,8 +34,11 @@ import ru.mentor.entity.UserEntity;
  * Маппер для создания DTO объектов, используемых при работе с Kafka.
  * Предоставляет методы для создания уведомлений и payloads для различных типов событий.
  */
-@Component
-public class KafkaMapper {
+@Mapper(componentModel = "spring",
+        uses = UtilMapper.class,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface KafkaMapper {
 
     /**
      * Создает DTO уведомления для отправки в Kafka.
@@ -39,16 +48,12 @@ public class KafkaMapper {
      * @param notificationPayload содержимое уведомления
      * @return DTO уведомления для Kafka
      */
-    public KafkaNotificationDto createKafkaNotificationDto(
+    @Mapping(target = "userInfo", source = "forUser")
+    @Mapping(target = "payload", source = "notificationPayload")
+    KafkaNotificationDto createKafkaNotificationDto(
             NotificationTypeEnum notificationType,
             UserInfoDto forUser,
-            NotificationPayload notificationPayload) {
-        return KafkaNotificationDto.builder()
-                                   .notificationType(notificationType)
-                                   .userInfo(forUser)
-                                   .payload(notificationPayload)
-                                   .build();
-    }
+            NotificationPayload notificationPayload);
 
     /**
      * Создает payload уведомления о предоставлении доступа к курсу.
@@ -58,16 +63,10 @@ public class KafkaMapper {
      * @param accessGrantedBy информация о пользователе, предоставившем доступ
      * @return payload уведомления о доступе к курсу
      */
-    public CourseAccessGrantedNotificationPayload createCourseAccessGrantedNotificationPayload(
+    CourseAccessGrantedNotificationPayload createCourseAccessGrantedNotificationPayload(
             String courseTitle,
             LocalDateTime accessGrantedAt,
-            UserInfoDto accessGrantedBy) {
-        return CourseAccessGrantedNotificationPayload.builder()
-                                                     .courseTitle(courseTitle)
-                                                     .accessGrantedAt(accessGrantedAt)
-                                                     .accessGrantedBy(accessGrantedBy)
-                                                     .build();
-    }
+            UserInfoDto accessGrantedBy);
 
     /**
      * Создает payload уведомления об отзыве доступа к курсу.
@@ -77,16 +76,10 @@ public class KafkaMapper {
      * @param accessRevokedBy информация о пользователе, отозвавшем доступ
      * @return payload уведомления об отзыве доступа к курсу
      */
-    public CourseAccessRevokedNotificationPayload createCourseAccessRevokedNotificationPayload(
+    CourseAccessRevokedNotificationPayload createCourseAccessRevokedNotificationPayload(
             String courseTitle,
             LocalDateTime accessRevokedAt,
-            UserInfoDto accessRevokedBy) {
-        return CourseAccessRevokedNotificationPayload.builder()
-                .courseTitle(courseTitle)
-                .accessRevokedAt(accessRevokedAt)
-                .accessRevokedBy(accessRevokedBy)
-                .build();
-    }
+            UserInfoDto accessRevokedBy);
 
     /**
      * Создает payload уведомления о создании курса.
@@ -96,28 +89,19 @@ public class KafkaMapper {
      * @param createdBy создатель курса
      * @return payload уведомление о создании курса
      */
-    public CourseCreatedMentorNotificationPayload courseCreatedMentorNotificationPayload(
+    @Mapping(target = "courseCreatedBy", source = "createdBy")
+    CourseCreatedMentorNotificationPayload courseCreatedMentorNotificationPayload(
             String courseTitle,
             LocalDateTime createdAt,
-            UserInfoDto createdBy) {
-        return CourseCreatedMentorNotificationPayload.builder()
-                .courseTitle(courseTitle)
-                .courseCreatedBy(createdBy)
-                .createdAt(createdAt)
-                .build();
-    }
+            UserInfoDto createdBy);
 
     /**
      * Создает payload уведомления об удалении курса.
      * @param courseTitle название курса
      * @return payload уведомление об удалении курса
      */
-    public CourseDeletedMentorNotificationPayload courseDeletedMentorNotificationPayload(
-            String courseTitle) {
-        return CourseDeletedMentorNotificationPayload.builder()
-                .courseTitle(courseTitle)
-                .build();
-    }
+    CourseDeletedMentorNotificationPayload courseDeletedMentorNotificationPayload(
+            String courseTitle);
 
     /**
      * Создает payload уведомления о предоставлении доступа к модулю.
@@ -128,18 +112,11 @@ public class KafkaMapper {
      * @param accessGrantedBy информация о пользователе, предоставившем доступ
      * @return payload уведомления о доступе к модулю
      */
-    public ModuleAccessGrantedNotificationPayload createModuleAccessGrantedNotificationPayload(
+    ModuleAccessGrantedNotificationPayload createModuleAccessGrantedNotificationPayload(
             String courseTitle,
             String moduleTitle,
             LocalDateTime accessGrantedAt,
-            UserInfoDto accessGrantedBy) {
-        return ModuleAccessGrantedNotificationPayload.builder()
-                                                     .courseTitle(courseTitle)
-                                                     .moduleTitle(moduleTitle)
-                                                     .accessGrantedAt(accessGrantedAt)
-                                                     .accessGrantedBy(accessGrantedBy)
-                                                     .build();
-    }
+            UserInfoDto accessGrantedBy);
 
     /**
      * Создает payload уведомления об отзыве доступа к модулю.
@@ -150,18 +127,11 @@ public class KafkaMapper {
      * @param accessRevokedBy информация о пользователе, отозвавшем доступ
      * @return payload уведомления об отзыве доступа к модулю
      */
-    public ModuleAccessRevokedNotificationPayload createModuleAccessRevokedNotificationPayload(
+    ModuleAccessRevokedNotificationPayload createModuleAccessRevokedNotificationPayload(
             String courseTitle,
             String moduleTitle,
             LocalDateTime accessRevokedAt,
-            UserInfoDto accessRevokedBy) {
-        return ModuleAccessRevokedNotificationPayload.builder()
-                .courseTitle(courseTitle)
-                .moduleTitle(moduleTitle)
-                .accessRevokedAt(accessRevokedAt)
-                .accessRevokedBy(accessRevokedBy)
-                .build();
-    }
+            UserInfoDto accessRevokedBy);
 
     /**
      * Создает payload уведомления о создании модуля в курсе.
@@ -171,18 +141,12 @@ public class KafkaMapper {
      * @param createdBy создатель модуля
      * @return payload уведомление о создании модуля
      */
-    public ModuleCreatedMentorNotificationPayload moduleCreatedMentorNotificationPayload(
+    @Mapping(target = "moduleCreatedBy", source = "createdBy")
+    ModuleCreatedMentorNotificationPayload moduleCreatedMentorNotificationPayload(
             String courseTitle,
             String moduleTitle,
             LocalDateTime createdAt,
-            UserInfoDto createdBy) {
-        return ModuleCreatedMentorNotificationPayload.builder()
-                .courseTitle(courseTitle)
-                .moduleTitle(moduleTitle)
-                .moduleCreatedBy(createdBy)
-                .createdAt(createdAt)
-                .build();
-    }
+            UserInfoDto createdBy);
 
     /**
      * Создает payload уведомления об удалении модуля.
@@ -190,14 +154,9 @@ public class KafkaMapper {
      * @param moduleTitle название модуля
      * @return payload уведомление об удалении модуля
      */
-    public ModuleDeletedMentorNotificationPayload moduleDeletedMentorNotificationPayload(
+    ModuleDeletedMentorNotificationPayload moduleDeletedMentorNotificationPayload(
             String courseTitle,
-            String moduleTitle) {
-        return ModuleDeletedMentorNotificationPayload.builder()
-                                                     .courseTitle(courseTitle)
-                                                     .moduleTitle(moduleTitle)
-                                                     .build();
-    }
+            String moduleTitle);
 
     /**
      * Создает payload уведомления о регистрации пользователя.
@@ -205,13 +164,9 @@ public class KafkaMapper {
      * @param userInfo информация о пользователе
      * @return payload уведомления о регистрации
      */
-    public UserRegistrationNotificationPayload userRegistrationNotificationPayload(
-            UserInfoDto userInfo) {
-        return UserRegistrationNotificationPayload.builder()
-                                                  .createdAt(LocalDateTime.now())
-                                                  .userInfo(userInfo)
-                                                  .build();
-    }
+    @Mapping(target = "createdAt", expression = "java(LocalDateTime.now())")
+    UserRegistrationNotificationPayload userRegistrationNotificationPayload(
+            UserInfoDto userInfo);
 
     /**
      * Создает сущность уведомления из DTO.
@@ -223,19 +178,18 @@ public class KafkaMapper {
      * @param userEntity сущность пользователя
      * @return сущность уведомления
      */
-    public NotificationEntity mapNotificationEntity(
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "notificationType", source = "notificationDto.notificationType")
+    @Mapping(target = "recipient", source = "userEntity")
+    @Mapping(target = "notificationStatus", source = "notificationStatus")
+    @Mapping(target = "notificationDestination", source = "notificationDestination")
+    @Mapping(target = "errorText", source = "exceptionMessage")
+    NotificationEntity mapNotificationEntity(
             KafkaNotificationDto notificationDto,
             NotificationDestination notificationDestination,
             String exceptionMessage,
             NotificationStatus notificationStatus,
-            UserEntity userEntity) {
-        return NotificationEntity.builder()
-                                 .notificationType(notificationDto.getNotificationType())
-                                 .recipient(userEntity)
-                                 .notificationDestination(notificationDestination)
-                                 .notificationStatus(notificationStatus)
-                                 .build();
-    }
+            UserEntity userEntity);
 
     /**
      * Создает payload уведомления наставнику о том, что слот забронирован.
@@ -244,16 +198,13 @@ public class KafkaMapper {
      * @param mentee ученик
      * @return payload уведомления о забронированном слоте
      */
-    public SlotBookedNotificationPayload slotBookedNotificationPayload(
+    @Mapping(target = "startAt", source = "startAt")
+    @Mapping(target = "endAt", source = "endAt")
+    @Mapping(target = "mentee", source = "mentee")
+    SlotBookedNotificationPayload slotBookedNotificationPayload(
             LocalDateTime startAt,
             LocalDateTime endAt,
-            UserInfoDto mentee){
-        return SlotBookedNotificationPayload.builder()
-                                            .startAt(startAt)
-                                            .endAt(endAt)
-                                            .mentee(mentee)
-                                            .build();
-    }
+            UserInfoDto mentee);
 
     /**
      * Создает payload уведомления для студента о предстоящей встрече
@@ -261,20 +212,18 @@ public class KafkaMapper {
      * @param student студент, которому нужно направить уведомление
      * @return {@link StudentReminderNotificationPayload}
      */
-    public StudentReminderNotificationPayload createStudentReminderNotificationPayload(
+    @Mapping(target = "studentName", source = "student.firstName")
+    @Mapping(target = "calendarSlotTime", source = "slot.startTime")
+    @Mapping(target = "mentorName", source = "slot.mentor.firstName")
+    @Mapping(target = "slotMeetingType", source = "slot.slotMeetingType",
+            qualifiedByName = "calendarSlotMeetingTypeToSlotMeetingType")
+    @Mapping(target = "slotType", source = "slot.slotType",
+            qualifiedByName = "calendarSlotTypeToSlotType")
+    @Mapping(target = "description", source = "slot.description")
+    @Mapping(target = "meetingLink", source = "slot.meetingLink")
+    StudentReminderNotificationPayload createStudentReminderNotificationPayload(
             MentorTimeSlotEntity slot,
-            UserEntity student) {
-
-        return StudentReminderNotificationPayload.builder()
-                .studentName(student.getFirstName())
-                .calendarSlotTime(slot.getStartTime())
-                .mentorName(slot.getMentor().getFirstName())
-                .slotMeetingType(slot.getSlotMeetingType().toString())
-                .slotType(slot.getSlotType().toString())
-                .description(slot.getDescription())
-                .meetingLink(slot.getMeetingLink())
-                .build();
-    }
+            UserEntity student);
 
     /**
      * Создает payload уведомления для ментора о предстоящей встрече
@@ -282,18 +231,22 @@ public class KafkaMapper {
      *
      * @return {@link MentorReminderNotificationPayload}
      */
-    public MentorReminderNotificationPayload createMentorReminderNotificationPayload(
-            MentorTimeSlotEntity slot) {
+    @Mapping(target = "mentorName", source = "slot.mentor.firstName")
+    @Mapping(target = "calendarSlotTime", source = "slot.startTime")
+    @Mapping(target = "slotMeetingType", source = "slot.slotMeetingType",
+            qualifiedByName = "calendarSlotMeetingTypeToSlotMeetingType")
+    @Mapping(target = "slotType", source = "slot.slotType",
+            qualifiedByName = "calendarSlotTypeToSlotType")
+    @Mapping(target = "description", source = "slot.description")
+    @Mapping(target = "meetingLink", source = "slot.meetingLink")
+    @Mapping(target = "studentNames", source = "slot",
+            qualifiedByName = "mapStudentNames")
+    MentorReminderNotificationPayload createMentorReminderNotificationPayload(
+            MentorTimeSlotEntity slot);
 
-        return MentorReminderNotificationPayload.builder()
-                .mentorName(slot.getMentor().getFirstName())
-                .calendarSlotTime(slot.getStartTime())
-                .slotMeetingType(slot.getSlotMeetingType().toString())
-                .slotType(slot.getSlotType().toString())
-                .description(slot.getDescription())
-                .meetingLink(slot.getMeetingLink())
-                .studentNames(slot.getMeetingParticipants().stream().map(UserEntity::getFirstName).toList())
-                .build();
+    @Named("mapStudentNames")
+    default List<String> mapStudentNames (MentorTimeSlotEntity slot) {
+        return slot.getMeetingParticipants().stream().map(UserEntity::getFirstName).toList();
     }
 
 }

@@ -49,7 +49,7 @@ class CourseMapperTest {
     private UserMapper userMapper;
 
     @InjectMocks
-    private CourseMapper courseMapper;
+    private CourseMapper courseMapper = new CourseMapperImpl();
 
     private static final Long USER_ID = 1L;
     private static final Long COURSE_ID = 10L;

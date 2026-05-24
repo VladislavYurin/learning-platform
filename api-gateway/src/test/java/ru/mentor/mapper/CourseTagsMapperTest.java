@@ -17,7 +17,7 @@ class CourseTagsMapperTest {
     private static final Long TAG_ID = 10L;
     private static final String TAG_NAME = "Spring";
 
-    private final CourseTagsMapper courseTagsMapper = new CourseTagsMapper();
+    private final CourseTagsMapper courseTagsMapper = new CourseTagsMapperImpl();
 
     @Test
     void constructGrpcCreateRequest_buildsRequestCorrectly() {
